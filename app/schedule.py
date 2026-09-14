@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 
 from app import sleeper_client
 from app.config import ET, ISOLATED_DAY_PARTS
+from app.game_context import attach_game_context
 from app.models import Game, WeekSchedule
 
 
@@ -91,4 +92,6 @@ async def get_week_schedule(season: int, week: int, season_type: str = "regular"
     games.sort(key=lambda g: g.kickoff_utc)
     isolated_games = [g for g in games if g.isolated]
 
-    return WeekSchedule(season=season, week=week, games=games, isolated_games=isolated_games)
+    schedule = WeekSchedule(season=season, week=week, games=games, isolated_games=isolated_games)
+    await attach_game_context(schedule)
+    return schedule

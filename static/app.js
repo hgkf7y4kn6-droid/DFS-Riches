@@ -15,6 +15,7 @@
   };
 
   const scheduleStripEl = document.getElementById("schedule-strip");
+  const oddsTbodyEl = document.getElementById("odds-tbody");
   const slateTabsEl = document.getElementById("slate-tabs");
   const unmatchedBannerEl = document.getElementById("unmatched-banner");
   const tbodyEl = document.getElementById("players-tbody");
@@ -47,6 +48,85 @@
         ${g.isolated ? `<div class="badge">${g.day_part.replace("_", " ")}</div>` : ""}
       `;
       scheduleStripEl.appendChild(chip);
+    }
+  }
+
+  function fmtSigned(n, decimals) {
+    if (n == null) return "-";
+    const s = n.toFixed(decimals == null ? 1 : decimals);
+    return n > 0 ? "+" + s : s;
+  }
+
+  function fmtSpreadPair(g) {
+    const c = g.context;
+    if (!c || c.away_spread == null) return "-";
+    return `${g.away} ${fmtSigned(c.away_spread)} / ${g.home} ${fmtSigned(c.home_spread)}`;
+  }
+
+  function fmtImpliedPair(g) {
+    const c = g.context;
+    if (!c || c.away_implied_total == null) return "-";
+    return `${c.away_implied_total.toFixed(1)} / ${c.home_implied_total.toFixed(1)}`;
+  }
+
+  function fmtFinalPair(g) {
+    const c = g.context;
+    if (!c || !c.is_final) return '<span class="pending">not final</span>';
+    return `${c.away_score} / ${c.home_score}`;
+  }
+
+  function fmtAtsResult(g) {
+    const c = g.context;
+    if (!c || !c.is_final || c.spread_result == null) return '<span class="pending">-</span>';
+    if (c.spread_result === 0) return '<span class="push">Push</span>';
+    const coveringTeam = c.spread_result > 0 ? g.home : g.away;
+    const margin = Math.abs(c.spread_result).toFixed(1);
+    return `<span class="beat">${coveringTeam} covered +${margin}</span>`;
+  }
+
+  function fmtTotalResult(g) {
+    const c = g.context;
+    if (!c || !c.is_final || c.total_result == null) return '<span class="pending">-</span>';
+    if (c.total_result === 0) return '<span class="push">Push</span>';
+    const cls = c.total_result > 0 ? "beat" : "missed";
+    const label = c.total_result > 0 ? "Over" : "Under";
+    return `<span class="${cls}">${label} ${fmtSigned(c.total_result)}</span>`;
+  }
+
+  function fmtPaceCell(g) {
+    const c = g.context;
+    if (!c || !c.is_final) return '<span class="pending">-</span>';
+    const parts = [];
+    for (const [label, pace] of [[g.away, c.away_pace], [g.home, c.home_pace]]) {
+      if (!pace || pace.delta == null) {
+        parts.push(`${label} -`);
+        continue;
+      }
+      const cls = pace.delta > 0 ? "pace-pos" : pace.delta < 0 ? "pace-neg" : "";
+      const title = `${label}: ${pace.actual_plays} plays vs ${pace.baseline_plays} baseline`;
+      parts.push(`<span class="${cls}" title="${title}">${label} ${fmtSigned(pace.delta, 1)}</span>`);
+    }
+    return parts.join(" &nbsp;/&nbsp; ");
+  }
+
+  function renderOddsTable(schedule) {
+    oddsTbodyEl.innerHTML = "";
+    for (const g of schedule.games) {
+      const c = g.context;
+      const tr = document.createElement("tr");
+      tr.className = g.isolated ? "isolated-row" : "";
+      tr.innerHTML = `
+        <td>${g.away} @ ${g.home}</td>
+        <td>${g.kickoff_et}</td>
+        <td class="num">${fmtSpreadPair(g)}</td>
+        <td class="num">${c && c.total_line != null ? c.total_line.toFixed(1) : "-"}</td>
+        <td class="num">${fmtImpliedPair(g)}</td>
+        <td class="num">${fmtFinalPair(g)}</td>
+        <td>${fmtAtsResult(g)}</td>
+        <td>${fmtTotalResult(g)}</td>
+        <td class="num">${fmtPaceCell(g)}</td>
+      `;
+      oddsTbodyEl.appendChild(tr);
     }
   }
 
@@ -204,6 +284,7 @@
     state.week = Number(document.getElementById("week-input").value);
 
     scheduleStripEl.innerHTML = "";
+    oddsTbodyEl.innerHTML = "";
     slateTabsEl.innerHTML = "";
     tbodyEl.innerHTML = "";
     unmatchedBannerEl.hidden = true;
@@ -212,6 +293,7 @@
     try {
       const schedule = await fetchJson(`/api/schedule?season=${state.season}&week=${state.week}`);
       renderSchedule(schedule);
+      renderOddsTable(schedule);
 
       const slateList = await fetchJson(`/api/slates?season=${state.season}&week=${state.week}`);
       state.slates = slateList;

@@ -5,7 +5,11 @@ A DraftKings DFS explorer for the NFL, built with Python (FastAPI). It merges
 for every Week 1 game, and automatically builds a **DraftKings Showdown
 Captain Mode** slate for each isolated single-game broadcast window --
 Wednesday Night, Thursday Night, Sunday Night, and Monday Night -- alongside
-one Classic slate covering the full week.
+one Classic slate covering the full week. A "Lines & Performance" table shows
+each game's **real closing spread, over/under, and implied team totals**
+(nflverse), plus each team's **pace of play vs. their own season baseline**
+-- and, once a game is final, exactly how far the result landed above or
+below each of those lines.
 
 Inspired by [dk.ff-dashboard.com](https://dk.ff-dashboard.com/).
 
@@ -50,6 +54,12 @@ Sleeper (schedule + projections)     DraftKings (draft groups + salaries)
   metadata), `/v1/state/nfl` (current season/week), `/scores/nfl/{type}/{season}/{week}`
   (real kickoff time + broadcaster per game, used to build the schedule).
   Also public and unauthenticated.
+- **nflverse** (`app/nflverse_client.py`): `nflverse/nfldata`'s `games.csv`
+  (real closing sportsbook spread/total lines and final scores, one row per
+  game, every season) and `nflverse/nflverse-data`'s
+  `stats_team_week_{season}.csv` (real per-team, per-game box-score stats,
+  used for the pace-of-play baseline). Free, public, no API key, maintained
+  by the open-source nfl-data community and updated within hours of each game.
 
 ### Why the override file exists
 
@@ -94,6 +104,41 @@ available for that week (see the docstring on
 `app.sleeper_client.get_projections` for the current caveat there). Showdown
 Captain (CPT) rows show both salary and points at DraftKings' 1.5x multiplier.
 
+### Lines, implied totals, and pace of play
+
+`app/game_context.py` attaches real betting/pace context to every game in
+the schedule (nothing here is estimated or fabricated):
+
+- **Spread**: nflverse's `spread_line`, which is published from the away
+  team's perspective (negative = away favored). Sleeper's own schedule feed
+  also carries a spread, but it disagreed with nflverse by 11.5 points on
+  one 2026 Week 1 game while every other game matched within a point --
+  nflverse is used as the source of truth since it's internally consistent
+  across the whole slate.
+- **Over/under**: nflverse's `total_line` directly.
+- **Implied team total**: the total split around its midpoint by the
+  spread, e.g. a 3-point favorite in a 44.5 total is implied for 23.8, the
+  underdog for 20.8.
+- **Pace of play**: a team's offensive plays run (pass attempts + rush
+  attempts + sacks taken -- the standard simple "plays" pace stat) this
+  game, compared against their own **season-to-date average** entering that
+  week, or their **prior season's full-year average** in Week 1 when there's
+  no current-season history yet.
+
+Once a game is final, the table also shows:
+
+- **ATS result**: `(home_score - away_score) + home_spread` -- positive
+  means the home team beat the spread by that many points, negative means
+  the away team did (0 is a push).
+- **O/U result**: `(home_score + away_score) - total_line` -- positive
+  means the game went over, negative means it went under.
+- **Pace delta**: `actual_plays - baseline_plays` per team -- positive means
+  they played faster (more plays) than their own baseline, negative means
+  slower.
+
+A game that hasn't kicked off (or finished) yet shows the pre-game lines
+with the result columns blank rather than guessing.
+
 ## Running it
 
 ```bash
@@ -112,9 +157,10 @@ pytest
 ```
 
 Covers the day-part classification and isolated-game detection
-(`tests/test_schedule.py`) and the name-normalization/matching logic
-(`tests/test_matching.py`) -- both pure functions, so no network access is
-needed to run them.
+(`tests/test_schedule.py`), the name-normalization/matching logic
+(`tests/test_matching.py`), and the implied-total/pace-delta math
+(`tests/test_game_context.py`) -- all pure functions, so no network access
+is needed to run them.
 
 ## Project layout
 
@@ -124,6 +170,8 @@ app/
   cache.py          on-disk TTL cache for the (large, slow-changing) API responses
   sleeper_client.py Sleeper API: players, projections, schedule/scores
   schedule.py       builds the real Week N schedule + day-part/isolation logic
+  nflverse_client.py  real closing lines (games.csv) + team box-score stats
+  game_context.py     attaches spread/total/implied-total/pace + vs-line results
   dk_client.py      DraftKings API: draft-group discovery + salary parsing
   matching.py       DK <-> Sleeper name normalization and matching
   slates.py         orchestrates schedule + DK + Sleeper into the final tables

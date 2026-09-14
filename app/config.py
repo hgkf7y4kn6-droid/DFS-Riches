@@ -15,6 +15,18 @@ ET = ZoneInfo("America/New_York")
 SLEEPER_BASE = "https://api.sleeper.app"
 DK_BASE = "https://api.draftkings.com"
 
+# nflverse (https://github.com/nflverse) publishes real, free, public NFL
+# data with no API key: schedules + closing sportsbook lines (games.csv) and
+# team-level per-game box-score stats (stats_team_week_{season}.csv), updated
+# within hours of each game.
+NFLVERSE_GAMES_CSV_URL = "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv"
+NFLVERSE_TEAM_STATS_URL_TMPL = (
+    "https://github.com/nflverse/nflverse-data/releases/download/stats_team/stats_team_week_{season}.csv"
+)
+# nflverse spells the Rams "LA"; every other team code matches ours exactly.
+NFLVERSE_TO_APP_TEAM = {"LA": "LAR"}
+APP_TO_NFLVERSE_TEAM = {v: k for k, v in NFLVERSE_TO_APP_TEAM.items()}
+
 DEFAULT_SEASON = 2026
 DEFAULT_WEEK = 1
 
@@ -24,6 +36,8 @@ TTL_PROJECTIONS = 60 * 15        # weekly projections can move
 TTL_SCHEDULE = 60 * 30           # kickoff times/broadcasters
 TTL_DK_DISCOVERY = 60 * 10       # DK draft-group listing
 TTL_DK_DRAFTABLES = 60 * 5       # DK salaries move as slates get edited
+TTL_NFLVERSE_GAMES = 60 * 20     # closing lines + scores, updates through/after games
+TTL_NFLVERSE_TEAM_STATS = 60 * 30  # per-game team box-score stats, used for pace baselines
 
 # Day-part windows used to bucket a game's ET kickoff into a broadcast window.
 # "Isolated" windows are the ones DraftKings builds single-game Showdown

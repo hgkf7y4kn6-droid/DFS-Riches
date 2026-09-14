@@ -24,6 +24,31 @@
 
   <section id="schedule-strip" class="schedule-strip"></section>
 
+  <section class="odds-wrap">
+    <div class="odds-header">
+      <h2>Lines &amp; Performance</h2>
+      <span class="odds-source">Real closing lines &amp; team pace via nflverse</span>
+    </div>
+    <div class="table-scroll">
+      <table id="odds-table">
+        <thead>
+          <tr>
+            <th>Game</th>
+            <th>Kickoff</th>
+            <th class="num">Spread (A/H)</th>
+            <th class="num">O/U</th>
+            <th class="num">Implied Total (A/H)</th>
+            <th class="num">Final (A/H)</th>
+            <th>ATS Result</th>
+            <th>O/U Result</th>
+            <th class="num">Pace vs. Baseline (A/H)</th>
+          </tr>
+        </thead>
+        <tbody id="odds-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
   <nav id="slate-tabs" class="slate-tabs"></nav>
 
   <section id="unmatched-banner" class="unmatched-banner" hidden></section>
@@ -58,10 +83,12 @@
 
   <footer class="site-footer">
     Data: real player pool &amp; salaries from DraftKings' public draft-group API;
-    schedule &amp; kickoff times from Sleeper. "Proj" is DraftKings' own FPPG
-    (season fantasy points per game), x1.5 for the Showdown Captain slot;
-    "Sleeper Proj" merges in Sleeper's week-specific PPR projection when
-    Sleeper's endpoint has one available. Refreshed on each slate load.
+    schedule &amp; kickoff times from Sleeper; closing spread/total lines and
+    team pace (offensive plays vs. season baseline) from nflverse's public
+    game and box-score data. "Proj" is DraftKings' own FPPG (season fantasy
+    points per game), x1.5 for the Showdown Captain slot; "Sleeper Proj"
+    merges in Sleeper's week-specific PPR projection when Sleeper's endpoint
+    has one available. Refreshed on each slate load.
   </footer>
 
   <script src="/static/app.js"></script>
