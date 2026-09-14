@@ -7,10 +7,21 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+class TeamTrend(BaseModel):
+    """A team's own trailing average of some metric over their last N real
+    games, reaching back into the prior season if the current one doesn't
+    yet have N games played."""
+
+    l3: float | None = None
+    l6: float | None = None
+    l9: float | None = None
+
+
 class PaceStat(BaseModel):
     actual_plays: float | None = None    # this game's offensive plays (pass att + rush att + sacks taken)
     baseline_plays: float | None = None  # season-to-date avg entering this game, or prior season's full avg
     delta: float | None = None           # actual - baseline; positive = faster pace than expected
+    trend: TeamTrend | None = None       # trailing plays-per-game (independent of this specific game)
 
 
 class GameContext(BaseModel):
@@ -23,6 +34,13 @@ class GameContext(BaseModel):
     total_line: float | None = None    # the over/under
     away_implied_total: float | None = None
     home_implied_total: float | None = None
+
+    away_spread_trend: TeamTrend | None = None      # away team's own trailing avg spread (their games, not this one)
+    home_spread_trend: TeamTrend | None = None
+    away_total_trend: TeamTrend | None = None        # trailing avg game total in away team's own games
+    home_total_trend: TeamTrend | None = None
+    away_implied_total_trend: TeamTrend | None = None  # trailing avg of away team's own implied total
+    home_implied_total_trend: TeamTrend | None = None
 
     is_final: bool = False
     away_score: int | None = None
@@ -67,6 +85,9 @@ class Player(BaseModel):
                                 # x1.5 for the Showdown Captain slot
     dk_fppg: float | None = None      # DraftKings' season Fantasy-Points-Per-Game (raw, no CPT bump)
     sleeper_proj: float | None = None  # Sleeper's week-specific PPR projection, when Sleeper has one
+    trend_l3: float | None = None     # real DK-style FPPG over the player's last 3 games
+    trend_l6: float | None = None     # ...last 6 games
+    trend_l9: float | None = None     # ...last 9 games
     value_per_1k: float
     game_info: str
     injury: str | None = None

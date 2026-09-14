@@ -23,6 +23,9 @@ NFLVERSE_GAMES_CSV_URL = "https://raw.githubusercontent.com/nflverse/nfldata/mas
 NFLVERSE_TEAM_STATS_URL_TMPL = (
     "https://github.com/nflverse/nflverse-data/releases/download/stats_team/stats_team_week_{season}.csv"
 )
+NFLVERSE_PLAYER_STATS_URL_TMPL = (
+    "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{season}.csv"
+)
 # nflverse spells the Rams "LA"; every other team code matches ours exactly.
 NFLVERSE_TO_APP_TEAM = {"LA": "LAR"}
 APP_TO_NFLVERSE_TEAM = {v: k for k, v in NFLVERSE_TO_APP_TEAM.items()}

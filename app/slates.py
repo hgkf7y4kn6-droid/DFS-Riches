@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import time
 
-from app import dk_client, matching, sleeper_client
+from app import dk_client, matching, nflverse_client, sleeper_client
 from app.config import TTL_PLAYERS
 from app.models import Game, Player, Slate, SlatePlayers, WeekSchedule
 from app.schedule import get_week_schedule
@@ -85,6 +85,8 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
 
     projections = await sleeper_client.get_projections(season, week)
     index = await _get_sleeper_index()
+    player_trailing_index = await nflverse_client.get_player_trailing_index(season)
+    team_dst_trailing_index = await nflverse_client.get_team_dst_trailing_index(season)
 
     players: list[Player] = []
     unmatched: list[str] = []
@@ -106,6 +108,16 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         salary = row["salary"]
         value = round(effective_proj / (salary / 1000.0), 2) if salary > 0 else 0.0
 
+        if row["position"] == "DST":
+            trend_args = dict(team_index=team_dst_trailing_index, team=row["team"])
+            trend_fn = nflverse_client.trailing_dst_points
+        else:
+            trend_args = dict(player_index=player_trailing_index, name=row["name"], position=row["position"])
+            trend_fn = nflverse_client.trailing_dk_fppg
+        trend_l3 = trend_fn(season, week, 3, **trend_args)
+        trend_l6 = trend_fn(season, week, 6, **trend_args)
+        trend_l9 = trend_fn(season, week, 9, **trend_args)
+
         players.append(
             Player(
                 name=row["name"],
@@ -117,6 +129,9 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
                 proj_points=effective_proj,
                 dk_fppg=row["dk_fppg"],
                 sleeper_proj=sleeper_proj,
+                trend_l3=trend_l3,
+                trend_l6=trend_l6,
+                trend_l9=trend_l9,
                 value_per_1k=value,
                 game_info=row["game_info"],
                 injury=row["injury"],

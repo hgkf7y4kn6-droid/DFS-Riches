@@ -57,16 +57,41 @@
     return n > 0 ? "+" + s : s;
   }
 
+  function fmtTrendLine(awayTrend, homeTrend, opts) {
+    if (!awayTrend && !homeTrend) return "";
+    const signed = opts && opts.signed;
+    const decimals = opts && opts.decimals != null ? opts.decimals : 1;
+    const fmtVal = (v) => {
+      if (v == null) return "-";
+      const s = v.toFixed(decimals);
+      return signed && v > 0 ? "+" + s : s;
+    };
+    const a = awayTrend || {};
+    const h = homeTrend || {};
+    return `L3 ${fmtVal(a.l3)}/${fmtVal(h.l3)} &nbsp; L6 ${fmtVal(a.l6)}/${fmtVal(h.l6)} &nbsp; L9 ${fmtVal(a.l9)}/${fmtVal(h.l9)}`;
+  }
+
   function fmtSpreadPair(g) {
     const c = g.context;
     if (!c || c.away_spread == null) return "-";
-    return `${g.away} ${fmtSigned(c.away_spread)} / ${g.home} ${fmtSigned(c.home_spread)}`;
+    const main = `${g.away} ${fmtSigned(c.away_spread)} / ${g.home} ${fmtSigned(c.home_spread)}`;
+    const trend = fmtTrendLine(c.away_spread_trend, c.home_spread_trend, { signed: true });
+    return `${main}<div class="cell-sub">${trend}</div>`;
   }
 
   function fmtImpliedPair(g) {
     const c = g.context;
     if (!c || c.away_implied_total == null) return "-";
-    return `${c.away_implied_total.toFixed(1)} / ${c.home_implied_total.toFixed(1)}`;
+    const main = `${c.away_implied_total.toFixed(1)} / ${c.home_implied_total.toFixed(1)}`;
+    const trend = fmtTrendLine(c.away_implied_total_trend, c.home_implied_total_trend);
+    return `${main}<div class="cell-sub">${trend}</div>`;
+  }
+
+  function fmtTotalCell(g) {
+    const c = g.context;
+    if (!c || c.total_line == null) return "-";
+    const trend = fmtTrendLine(c.away_total_trend, c.home_total_trend);
+    return `${c.total_line.toFixed(1)}<div class="cell-sub">${trend}</div>`;
   }
 
   function fmtFinalPair(g) {
@@ -95,10 +120,10 @@
 
   function fmtPaceCell(g) {
     const c = g.context;
-    if (!c || !c.is_final) return '<span class="pending">-</span>';
+    if (!c) return '<span class="pending">-</span>';
     const parts = [];
     for (const [label, pace] of [[g.away, c.away_pace], [g.home, c.home_pace]]) {
-      if (!pace || pace.delta == null) {
+      if (!c.is_final || !pace || pace.delta == null) {
         parts.push(`${label} -`);
         continue;
       }
@@ -106,20 +131,21 @@
       const title = `${label}: ${pace.actual_plays} plays vs ${pace.baseline_plays} baseline`;
       parts.push(`<span class="${cls}" title="${title}">${label} ${fmtSigned(pace.delta, 1)}</span>`);
     }
-    return parts.join(" &nbsp;/&nbsp; ");
+    const main = parts.join(" &nbsp;/&nbsp; ");
+    const trend = fmtTrendLine(c.away_pace && c.away_pace.trend, c.home_pace && c.home_pace.trend, { decimals: 0 });
+    return `${main}<div class="cell-sub">${trend}</div>`;
   }
 
   function renderOddsTable(schedule) {
     oddsTbodyEl.innerHTML = "";
     for (const g of schedule.games) {
-      const c = g.context;
       const tr = document.createElement("tr");
       tr.className = g.isolated ? "isolated-row" : "";
       tr.innerHTML = `
         <td>${g.away} @ ${g.home}</td>
         <td>${g.kickoff_et}</td>
         <td class="num">${fmtSpreadPair(g)}</td>
-        <td class="num">${c && c.total_line != null ? c.total_line.toFixed(1) : "-"}</td>
+        <td class="num">${fmtTotalCell(g)}</td>
         <td class="num">${fmtImpliedPair(g)}</td>
         <td class="num">${fmtFinalPair(g)}</td>
         <td>${fmtAtsResult(g)}</td>
@@ -146,8 +172,14 @@
     }
   }
 
+  const POSITION_ORDER = ["QB", "RB", "WR", "TE", "DST"];
+
   function renderPositionFilters() {
-    const positions = Array.from(new Set(state.players.map((p) => p.position))).sort();
+    const present = new Set(state.players.map((p) => p.position));
+    const positions = POSITION_ORDER.filter((pos) => present.has(pos));
+    for (const pos of present) {
+      if (!positions.includes(pos)) positions.push(pos); // any unexpected position still shows, at the end
+    }
     positionFiltersEl.innerHTML = "";
     const allBtn = document.createElement("button");
     allBtn.textContent = "ALL";
@@ -242,6 +274,9 @@
         <td class="num">${fmtSalary(p.salary)}</td>
         <td class="num">${p.proj_points.toFixed(1)}</td>
         <td class="num">${p.dk_fppg != null ? p.dk_fppg.toFixed(1) : "-"}</td>
+        <td class="num">${p.trend_l3 != null ? p.trend_l3.toFixed(1) : "-"}</td>
+        <td class="num">${p.trend_l6 != null ? p.trend_l6.toFixed(1) : "-"}</td>
+        <td class="num">${p.trend_l9 != null ? p.trend_l9.toFixed(1) : "-"}</td>
         <td class="num">${p.sleeper_proj != null ? p.sleeper_proj.toFixed(1) : "-"}</td>
         <td class="num ${valueClass}">${p.value_per_1k.toFixed(2)}</td>
         <td class="${statusClass}">${p.injury || ""}</td>

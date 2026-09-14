@@ -1,10 +1,10 @@
 :root {
-  --bg: #0f1512;
-  --panel: #161f1a;
-  --panel-2: #1d2a23;
-  --border: #2a3830;
-  --text: #e8f0ea;
-  --muted: #93a89c;
+  --bg: #1e2227;
+  --panel: #262b31;
+  --panel-2: #30363d;
+  --border: #3f464e;
+  --text: #e8eaed;
+  --muted: #9aa3ac;
   --gold: #d4af37;
   --green: #2fbf71;
   --red: #e15b5b;
@@ -130,11 +130,17 @@ body {
 }
 #odds-table {
   width: 100%;
-  min-width: 860px;
+  min-width: 1320px;
   border-collapse: collapse;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 8px;
+}
+.cell-sub {
+  margin-top: 2px;
+  font-size: 10.5px;
+  color: var(--muted);
+  font-weight: 400;
 }
 #odds-table thead th {
   text-align: left;
@@ -248,6 +254,9 @@ body {
   font-size: 12px;
 }
 
+#players-table {
+  min-width: 1180px;
+}
 table {
   width: 100%;
   border-collapse: collapse;

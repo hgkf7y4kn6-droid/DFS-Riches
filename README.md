@@ -8,8 +8,11 @@ Wednesday Night, Thursday Night, Sunday Night, and Monday Night -- alongside
 one Classic slate covering the full week. A "Lines & Performance" table shows
 each game's **real closing spread, over/under, and implied team totals**
 (nflverse), plus each team's **pace of play vs. their own season baseline**
--- and, once a game is final, exactly how far the result landed above or
-below each of those lines.
+-- each with its own **trailing 3/6/9-game trend** -- and, once a game is
+final, exactly how far the result landed above or below each of those
+lines. The player table carries the same idea down to individual players:
+alongside DraftKings' season FPPG, an **L3/L6/L9 trailing DK-style FPPG**
+computed from real box-score history.
 
 Inspired by [dk.ff-dashboard.com](https://dk.ff-dashboard.com/).
 
@@ -139,6 +142,35 @@ Once a game is final, the table also shows:
 A game that hasn't kicked off (or finished) yet shows the pre-game lines
 with the result columns blank rather than guessing.
 
+### Trends: L3/L6/L9 everywhere
+
+Every metric above -- spread, total, implied total, and pace -- also shows
+a trailing 3/6/9-game trend as small text under the current value, in
+away/home order (`app.nflverse_client.get_team_context_trailing_index` +
+`team_trend`). These are a team's own history, independent of this specific
+matchup, so they're shown whether or not the game has been played yet: "this
+team has averaged being a 4-point favorite over their last 6 games" is
+useful pre-game context, not a post-game grade. `_trailing_avg` (in
+`app/nflverse_client.py`) is the shared piece: given a team's full
+[season, week, value] history, it averages the N most recent entries
+strictly before the target week, reaching back into the prior season if the
+current one doesn't have N games yet, and just averaging what's available
+if there's fewer than N games anywhere in the history.
+
+The player table applies the identical idea to individual players: **L3 /
+L6 / L9** columns next to DK FPPG, computed as a real DraftKings-style
+fantasy score (`app/dk_scoring.py`, implementing DK's actual Classic scoring
+rules -- yardage bonuses, PPR, points-allowed tiers for DST, etc.) from
+nflverse's real box-score history (`stats_player_week_{season}.csv` for
+offense, `stats_team_week_{season}.csv` + points allowed for DST), then run
+through the same trailing-average logic. The join between a DK salary row
+(already matched to a Sleeper player, see "Name matching" above) and
+nflverse's per-game stats turned out not to be as simple as Sleeper's
+`gsis_id` field: only about 19% of Sleeper's skill-position players actually
+have one populated, so `app.nflverse_client.player_key` falls back to the
+same normalized-name approach as the DK<->Sleeper join, keyed with position
+to avoid cross-position name collisions.
+
 ## Running it
 
 ```bash
@@ -158,9 +190,10 @@ pytest
 
 Covers the day-part classification and isolated-game detection
 (`tests/test_schedule.py`), the name-normalization/matching logic
-(`tests/test_matching.py`), and the implied-total/pace-delta math
-(`tests/test_game_context.py`) -- all pure functions, so no network access
-is needed to run them.
+(`tests/test_matching.py`), the implied-total/pace-delta math
+(`tests/test_game_context.py`), and the trailing-average/DK-scoring math
+(`tests/test_nflverse_client.py`) -- all pure functions, so no network
+access is needed to run them.
 
 ## Project layout
 
@@ -170,8 +203,9 @@ app/
   cache.py          on-disk TTL cache for the (large, slow-changing) API responses
   sleeper_client.py Sleeper API: players, projections, schedule/scores
   schedule.py       builds the real Week N schedule + day-part/isolation logic
-  nflverse_client.py  real closing lines (games.csv) + team box-score stats
-  game_context.py     attaches spread/total/implied-total/pace + vs-line results
+  nflverse_client.py  real lines/box-scores (games.csv, stats_*_week.csv) + trailing averages
+  game_context.py     attaches spread/total/implied-total/pace + trends + vs-line results
+  dk_scoring.py       real DraftKings Classic scoring rules, offense + DST
   dk_client.py      DraftKings API: draft-group discovery + salary parsing
   matching.py       DK <-> Sleeper name normalization and matching
   slates.py         orchestrates schedule + DK + Sleeper into the final tables

@@ -27,7 +27,7 @@
   <section class="odds-wrap">
     <div class="odds-header">
       <h2>Lines &amp; Performance</h2>
-      <span class="odds-source">Real closing lines &amp; team pace via nflverse</span>
+      <span class="odds-source">Real closing lines &amp; team pace via nflverse. Small text under each metric is that team's own trailing L3/L6/L9-game average (away/home).</span>
     </div>
     <div class="table-scroll">
       <table id="odds-table">
@@ -35,13 +35,13 @@
           <tr>
             <th>Game</th>
             <th>Kickoff</th>
-            <th class="num">Spread (A/H)</th>
-            <th class="num">O/U</th>
-            <th class="num">Implied Total (A/H)</th>
+            <th class="num" title="Trailing rows: each team's own average spread over their last 3/6/9 games">Spread (A/H)</th>
+            <th class="num" title="Trailing rows: average game total in each team's last 3/6/9 games">O/U</th>
+            <th class="num" title="Trailing rows: each team's own average implied total over their last 3/6/9 games">Implied Total (A/H)</th>
             <th class="num">Final (A/H)</th>
             <th>ATS Result</th>
             <th>O/U Result</th>
-            <th class="num">Pace vs. Baseline (A/H)</th>
+            <th class="num" title="Trailing rows: each team's average offensive plays over their last 3/6/9 games">Pace vs. Baseline (A/H)</th>
           </tr>
         </thead>
         <tbody id="odds-tbody"></tbody>
@@ -59,25 +59,30 @@
       <div id="position-filters" class="position-filters"></div>
       <div class="match-stats" id="match-stats"></div>
     </div>
-    <table id="players-table">
-      <thead>
-        <tr>
-          <th data-key="roster_slot">Slot</th>
-          <th data-key="name">Player</th>
-          <th data-key="position">Pos</th>
-          <th data-key="team">Team</th>
-          <th data-key="opponent">Opp</th>
-          <th data-key="game_info">Game</th>
-          <th data-key="salary" class="num">Salary</th>
-          <th data-key="proj_points" class="num">Proj</th>
-          <th data-key="dk_fppg" class="num">DK FPPG</th>
-          <th data-key="sleeper_proj" class="num">Sleeper Proj</th>
-          <th data-key="value_per_1k" class="num">Value/$1k</th>
-          <th data-key="injury">Status</th>
-        </tr>
-      </thead>
-      <tbody id="players-tbody"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table id="players-table">
+        <thead>
+          <tr>
+            <th data-key="roster_slot">Slot</th>
+            <th data-key="name">Player</th>
+            <th data-key="position">Pos</th>
+            <th data-key="team">Team</th>
+            <th data-key="opponent">Opp</th>
+            <th data-key="game_info">Game</th>
+            <th data-key="salary" class="num">Salary</th>
+            <th data-key="proj_points" class="num">Proj</th>
+            <th data-key="dk_fppg" class="num">DK FPPG</th>
+            <th data-key="trend_l3" class="num" title="Real DK-style FPPG over the player's last 3 games">L3</th>
+            <th data-key="trend_l6" class="num" title="Real DK-style FPPG over the player's last 6 games">L6</th>
+            <th data-key="trend_l9" class="num" title="Real DK-style FPPG over the player's last 9 games">L9</th>
+            <th data-key="sleeper_proj" class="num">Sleeper Proj</th>
+            <th data-key="value_per_1k" class="num">Value/$1k</th>
+            <th data-key="injury">Status</th>
+          </tr>
+        </thead>
+        <tbody id="players-tbody"></tbody>
+      </table>
+    </div>
     <div id="empty-state" class="empty-state" hidden></div>
   </main>
 
