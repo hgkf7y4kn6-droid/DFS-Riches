@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DFSRiches</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dollar">$</span>DFS<span class="brand-accent">Riches</span>
+    </div>
+    <div class="week-controls">
+      <label>Season
+        <input id="season-input" type="number" value="{{ default_season }}" />
+      </label>
+      <label>Week
+        <input id="week-input" type="number" value="{{ default_week }}" min="1" max="18" />
+      </label>
+      <button id="load-week-btn">Load</button>
+    </div>
+  </header>
+
+  <section id="schedule-strip" class="schedule-strip"></section>
+
+  <nav id="slate-tabs" class="slate-tabs"></nav>
+
+  <section id="unmatched-banner" class="unmatched-banner" hidden></section>
+
+  <main class="table-wrap">
+    <div class="table-toolbar">
+      <input id="search-box" type="search" placeholder="Search player, team..." />
+      <div id="position-filters" class="position-filters"></div>
+      <div class="match-stats" id="match-stats"></div>
+    </div>
+    <table id="players-table">
+      <thead>
+        <tr>
+          <th data-key="roster_slot">Slot</th>
+          <th data-key="name">Player</th>
+          <th data-key="position">Pos</th>
+          <th data-key="team">Team</th>
+          <th data-key="opponent">Opp</th>
+          <th data-key="game_info">Game</th>
+          <th data-key="salary" class="num">Salary</th>
+          <th data-key="proj_points" class="num">Proj</th>
+          <th data-key="dk_fppg" class="num">DK FPPG</th>
+          <th data-key="sleeper_proj" class="num">Sleeper Proj</th>
+          <th data-key="value_per_1k" class="num">Value/$1k</th>
+          <th data-key="injury">Status</th>
+        </tr>
+      </thead>
+      <tbody id="players-tbody"></tbody>
+    </table>
+    <div id="empty-state" class="empty-state" hidden></div>
+  </main>
+
+  <footer class="site-footer">
+    Data: real player pool &amp; salaries from DraftKings' public draft-group API;
+    schedule &amp; kickoff times from Sleeper. "Proj" is DraftKings' own FPPG
+    (season fantasy points per game), x1.5 for the Showdown Captain slot;
+    "Sleeper Proj" merges in Sleeper's week-specific PPR projection when
+    Sleeper's endpoint has one available. Refreshed on each slate load.
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

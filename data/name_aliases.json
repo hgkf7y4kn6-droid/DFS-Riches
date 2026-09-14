@@ -1,0 +1,4 @@
+{
+  "_readme": "Manual name-alias map for players whose DraftKings display name and Sleeper first/last name don't normalize to the same string. Keys and values are both run through app.matching.normalize_name before lookup, so casing/punctuation here doesn't matter. Don't seed this with guessed nickname/legal-name pairs: Sleeper usually already stores whichever short name DK also uses (e.g. both sides say 'Cam Ward', not 'Cameron Ward'), so a guessed entry is more likely to break a name that already matches than to fix one. Add an entry here only after confirming, via app.sleeper_client.get_players(), which exact string Sleeper has on file for a player who shows up in the site's 'unmatched' banner -- the one entry below was confirmed that way against the live 2026 Week 1 DraftKings Classic slate.",
+  "hollywood brown": "marquise brown"
+}

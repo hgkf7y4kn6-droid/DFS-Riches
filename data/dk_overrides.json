@@ -1,0 +1,29 @@
+{
+  "_readme": "Manual fallback map of DraftKings draftGroupId values, keyed by season/week/slate. DraftKings' own discovery listing (GET https://api.draftkings.com/draftgroups/v1/) only returns contests that are still 'Upcoming', so once a slate's games have kicked off its draftGroupId disappears from that listing even though the /draftgroups/v1/draftgroups/{id}/draftables endpoint keeps serving it. The app tries live discovery first (see app/dk_client.py:discover_draft_groups) and falls back to this file so already-started/completed slates still render. Each id below was fetched live from DraftKings on 2026-09-14 and verified by inspecting the roster slot structure (511/512 = CPT/FLEX at a 1.5x salary ratio for Showdown Captain Mode; 1505+ draftables across all 16 Week 1 matchups for Classic).",
+  "2026": {
+    "1": {
+      "classic": {
+        "draft_group_id": 153054,
+        "label": "Classic - Full Week 1 Slate (16 games)"
+      },
+      "showdown": {
+        "WED_NIGHT": {
+          "draft_group_id": 153112,
+          "label": "Showdown - Wed Night (NE @ SEA)"
+        },
+        "THU_NIGHT": {
+          "draft_group_id": 153072,
+          "label": "Showdown - Thu Night (SF @ LAR)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 153085,
+          "label": "Showdown - Sun Night (DAL @ NYG)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 153086,
+          "label": "Showdown - Mon Night (DEN @ KC)"
+        }
+      }
+    }
+  }
+}
