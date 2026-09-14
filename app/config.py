@@ -28,7 +28,6 @@ NFLVERSE_PLAYER_STATS_URL_TMPL = (
 )
 # nflverse spells the Rams "LA"; every other team code matches ours exactly.
 NFLVERSE_TO_APP_TEAM = {"LA": "LAR"}
-APP_TO_NFLVERSE_TEAM = {v: k for k, v in NFLVERSE_TO_APP_TEAM.items()}
 
 DEFAULT_SEASON = 2026
 DEFAULT_WEEK = 1
@@ -52,10 +51,3 @@ ISOLATED_DAY_PARTS = {"WED_NIGHT", "THU_NIGHT", "SUN_NIGHT", "MON_NIGHT"}
 # against DraftKings' own live draft-group listing for the 2026 slate.
 DK_SHOWDOWN_GAME_TYPE_ID = 96
 DK_SHOWDOWN_CPT_SLOT_IDS = {511}
-
-NFL_TEAMS = {
-    "ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN",
-    "DET", "GB", "HOU", "IND", "JAX", "KC", "LAC", "LAR", "LV", "MIA",
-    "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT", "SEA", "SF", "TB",
-    "TEN", "WAS",
-}

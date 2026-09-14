@@ -167,6 +167,7 @@
         (!slate.available ? " unavailable" : "");
       tab.innerHTML = `${slate.label}<span class="src-tag">${srcTag}</span>`;
       tab.disabled = !slate.available;
+      tab.setAttribute("aria-pressed", String(slate.slate_id === state.activeSlateId));
       tab.addEventListener("click", () => selectSlate(slate.slate_id));
       slateTabsEl.appendChild(tab);
     }
@@ -184,6 +185,7 @@
     const allBtn = document.createElement("button");
     allBtn.textContent = "ALL";
     allBtn.className = state.activePositions.size === 0 ? "active" : "";
+    allBtn.setAttribute("aria-pressed", String(state.activePositions.size === 0));
     allBtn.addEventListener("click", () => {
       state.activePositions.clear();
       renderPositionFilters();
@@ -195,6 +197,7 @@
       const btn = document.createElement("button");
       btn.textContent = pos;
       btn.className = state.activePositions.has(pos) ? "active" : "";
+      btn.setAttribute("aria-pressed", String(state.activePositions.has(pos)));
       btn.addEventListener("click", () => {
         if (state.activePositions.has(pos)) {
           state.activePositions.delete(pos);
@@ -285,7 +288,9 @@
     }
 
     document.querySelectorAll("#players-table thead th").forEach((th) => {
-      th.classList.toggle("sorted", th.dataset.key === state.sortKey);
+      const isSorted = th.dataset.key === state.sortKey;
+      th.classList.toggle("sorted", isSorted);
+      th.setAttribute("aria-sort", isSorted ? (state.sortDir === "asc" ? "ascending" : "descending") : "none");
     });
   }
 
@@ -326,11 +331,12 @@
     matchStatsEl.textContent = "Loading schedule...";
 
     try {
-      const schedule = await fetchJson(`/api/schedule?season=${state.season}&week=${state.week}`);
+      const weekData = await fetchJson(`/api/week?season=${state.season}&week=${state.week}`);
+      const schedule = weekData.schedule;
       renderSchedule(schedule);
       renderOddsTable(schedule);
 
-      const slateList = await fetchJson(`/api/slates?season=${state.season}&week=${state.week}`);
+      const slateList = weekData.slates;
       state.slates = slateList;
       const firstAvailable = slateList.find((s) => s.available) || slateList[0];
       state.activeSlateId = firstAvailable ? firstAvailable.slate_id : null;
@@ -354,7 +360,7 @@
     renderTable();
   });
   document.querySelectorAll("#players-table thead th").forEach((th) => {
-    th.addEventListener("click", () => {
+    const sortByThisColumn = () => {
       const key = th.dataset.key;
       if (state.sortKey === key) {
         state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
@@ -363,6 +369,15 @@
         state.sortDir = "desc";
       }
       renderTable();
+    };
+    th.tabIndex = 0;
+    th.setAttribute("role", "button");
+    th.addEventListener("click", sortByThisColumn);
+    th.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        sortByThisColumn();
+      }
     });
   });
 

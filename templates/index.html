@@ -22,7 +22,7 @@
     </div>
   </header>
 
-  <section id="schedule-strip" class="schedule-strip"></section>
+  <section id="schedule-strip" class="schedule-strip" aria-label="Week schedule"></section>
 
   <section class="odds-wrap">
     <div class="odds-header">
@@ -33,15 +33,15 @@
       <table id="odds-table">
         <thead>
           <tr>
-            <th>Game</th>
-            <th>Kickoff</th>
-            <th class="num" title="Trailing rows: each team's own average spread over their last 3/6/9 games">Spread (A/H)</th>
-            <th class="num" title="Trailing rows: average game total in each team's last 3/6/9 games">O/U</th>
-            <th class="num" title="Trailing rows: each team's own average implied total over their last 3/6/9 games">Implied Total (A/H)</th>
-            <th class="num">Final (A/H)</th>
-            <th>ATS Result</th>
-            <th>O/U Result</th>
-            <th class="num" title="Trailing rows: each team's average offensive plays over their last 3/6/9 games">Pace vs. Baseline (A/H)</th>
+            <th scope="col">Game</th>
+            <th scope="col">Kickoff</th>
+            <th scope="col" class="num" title="Trailing rows: each team's own average spread over their last 3/6/9 games">Spread (A/H)</th>
+            <th scope="col" class="num" title="Trailing rows: average game total in each team's last 3/6/9 games">O/U</th>
+            <th scope="col" class="num" title="Trailing rows: each team's own average implied total over their last 3/6/9 games">Implied Total (A/H)</th>
+            <th scope="col" class="num">Final (A/H)</th>
+            <th scope="col">ATS Result</th>
+            <th scope="col">O/U Result</th>
+            <th scope="col" class="num" title="Trailing rows: each team's average offensive plays over their last 3/6/9 games">Pace vs. Baseline (A/H)</th>
           </tr>
         </thead>
         <tbody id="odds-tbody"></tbody>
@@ -49,35 +49,36 @@
     </div>
   </section>
 
-  <nav id="slate-tabs" class="slate-tabs"></nav>
+  <nav id="slate-tabs" class="slate-tabs" aria-label="DFS slates"></nav>
 
-  <section id="unmatched-banner" class="unmatched-banner" hidden></section>
+  <section id="unmatched-banner" class="unmatched-banner" role="status" hidden></section>
 
   <main class="table-wrap">
     <div class="table-toolbar">
+      <label class="visually-hidden" for="search-box">Search players by name, team, or opponent</label>
       <input id="search-box" type="search" placeholder="Search player, team..." />
-      <div id="position-filters" class="position-filters"></div>
-      <div class="match-stats" id="match-stats"></div>
+      <div id="position-filters" class="position-filters" role="group" aria-label="Filter by position"></div>
+      <div class="match-stats" id="match-stats" aria-live="polite"></div>
     </div>
     <div class="table-scroll">
       <table id="players-table">
         <thead>
           <tr>
-            <th data-key="roster_slot">Slot</th>
-            <th data-key="name">Player</th>
-            <th data-key="position">Pos</th>
-            <th data-key="team">Team</th>
-            <th data-key="opponent">Opp</th>
-            <th data-key="game_info">Game</th>
-            <th data-key="salary" class="num">Salary</th>
-            <th data-key="proj_points" class="num">Proj</th>
-            <th data-key="dk_fppg" class="num">DK FPPG</th>
-            <th data-key="trend_l3" class="num" title="Real DK-style FPPG over the player's last 3 games">L3</th>
-            <th data-key="trend_l6" class="num" title="Real DK-style FPPG over the player's last 6 games">L6</th>
-            <th data-key="trend_l9" class="num" title="Real DK-style FPPG over the player's last 9 games">L9</th>
-            <th data-key="sleeper_proj" class="num">Sleeper Proj</th>
-            <th data-key="value_per_1k" class="num">Value/$1k</th>
-            <th data-key="injury">Status</th>
+            <th scope="col" data-key="roster_slot">Slot</th>
+            <th scope="col" data-key="name">Player</th>
+            <th scope="col" data-key="position">Pos</th>
+            <th scope="col" data-key="team">Team</th>
+            <th scope="col" data-key="opponent">Opp</th>
+            <th scope="col" data-key="game_info">Game</th>
+            <th scope="col" data-key="salary" class="num">Salary</th>
+            <th scope="col" data-key="proj_points" class="num">Proj</th>
+            <th scope="col" data-key="dk_fppg" class="num">DK FPPG</th>
+            <th scope="col" data-key="trend_l3" class="num" title="Real DK-style FPPG over the player's last 3 games">L3</th>
+            <th scope="col" data-key="trend_l6" class="num" title="Real DK-style FPPG over the player's last 6 games">L6</th>
+            <th scope="col" data-key="trend_l9" class="num" title="Real DK-style FPPG over the player's last 9 games">L9</th>
+            <th scope="col" data-key="sleeper_proj" class="num">Sleeper Proj</th>
+            <th scope="col" data-key="value_per_1k" class="num">Value/$1k</th>
+            <th scope="col" data-key="injury">Status</th>
           </tr>
         </thead>
         <tbody id="players-tbody"></tbody>

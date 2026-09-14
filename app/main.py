@@ -14,7 +14,7 @@ from fastapi.templating import Jinja2Templates
 
 from app import slates
 from app.config import BASE_DIR, DEFAULT_SEASON, DEFAULT_WEEK
-from app.models import SlatePlayers, WeekSchedule
+from app.models import SlatePlayers, WeekData, WeekSchedule
 from app.sleeper_client import get_nfl_state
 
 app = FastAPI(title="DFSRiches", description="DraftKings DFS explorer")
@@ -56,6 +56,18 @@ async def api_slates(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not list slates: {exc}") from exc
     return slate_list
+
+
+@app.get("/api/week", response_model=WeekData)
+async def api_week(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
+    """Combines /api/schedule and /api/slates into one response, since both
+    already come from the same list_slates() call -- lets the frontend's
+    initial load skip a redundant round trip."""
+    try:
+        schedule, slate_list = await slates.list_slates(season, week)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not load week: {exc}") from exc
+    return WeekData(schedule=schedule, slates=slate_list)
 
 
 @app.get("/api/slates/{slate_id}/players", response_model=SlatePlayers)

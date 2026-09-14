@@ -112,3 +112,12 @@ class SlatePlayers(BaseModel):
     unmatched_dk_names: list[str]
     match_count: int
     total_count: int
+
+
+class WeekData(BaseModel):
+    """Bundles what /api/schedule and /api/slates each already compute from
+    one underlying app.slates.list_slates() call, so the frontend's initial
+    page load can fetch both in a single round trip instead of two."""
+
+    schedule: WeekSchedule
+    slates: list[Slate]

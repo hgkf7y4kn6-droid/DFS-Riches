@@ -8,27 +8,22 @@ is built for each isolated Wednesday/Thursday/Sunday/Monday night game.
 """
 from __future__ import annotations
 
-import time
-
 from app import dk_client, matching, nflverse_client, sleeper_client
+from app.cache import memoize_async
 from app.config import TTL_PLAYERS
-from app.models import Game, Player, Slate, SlatePlayers, WeekSchedule
+from app.models import Player, Slate, SlatePlayers, WeekSchedule
 from app.schedule import get_week_schedule
 
 _ISOLATED_ORDER = ["WED_NIGHT", "THU_NIGHT", "SUN_NIGHT", "MON_NIGHT"]
 
-_sleeper_index_cache: dict = {"index": None, "ts": 0.0}
 
-
+@memoize_async(TTL_PLAYERS)
 async def _get_sleeper_index() -> matching.SleeperNameIndex:
-    now = time.time()
-    if _sleeper_index_cache["index"] is None or now - _sleeper_index_cache["ts"] > TTL_PLAYERS:
-        players = await sleeper_client.get_players()
-        _sleeper_index_cache["index"] = matching.SleeperNameIndex(players)
-        _sleeper_index_cache["ts"] = now
-    return _sleeper_index_cache["index"]
+    players = await sleeper_client.get_players()
+    return matching.SleeperNameIndex(players)
 
 
+@memoize_async(30)  # just long enough to cover one page load's schedule+slates+players calls
 async def list_slates(season: int, week: int) -> tuple[WeekSchedule, list[Slate]]:
     schedule = await get_week_schedule(season, week)
     discovery = await dk_client.discover_draft_groups(schedule)

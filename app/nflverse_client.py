@@ -24,10 +24,9 @@ nfl-data community. Two files are used:
         fantasy scoring.
   - releases/stats_player/stats_player_week_{season}.csv (nflverse/nflverse-data)
         One row per skill-position player per game with real box-score
-        stats, keyed by gsis_id -- the same id Sleeper stores per player
-        as `gsis_id` (app.sleeper_client.get_gsis_id_map), giving a clean
-        join onto players already matched to a DK salary row. Fed through
-        app.dk_scoring.dk_offense_points for real trailing DK-style FPPG.
+        stats. Joined onto a DK salary row by normalized name + position
+        (see player_key below) and fed through app.dk_scoring.dk_offense_points
+        for real trailing DK-style FPPG.
 
 nflverse spells the Rams "LA"; every other team code already matches the
 abbreviations Sleeper/DraftKings use (see app.config.NFLVERSE_TO_APP_TEAM).
@@ -42,9 +41,7 @@ import httpx
 
 from app import dk_scoring
 from app.cache import cached_fetch
-from app.matching import normalize_name, resolve_alias
 from app.config import (
-    APP_TO_NFLVERSE_TEAM,
     NFLVERSE_GAMES_CSV_URL,
     NFLVERSE_PLAYER_STATS_URL_TMPL,
     NFLVERSE_TEAM_STATS_URL_TMPL,
@@ -52,16 +49,13 @@ from app.config import (
     TTL_NFLVERSE_GAMES,
     TTL_NFLVERSE_TEAM_STATS,
 )
+from app.matching import normalize_name, resolve_alias
 
 _HEADERS = {"User-Agent": "DFSRiches/1.0 (+https://github.com/)"}
 
 
 def to_app_team(team: str) -> str:
     return NFLVERSE_TO_APP_TEAM.get(team, team)
-
-
-def to_nflverse_team(team: str) -> str:
-    return APP_TO_NFLVERSE_TEAM.get(team, team)
 
 
 def _to_float(value: str | None) -> float | None:
@@ -120,30 +114,25 @@ async def get_games(season: int) -> dict[tuple[int, str, str], dict[str, Any]]:
     return games
 
 
-async def _fetch_team_week_rows(season: int) -> list[dict]:
+async def _fetch_csv_rows(url: str, cache_key: str) -> list[dict]:
     async def fetch() -> list[dict]:
-        url = NFLVERSE_TEAM_STATS_URL_TMPL.format(season=season)
         text = await _fetch_csv_text(url)
-        reader = csv.DictReader(io.StringIO(text))
-        return list(reader)
+        return list(csv.DictReader(io.StringIO(text)))
 
     try:
-        return await cached_fetch(f"nflverse_team_stats_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+        return await cached_fetch(cache_key, TTL_NFLVERSE_TEAM_STATS, fetch)
     except Exception:
         return []
+
+
+async def _fetch_team_week_rows(season: int) -> list[dict]:
+    url = NFLVERSE_TEAM_STATS_URL_TMPL.format(season=season)
+    return await _fetch_csv_rows(url, f"nflverse_team_stats_{season}")
 
 
 async def _fetch_player_week_rows(season: int) -> list[dict]:
-    async def fetch() -> list[dict]:
-        url = NFLVERSE_PLAYER_STATS_URL_TMPL.format(season=season)
-        text = await _fetch_csv_text(url)
-        reader = csv.DictReader(io.StringIO(text))
-        return list(reader)
-
-    try:
-        return await cached_fetch(f"nflverse_player_stats_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
-    except Exception:
-        return []
+    url = NFLVERSE_PLAYER_STATS_URL_TMPL.format(season=season)
+    return await _fetch_csv_rows(url, f"nflverse_player_stats_{season}")
 
 
 async def get_team_week_plays(season: int) -> dict[tuple[int, str], float]:
@@ -318,5 +307,3 @@ def team_trend(index: dict, team: str, metric: str, season: int, week: int) -> d
         "l6": _trailing_avg(series, season, week, 6),
         "l9": _trailing_avg(series, season, week, 9),
     }
-
-    return None
