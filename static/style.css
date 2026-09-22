@@ -79,12 +79,13 @@ body {
   gap: 2px;
 }
 .week-controls input {
-  width: 72px;
+  width: 76px;
   padding: 6px 8px;
   background: var(--panel-2);
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--text);
+  font-size: 16px; /* prevents iOS Safari's auto-zoom-on-focus below 16px */
   transition: border-color 0.12s ease;
 }
 .week-controls input:focus-visible {
@@ -289,6 +290,7 @@ body {
   border-radius: 6px;
   color: var(--text);
   min-width: 220px;
+  font-size: 16px; /* prevents iOS Safari's auto-zoom-on-focus below 16px */
   transition: border-color 0.12s ease;
 }
 #search-box:focus-visible {
