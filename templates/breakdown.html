@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DFSRiches -- Week Breakdown</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dollar">$</span>DFS<span class="brand-accent">Riches</span>
+    </div>
+    <nav class="page-nav" aria-label="Pages">
+      <a href="/">Slates</a>
+      <a href="/breakdown" class="active" aria-current="page">Week Breakdown</a>
+    </nav>
+    <div class="week-controls">
+      <label>Season
+        <input id="season-input" type="number" value="{{ default_season }}" />
+      </label>
+      <label>Week
+        <input id="week-input" type="number" value="{{ default_week }}" min="1" max="18" />
+      </label>
+      <button id="load-week-btn">Load</button>
+    </div>
+  </header>
+
+  <section class="breakdown-intro">
+    <h1>Week <span id="breakdown-week-label"></span> Fantasy Breakdown</h1>
+    <p class="breakdown-source">
+      Every stat below is a real trailing team average (last up-to-8 games) from nflverse's public
+      closing lines and box scores, ranked 1-32 across the league; salaries and trends are DraftKings'
+      and this app's own real player data. All analysis text is generated from those numbers by DFSRiches
+      itself -- not reproduced from any outside publication.
+    </p>
+  </section>
+
+  <main id="breakdown-games" class="breakdown-games" aria-label="Game breakdowns"></main>
+
+  <div id="breakdown-empty-state" class="empty-state" hidden></div>
+
+  <footer class="site-footer">
+    Data: real closing spread/total lines and team box-score trends from nflverse; real DraftKings
+    salaries and trailing DK-style FPPG for the "players to watch" callouts, when DraftKings has posted
+    pricing for the week. League ranks are computed among whichever teams have a trailing value at this
+    point in the season.
+  </footer>
+
+  <script src="/static/breakdown.js"></script>
+</body>
+</html>

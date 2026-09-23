@@ -266,23 +266,62 @@ async def get_baseline_plays(season: int, week: int, team: str) -> float | None:
     return None
 
 
+_TEAM_METRICS = (
+    "spread", "total", "implied_total", "plays",
+    "points_for", "points_against", "yards_per_play", "yards_allowed_per_play",
+    "pass_pct", "rush_pct", "opp_pass_pct_allowed", "opp_rush_pct_allowed",
+)
+
+
+async def _team_week_box_scores(season: int) -> dict[tuple[int, str], dict]:
+    """{(week, team): {opponent, plays, yards_per_play, pass_pct, rush_pct}}
+    from real per-game box-score stats, one season."""
+    scores: dict[tuple[int, str], dict] = {}
+    for row in await _fetch_team_week_rows(season):
+        try:
+            week = int(row["week"])
+        except (KeyError, ValueError):
+            continue
+        team = to_app_team(row["team"])
+        attempts = _to_float(row.get("attempts")) or 0.0
+        carries = _to_float(row.get("carries")) or 0.0
+        sacks = _to_float(row.get("sacks_suffered")) or 0.0
+        plays = attempts + carries + sacks
+        total_yards = (_to_float(row.get("passing_yards")) or 0.0) + (_to_float(row.get("rushing_yards")) or 0.0)
+        scores[(week, team)] = {
+            "opponent": to_app_team(row.get("opponent_team", "")),
+            "plays": plays,
+            "yards_per_play": round(total_yards / plays, 2) if plays else None,
+            "pass_pct": round(attempts / plays, 3) if plays else None,
+            "rush_pct": round(carries / plays, 3) if plays else None,
+        }
+    return scores
+
+
 async def get_team_context_trailing_index(season: int) -> dict[str, dict[str, list[list]]]:
-    """team -> {"spread": [[season,week,value],...], "total": [...],
-    "implied_total": [...], "plays": [...]}, combining this season and the
-    prior one. "spread"/"implied_total" are from the team's own perspective
-    (negative spread = they were favored) regardless of home/away, so a
-    team's trend is comparable game to game."""
+    """team -> {metric: [[season,week,value],...]} for each of _TEAM_METRICS,
+    combining this season and the prior one. "spread"/"implied_total" are
+    from the team's own perspective (negative spread = they were favored)
+    regardless of home/away, so a team's trend is comparable game to game.
+    "opp_*_allowed" metrics are what that team's DEFENSE has faced: the
+    opponent's own pass/rush split in that game (a real, direct measure of
+    which offenses funnel their opponents to the air vs. the ground)."""
 
     async def fetch() -> dict[str, dict[str, list[list]]]:
         index: dict[str, dict[str, list[list]]] = {}
         for szn in (season - 1, season):
             games = await get_games(szn)
-            plays = await get_team_week_plays(szn)
+            box_scores = await _team_week_box_scores(szn)
+
             for (week, away, home), row in games.items():
                 spread_line = row.get("spread_line")
                 total_line = row.get("total_line")
-                for team, team_spread in ((away, spread_line), (home, -spread_line if spread_line is not None else None)):
-                    d = index.setdefault(team, {"spread": [], "total": [], "implied_total": [], "plays": []})
+                is_final = row.get("is_final")
+                for team, opp, team_spread, pf, pa in (
+                    (away, home, spread_line, row.get("away_score"), row.get("home_score")),
+                    (home, away, -spread_line if spread_line is not None else None, row.get("home_score"), row.get("away_score")),
+                ):
+                    d = index.setdefault(team, {m: [] for m in _TEAM_METRICS})
                     if team_spread is not None:
                         d["spread"].append([szn, week, team_spread])
                     if total_line is not None:
@@ -290,9 +329,30 @@ async def get_team_context_trailing_index(season: int) -> dict[str, dict[str, li
                     if team_spread is not None and total_line is not None:
                         implied = round(total_line / 2 - team_spread / 2, 1)
                         d["implied_total"].append([szn, week, implied])
-                    p = plays.get((week, team))
-                    if p is not None:
-                        d["plays"].append([szn, week, p])
+                    if is_final and pf is not None:
+                        d["points_for"].append([szn, week, pf])
+                    if is_final and pa is not None:
+                        d["points_against"].append([szn, week, pa])
+
+                    own = box_scores.get((week, team))
+                    if own:
+                        if own["plays"]:
+                            d["plays"].append([szn, week, own["plays"]])
+                        if own["yards_per_play"] is not None:
+                            d["yards_per_play"].append([szn, week, own["yards_per_play"]])
+                        if own["pass_pct"] is not None:
+                            d["pass_pct"].append([szn, week, own["pass_pct"]])
+                        if own["rush_pct"] is not None:
+                            d["rush_pct"].append([szn, week, own["rush_pct"]])
+
+                    opp_box = box_scores.get((week, opp))
+                    if opp_box:
+                        if opp_box["yards_per_play"] is not None:
+                            d["yards_allowed_per_play"].append([szn, week, opp_box["yards_per_play"]])
+                        if opp_box["pass_pct"] is not None:
+                            d["opp_pass_pct_allowed"].append([szn, week, opp_box["pass_pct"]])
+                        if opp_box["rush_pct"] is not None:
+                            d["opp_rush_pct_allowed"].append([szn, week, opp_box["rush_pct"]])
         return index
 
     return await cached_fetch(f"nflverse_team_context_trailing_index_{season}", TTL_NFLVERSE_GAMES, fetch)
@@ -307,3 +367,25 @@ def team_trend(index: dict, team: str, metric: str, season: int, week: int) -> d
         "l6": _trailing_avg(series, season, week, 6),
         "l9": _trailing_avg(series, season, week, 9),
     }
+
+
+def team_trailing(index: dict, team: str, metric: str, season: int, week: int, n: int = 8) -> float | None:
+    """A single trailing n-game average for one team/metric, from
+    get_team_context_trailing_index."""
+    return _trailing_avg(index.get(team, {}).get(metric, []), season, week, n)
+
+
+def rank_teams(
+    index: dict, metric: str, season: int, week: int, *, n: int = 8, descending: bool = True
+) -> dict[str, int]:
+    """team -> 1-based league rank by trailing n-game average of metric
+    among all teams that have one. descending=True means higher is
+    better/rank 1 (points scored, yards/play); descending=False means
+    lower is better/rank 1 (points allowed, yards/play allowed)."""
+    values: dict[str, float] = {}
+    for team, metrics in index.items():
+        v = _trailing_avg(metrics.get(metric, []), season, week, n)
+        if v is not None:
+            values[team] = v
+    ranked = sorted(values.items(), key=lambda kv: kv[1], reverse=descending)
+    return {team: i + 1 for i, (team, _v) in enumerate(ranked)}

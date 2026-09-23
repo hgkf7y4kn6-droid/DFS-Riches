@@ -121,3 +121,57 @@ class WeekData(BaseModel):
 
     schedule: WeekSchedule
     slates: list[Slate]
+
+
+class TeamStatLine(BaseModel):
+    """A team's real trailing box-score profile entering this game, each
+    with its 1-32 league rank among teams that have a trailing value.
+    Ranks are always "1 = best for that side of the ball": e.g. rank 1 in
+    yards_allowed_per_play is the stingiest defense, not the most yards
+    allowed."""
+
+    team: str
+    points_for: float | None = None
+    points_for_rank: int | None = None
+    points_against: float | None = None
+    points_against_rank: int | None = None
+    yards_per_play: float | None = None
+    yards_per_play_rank: int | None = None
+    yards_allowed_per_play: float | None = None
+    yards_allowed_per_play_rank: int | None = None
+    pace_plays: float | None = None
+    pace_rank: int | None = None
+    pass_pct: float | None = None
+    rush_pct: float | None = None
+    opp_pass_pct_allowed: float | None = None      # how often opponents have thrown against this defense
+    opp_pass_pct_allowed_rank: int | None = None   # 1 = biggest pass funnel
+    opp_rush_pct_allowed: float | None = None
+    opp_rush_pct_allowed_rank: int | None = None   # 1 = biggest rush funnel
+
+
+class TopPlayer(BaseModel):
+    """A real DK salary + trailing performance snapshot, used for a quick
+    "players to watch" callout per team on the breakdown page."""
+
+    name: str
+    position: str
+    salary: int
+    trend_l3: float | None = None
+
+
+class GameBreakdown(BaseModel):
+    game: Game
+    away_stats: TeamStatLine
+    home_stats: TeamStatLine
+    total_rank_this_week: int | None = None          # 1 = highest game total of the week
+    away_implied_rank_this_week: int | None = None   # 1 = highest team implied total of the week (all 32 teams)
+    home_implied_rank_this_week: int | None = None
+    takeaways: list[str]        # short, original, template-generated from the real numbers above
+    away_top_players: list[TopPlayer]
+    home_top_players: list[TopPlayer]
+
+
+class WeekBreakdown(BaseModel):
+    season: int
+    week: int
+    games: list[GameBreakdown]

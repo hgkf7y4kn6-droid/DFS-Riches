@@ -408,3 +408,141 @@ tbody tr:last-child td { border-bottom: none; }
   .schedule-strip, .slate-tabs { padding-left: 10px; padding-right: 10px; }
   .match-stats { margin-left: 0; }
 }
+
+.page-nav {
+  display: flex;
+  gap: 4px;
+}
+.page-nav a {
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+.page-nav a:hover { color: var(--text); }
+.page-nav a.active {
+  color: var(--bg);
+  background: var(--gold);
+}
+
+.breakdown-intro {
+  padding: 20px 20px 4px;
+  max-width: 900px;
+}
+.breakdown-intro h1 {
+  font-size: 20px;
+  margin: 0 0 6px;
+}
+.breakdown-source {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.breakdown-games {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 16px;
+  padding: 16px 20px 30px;
+}
+
+.breakdown-loading {
+  color: var(--muted);
+  padding: 20px;
+}
+
+.breakdown-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.breakdown-card-header .matchup {
+  font-size: 16px;
+  font-weight: 700;
+}
+.breakdown-card-header .meta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.breakdown-stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.breakdown-stat-table th, .breakdown-stat-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.breakdown-stat-table th.num, .breakdown-stat-table td.num { text-align: right; }
+.breakdown-stat-table .stat-label { color: var(--muted); }
+
+.rank-pill {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.breakdown-takeaways {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.breakdown-takeaways li { margin-bottom: 4px; }
+
+.breakdown-top-players {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+.tp-team-label {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+.tp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.top-player {
+  font-size: 12px;
+}
+.tp-pos {
+  display: inline-block;
+  min-width: 24px;
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 10px;
+}
+.tp-salary { color: var(--muted); }
+.tp-trend { color: var(--green); }
+.no-players {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .breakdown-games { grid-template-columns: 1fr; padding: 12px; }
+  .breakdown-intro { padding: 16px 12px 4px; }
+}

@@ -21,9 +21,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from app import breakdown as breakdown_module
 from app import slates
 from app.config import BASE_DIR, DEFAULT_SEASON, DEFAULT_WEEK
-from app.models import SlatePlayers, WeekData, WeekSchedule
+from app.models import SlatePlayers, WeekBreakdown, WeekData, WeekSchedule
 from app.sleeper_client import get_nfl_state
 
 
@@ -108,6 +109,22 @@ async def api_slate_players(slate_id: str, season: int = DEFAULT_SEASON, week: i
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not load slate players: {exc}") from exc
+
+
+@app.get("/breakdown", response_class=HTMLResponse)
+async def breakdown_page(request: Request):
+    return templates.TemplateResponse(
+        "breakdown.html",
+        {"request": request, "default_season": DEFAULT_SEASON, "default_week": DEFAULT_WEEK},
+    )
+
+
+@app.get("/api/breakdown", response_model=WeekBreakdown)
+async def api_breakdown(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
+    try:
+        return await breakdown_module.build_week_breakdown(season, week)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not build week breakdown: {exc}") from exc
 
 
 if __name__ == "__main__":
