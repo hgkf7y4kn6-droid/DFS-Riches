@@ -182,6 +182,48 @@ Then open http://127.0.0.1:8000/. The season/week fields default to
 whatever `app/config.py` sets (2026 Week 1) but can be changed in the UI --
 any past or future week works the same way, live.
 
+## Deploying behind Cloudflare
+
+DFSRiches is a normal long-running ASGI app (FastAPI on Uvicorn) with a
+small on-disk cache -- it runs on any regular host or container, with
+Cloudflare sitting in front as a proxy/CDN (orange-clouded DNS) or via a
+Cloudflare Tunnel. **It does not run inside a Cloudflare Worker**: Workers
+execute in a V8-isolate/Pyodide sandbox with no local filesystem and no
+arbitrary outbound sockets, so Uvicorn, httpx's socket-based transport, and
+this app's `data/cache/*.json` files can't run there as-is -- that would be
+a from-scratch rewrite onto a different runtime, not a deployment step.
+
+```bash
+docker build -t dfsriches .
+docker run -p 8000:8000 dfsriches
+```
+
+What's already wired up for sitting behind Cloudflare:
+
+- **`GET /healthz`** -- a dependency-free liveness check (no outbound calls)
+  for the platform's health monitoring or a Cloudflare Tunnel's origin check.
+- **Trusted proxy headers** -- the container's entrypoint (`python -m
+  app.main`, also the Dockerfile's `CMD`) runs Uvicorn with
+  `proxy_headers=True, forwarded_allow_ips="*"`, so `X-Forwarded-Proto` /
+  `X-Forwarded-For` from Cloudflare's edge are honored and
+  `request.url.scheme` reflects the real client's HTTPS connection rather
+  than the plain-HTTP hop from Cloudflare to the origin.
+- **Edge-cacheable static assets** -- `/static/*` (the CSS/JS) is served
+  with `Cache-Control: public, max-age=300`, so Cloudflare can serve it from
+  cache instead of round-tripping to the origin on every request. Kept
+  short (5 minutes) since there's no cache-busting filename hash yet, so a
+  deploy is never more than 5 minutes from being visible everywhere.
+- **`$PORT`** -- both the Dockerfile and the `python -m app.main`
+  entrypoint bind `0.0.0.0` on `$PORT` (default 8000), the convention most
+  container platforms (Fly.io, Render, Railway, etc.) use to tell a
+  container which port to listen on.
+
+`data/cache/` is a warm-start convenience, not a database -- if it's empty
+(a fresh container, no volume mounted) the app just re-fetches from
+Sleeper/DraftKings/nflverse on first request and re-populates it, exactly
+as it does locally. Mounting a persistent volume at `/app/data/cache`
+speeds up cold starts across restarts but is optional.
+
 ## Tests
 
 ```bash

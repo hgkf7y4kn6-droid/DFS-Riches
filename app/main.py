@@ -4,8 +4,17 @@ Merges real DraftKings salaries (Classic full-slate + Showdown Captain Mode
 for every isolated Wednesday/Thursday/Sunday/Monday night game) with real
 Sleeper weekly fantasy projections, keyed on the real Week N schedule pulled
 live from Sleeper.
+
+Deployment: this is a normal long-running ASGI app (FastAPI/Uvicorn), meant
+to run on a regular host/container behind Cloudflare's proxy/CDN (or a
+Cloudflare Tunnel) -- not inside a Cloudflare Worker, whose V8-isolate/
+Pyodide runtime can't run Uvicorn, httpx's socket-based transport, or this
+app's on-disk cache as-is. See README.md's "Deploying behind Cloudflare"
+section.
 """
 from __future__ import annotations
+
+import os
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
@@ -17,10 +26,31 @@ from app.config import BASE_DIR, DEFAULT_SEASON, DEFAULT_WEEK
 from app.models import SlatePlayers, WeekData, WeekSchedule
 from app.sleeper_client import get_nfl_state
 
+
+class _CachedStaticFiles(StaticFiles):
+    """Adds a short edge-cacheable Cache-Control header so Cloudflare (or
+    any CDN in front of this app) can serve static/* from cache instead of
+    round-tripping to the origin on every request, without risking long
+    staleness after a deploy (there's no cache-busting filename hash)."""
+
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        response.headers.setdefault("Cache-Control", "public, max-age=300")
+        return response
+
+
 app = FastAPI(title="DFSRiches", description="DraftKings DFS explorer")
 
-app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+app.mount("/static", _CachedStaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+
+
+@app.get("/healthz")
+async def healthz():
+    """Liveness/readiness check for a platform's or Cloudflare's origin
+    health monitoring. Deliberately makes no outbound calls -- it only
+    confirms this process is up and serving requests."""
+    return {"status": "ok"}
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -78,3 +108,22 @@ async def api_slate_players(slate_id: str, season: int = DEFAULT_SEASON, week: i
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not load slate players: {exc}") from exc
+
+
+if __name__ == "__main__":
+    # Production entrypoint: `python -m app.main`. Reads $PORT (the
+    # convention most container platforms inject) and trusts proxy headers
+    # from any upstream (proxy_headers=True + forwarded_allow_ips="*") so
+    # request.url.scheme/client reflect the real visitor, not Cloudflare's
+    # edge IP -- correct behind Cloudflare's proxy/CDN or a Cloudflare
+    # Tunnel. The Dockerfile's CMD is the source of truth for container
+    # deploys; this exists for platforms that run the app directly.
+    import uvicorn
+
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8000)),
+        proxy_headers=True,
+        forwarded_allow_ips="*",
+    )
