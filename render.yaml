@@ -1,0 +1,13 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+#
+# Lets Render auto-detect this service from the repo's own Dockerfile with
+# no manual dashboard configuration -- "New +" -> "Blueprint" -> pick this
+# repo. Render injects $PORT itself; app/main.py and the Dockerfile's CMD
+# already read it (see README.md's "Deploying behind Cloudflare" section).
+services:
+  - type: web
+    name: dfs-riches
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /healthz

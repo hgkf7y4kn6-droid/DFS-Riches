@@ -213,16 +213,41 @@ any past or future week works the same way, live.
 DFSRiches is a normal long-running ASGI app (FastAPI on Uvicorn) with a
 small on-disk cache -- it runs on any regular host or container, with
 Cloudflare sitting in front as a proxy/CDN (orange-clouded DNS) or via a
-Cloudflare Tunnel. **It does not run inside a Cloudflare Worker**: Workers
-execute in a V8-isolate/Pyodide sandbox with no local filesystem and no
-arbitrary outbound sockets, so Uvicorn, httpx's socket-based transport, and
-this app's `data/cache/*.json` files can't run there as-is -- that would be
-a from-scratch rewrite onto a different runtime, not a deployment step.
+Cloudflare Tunnel. **It does not run inside a Cloudflare Worker, and it
+cannot be deployed as a Cloudflare Pages project**: Workers (and the
+Functions that back a Pages project) execute in a V8-isolate/Pyodide
+sandbox with no local filesystem and no arbitrary outbound sockets, so
+Uvicorn, httpx's socket-based transport, and this app's `data/cache/*.json`
+files can't run there as-is -- that would be a from-scratch rewrite onto a
+different runtime, not a deployment step. Pointing a `*.pages.dev` project
+at this repo will 404 on every route: Pages serves a static build output
+directory (or small edge functions), and this repo has neither -- it needs
+an actual running process, which is what the steps below give it.
 
 ```bash
 docker build -t dfsriches .
 docker run -p 8000:8000 dfsriches
 ```
+
+### Deploying on Render
+
+A `render.yaml` [Blueprint](https://render.com/docs/blueprint-spec) is
+included so Render can build and run the existing `Dockerfile` with no
+manual dashboard configuration:
+
+1. Push this repo to GitHub (already done if you're reading this from a
+   clone of it).
+2. In the Render dashboard: **New +** -> **Blueprint** -> pick this repo.
+   Render reads `render.yaml`, builds the `Dockerfile`, and starts the
+   service listening on the `$PORT` it injects.
+3. Once it's live at `https://<service-name>.onrender.com`, either use that
+   URL directly, or put a custom domain on it and proxy that domain through
+   Cloudflare (DNS record set to "Proxied"/orange-clouded) for the CDN/edge
+   benefits described below -- **not** a Pages project.
+
+Fly.io and Railway work the same way from the same `Dockerfile` (a
+`fly launch` or a GitHub-connected Railway service), just without a
+committed blueprint file for them.
 
 What's already wired up for sitting behind Cloudflare:
 
