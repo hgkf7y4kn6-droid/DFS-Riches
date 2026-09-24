@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 import app.optimal as optimal
-from app.models import Game, Player, Slate
+from app.models import Game, GameContext, Player, Slate
 from app.optimizer import optimize
 
 pytestmark = pytest.mark.anyio
@@ -80,8 +80,9 @@ def test_optimize_returns_none_when_no_valid_lineup():
     assert optimize([_p(1, "QB", "QB", "A", 8000, 20)], "classic", "proj_points") is None
 
 
-def _slate(kickoff):
-    game = Game(game_id="g", season=2026, week=3, away="A", home="B", kickoff_utc=kickoff, kickoff_et="", day_part="SUN_EARLY")
+def _slate(kickoff, final=False):
+    game = Game(game_id="g", season=2026, week=3, away="A", home="B", kickoff_utc=kickoff, kickoff_et="",
+                day_part="SUN_EARLY", context=GameContext(is_final=final))
     return Slate(slate_id="classic", label="C", slate_type="classic", draft_group_id=1, games=[game], available=True, source="live")
 
 
@@ -125,6 +126,86 @@ async def test_get_optimal_after_kickoff_without_a_record_returns_none(monkeypat
     async def fake_list_slates(season, week):
         return None, [_slate(kickoff)]
 
+    async def no_stats_yet(season, week):
+        return {"players": {}, "dst": {}, "teams": []}
+
     monkeypatch.setattr(optimal.slates_module, "list_slates", fake_list_slates)
+    monkeypatch.setattr(optimal.nc, "get_week_actuals", no_stats_yet)
     result = await optimal.get_optimal(2026, 3, "classic", now=kickoff + timedelta(hours=1))
-    assert result == {"status": "none", "saved_at": None, "lineups": []}
+    assert result == {"status": "none", "saved_at": None, "results_at": None, "lineups": [], "hindsight": None}
+
+
+def test_slate_complete_needs_every_game_final_and_box_scores_in():
+    kickoff = datetime(2026, 9, 27, 17, 0, tzinfo=timezone.utc)
+    stats_in = {"players": {}, "dst": {}, "teams": ["A", "B"]}
+    assert optimal.slate_complete(_slate(kickoff, final=True), stats_in)
+    assert not optimal.slate_complete(_slate(kickoff, final=False), stats_in)
+    assert not optimal.slate_complete(_slate(kickoff, final=True), {**stats_in, "teams": ["A"]})
+
+
+async def test_completed_slate_scores_saved_lineups_and_adds_hindsight(monkeypatch, tmp_path):
+    from app.nflverse_client import player_key
+
+    kickoff = datetime(2026, 9, 27, 17, 0, tzinfo=timezone.utc)
+    monkeypatch.setattr(optimal, "OPTIMAL_LINEUPS_PATH", tmp_path / "optimal.json")
+    pool = _classic_pool()
+    players = [Player(**{**p, "opponent": "", "value_per_1k": 0.0}) for p in pool]
+
+    class _SP:
+        pass
+
+    async def fake_players(season, week, slate_id):
+        sp = _SP()
+        sp.players = players
+        return sp
+
+    slate_state = {"final": False}
+
+    async def fake_list_slates(season, week):
+        return None, [_slate(kickoff, final=slate_state["final"])]
+
+    # Actual week: the OUT-listed RB (never eligible pre-game) goes off for 40.
+    actual_pts = {p["name"]: p["proj_points"] for p in pool if p["position"] != "DST"}
+    actual_pts["RB Out"] = 40.0
+    actuals = {
+        "players": {player_key(n, next(p["position"] for p in pool if p["name"] == n)): v for n, v in actual_pts.items()},
+        "dst": {"A": 8.0, "C": 6.0},
+        "teams": ["A", "B", "C", "D"],
+    }
+
+    async def fake_actuals(season, week):
+        return actuals
+
+    monkeypatch.setattr(optimal.slates_module, "list_slates", fake_list_slates)
+    monkeypatch.setattr(optimal.slates_module, "get_slate_players", fake_players)
+    monkeypatch.setattr(optimal.nc, "get_week_actuals", fake_actuals)
+
+    before = await optimal.get_optimal(2026, 3, "classic", now=kickoff - timedelta(hours=1))
+    in_progress = await optimal.get_optimal(2026, 3, "classic", now=kickoff + timedelta(hours=1))
+    assert in_progress["status"] == "saved" and in_progress["hindsight"] is None
+
+    slate_state["final"] = True
+    final = await optimal.get_optimal(2026, 3, "classic", now=kickoff + timedelta(days=1))
+    assert final["status"] == "final"
+    assert final["saved_at"] == before["saved_at"]
+    proj_lineup = final["lineups"][0]
+    assert all("actual" in p for p in proj_lineup["players"])
+    assert proj_lineup["actual"] == pytest.approx(sum(p["actual"] for p in proj_lineup["players"]))
+    hindsight = final["hindsight"]
+    assert "RB Out" in {p["name"] for p in hindsight["players"]}
+    assert hindsight["actual"] >= proj_lineup["actual"]
+    assert hindsight["salary"] <= 50000
+
+    saved = optimal.load_saved(2026, 3, "classic")
+    assert saved["results_at"] == final["results_at"] and saved["hindsight"] == hindsight
+    slate_state["final"] = False  # already scored: served from the record, not recomputed
+    assert (await optimal.get_optimal(2026, 3, "classic", now=kickoff + timedelta(days=2)))["status"] == "final"
+
+
+def test_hindsight_mode_ignores_pre_game_eligibility():
+    pool = _classic_pool()
+    for p in pool:
+        p["actual"] = p["proj_points"]
+    next(p for p in pool if p["name"] == "RB Out")["actual"] = 40.0
+    assert "RB Out" not in {p["name"] for p in optimize(pool, "classic", "actual")}
+    assert "RB Out" in {p["name"] for p in optimize(pool, "classic", "actual", hindsight=True)}

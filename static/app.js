@@ -508,66 +508,85 @@
     }) + " ET";
   }
 
+  function optimalStatusText(opt) {
+    if (opt.status === "live") return `-- live, recalculated until kickoff (last change saved ${fmtEt(opt.saved_at)})`;
+    if (opt.status === "saved") return `-- saved before kickoff, ${fmtEt(opt.saved_at)}; actual scores are added once every game is final`;
+    if (opt.status === "final") {
+      const pre = opt.saved_at ? `saved before kickoff ${fmtEt(opt.saved_at)}` : "no pre-kickoff lineups were saved for this slate";
+      return `-- final: ${pre}; actual scores added ${fmtEt(opt.results_at)}`;
+    }
+    return "-- none saved: this slate started before optimal lineups were being recorded.";
+  }
+
+  function optimalCardHtml(lu, i, isHindsight) {
+    const hasActual = lu.actual != null;
+    const rows = lu.players
+      .map((p) => {
+        const main = isHindsight ? p.actual : p[lu.metric];
+        const actual = !isHindsight && p.actual != null
+          ? `<span class="ls-actual" title="Actual DK points">${fmtPts(p.actual)}</span>` : "";
+        return `
+          <li class="lineup-slot optimal-slot${actual ? " with-actual" : ""}">
+            <span class="ls-label">${escapeHtml(p.slot)}</span>
+            <span class="ls-name">${escapeHtml(p.name)} <span class="ls-team">${escapeHtml(p.position)} &middot; ${escapeHtml(p.team)}</span></span>
+            <span class="ls-salary">${fmtSalary(p.salary)}</span>
+            <span class="ls-proj">${fmtPts(main || 0)}</span>
+            ${actual}
+          </li>`;
+      })
+      .join("");
+    const totals = isHindsight
+      ? `<div><dt>Salary</dt><dd>${fmtSalary(lu.salary)}</dd></div>
+         <div><dt>Actual</dt><dd class="lt-actual">${fmtPts(lu.actual)}</dd></div>`
+      : `<div><dt>Salary</dt><dd>${fmtSalary(lu.salary)}</dd></div>
+         <div><dt>Remaining</dt><dd>${fmtSalary(L.SALARY_CAP - lu.salary)}</dd></div>
+         <div><dt>Proj</dt><dd class="lt-proj">${fmtPts(lu.proj_points)}</dd></div>
+         <div><dt>Ceiling</dt><dd class="lt-ceiling">${fmtPts(lu.ceiling)}</dd></div>
+         ${hasActual ? `<div><dt>Actual</dt><dd class="lt-actual">${fmtPts(lu.actual)}</dd></div>` : ""}`;
+    return `
+      <header class="lineup-card-header">
+        <span class="optimal-title">${escapeHtml(lu.label)}</span>
+        ${isHindsight ? "" : `<button type="button" class="optimal-copy" data-index="${i}">Copy to my lineups</button>`}
+      </header>
+      ${isHindsight ? '<p class="optimal-note">Highest-scoring lineup possible under the salary cap, using actual points.</p>' : ""}
+      <ol class="lineup-slots">${rows}</ol>
+      <dl class="lineup-totals">${totals}</dl>
+    `;
+  }
+
   function renderOptimal() {
     const opt = state.optimal;
     optimalCardsEl.innerHTML = "";
-    if (!opt || !opt.lineups.length) {
-      optimalWrapEl.hidden = !opt || opt.status !== "none";
-      optimalStatusEl.textContent = opt && opt.status === "none"
-        ? "-- none saved: this slate started before optimal lineups were being recorded."
-        : "";
-      return;
-    }
-    optimalWrapEl.hidden = false;
-    optimalStatusEl.textContent = opt.status === "live"
-      ? `-- live, recalculated until kickoff (last change saved ${fmtEt(opt.saved_at)})`
-      : `-- saved before kickoff, ${fmtEt(opt.saved_at)}`;
+    const cards = opt ? opt.lineups.map((lu, i) => [lu, i, false]) : [];
+    if (opt && opt.hindsight) cards.push([opt.hindsight, -1, true]);
+    optimalWrapEl.hidden = !opt || (!cards.length && opt.status !== "none");
+    if (!opt) return;
+    optimalStatusEl.textContent = optimalStatusText(opt);
 
-    opt.lineups.forEach((lu, i) => {
-      const metricKey = lu.metric;
+    for (const [lu, i, isHindsight] of cards) {
       const card = document.createElement("article");
-      card.className = "lineup-card optimal-card";
-      const rows = lu.players
-        .map(
-          (p) => `
-            <li class="lineup-slot optimal-slot">
-              <span class="ls-label">${escapeHtml(p.slot)}</span>
-              <span class="ls-name">${escapeHtml(p.name)} <span class="ls-team">${escapeHtml(p.position)} &middot; ${escapeHtml(p.team)}</span></span>
-              <span class="ls-salary">${fmtSalary(p.salary)}</span>
-              <span class="ls-proj">${fmtPts(p[metricKey] || 0)}</span>
-            </li>`
-        )
-        .join("");
-      card.innerHTML = `
-        <header class="lineup-card-header">
-          <span class="optimal-title">${escapeHtml(lu.label)}</span>
-          <button type="button" class="optimal-copy" data-index="${i}">Copy to my lineups</button>
-        </header>
-        <ol class="lineup-slots">${rows}</ol>
-        <dl class="lineup-totals">
-          <div><dt>Salary</dt><dd>${fmtSalary(lu.salary)}</dd></div>
-          <div><dt>Remaining</dt><dd>${fmtSalary(L.SALARY_CAP - lu.salary)}</dd></div>
-          <div><dt>Proj</dt><dd class="lt-proj">${fmtPts(lu.proj_points)}</dd></div>
-          <div><dt>Ceiling</dt><dd class="lt-ceiling">${fmtPts(lu.ceiling)}</dd></div>
-        </dl>
-      `;
+      card.className = "lineup-card optimal-card" + (isHindsight ? " hindsight-card" : "");
+      card.innerHTML = optimalCardHtml(lu, i, isHindsight);
       optimalCardsEl.appendChild(card);
-    });
+    }
     updateScrollShadow(optimalCardsEl.closest(".table-scroll"));
   }
 
   async function loadOptimal(slateId) {
     state.optimal = null;
     renderOptimal();
+    const requested = `${state.season}|${state.week}|${slateId}`;
+    const isCurrent = () => requested === `${state.season}|${state.week}|${state.activeSlateId}`;
+    let data = null;
     try {
-      const data = await fetchJson(
+      data = await fetchJson(
         `/api/slates/${encodeURIComponent(slateId)}/optimal?season=${state.season}&week=${state.week}`
       );
-      if (slateId !== state.activeSlateId) return;
-      state.optimal = data;
     } catch (_err) {
-      state.optimal = null;
+      data = null;
     }
+    if (!isCurrent()) return;
+    state.optimal = data;
     renderOptimal();
   }
 
@@ -698,6 +717,8 @@
   async function loadWeek() {
     state.season = Number(document.getElementById("season-input").value);
     state.week = Number(document.getElementById("week-input").value);
+    state.optimal = null;
+    renderOptimal();
 
     scheduleStripEl.innerHTML = "";
     oddsTbodyEl.innerHTML = "";

@@ -43,20 +43,20 @@ def _solve(values, rows, lows, highs):
     return [i for i, x in enumerate(res.x) if x > 0.5]
 
 
-def optimize(players: list, slate_type: str, metric: str) -> list | None:
+def optimize(players: list, slate_type: str, metric: str, *, hindsight: bool = False) -> list | None:
     """Returns the optimal lineup's players in DraftKings slot order (Classic:
     QB, RB, RB, WR, WR, WR, TE, FLEX, DST; Showdown: CPT then FLEX by salary),
     or None if no valid lineup exists. metric is the player field to maximize,
-    e.g. "proj_points" or "ceiling"."""
+    e.g. "proj_points" or "ceiling". hindsight=True is for scoring a finished
+    slate on actual points: any player with a salary is eligible."""
     # Proj is DraftKings' season FPPG, so Proj > 0 also means the player has
     # actually played this season -- keeps last year's starters who are now
     # backups out of the Ceiling lineup.
     pool = [
         p for p in players
-        if _attr(p, "injury") in ELIGIBLE_STATUSES
-        and (_value(p, metric) or 0) > 0
-        and (_attr(p, "proj_points") or 0) > 0
+        if (_value(p, metric) or 0) > 0
         and _attr(p, "salary") > 0
+        and (hindsight or (_attr(p, "injury") in ELIGIBLE_STATUSES and (_attr(p, "proj_points") or 0) > 0))
     ]
     if not pool:
         return None

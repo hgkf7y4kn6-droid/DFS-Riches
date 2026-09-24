@@ -302,6 +302,42 @@ async def get_player_game_log_index(season: int) -> dict:
     return await cached_fetch(f"nflverse_player_game_log_index_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
 
 
+async def get_week_actuals(season: int, week: int) -> dict:
+    """Actual DraftKings points scored in one week, from nflverse box scores:
+
+    players: player_key -> points (QB/RB/WR/TE, and K with Showdown kicker scoring)
+    dst:     team -> DST points
+    teams:   teams with a box-score row that week, i.e. whose stats are in
+    """
+    players: dict[str, float] = {}
+    for row in await _fetch_player_week_rows(season):
+        if _to_int(row.get("week")) != week or not row.get("player_display_name"):
+            continue
+        position = row.get("position")
+        if position in _SKILL_POSITIONS:
+            points = dk_scoring.dk_offense_points(row)
+        elif position == "K":
+            points = dk_scoring.dk_kicker_points(row)
+        else:
+            continue
+        players[player_key(row["player_display_name"], position)] = points
+
+    dst = {team: e[2] for team, entries in (await get_team_dst_trailing_index(season)).items()
+           for e in entries if e[0] == season and e[1] == week}
+    teams = sorted({to_app_team(r.get("team", "")) for r in await _fetch_team_week_rows(season) if _to_int(r.get("week")) == week})
+    return {"players": players, "dst": dst, "teams": teams}
+
+
+def actual_points(actuals: dict, *, name: str, position: str, team: str, roster_slot: str = "") -> float:
+    """A DK player's actual points from get_week_actuals; 0 when they have no
+    box-score row (didn't record a stat). Showdown Captains score 1.5x."""
+    if position == "DST":
+        points = actuals["dst"].get(team, 0.0)
+    else:
+        points = actuals["players"].get(player_key(name, position), 0.0)
+    return round(points * (1.5 if roster_slot == "CPT" else 1.0), 2)
+
+
 def trailing_dk_fppg(season: int, week: int, n: int, *, player_index: dict, name: str, position: str) -> float | None:
     key = player_key(name, position)
     return _trailing_avg(player_index.get(key, []), season, week, n)

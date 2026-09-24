@@ -5,7 +5,8 @@ A DraftKings DFS explorer for the NFL, built with Python (FastAPI). It merges
 for every Week 1 game, and automatically builds a **DraftKings Showdown
 Captain Mode** slate for each isolated single-game broadcast window --
 Wednesday Night, Thursday Night, Sunday Night, and Monday Night -- alongside
-one Classic slate covering the full week. A "Lines & Performance" table shows
+a **Classic Sunday Main** slate (DraftKings' Sunday 1:00 + afternoon games)
+and a **Full Week** slate covering every game. A "Lines & Performance" table shows
 each game's **real closing spread, over/under, and implied team totals**
 (nflverse), plus each team's **pace of play vs. their own season baseline**
 -- each with its own **trailing 3/6/9-game trend** -- and, once a game is
@@ -36,7 +37,8 @@ Sleeper (schedule + projections)     DraftKings (draft groups + salaries)
          \                                     /
           v                                   v
                     app/slates.py
-        - one Classic slate (every game in the week)
+        - Classic Sunday Main (Sunday 1:00 + afternoon games)
+        - Full Week slate (every game, Thu-Mon)
         - one Showdown slate per isolated game
         - merges DK salaries with Sleeper player metadata by
           name (app/matching.py), since the two providers use
@@ -170,14 +172,26 @@ They're saved for later reference in `data/optimal_lineups.json`
 - **After kickoff:** the slate shows the frozen pre-kickoff copy, labeled
   with when it was saved. Live numbers after kickoff would already include
   the results, so they're never used.
+- **After the games:** once every game in the slate is final and nflverse
+  has posted its box scores, the saved record is scored. Each pre-kickoff
+  lineup gets its actual DraftKings points (shown next to each player's
+  projection, plus an Actual total), and a **Best possible (actual)**
+  lineup is added: the optimal lineup on actual points, from the same
+  salaries. Kickers in Showdown use DraftKings' kicker scoring (+1 PAT,
+  +3/+4/+5 per field goal by distance).
 
 The weekly job runs `python -m scripts.save_optimal_lineups` right after
-recording the week's DraftKings ids and commits the file, so every week's
-pre-kickoff optimal lineups are kept. Weeks 1-2 of 2026 have none, since
-they started before this existed. Showdown slates later in the week (Sunday
-and Monday night) are saved as of the job's Wednesday/Thursday run. If the
-app is opened closer to those kickoffs, it also updates the copy on the
-running server, but only the committed file survives a redeploy.
+recording the week's DraftKings ids and commits the file. Each run saves
+the current week's pre-kickoff optimal lineups and scores the previous
+week's results, so every week keeps both.
+- **Weeks 1-2 of 2026:** no pre-kickoff lineups (they started before this
+  existed). Week 1 still has best-possible lineups for its Full Week and
+  Showdown slates. Week 2 and Week 1's Sunday Main have nothing, since
+  their DraftKings ids were never recorded.
+- **Late-week Showdowns:** Sunday and Monday night slates are saved as of
+  the job's Wednesday/Thursday run. If the app is opened closer to those
+  kickoffs, it also updates the copy on the running server, but only the
+  committed file survives a redeploy.
 
 ### Lineup builder
 

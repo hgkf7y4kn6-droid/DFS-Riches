@@ -51,3 +51,11 @@ def test_pace_stat_keeps_trend_even_before_the_game_is_final():
     assert stat.actual_plays is None
     assert stat.trend.l3 == 63.0
     assert stat.trend.l9 == 60.0
+
+
+def test_dk_kicker_points_scores_pats_and_field_goals_by_distance():
+    from app.dk_scoring import dk_kicker_points
+
+    row = {"pat_made": "1", "fg_made_0_19": "0", "fg_made_20_29": "1", "fg_made_30_39": "0",
+           "fg_made_40_49": "1", "fg_made_50_59": "1", "fg_made_60_": "0", "fg_missed": "2"}
+    assert dk_kicker_points(row) == 1 + 3 + 4 + 5

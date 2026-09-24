@@ -584,6 +584,13 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
 }
 .optimal-card:hover { border-color: var(--gold); }
 .optimal-slot { grid-template-columns: 38px 1fr auto auto; }
+.optimal-slot.with-actual { grid-template-columns: 38px 1fr auto auto 36px; }
+.ls-actual { color: var(--text); font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.lt-actual { color: var(--text); font-weight: 700; }
+.hindsight-card { border-color: var(--green); }
+.hindsight-card:hover { border-color: var(--green); }
+.hindsight-card .optimal-title { color: var(--green); }
+.optimal-note { margin: 0 0 6px; color: var(--muted); font-size: 11px; }
 .optimal-title { font-weight: 700; color: var(--gold); padding: 0 4px; }
 .optimal-copy {
   margin-left: auto;

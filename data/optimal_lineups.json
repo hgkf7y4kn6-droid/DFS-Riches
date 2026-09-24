@@ -1,6 +1,474 @@
 {
-  "_readme": "Optimal DraftKings lineups per season/week/slate as they stood before that slate's first kickoff (app/optimal.py). Written automatically while a slate is still open; frozen once it starts.",
+  "_readme": "Optimal DraftKings lineups per season/week/slate as they stood before that slate's first kickoff (app/optimal.py): written automatically while a slate is still open, frozen once it starts, then scored with actual points (per player and lineup) plus a hindsight best-possible lineup once every game is final.",
   "2026": {
+    "1": {
+      "classic": {
+        "saved_at": null,
+        "draft_group_id": 153054,
+        "lineups": [],
+        "hindsight": {
+          "metric": "actual",
+          "label": "Best possible (actual)",
+          "players": [
+            {
+              "slot": "QB",
+              "name": "Bryce Young",
+              "position": "QB",
+              "team": "CAR",
+              "opponent": "CHI",
+              "roster_slot": "",
+              "salary": 5200,
+              "game_info": "CHI @ CAR",
+              "dk_draftable_id": 44037524,
+              "actual": 35.44
+            },
+            {
+              "slot": "RB",
+              "name": "Derrick Henry",
+              "position": "RB",
+              "team": "BAL",
+              "opponent": "IND",
+              "roster_slot": "",
+              "salary": 6700,
+              "game_info": "BAL @ IND",
+              "dk_draftable_id": 44037625,
+              "actual": 38.3
+            },
+            {
+              "slot": "RB",
+              "name": "Ashton Jeanty",
+              "position": "RB",
+              "team": "LV",
+              "opponent": "MIA",
+              "roster_slot": "",
+              "salary": 6600,
+              "game_info": "MIA @ LV",
+              "dk_draftable_id": 44037627,
+              "actual": 35.7
+            },
+            {
+              "slot": "WR",
+              "name": "Chris Olave",
+              "position": "WR",
+              "team": "NO",
+              "opponent": "DET",
+              "roster_slot": "",
+              "salary": 6700,
+              "game_info": "NO @ DET",
+              "dk_draftable_id": 44037995,
+              "actual": 31.2
+            },
+            {
+              "slot": "WR",
+              "name": "Christian Watson",
+              "position": "WR",
+              "team": "GB",
+              "opponent": "MIN",
+              "roster_slot": "",
+              "salary": 5900,
+              "game_info": "GB @ MIN",
+              "dk_draftable_id": 44038025,
+              "actual": 35.7
+            },
+            {
+              "slot": "WR",
+              "name": "Jalen Coker",
+              "position": "WR",
+              "team": "CAR",
+              "opponent": "CHI",
+              "roster_slot": "",
+              "salary": 4600,
+              "game_info": "CHI @ CAR",
+              "dk_draftable_id": 44038085,
+              "actual": 36.8
+            },
+            {
+              "slot": "TE",
+              "name": "Isaiah Likely",
+              "position": "TE",
+              "team": "NYG",
+              "opponent": "DAL",
+              "roster_slot": "",
+              "salary": 4300,
+              "game_info": "DAL @ NYG",
+              "dk_draftable_id": 44038599,
+              "actual": 27.8
+            },
+            {
+              "slot": "FLEX",
+              "name": "Kenneth Walker III",
+              "position": "RB",
+              "team": "KC",
+              "opponent": "DEN",
+              "roster_slot": "",
+              "salary": 6500,
+              "game_info": "DEN @ KC",
+              "dk_draftable_id": 44037629,
+              "actual": 37.1
+            },
+            {
+              "slot": "DST",
+              "name": "Steelers",
+              "position": "DST",
+              "team": "PIT",
+              "opponent": "ATL",
+              "roster_slot": "",
+              "salary": 3300,
+              "game_info": "ATL @ PIT",
+              "dk_draftable_id": 44038955,
+              "actual": 18.0
+            }
+          ],
+          "salary": 49800,
+          "actual": 296.04
+        },
+        "results_at": "2026-09-24T20:27:20+00:00"
+      },
+      "showdown_wed_night": {
+        "saved_at": null,
+        "draft_group_id": 153112,
+        "lineups": [],
+        "hindsight": {
+          "metric": "actual",
+          "label": "Best possible (actual)",
+          "players": [
+            {
+              "slot": "CPT",
+              "name": "Jaxon Smith-Njigba",
+              "position": "WR",
+              "team": "SEA",
+              "opponent": "NE",
+              "roster_slot": "CPT",
+              "salary": 16800,
+              "game_info": "NE @ SEA",
+              "dk_draftable_id": 44041729,
+              "actual": 43.8
+            },
+            {
+              "slot": "FLEX",
+              "name": "Drake Maye",
+              "position": "QB",
+              "team": "NE",
+              "opponent": "SEA",
+              "roster_slot": "FLEX",
+              "salary": 10400,
+              "game_info": "NE @ SEA",
+              "dk_draftable_id": 44041696,
+              "actual": 12.82
+            },
+            {
+              "slot": "FLEX",
+              "name": "Rhamondre Stevenson",
+              "position": "RB",
+              "team": "NE",
+              "opponent": "SEA",
+              "roster_slot": "FLEX",
+              "salary": 7400,
+              "game_info": "NE @ SEA",
+              "dk_draftable_id": 44041701,
+              "actual": 14.5
+            },
+            {
+              "slot": "FLEX",
+              "name": "Drew Lock",
+              "position": "QB",
+              "team": "SEA",
+              "opponent": "NE",
+              "roster_slot": "FLEX",
+              "salary": 6000,
+              "game_info": "NE @ SEA",
+              "dk_draftable_id": 44041705,
+              "actual": 12.78
+            },
+            {
+              "slot": "FLEX",
+              "name": "Seahawks",
+              "position": "DST",
+              "team": "SEA",
+              "opponent": "NE",
+              "roster_slot": "FLEX",
+              "salary": 3600,
+              "game_info": "NE @ SEA",
+              "dk_draftable_id": 44041712,
+              "actual": 13.0
+            },
+            {
+              "slot": "FLEX",
+              "name": "Mack Hollins",
+              "position": "WR",
+              "team": "NE",
+              "opponent": "SEA",
+              "roster_slot": "FLEX",
+              "salary": 1000,
+              "game_info": "NE @ SEA",
+              "dk_draftable_id": 44041722,
+              "actual": 9.1
+            }
+          ],
+          "salary": 45200,
+          "actual": 106.0
+        },
+        "results_at": "2026-09-24T20:27:22+00:00"
+      },
+      "showdown_thu_night": {
+        "saved_at": null,
+        "draft_group_id": 153072,
+        "lineups": [],
+        "hindsight": {
+          "metric": "actual",
+          "label": "Best possible (actual)",
+          "players": [
+            {
+              "slot": "CPT",
+              "name": "Brock Purdy",
+              "position": "QB",
+              "team": "SF",
+              "opponent": "LAR",
+              "roster_slot": "CPT",
+              "salary": 14100,
+              "game_info": "SF @ LAR",
+              "dk_draftable_id": 44080771,
+              "actual": 33.15
+            },
+            {
+              "slot": "FLEX",
+              "name": "Kyren Williams",
+              "position": "RB",
+              "team": "LAR",
+              "opponent": "SF",
+              "roster_slot": "FLEX",
+              "salary": 8600,
+              "game_info": "SF @ LAR",
+              "dk_draftable_id": 44080719,
+              "actual": 15.5
+            },
+            {
+              "slot": "FLEX",
+              "name": "Mike Evans",
+              "position": "WR",
+              "team": "SF",
+              "opponent": "LAR",
+              "roster_slot": "FLEX",
+              "salary": 8200,
+              "game_info": "SF @ LAR",
+              "dk_draftable_id": 44080720,
+              "actual": 16.9
+            },
+            {
+              "slot": "FLEX",
+              "name": "Deebo Samuel Sr.",
+              "position": "WR",
+              "team": "SF",
+              "opponent": "LAR",
+              "roster_slot": "FLEX",
+              "salary": 7000,
+              "game_info": "SF @ LAR",
+              "dk_draftable_id": 44080722,
+              "actual": 18.0
+            },
+            {
+              "slot": "FLEX",
+              "name": "Eddy Pineiro",
+              "position": "K",
+              "team": "SF",
+              "opponent": "LAR",
+              "roster_slot": "FLEX",
+              "salary": 4800,
+              "game_info": "SF @ LAR",
+              "dk_draftable_id": 44080730,
+              "actual": 11.0
+            },
+            {
+              "slot": "FLEX",
+              "name": "Demarcus Robinson",
+              "position": "WR",
+              "team": "SF",
+              "opponent": "LAR",
+              "roster_slot": "FLEX",
+              "salary": 3800,
+              "game_info": "SF @ LAR",
+              "dk_draftable_id": 44080734,
+              "actual": 13.0
+            }
+          ],
+          "salary": 46500,
+          "actual": 107.55
+        },
+        "results_at": "2026-09-24T20:27:22+00:00"
+      },
+      "showdown_sun_night": {
+        "saved_at": null,
+        "draft_group_id": 153085,
+        "lineups": [],
+        "hindsight": {
+          "metric": "actual",
+          "label": "Best possible (actual)",
+          "players": [
+            {
+              "slot": "CPT",
+              "name": "Isaiah Likely",
+              "position": "TE",
+              "team": "NYG",
+              "opponent": "DAL",
+              "roster_slot": "CPT",
+              "salary": 9600,
+              "game_info": "DAL @ NYG",
+              "dk_draftable_id": 44104913,
+              "actual": 41.7
+            },
+            {
+              "slot": "FLEX",
+              "name": "Dak Prescott",
+              "position": "QB",
+              "team": "DAL",
+              "opponent": "NYG",
+              "roster_slot": "FLEX",
+              "salary": 10400,
+              "game_info": "DAL @ NYG",
+              "dk_draftable_id": 44104856,
+              "actual": 15.4
+            },
+            {
+              "slot": "FLEX",
+              "name": "Jaxson Dart",
+              "position": "QB",
+              "team": "NYG",
+              "opponent": "DAL",
+              "roster_slot": "FLEX",
+              "salary": 9600,
+              "game_info": "DAL @ NYG",
+              "dk_draftable_id": 44104858,
+              "actual": 26.6
+            },
+            {
+              "slot": "FLEX",
+              "name": "Javonte Williams",
+              "position": "RB",
+              "team": "DAL",
+              "opponent": "NYG",
+              "roster_slot": "FLEX",
+              "salary": 9000,
+              "game_info": "DAL @ NYG",
+              "dk_draftable_id": 44104860,
+              "actual": 24.2
+            },
+            {
+              "slot": "FLEX",
+              "name": "Cam Skattebo",
+              "position": "RB",
+              "team": "NYG",
+              "opponent": "DAL",
+              "roster_slot": "FLEX",
+              "salary": 8400,
+              "game_info": "DAL @ NYG",
+              "dk_draftable_id": 44104861,
+              "actual": 14.1
+            },
+            {
+              "slot": "FLEX",
+              "name": "Devin Singletary",
+              "position": "RB",
+              "team": "NYG",
+              "opponent": "DAL",
+              "roster_slot": "FLEX",
+              "salary": 1400,
+              "game_info": "DAL @ NYG",
+              "dk_draftable_id": 44104882,
+              "actual": 13.8
+            }
+          ],
+          "salary": 48400,
+          "actual": 135.8
+        },
+        "results_at": "2026-09-24T20:27:23+00:00"
+      },
+      "showdown_mon_night": {
+        "saved_at": null,
+        "draft_group_id": 153086,
+        "lineups": [],
+        "hindsight": {
+          "metric": "actual",
+          "label": "Best possible (actual)",
+          "players": [
+            {
+              "slot": "CPT",
+              "name": "Kenneth Walker III",
+              "position": "RB",
+              "team": "KC",
+              "opponent": "DEN",
+              "roster_slot": "CPT",
+              "salary": 15900,
+              "game_info": "DEN @ KC",
+              "dk_draftable_id": 44105012,
+              "actual": 55.65
+            },
+            {
+              "slot": "FLEX",
+              "name": "Patrick Mahomes",
+              "position": "QB",
+              "team": "KC",
+              "opponent": "DEN",
+              "roster_slot": "FLEX",
+              "salary": 9600,
+              "game_info": "DEN @ KC",
+              "dk_draftable_id": 44104959,
+              "actual": 22.66
+            },
+            {
+              "slot": "FLEX",
+              "name": "Rashee Rice",
+              "position": "WR",
+              "team": "KC",
+              "opponent": "DEN",
+              "roster_slot": "FLEX",
+              "salary": 9400,
+              "game_info": "DEN @ KC",
+              "dk_draftable_id": 44104960,
+              "actual": 9.9
+            },
+            {
+              "slot": "FLEX",
+              "name": "Travis Kelce",
+              "position": "TE",
+              "team": "KC",
+              "opponent": "DEN",
+              "roster_slot": "FLEX",
+              "salary": 7000,
+              "game_info": "DEN @ KC",
+              "dk_draftable_id": 44104965,
+              "actual": 10.1
+            },
+            {
+              "slot": "FLEX",
+              "name": "Chiefs",
+              "position": "DST",
+              "team": "KC",
+              "opponent": "DEN",
+              "roster_slot": "FLEX",
+              "salary": 4400,
+              "game_info": "DEN @ KC",
+              "dk_draftable_id": 44104974,
+              "actual": 11.0
+            },
+            {
+              "slot": "FLEX",
+              "name": "Evan Engram",
+              "position": "TE",
+              "team": "DEN",
+              "opponent": "KC",
+              "roster_slot": "FLEX",
+              "salary": 3400,
+              "game_info": "DEN @ KC",
+              "dk_draftable_id": 44104977,
+              "actual": 14.3
+            }
+          ],
+          "salary": 49700,
+          "actual": 123.61
+        },
+        "results_at": "2026-09-24T20:27:24+00:00"
+      }
+    },
     "3": {
       "classic": {
         "saved_at": "2026-09-24T20:19:17+00:00",

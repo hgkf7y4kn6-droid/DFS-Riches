@@ -14,6 +14,9 @@ DraftKings Classic scoring (DST, per team per game):
   +1/sack, +2/interception, +2/fumble recovery, +2/safety, +2/blocked kick,
   +6/defensive or return TD, then points-allowed tiers:
   0 -> +10, 1-6 -> +7, 7-13 -> +4, 14-20 -> +1, 21-27 -> 0, 28-34 -> -1, 35+ -> -4
+
+DraftKings Showdown kicker scoring: +1/PAT made, +3/FG 0-39 yds, +4/FG 40-49,
++5/FG 50+.
 """
 from __future__ import annotations
 
@@ -89,4 +92,14 @@ def dk_dst_points(row: dict, points_allowed: float | None) -> float:
     points += (_f(row, "def_punt_blocks") + _f(row, "def_pat_blocks") + _f(row, "def_fg_blocks")) * 2
     points += _f(row, "def_tds") * 6
     points += _points_allowed_bonus(points_allowed)
+    return round(points, 2)
+
+
+def dk_kicker_points(row: dict) -> float:
+    """DraftKings Showdown kicker scoring (kickers only appear in Showdown):
+    +1 per PAT made, +3 per FG made of 0-39 yards, +4 for 40-49, +5 for 50+."""
+    points = _f(row, "pat_made") * 1
+    points += (_f(row, "fg_made_0_19") + _f(row, "fg_made_20_29") + _f(row, "fg_made_30_39")) * 3
+    points += _f(row, "fg_made_40_49") * 4
+    points += (_f(row, "fg_made_50_59") + _f(row, "fg_made_60_")) * 5
     return round(points, 2)
