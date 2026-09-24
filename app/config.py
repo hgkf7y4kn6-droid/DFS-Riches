@@ -54,4 +54,8 @@ ISOLATED_DAY_PARTS = {"WED_NIGHT", "THU_NIGHT", "SUN_NIGHT", "MON_NIGHT"}
 # (single game, CPT slot at 1.5x salary/points + 5 FLEX slots). Verified
 # against DraftKings' own live draft-group listing for the 2026 slate.
 DK_SHOWDOWN_GAME_TYPE_ID = 96
+# contestTypeId for the standard NFL Classic salary-cap slate (QB/2RB/3WR/TE/
+# FLEX/DST, $50k). Other 16-game groups share the same week window but have no
+# per-player salaries (e.g. contestTypeId 145 "Tournament"/"W3-W17" and 189).
+DK_CLASSIC_CONTEST_TYPE_ID = 21
 DK_SHOWDOWN_CPT_SLOT_IDS = {511}

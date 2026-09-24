@@ -451,8 +451,7 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
 
 .lineup-cards {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(260px, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 12px;
   padding-bottom: 4px;
 }
@@ -608,7 +607,11 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
 
 @media (max-width: 640px) {
   .lineup-builder { padding: 0 10px 12px; }
-  .lineup-cards { grid-auto-columns: minmax(250px, 85%); }
+  .lineup-cards {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(250px, 85%);
+  }
 }
 
 .status-healthy { color: var(--green); }

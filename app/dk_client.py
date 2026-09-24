@@ -31,6 +31,7 @@ import httpx
 from app.cache import cached_fetch
 from app.config import (
     DK_BASE,
+    DK_CLASSIC_CONTEST_TYPE_ID,
     DK_OVERRIDES_PATH,
     DK_SHOWDOWN_CPT_SLOT_IDS,
     DK_SHOWDOWN_GAME_TYPE_ID,
@@ -122,11 +123,14 @@ async def discover_draft_groups(schedule: WeekSchedule) -> dict[str, Any]:
         start = _parse_dk_timestamp(group.get("minStartTime", ""))
         return start is not None and week_start <= start <= week_end
 
-    # --- Classic: the live "Upcoming" full-slate group whose game count
-    # matches the number of games we know about this week from Sleeper.
+    # --- Classic: the live "Upcoming" Classic salary-cap group whose game
+    # count matches the number of games we know about this week from Sleeper.
     classic_candidates = [
         g for g in nfl_groups
-        if total_games > 0 and len(g.get("games") or []) == total_games and _in_week_window(g)
+        if total_games > 0
+        and (g.get("contestType") or {}).get("contestTypeId") == DK_CLASSIC_CONTEST_TYPE_ID
+        and len(g.get("games") or []) == total_games
+        and _in_week_window(g)
     ]
     if classic_candidates:
         best = max(classic_candidates, key=lambda g: len(g.get("games") or []))
