@@ -120,6 +120,10 @@ which returns empty stats for every player. Sleeper projects roughly the top
 "-". Showdown Captain (CPT) rows show salary, Proj, and Sleeper Proj at
 DraftKings' 1.5x multiplier.
 
+### Hiding injured players
+
+The **Injury status** menu above the player table filters the pool: **All players**, **Hide Out, IR & Doubtful** (keeps Questionable players, who usually play), or **Healthy only**. It shows how many players are hidden, combines with the position and search filters, and is remembered in your browser. Players already in one of your lineups stay there even if hidden.
+
 ### Ceiling
 
 The **Ceiling** column estimates each player's 85th-percentile DraftKings

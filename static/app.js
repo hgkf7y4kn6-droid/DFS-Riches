@@ -15,6 +15,7 @@
     lineups: [],
     activeLineup: 0,
     optimal: null,
+    injuryFilter: "all",
   };
 
   const L = window.DFSLineups;
@@ -38,6 +39,8 @@
   const optimalWrapEl = document.getElementById("optimal-wrap");
   const optimalStatusEl = document.getElementById("optimal-status");
   const optimalCardsEl = document.getElementById("optimal-cards");
+  const injuryFilterEl = document.getElementById("injury-filter");
+  const injuryHiddenCountEl = document.getElementById("injury-hidden-count");
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -261,8 +264,19 @@
       `(shown with 0.0 proj): ${state.unmatched.join(", ")}`;
   }
 
+  const INJURY_FILTER_KEY = "dfsriches:injuryFilter";
+  const PLAYABLE_STATUSES = new Set(["Healthy", "Q"]);
+
+  function passesInjuryFilter(p) {
+    if (state.injuryFilter === "healthy") return p.injury === "Healthy";
+    if (state.injuryFilter === "no_out") return PLAYABLE_STATUSES.has(p.injury);
+    return true;
+  }
+
   function getFilteredSortedPlayers() {
-    let rows = state.players;
+    let rows = state.players.filter(passesInjuryFilter);
+    const hidden = state.players.length - rows.length;
+    injuryHiddenCountEl.textContent = hidden ? `${hidden} hidden` : "";
     if (state.activePositions.size > 0) {
       rows = rows.filter((p) => state.activePositions.has(p.position));
     }
@@ -754,6 +768,22 @@
   document.getElementById("load-week-btn").addEventListener("click", loadWeek);
   searchBoxEl.addEventListener("input", (e) => {
     state.search = e.target.value;
+    renderTable();
+  });
+  try {
+    const saved = localStorage.getItem(INJURY_FILTER_KEY);
+    if (saved && [...injuryFilterEl.options].some((o) => o.value === saved)) state.injuryFilter = saved;
+  } catch (_e) {
+    // storage unavailable: default to showing all players
+  }
+  injuryFilterEl.value = state.injuryFilter;
+  injuryFilterEl.addEventListener("change", (e) => {
+    state.injuryFilter = e.target.value;
+    try {
+      localStorage.setItem(INJURY_FILTER_KEY, state.injuryFilter);
+    } catch (_e) {
+      // storage unavailable: the choice just won't persist
+    }
     renderTable();
   });
   document.querySelectorAll("#players-table thead th[data-key]").forEach((th) => {

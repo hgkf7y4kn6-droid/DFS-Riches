@@ -79,6 +79,14 @@
       <label class="visually-hidden" for="search-box">Search players by name, team, or opponent</label>
       <input id="search-box" type="search" placeholder="Search player, team..." />
       <div id="position-filters" class="position-filters" role="group" aria-label="Filter by position"></div>
+      <label class="injury-filter">Injury status
+        <select id="injury-filter">
+          <option value="all">All players</option>
+          <option value="no_out">Hide Out, IR &amp; Doubtful</option>
+          <option value="healthy">Healthy only</option>
+        </select>
+        <span id="injury-hidden-count" class="injury-hidden-count" aria-live="polite"></span>
+      </label>
       <div class="match-stats" id="match-stats" aria-live="polite"></div>
     </div>
     <div class="table-scroll">

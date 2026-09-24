@@ -333,6 +333,24 @@ body {
   color: #241c02;
   font-weight: 700;
 }
+.injury-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+#injury-filter {
+  min-height: 44px; /* touch target */
+  padding: 6px 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 16px; /* prevents iOS Safari's auto-zoom-on-focus below 16px */
+}
+#injury-filter:focus-visible { border-color: var(--gold); }
+.injury-hidden-count { color: var(--red); white-space: nowrap; }
 .match-stats {
   margin-left: auto;
   color: var(--muted);
