@@ -80,6 +80,7 @@
     const filled = slots.filter(Boolean);
     const salary = filled.reduce((s, p) => s + p.salary, 0);
     const proj = filled.reduce((s, p) => s + (p.proj_points || 0), 0);
+    const ceiling = filled.reduce((s, p) => s + (p.ceiling || 0), 0);
     const withSleeper = filled.filter((p) => p.sleeper_proj != null);
     const sleeperProj = withSleeper.reduce((s, p) => s + p.sleeper_proj, 0);
     const open = slots.length - filled.length;
@@ -101,6 +102,7 @@
       remaining,
       avgRemaining: open > 0 ? Math.floor(remaining / open) : null,
       proj: Math.round(proj * 100) / 100,
+      ceiling: Math.round(ceiling * 100) / 100,
       sleeperProj: Math.round(sleeperProj * 100) / 100,
       sleeperCount: withSleeper.length,
       filled: filled.length,

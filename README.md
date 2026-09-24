@@ -117,6 +117,35 @@ which returns empty stats for every player. Sleeper projects roughly the top
 "-". Showdown Captain (CPT) rows show salary, Proj, and Sleeper Proj at
 DraftKings' 1.5x multiplier.
 
+### Ceiling
+
+The **Ceiling** column estimates each player's 85th-percentile DraftKings
+score this week, a score they'd reach or beat about one game in seven
+(`app/ceiling.py`). Hover a value to see exactly how it was built:
+
+- **History:** the player's last 12 games (nflverse box scores through DK
+  scoring), recency-weighted so each older game counts 15% less, as mean +
+  1.04 x spread. Small samples are pulled toward the position's typical
+  game-to-game variability, measured from the same data.
+- **Matchup:** DK points the opponent allowed to that position over its last
+  8 games vs the league average. For DSTs, it's the opponent offense's
+  points scored instead.
+- **Game environment:** the team's implied total vs the slate average (for
+  DSTs, the opponent's implied total, inverted).
+- **Week Breakdown flags:** the same signals the breakdown page raises: pass
+  funnel (QB/WR/TE), rush funnel (RB), both offenses top-10 pace, and a
+  yards/play efficiency mismatch.
+- **Team utilization:** the player's share of team targets + carries over
+  the last 3 games vs the last 8 (RB/WR/TE), so a growing role raises the
+  ceiling.
+
+Each factor is shrunk toward neutral and capped at about ±15%. Their
+combined effect is capped at -20%/+25%, since matchup and implied total
+partly measure the same thing. Showdown Captain ceilings are 1.5x. Early in
+the season a hot starter's "Proj" (DK's season FPPG over just a couple of
+games) can sit slightly above their Ceiling. Lineup cards also total each
+lineup's ceiling.
+
 ### Lineup builder
 
 On any slate, click a player row (or its **+** button) to add them to the
@@ -334,6 +363,7 @@ app/
   dk_client.py      DraftKings API: draft-group discovery + salary parsing
   matching.py       DK <-> Sleeper name normalization and matching
   slates.py         orchestrates schedule + DK + Sleeper into the final tables
+  ceiling.py        per-player 85th-percentile Ceiling (history x matchup x game env x breakdown x usage)
   breakdown.py      builds the per-game Week Breakdown page (stats, ranks, original takeaways)
   models.py         shared pydantic response models
   main.py           FastAPI routes

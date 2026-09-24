@@ -560,6 +560,8 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
 .lineup-totals dd { margin: 0; font-variant-numeric: tabular-nums; }
 .lineup-totals dd.over { color: var(--red); font-weight: 700; }
 .lineup-totals .lt-proj { color: var(--gold); font-weight: 700; }
+.lt-ceiling { color: var(--green); font-weight: 700; }
+.ceiling-cell { color: var(--green); cursor: help; }
 .lt-note { color: var(--muted); font-size: 10px; }
 .lineup-errors {
   margin: 6px 0 0;

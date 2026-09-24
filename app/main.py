@@ -17,6 +17,7 @@ from __future__ import annotations
 import os
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -41,6 +42,7 @@ class _CachedStaticFiles(StaticFiles):
 
 
 app = FastAPI(title="DFSRiches", description="DraftKings DFS explorer")
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 app.mount("/static", _CachedStaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))

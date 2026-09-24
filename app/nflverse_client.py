@@ -239,6 +239,69 @@ async def get_team_dst_trailing_index(season: int) -> dict[str, list[list]]:
     return await cached_fetch(f"nflverse_team_dst_trailing_index_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
 
 
+_SKILL_POSITIONS = ("QB", "RB", "WR", "TE")
+
+
+def recent_values(entries: list[list], season: int, week: int, n: int, col: int = 2) -> list[float]:
+    """The col-th value of the last n entries strictly before (season, week),
+    oldest first, skipping entries whose value is None."""
+    prior = sorted(e for e in entries if (e[0], e[1]) < (season, week) and e[col] is not None)
+    return [e[col] for e in prior[-n:]]
+
+
+async def get_player_game_log_index(season: int) -> dict:
+    """Per-game data behind the Ceiling column, for this season and the prior:
+
+    players:    player_key -> [[season, week, dk_points, opportunity_share], ...]
+                opportunity_share = (targets + carries) / (team pass attempts +
+                team carries); None for QBs.
+    def_vs_pos: defense team -> position -> [[season, week, dk_points_allowed], ...]
+                the summed DK points every player at that position scored
+                against that defense in that game.
+    """
+
+    async def fetch() -> dict:
+        players: dict[str, list[list]] = {}
+        def_vs_pos: dict[str, dict[str, dict[tuple, float]]] = {}
+        for szn in (season - 1, season):
+            team_opps: dict[tuple[int, str], float] = {}
+            for row in await _fetch_team_week_rows(szn):
+                week = _to_int(row.get("week"))
+                if week is None:
+                    continue
+                opps = (_to_float(row.get("attempts")) or 0.0) + (_to_float(row.get("carries")) or 0.0)
+                team_opps[(week, to_app_team(row.get("team", "")))] = opps
+
+            for row in await _fetch_player_week_rows(szn):
+                name, position = row.get("player_display_name"), row.get("position")
+                week = _to_int(row.get("week"))
+                if not name or position not in _SKILL_POSITIONS or week is None:
+                    continue
+                points = dk_scoring.dk_offense_points(row)
+                share = None
+                if position != "QB":
+                    denom = team_opps.get((week, to_app_team(row.get("team", ""))))
+                    if denom:
+                        touches = (_to_float(row.get("targets")) or 0.0) + (_to_float(row.get("carries")) or 0.0)
+                        share = round(touches / denom, 4)
+                players.setdefault(player_key(name, position), []).append([szn, week, points, share])
+
+                opp = to_app_team(row.get("opponent_team", ""))
+                if opp:
+                    games = def_vs_pos.setdefault(opp, {}).setdefault(position, {})
+                    games[(szn, week)] = games.get((szn, week), 0.0) + points
+
+        return {
+            "players": players,
+            "def_vs_pos": {
+                team: {pos: [[s, w, round(p, 2)] for (s, w), p in sorted(games.items())] for pos, games in by_pos.items()}
+                for team, by_pos in def_vs_pos.items()
+            },
+        }
+
+    return await cached_fetch(f"nflverse_player_game_log_index_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+
+
 def trailing_dk_fppg(season: int, week: int, n: int, *, player_index: dict, name: str, position: str) -> float | None:
     key = player_key(name, position)
     return _trailing_avg(player_index.get(key, []), season, week, n)

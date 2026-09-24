@@ -88,6 +88,8 @@ class Player(BaseModel):
     trend_l3: float | None = None     # real DK-style FPPG over the player's last 3 games
     trend_l6: float | None = None     # ...last 6 games
     trend_l9: float | None = None     # ...last 9 games
+    ceiling: float | None = None      # 85th-percentile DK score estimate (app.ceiling), x1.5 for CPT
+    ceiling_notes: list[str] = []     # one line per factor behind the ceiling
     value_per_1k: float
     game_info: str
     injury: str | None = None

@@ -320,6 +320,7 @@
         <td>${escapeHtml(p.game_info)}</td>
         <td class="num">${fmtSalary(p.salary)}</td>
         <td class="num">${p.proj_points.toFixed(1)}</td>
+        <td class="num ceiling-cell"${p.ceiling_notes && p.ceiling_notes.length ? ` title="${escapeHtml(p.ceiling_notes.join("\n"))}"` : ""}>${p.ceiling != null ? p.ceiling.toFixed(1) : "-"}</td>
         <td class="num">${p.dk_fppg != null ? p.dk_fppg.toFixed(1) : "-"}</td>
         <td class="num">${p.trend_l3 != null ? p.trend_l3.toFixed(1) : "-"}</td>
         <td class="num">${p.trend_l6 != null ? p.trend_l6.toFixed(1) : "-"}</td>
@@ -445,6 +446,7 @@
           <div><dt>Remaining</dt><dd class="${remainingCls}">${s.remaining < 0 ? "-" : ""}${fmtSalary(Math.abs(s.remaining))}</dd></div>
           <div><dt>Avg/open slot</dt><dd>${s.avgRemaining != null ? fmtSalary(Math.max(0, s.avgRemaining)) : "-"}</dd></div>
           <div><dt>Proj</dt><dd class="lt-proj">${fmtPts(s.proj)}</dd></div>
+          <div><dt>Ceiling</dt><dd class="lt-ceiling">${fmtPts(s.ceiling)}</dd></div>
           <div><dt>Sleeper Proj</dt><dd>${sleeperTxt}</dd></div>
         </dl>
         ${s.errors.length && s.filled > 0 ? `<ul class="lineup-errors">${s.errors.map((e) => `<li>${escapeHtml(e)}</li>`).join("")}</ul>` : ""}
@@ -459,7 +461,7 @@
       lineupStickySummaryEl.innerHTML =
         `<strong>Lineup ${state.activeLineup + 1}</strong> ${cur.filled}/${cur.total} &middot; ` +
         `<span class="${cur.remaining < 0 ? "over" : ""}">${cur.remaining < 0 ? "-" : ""}${fmtSalary(Math.abs(cur.remaining))} left</span> &middot; ` +
-        `Proj <span class="lt-proj">${fmtPts(cur.proj)}</span>`;
+        `Proj <span class="lt-proj">${fmtPts(cur.proj)}</span> &middot; Ceiling <span class="lt-ceiling">${fmtPts(cur.ceiling)}</span>`;
     }
   }
 

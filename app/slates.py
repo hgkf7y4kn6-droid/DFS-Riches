@@ -8,7 +8,7 @@ is built for each isolated Wednesday/Thursday/Sunday/Monday night game.
 """
 from __future__ import annotations
 
-from app import dk_client, matching, nflverse_client, sleeper_client
+from app import ceiling, dk_client, matching, nflverse_client, sleeper_client
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
 from app.models import Player, Slate, SlatePlayers, WeekSchedule
@@ -67,7 +67,7 @@ async def list_slates(season: int, week: int) -> tuple[WeekSchedule, list[Slate]
 
 
 async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlayers:
-    _schedule, slates = await list_slates(season, week)
+    schedule, slates = await list_slates(season, week)
     slate = next((s for s in slates if s.slate_id == slate_id), None)
     if slate is None:
         raise ValueError(f"Unknown slate_id: {slate_id}")
@@ -82,6 +82,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
     index = await _get_sleeper_index()
     player_trailing_index = await nflverse_client.get_player_trailing_index(season)
     team_dst_trailing_index = await nflverse_client.get_team_dst_trailing_index(season)
+    ceiling_ctx = await ceiling.build_context(season, week, schedule)
 
     players: list[Player] = []
     unmatched: list[str] = []
@@ -111,6 +112,18 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         trend_l6 = trend_fn(season, week, 6, **trend_args)
         trend_l9 = trend_fn(season, week, 9, **trend_args)
 
+        player_ceiling, ceiling_notes = ceiling.player_ceiling(
+            ceiling_ctx,
+            name=row["name"],
+            position=row["position"],
+            team=row["team"],
+            opponent=row["opponent"],
+            fallback_mean=row["dk_fppg"],
+        )
+        if is_captain and player_ceiling is not None:
+            player_ceiling = round(player_ceiling * 1.5, 1)
+            ceiling_notes = ceiling_notes + ["Captain x1.50"]
+
         players.append(
             Player(
                 name=row["name"],
@@ -125,6 +138,8 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
                 trend_l3=trend_l3,
                 trend_l6=trend_l6,
                 trend_l9=trend_l9,
+                ceiling=player_ceiling,
+                ceiling_notes=ceiling_notes,
                 value_per_1k=value,
                 game_info=row["game_info"],
                 injury=row["injury"],
