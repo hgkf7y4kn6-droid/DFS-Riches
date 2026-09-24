@@ -108,6 +108,17 @@ def test_dst_matchup_and_game_env_are_inverted():
     assert any(n.startswith("Game env x1.") and "OPP implied 16" in n for n in notes)
 
 
+def test_player_with_only_past_season_games_is_discounted_after_week_1():
+    last_year_only = {RB_KEY: [[2025, w, 20.0, 0.30] for w in range(10, 18)]}
+    this_year = {RB_KEY: last_year_only[RB_KEY] + [[2026, 1, 20.0, 0.30]]}
+    discounted, notes = _ceil(_ctx(players=last_year_only))
+    active, _ = _ceil(_ctx(players=this_year))
+    assert discounted < active * 0.6
+    assert notes[-1].startswith("Role x0.50: no games played this season")
+    week1, week1_notes = _ceil(_ctx(players=last_year_only, week=1))
+    assert not any(n.startswith("Role") for n in week1_notes)
+
+
 def test_recency_weighting_favors_recent_games():
     mean, _sd, n_eff = _weighted_stats([10.0] * 10 + [30.0, 30.0])
     assert mean > 10.0 + (20.0 * 2 / 12)  # above the unweighted mean

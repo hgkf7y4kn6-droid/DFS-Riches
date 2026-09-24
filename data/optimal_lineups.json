@@ -3,7 +3,7 @@
   "2026": {
     "3": {
       "classic": {
-        "saved_at": "2026-09-24T20:14:06+00:00",
+        "saved_at": "2026-09-24T20:19:17+00:00",
         "draft_group_id": 153768,
         "lineups": [
           {
@@ -156,18 +156,18 @@
             "players": [
               {
                 "slot": "QB",
-                "name": "Justin Fields",
+                "name": "Jared Goff",
                 "position": "QB",
-                "team": "KC",
-                "opponent": "MIA",
+                "team": "DET",
+                "opponent": "NYJ",
                 "roster_slot": "",
-                "salary": 4000,
-                "proj_points": 0.0,
-                "ceiling": 29.5,
-                "sleeper_proj": null,
-                "game_info": "KC @ MIA",
+                "salary": 6300,
+                "proj_points": 24.6,
+                "ceiling": 38.3,
+                "sleeper_proj": 18.93,
+                "game_info": "NYJ @ DET",
                 "injury": "Healthy",
-                "dk_draftable_id": 44224471
+                "dk_draftable_id": 44224385
               },
               {
                 "slot": "RB",
@@ -216,21 +216,6 @@
               },
               {
                 "slot": "WR",
-                "name": "Christian Watson",
-                "position": "WR",
-                "team": "GB",
-                "opponent": "ATL",
-                "roster_slot": "",
-                "salary": 6400,
-                "proj_points": 24.9,
-                "ceiling": 36.2,
-                "sleeper_proj": 15.62,
-                "game_info": "ATL @ GB",
-                "injury": "Healthy",
-                "dk_draftable_id": 44224889
-              },
-              {
-                "slot": "WR",
                 "name": "Jalen Coker",
                 "position": "WR",
                 "team": "CAR",
@@ -245,19 +230,34 @@
                 "dk_draftable_id": 44224919
               },
               {
-                "slot": "TE",
-                "name": "Travis Kelce",
-                "position": "TE",
-                "team": "KC",
-                "opponent": "MIA",
+                "slot": "WR",
+                "name": "Denzel Boston",
+                "position": "WR",
+                "team": "CLE",
+                "opponent": "CAR",
                 "roster_slot": "",
                 "salary": 4500,
-                "proj_points": 19.1,
-                "ceiling": 26.1,
-                "sleeper_proj": 11.94,
-                "game_info": "KC @ MIA",
+                "proj_points": 17.2,
+                "ceiling": 28.2,
+                "sleeper_proj": 9.75,
+                "game_info": "CAR @ CLE",
                 "injury": "Healthy",
-                "dk_draftable_id": 44225479
+                "dk_draftable_id": 44224967
+              },
+              {
+                "slot": "TE",
+                "name": "Dalton Schultz",
+                "position": "TE",
+                "team": "HOU",
+                "opponent": "IND",
+                "roster_slot": "",
+                "salary": 4200,
+                "proj_points": 18.3,
+                "ceiling": 24.9,
+                "sleeper_proj": 10.29,
+                "game_info": "HOU @ IND",
+                "injury": "Healthy",
+                "dk_draftable_id": 44225487
               },
               {
                 "slot": "FLEX",
@@ -290,14 +290,14 @@
                 "dk_draftable_id": 44225844
               }
             ],
-            "salary": 49900,
-            "proj_points": 187.1,
-            "ceiling": 311.3
+            "salary": 50000,
+            "proj_points": 203.2,
+            "ceiling": 310.9
           }
         ]
       },
       "showdown_thu_night": {
-        "saved_at": "2026-09-24T20:14:07+00:00",
+        "saved_at": "2026-09-24T20:19:17+00:00",
         "draft_group_id": 153775,
         "lineups": [
           {
@@ -465,43 +465,43 @@
               },
               {
                 "slot": "FLEX",
-                "name": "Tyrod Taylor",
-                "position": "QB",
+                "name": "Trey Smack",
+                "position": "K",
                 "team": "GB",
                 "opponent": "ATL",
                 "roster_slot": "FLEX",
-                "salary": 6000,
-                "proj_points": 0.0,
-                "ceiling": 20.0,
+                "salary": 5200,
+                "proj_points": 10.5,
+                "ceiling": 17.7,
                 "sleeper_proj": null,
                 "game_info": "ATL @ GB",
                 "injury": "Healthy",
-                "dk_draftable_id": 44225879
+                "dk_draftable_id": 44225882
               },
               {
                 "slot": "FLEX",
-                "name": "Josh Whyle",
-                "position": "TE",
+                "name": "Bo Melton",
+                "position": "WR",
                 "team": "GB",
                 "opponent": "ATL",
                 "roster_slot": "FLEX",
-                "salary": 200,
-                "proj_points": 0.0,
-                "ceiling": 4.5,
-                "sleeper_proj": 0.57,
+                "salary": 1200,
+                "proj_points": 1.0,
+                "ceiling": 4.9,
+                "sleeper_proj": 0.46,
                 "game_info": "ATL @ GB",
                 "injury": "Healthy",
-                "dk_draftable_id": 44225911
+                "dk_draftable_id": 44225895
               }
             ],
-            "salary": 49700,
-            "proj_points": 84.15,
-            "ceiling": 168.7
+            "salary": 49900,
+            "proj_points": 95.65,
+            "ceiling": 166.8
           }
         ]
       },
       "showdown_sun_night": {
-        "saved_at": "2026-09-24T20:14:07+00:00",
+        "saved_at": "2026-09-24T20:19:18+00:00",
         "draft_group_id": 153789,
         "lineups": [
           {
@@ -609,33 +609,33 @@
             "players": [
               {
                 "slot": "CPT",
-                "name": "Puka Nacua",
-                "position": "WR",
-                "team": "LAR",
-                "opponent": "DEN",
-                "roster_slot": "CPT",
-                "salary": 17400,
-                "proj_points": 18.6,
-                "ceiling": 54.9,
-                "sleeper_proj": 25.82,
-                "game_info": "LAR @ DEN",
-                "injury": "Q",
-                "dk_draftable_id": 44282350
-              },
-              {
-                "slot": "FLEX",
                 "name": "Matthew Stafford",
                 "position": "QB",
                 "team": "LAR",
                 "opponent": "DEN",
-                "roster_slot": "FLEX",
-                "salary": 10400,
-                "proj_points": 18.0,
-                "ceiling": 33.1,
-                "sleeper_proj": 16.1,
+                "roster_slot": "CPT",
+                "salary": 15600,
+                "proj_points": 27.0,
+                "ceiling": 49.7,
+                "sleeper_proj": 24.15,
                 "game_info": "LAR @ DEN",
                 "injury": "Healthy",
-                "dk_draftable_id": 44282298
+                "dk_draftable_id": 44282351
+              },
+              {
+                "slot": "FLEX",
+                "name": "Puka Nacua",
+                "position": "WR",
+                "team": "LAR",
+                "opponent": "DEN",
+                "roster_slot": "FLEX",
+                "salary": 11600,
+                "proj_points": 12.4,
+                "ceiling": 36.6,
+                "sleeper_proj": 17.21,
+                "game_info": "LAR @ DEN",
+                "injury": "Q",
+                "dk_draftable_id": 44282297
               },
               {
                 "slot": "FLEX",
@@ -669,43 +669,43 @@
               },
               {
                 "slot": "FLEX",
-                "name": "Marvin Mims Jr.",
+                "name": "Troy Franklin",
                 "position": "WR",
                 "team": "DEN",
                 "opponent": "LAR",
                 "roster_slot": "FLEX",
-                "salary": 2600,
-                "proj_points": 0.0,
-                "ceiling": 16.1,
-                "sleeper_proj": 2.06,
+                "salary": 2400,
+                "proj_points": 2.1,
+                "ceiling": 12.7,
+                "sleeper_proj": 1.54,
                 "game_info": "LAR @ DEN",
-                "injury": "Q",
-                "dk_draftable_id": 44282324
+                "injury": "Healthy",
+                "dk_draftable_id": 44282325
               },
               {
                 "slot": "FLEX",
-                "name": "Lil'Jordan Humphrey",
-                "position": "WR",
+                "name": "Nate Adkins",
+                "position": "TE",
                 "team": "DEN",
                 "opponent": "LAR",
                 "roster_slot": "FLEX",
-                "salary": 200,
-                "proj_points": 0.0,
-                "ceiling": 9.6,
-                "sleeper_proj": 1.62,
+                "salary": 1600,
+                "proj_points": 6.4,
+                "ceiling": 8.5,
+                "sleeper_proj": 1.61,
                 "game_info": "LAR @ DEN",
                 "injury": "Healthy",
-                "dk_draftable_id": 44282336
+                "dk_draftable_id": 44282329
               }
             ],
-            "salary": 49400,
-            "proj_points": 76.8,
-            "ceiling": 165.5
+            "salary": 50000,
+            "proj_points": 88.1,
+            "ceiling": 159.3
           }
         ]
       },
       "showdown_mon_night": {
-        "saved_at": "2026-09-24T20:14:08+00:00",
+        "saved_at": "2026-09-24T20:19:19+00:00",
         "draft_group_id": 153790,
         "lineups": [
           {
@@ -888,23 +888,23 @@
               },
               {
                 "slot": "FLEX",
-                "name": "Zach Ertz",
-                "position": "TE",
+                "name": "Hollywood Brown",
+                "position": "WR",
                 "team": "PHI",
                 "opponent": "CHI",
                 "roster_slot": "FLEX",
-                "salary": 2600,
-                "proj_points": 0.0,
-                "ceiling": 16.3,
-                "sleeper_proj": 3.0,
+                "salary": 2800,
+                "proj_points": 1.2,
+                "ceiling": 12.6,
+                "sleeper_proj": 0.73,
                 "game_info": "PHI @ CHI",
                 "injury": "Healthy",
-                "dk_draftable_id": 44282430
+                "dk_draftable_id": 44282429
               }
             ],
-            "salary": 48900,
-            "proj_points": 104.85,
-            "ceiling": 151.4
+            "salary": 49100,
+            "proj_points": 106.05,
+            "ceiling": 147.7
           }
         ]
       }

@@ -570,6 +570,34 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
   color: var(--red);
 }
 
+.optimal-wrap { margin-bottom: 12px; }
+.optimal-wrap[hidden] { display: none; }
+.optimal-heading {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+.optimal-status { color: var(--muted); font-weight: 400; font-size: 12px; }
+.optimal-card {
+  cursor: default;
+  border-style: dashed;
+  border-color: var(--gold);
+}
+.optimal-card:hover { border-color: var(--gold); }
+.optimal-slot { grid-template-columns: 38px 1fr auto auto; }
+.optimal-title { font-weight: 700; color: var(--gold); padding: 0 4px; }
+.optimal-copy {
+  margin-left: auto;
+  min-height: 44px; /* touch target */
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+}
+.optimal-copy:hover { border-color: var(--gold); color: var(--gold); }
+
 .lineup-sticky {
   position: sticky;
   bottom: 0;

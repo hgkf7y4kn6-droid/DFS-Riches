@@ -18,6 +18,8 @@ breakdown The same flags the Week Breakdown page raises: pass/rush funnel
           defense, both offenses top-10 pace, yards/play efficiency mismatch.
 usage     The player's share of team targets + carries over the last 3 games
           vs the last 8 -- a growing role raises the ceiling (RB/WR/TE).
+role      Halved for a player with past-season games but none this season
+          (from Week 2 on): a backup, inactive, or returning from injury.
 
 Every multiplier is shrunk toward 1.0 and clamped (~15% max each), and
 their product is capped at -20%/+25% since matchup and implied total
@@ -43,6 +45,7 @@ USAGE_RECENT, USAGE_BASE, USAGE_MIN_GAMES = 3, 8, 4
 TOP_RANK = 10
 BOTTOM_RANK = 23  # bottom 10 of 32
 DEFAULT_CV = 0.6
+NO_GAMES_THIS_SEASON = 0.5
 
 _RANK_METRICS = {
     "opp_pass_pct_allowed": True,
@@ -236,4 +239,11 @@ def player_ceiling(
     capped = _clamp(mult, MIN_COMBINED, MAX_COMBINED)
     if capped != mult:
         notes.append(f"Combined adjustments capped at x{capped:.2f} (were x{mult:.2f})")
-    return round(base * capped, 1), notes
+    value = base * capped
+
+    # Past-season history but no game this season: a backup, inactive, or
+    # returning from injury -- last year's role can't be assumed.
+    if not is_dst and ctx.week > 1 and entries and not any(e[0] == ctx.season for e in entries):
+        value *= NO_GAMES_THIS_SEASON
+        notes.append(f"Role x{NO_GAMES_THIS_SEASON:.2f}: no games played this season (backup, inactive, or returning from injury)")
+    return round(value, 1), notes

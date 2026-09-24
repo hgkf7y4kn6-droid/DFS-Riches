@@ -69,6 +69,13 @@ def test_showdown_lineup_never_uses_one_player_twice_and_uses_both_teams():
     assert sum(p["salary"] for p in lineup) <= 50000
 
 
+def test_players_without_a_game_this_season_are_never_optimal():
+    pool = _classic_pool()
+    pool.append(_p(99, "Backup QB", "QB", "C", 4000, 0, game="C@D", ceiling=60))
+    lineup = optimize(pool, "classic", "ceiling")
+    assert "Backup QB" not in {p["name"] for p in lineup}
+
+
 def test_optimize_returns_none_when_no_valid_lineup():
     assert optimize([_p(1, "QB", "QB", "A", 8000, 20)], "classic", "proj_points") is None
 

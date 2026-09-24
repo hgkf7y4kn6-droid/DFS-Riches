@@ -5,8 +5,8 @@ Classic:  QB, 2-3 RB, 3-4 WR, 1-2 TE, DST (9 total, so FLEX is the extra
 Showdown: 1 CPT + 5 FLEX, $50,000 cap, a player can't be both CPT and FLEX,
           at least one player from each team.
 
-Only Healthy and Questionable players are eligible; IR/OUT/Doubtful never
-make an optimal lineup.
+Only Healthy and Questionable players who have played this season are
+eligible; IR/OUT/Doubtful never make an optimal lineup.
 """
 from __future__ import annotations
 
@@ -48,9 +48,15 @@ def optimize(players: list, slate_type: str, metric: str) -> list | None:
     QB, RB, RB, WR, WR, WR, TE, FLEX, DST; Showdown: CPT then FLEX by salary),
     or None if no valid lineup exists. metric is the player field to maximize,
     e.g. "proj_points" or "ceiling"."""
+    # Proj is DraftKings' season FPPG, so Proj > 0 also means the player has
+    # actually played this season -- keeps last year's starters who are now
+    # backups out of the Ceiling lineup.
     pool = [
         p for p in players
-        if _attr(p, "injury") in ELIGIBLE_STATUSES and (_value(p, metric) or 0) > 0 and _attr(p, "salary") > 0
+        if _attr(p, "injury") in ELIGIBLE_STATUSES
+        and (_value(p, metric) or 0) > 0
+        and (_attr(p, "proj_points") or 0) > 0
+        and _attr(p, "salary") > 0
     ]
     if not pool:
         return None

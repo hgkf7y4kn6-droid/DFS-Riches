@@ -87,7 +87,8 @@ salaried players (so a no-salary "Tournament"/"W3-W17" group can't slip
 in), and records the Classic + Showdown ids for that week. Re-running is
 safe: it leaves existing entries alone unless DraftKings' id changed. It has
 to run after salaries post and before the week's first kickoff. A scheduled
-job does this every Wednesday and Thursday and commits the result, so each
+job does this every Wednesday and Thursday (along with saving optimal
+lineups, below) and commits the result, so each
 new deploy carries every past week. 2026 Week 2 is missing because its
 slates had already started before this was set up.
 
@@ -145,6 +146,38 @@ partly measure the same thing. Showdown Captain ceilings are 1.5x. Early in
 the season a hot starter's "Proj" (DK's season FPPG over just a couple of
 games) can sit slightly above their Ceiling. Lineup cards also total each
 lineup's ceiling.
+
+### Optimal lineups
+
+Every slate shows two **optimal lineups** above your own in the lineup
+builder: one maximizing total Proj and one maximizing total Ceiling. They
+come from an exact integer-program solver (`app/optimizer.py`, SciPy/HiGHS)
+under DraftKings' real rules:
+
+- **Classic:** QB, 2-3 RB, 3-4 WR, 1-2 TE, DST, $50,000 cap, at least 2
+  games.
+- **Showdown:** CPT + 5 FLEX, $50,000 cap, no player in both slots, both
+  teams.
+
+Only players who are Healthy or Questionable and have played this season
+are eligible. "Copy to my lineups" turns one into an editable lineup.
+
+They're saved for later reference in `data/optimal_lineups.json`
+(`app/optimal.py`):
+
+- **Before kickoff:** until a slate's first game starts, they're
+  recalculated live and the saved copy is updated whenever they change.
+- **After kickoff:** the slate shows the frozen pre-kickoff copy, labeled
+  with when it was saved. Live numbers after kickoff would already include
+  the results, so they're never used.
+
+The weekly job runs `python -m scripts.save_optimal_lineups` right after
+recording the week's DraftKings ids and commits the file, so every week's
+pre-kickoff optimal lineups are kept. Weeks 1-2 of 2026 have none, since
+they started before this existed. Showdown slates later in the week (Sunday
+and Monday night) are saved as of the job's Wednesday/Thursday run. If the
+app is opened closer to those kickoffs, it also updates the copy on the
+running server, but only the committed file survives a redeploy.
 
 ### Lineup builder
 
@@ -364,12 +397,16 @@ app/
   matching.py       DK <-> Sleeper name normalization and matching
   slates.py         orchestrates schedule + DK + Sleeper into the final tables
   ceiling.py        per-player 85th-percentile Ceiling (history x matchup x game env x breakdown x usage)
+  optimizer.py      exact DK Classic/Showdown lineup optimizer (integer program)
+  optimal.py        per-slate optimal lineups, saved pre-kickoff to data/optimal_lineups.json
   breakdown.py      builds the per-game Week Breakdown page (stats, ranks, original takeaways)
   models.py         shared pydantic response models
   main.py           FastAPI routes
 data/
   dk_overrides.json draftGroupId fallback for already-started slates, one entry per week
+  optimal_lineups.json  each slate's optimal lineups as they stood before kickoff
 scripts/record_draft_groups.py   records the current week's live ids into dk_overrides.json
+scripts/save_optimal_lineups.py  records the current week's open slates' optimal lineups
   name_aliases.json manual DK-name -> Sleeper-name bridge, empty by default
   cache/            runtime API response cache (gitignored)
 templates/index.html, templates/breakdown.html

@@ -14,6 +14,7 @@
     activePositions: new Set(),
     lineups: [],
     activeLineup: 0,
+    optimal: null,
   };
 
   const L = window.DFSLineups;
@@ -34,6 +35,9 @@
   const lineupStickyEl = document.getElementById("lineup-sticky");
   const lineupStickySummaryEl = document.getElementById("lineup-sticky-summary");
   const lineupStickyStatusEl = document.getElementById("lineup-sticky-status");
+  const optimalWrapEl = document.getElementById("optimal-wrap");
+  const optimalStatusEl = document.getElementById("optimal-status");
+  const optimalCardsEl = document.getElementById("optimal-cards");
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -498,6 +502,110 @@
     refreshLineupViews();
   }
 
+  function fmtEt(iso) {
+    return new Date(iso).toLocaleString("en-US", {
+      timeZone: "America/New_York", weekday: "short", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit",
+    }) + " ET";
+  }
+
+  function renderOptimal() {
+    const opt = state.optimal;
+    optimalCardsEl.innerHTML = "";
+    if (!opt || !opt.lineups.length) {
+      optimalWrapEl.hidden = !opt || opt.status !== "none";
+      optimalStatusEl.textContent = opt && opt.status === "none"
+        ? "-- none saved: this slate started before optimal lineups were being recorded."
+        : "";
+      return;
+    }
+    optimalWrapEl.hidden = false;
+    optimalStatusEl.textContent = opt.status === "live"
+      ? `-- live, recalculated until kickoff (last change saved ${fmtEt(opt.saved_at)})`
+      : `-- saved before kickoff, ${fmtEt(opt.saved_at)}`;
+
+    opt.lineups.forEach((lu, i) => {
+      const metricKey = lu.metric;
+      const card = document.createElement("article");
+      card.className = "lineup-card optimal-card";
+      const rows = lu.players
+        .map(
+          (p) => `
+            <li class="lineup-slot optimal-slot">
+              <span class="ls-label">${escapeHtml(p.slot)}</span>
+              <span class="ls-name">${escapeHtml(p.name)} <span class="ls-team">${escapeHtml(p.position)} &middot; ${escapeHtml(p.team)}</span></span>
+              <span class="ls-salary">${fmtSalary(p.salary)}</span>
+              <span class="ls-proj">${fmtPts(p[metricKey] || 0)}</span>
+            </li>`
+        )
+        .join("");
+      card.innerHTML = `
+        <header class="lineup-card-header">
+          <span class="optimal-title">${escapeHtml(lu.label)}</span>
+          <button type="button" class="optimal-copy" data-index="${i}">Copy to my lineups</button>
+        </header>
+        <ol class="lineup-slots">${rows}</ol>
+        <dl class="lineup-totals">
+          <div><dt>Salary</dt><dd>${fmtSalary(lu.salary)}</dd></div>
+          <div><dt>Remaining</dt><dd>${fmtSalary(L.SALARY_CAP - lu.salary)}</dd></div>
+          <div><dt>Proj</dt><dd class="lt-proj">${fmtPts(lu.proj_points)}</dd></div>
+          <div><dt>Ceiling</dt><dd class="lt-ceiling">${fmtPts(lu.ceiling)}</dd></div>
+        </dl>
+      `;
+      optimalCardsEl.appendChild(card);
+    });
+    updateScrollShadow(optimalCardsEl.closest(".table-scroll"));
+  }
+
+  async function loadOptimal(slateId) {
+    state.optimal = null;
+    renderOptimal();
+    try {
+      const data = await fetchJson(
+        `/api/slates/${encodeURIComponent(slateId)}/optimal?season=${state.season}&week=${state.week}`
+      );
+      if (slateId !== state.activeSlateId) return;
+      state.optimal = data;
+    } catch (_err) {
+      state.optimal = null;
+    }
+    renderOptimal();
+  }
+
+  optimalCardsEl.addEventListener("click", (e) => {
+    const btn = e.target.closest(".optimal-copy");
+    if (!btn || !state.optimal) return;
+    const lu = state.optimal.lineups[Number(btn.dataset.index)];
+    const activeIsEmpty = (state.lineups[state.activeLineup] || []).every((p) => !p);
+    if (!activeIsEmpty && state.lineups.length >= L.MAX_LINEUPS) {
+      setLineupStatus(`You already have ${L.MAX_LINEUPS} lineups -- delete one to copy ${lu.label}.`, true);
+      return;
+    }
+    const byId = new Map(state.players.map((p) => [p.dk_draftable_id, p]));
+    const slateType = activeSlateType();
+    let slots = L.emptyLineup(slateType);
+    const missing = [];
+    for (const saved of lu.players) {
+      const p = byId.get(saved.dk_draftable_id);
+      const res = p ? L.addPlayer(slots, slateType, p) : { ok: false };
+      if (res.ok) slots = res.slots;
+      else missing.push(saved.name);
+    }
+    if (activeIsEmpty && state.lineups.length) {
+      state.lineups[state.activeLineup] = slots;
+    } else {
+      state.lineups.push(slots);
+      state.activeLineup = state.lineups.length - 1;
+    }
+    const target = state.activeLineup + 1;
+    setLineupStatus(
+      missing.length
+        ? `Copied ${lu.label} to Lineup ${target}; not in today's player pool: ${missing.join(", ")}.`
+        : `Copied ${lu.label} to Lineup ${target} -- edit it like any other lineup.`,
+      missing.length > 0
+    );
+    refreshLineupViews();
+  });
+
   addLineupBtn.addEventListener("click", () => {
     if (state.lineups.length >= L.MAX_LINEUPS) return;
     state.lineups.push(L.emptyLineup(activeSlateType()));
@@ -551,6 +659,8 @@
   async function selectSlate(slateId) {
     state.activeSlateId = slateId;
     state.activePositions.clear();
+    state.optimal = null;
+    renderOptimal();
     renderTabs();
     tbodyEl.innerHTML = "";
     matchStatsEl.textContent = "Loading...";
@@ -572,6 +682,7 @@
       renderUnmatchedBanner();
       renderPositionFilters();
       renderTable();
+      loadOptimal(slateId);
     } catch (err) {
       state.players = [];
       state.lineups = [];
