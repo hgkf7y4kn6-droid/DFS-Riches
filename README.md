@@ -75,13 +75,21 @@ started needs its `draftGroupId` remembered somewhere.
 
 `data/dk_overrides.json` is that memory. The app tries live discovery
 first, and only falls back to the override file when discovery comes up
-empty. The five ids currently in that file for 2026 Week 1 (one Classic +
-four Showdown) were fetched live from DraftKings and verified by inspecting
-each draft group's roster-slot structure (CPT/FLEX at a 1.5x salary ratio
-for Showdown; 16 distinct matchups for Classic). For any future week, live
-discovery alone is enough -- you only need to add an override entry if you
-want the app to keep working for a week whose slates have already started
-before you first loaded it.
+empty. Each week is added by:
+
+```bash
+python -m scripts.record_draft_groups                 # Sleeper's current week
+python -m scripts.record_draft_groups --season 2026 --week 4
+```
+
+It runs live discovery, checks that each group DraftKings lists actually has
+salaried players (so a no-salary "Tournament"/"W3-W17" group can't slip
+in), and records the Classic + Showdown ids for that week. Re-running is
+safe: it leaves existing entries alone unless DraftKings' id changed. It has
+to run after salaries post and before the week's first kickoff. A scheduled
+job does this every Wednesday and Thursday and commits the result, so each
+new deploy carries every past week. 2026 Week 2 is missing because its
+slates had already started before this was set up.
 
 ### Name matching
 
@@ -330,7 +338,8 @@ app/
   models.py         shared pydantic response models
   main.py           FastAPI routes
 data/
-  dk_overrides.json manual draftGroupId fallback for already-started slates
+  dk_overrides.json draftGroupId fallback for already-started slates, one entry per week
+scripts/record_draft_groups.py   records the current week's live ids into dk_overrides.json
   name_aliases.json manual DK-name -> Sleeper-name bridge, empty by default
   cache/            runtime API response cache (gitignored)
 templates/index.html, templates/breakdown.html

@@ -1,5 +1,5 @@
 {
-  "_readme": "Manual fallback map of DraftKings draftGroupId values, keyed by season/week/slate. DraftKings' own discovery listing (GET https://api.draftkings.com/draftgroups/v1/) only returns contests that are still 'Upcoming', so once a slate's games have kicked off its draftGroupId disappears from that listing even though the /draftgroups/v1/draftgroups/{id}/draftables endpoint keeps serving it. The app tries live discovery first (see app/dk_client.py:discover_draft_groups) and falls back to this file so already-started/completed slates still render. Each id below was fetched live from DraftKings on 2026-09-14 and verified by inspecting the roster slot structure (511/512 = CPT/FLEX at a 1.5x salary ratio for Showdown Captain Mode; 1505+ draftables across all 16 Week 1 matchups for Classic).",
+  "_readme": "Fallback map of DraftKings draftGroupId values, keyed by season/week/slate. DraftKings' discovery listing (GET https://api.draftkings.com/draftgroups/v1/) only returns contests that are still 'Upcoming', so once a slate's games kick off its draftGroupId disappears from that listing even though /draftgroups/v1/draftgroups/{id}/draftables keeps serving it. The app tries live discovery first (app/dk_client.py:discover_draft_groups) and falls back to this file so already-started/completed slates still render. New weeks are added by 'python -m scripts.record_draft_groups', run weekly after salaries post and before the first kickoff; it only records groups found live that have salaried players. Week 2 of 2026 is missing because its slates had already started before this was set up.",
   "2026": {
     "1": {
       "classic": {
@@ -22,6 +22,26 @@
         "MON_NIGHT": {
           "draft_group_id": 153086,
           "label": "Showdown - Mon Night (DEN @ KC)"
+        }
+      }
+    },
+    "3": {
+      "classic": {
+        "draft_group_id": 153768,
+        "label": "Classic - Full Week 3 Slate (16 games)"
+      },
+      "showdown": {
+        "MON_NIGHT": {
+          "draft_group_id": 153790,
+          "label": "Showdown - Mon Night (PHI @ CHI)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 153789,
+          "label": "Showdown - Sun Night (LAR @ DEN)"
+        },
+        "THU_NIGHT": {
+          "draft_group_id": 153775,
+          "label": "Showdown - Thu Night (ATL @ GB)"
         }
       }
     }
