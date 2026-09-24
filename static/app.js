@@ -12,7 +12,11 @@
     sortDir: "desc",
     search: "",
     activePositions: new Set(),
+    lineups: [],
+    activeLineup: 0,
   };
+
+  const L = window.DFSLineups;
 
   const scheduleStripEl = document.getElementById("schedule-strip");
   const oddsTbodyEl = document.getElementById("odds-tbody");
@@ -23,6 +27,17 @@
   const searchBoxEl = document.getElementById("search-box");
   const positionFiltersEl = document.getElementById("position-filters");
   const matchStatsEl = document.getElementById("match-stats");
+  const lineupCardsEl = document.getElementById("lineup-cards");
+  const lineupCountEl = document.getElementById("lineup-count");
+  const lineupStatusEl = document.getElementById("lineup-status");
+  const addLineupBtn = document.getElementById("add-lineup-btn");
+  const lineupStickyEl = document.getElementById("lineup-sticky");
+  const lineupStickySummaryEl = document.getElementById("lineup-sticky-summary");
+  const lineupStickyStatusEl = document.getElementById("lineup-sticky-status");
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  }
 
   function updateScrollShadow(el) {
     if (!el) return;
@@ -279,6 +294,7 @@
         : "No players match your filters.";
     }
 
+    const active = state.lineups[state.activeLineup] || [];
     for (const p of rows) {
       const tr = document.createElement("tr");
       const slotHtml = p.roster_slot
@@ -286,13 +302,22 @@
         : "";
       const statusClass = p.injury === "Healthy" ? "status-healthy" : "status-injured";
       const valueClass = p.value_per_1k >= 3 ? "value-good" : "";
+      const inActive = L.indexOfPlayer(active, p) !== -1;
+      const exposure = state.lineups.filter((lu) => L.indexOfPlayer(lu, p) !== -1).length;
+      tr.dataset.id = p.dk_draftable_id;
+      tr.className = "player-row" + (inActive ? " in-lineup" : "");
+      const btnLabel = `${inActive ? "Remove" : "Add"} ${p.name} ${inActive ? "from" : "to"} lineup ${state.activeLineup + 1}`;
       tr.innerHTML = `
+        <td class="add-col">
+          <button type="button" class="add-btn" aria-pressed="${inActive}" aria-label="${escapeHtml(btnLabel)}">${inActive ? "&minus;" : "+"}</button>
+          ${exposure > 0 ? `<span class="exposure" title="In ${exposure} of ${state.lineups.length} lineups">${exposure}/${state.lineups.length}</span>` : ""}
+        </td>
         <td>${slotHtml}</td>
-        <td>${p.name}</td>
-        <td>${p.position}</td>
-        <td>${p.team}</td>
-        <td>${p.opponent}</td>
-        <td>${p.game_info}</td>
+        <td>${escapeHtml(p.name)}</td>
+        <td>${escapeHtml(p.position)}</td>
+        <td>${escapeHtml(p.team)}</td>
+        <td>${escapeHtml(p.opponent)}</td>
+        <td>${escapeHtml(p.game_info)}</td>
         <td class="num">${fmtSalary(p.salary)}</td>
         <td class="num">${p.proj_points.toFixed(1)}</td>
         <td class="num">${p.dk_fppg != null ? p.dk_fppg.toFixed(1) : "-"}</td>
@@ -301,18 +326,225 @@
         <td class="num">${p.trend_l9 != null ? p.trend_l9.toFixed(1) : "-"}</td>
         <td class="num">${p.sleeper_proj != null ? p.sleeper_proj.toFixed(1) : "-"}</td>
         <td class="num ${valueClass}">${p.value_per_1k.toFixed(2)}</td>
-        <td class="${statusClass}">${p.injury || ""}</td>
+        <td class="${statusClass}">${escapeHtml(p.injury || "")}</td>
       `;
       tbodyEl.appendChild(tr);
     }
 
-    document.querySelectorAll("#players-table thead th").forEach((th) => {
+    document.querySelectorAll("#players-table thead th[data-key]").forEach((th) => {
       const isSorted = th.dataset.key === state.sortKey;
       th.classList.toggle("sorted", isSorted);
       th.setAttribute("aria-sort", isSorted ? (state.sortDir === "asc" ? "ascending" : "descending") : "none");
     });
     updateScrollShadow(tbodyEl.closest(".table-scroll"));
   }
+
+  function activeSlateType() {
+    const slate = state.slates.find((s) => s.slate_id === state.activeSlateId);
+    return slate ? slate.slate_type : "classic";
+  }
+
+  function lineupStorageKey() {
+    return `dfsriches:lineups:${state.season}:${state.week}:${state.activeSlateId}`;
+  }
+
+  function saveLineups() {
+    const payload = {
+      active: state.activeLineup,
+      lineups: state.lineups.map((lu) => lu.map((p) => (p ? p.dk_draftable_id : null))),
+    };
+    try {
+      localStorage.setItem(lineupStorageKey(), JSON.stringify(payload));
+    } catch (_e) {
+      // storage unavailable (private mode, blocked): lineups just won't persist
+    }
+  }
+
+  function loadLineups() {
+    const slateType = activeSlateType();
+    const byId = new Map(state.players.map((p) => [p.dk_draftable_id, p]));
+    let saved = null;
+    try {
+      saved = JSON.parse(localStorage.getItem(lineupStorageKey()) || "null");
+    } catch (_e) {
+      saved = null;
+    }
+    const size = L.emptyLineup(slateType).length;
+    const lineups = saved && Array.isArray(saved.lineups)
+      ? saved.lineups
+          .slice(0, L.MAX_LINEUPS)
+          .filter((ids) => Array.isArray(ids) && ids.length === size)
+          .map((ids) => ids.map((id) => byId.get(id) || null))
+      : [];
+    state.lineups = lineups.length ? lineups : [L.emptyLineup(slateType)];
+    const active = saved ? Number(saved.active) : 0;
+    state.activeLineup = active >= 0 && active < state.lineups.length ? active : 0;
+  }
+
+  function setLineupStatus(msg, isError) {
+    lineupStatusEl.textContent = msg || "";
+    lineupStatusEl.classList.toggle("error", Boolean(isError));
+    lineupStickyStatusEl.textContent = msg || "";
+    lineupStickyStatusEl.classList.toggle("error", Boolean(isError));
+  }
+
+  function fmtPts(n) {
+    return n.toFixed(1);
+  }
+
+  function renderLineups() {
+    const slateType = activeSlateType();
+    const defs = L.template(slateType);
+    const summaries = state.lineups.map((lu) => L.summarize(lu, slateType));
+    const withPlayers = summaries.map((s, i) => [s, i]).filter(([s]) => s.filled > 0);
+    const bestIdx = withPlayers.length > 1
+      ? withPlayers.reduce((best, cur) => (cur[0].proj > best[0].proj ? cur : best))[1]
+      : -1;
+
+    lineupCountEl.textContent = `(${state.lineups.length}/${L.MAX_LINEUPS})`;
+    addLineupBtn.disabled = state.lineups.length >= L.MAX_LINEUPS || state.players.length === 0;
+
+    lineupCardsEl.innerHTML = "";
+    state.lineups.forEach((lu, i) => {
+      const s = summaries[i];
+      const isActive = i === state.activeLineup;
+      const card = document.createElement("article");
+      card.className = "lineup-card" + (isActive ? " active" : "") + (i === bestIdx ? " best" : "");
+      card.dataset.index = i;
+
+      const slotsHtml = defs
+        .map((def, si) => {
+          const p = lu[si];
+          if (!p) {
+            return `<li class="lineup-slot empty"><span class="ls-label">${def.label}</span><span class="ls-name">&mdash;</span></li>`;
+          }
+          return `
+            <li class="lineup-slot">
+              <span class="ls-label">${def.label}</span>
+              <span class="ls-name">${escapeHtml(p.name)} <span class="ls-team">${escapeHtml(p.position)} &middot; ${escapeHtml(p.team)}</span></span>
+              <span class="ls-salary">${fmtSalary(p.salary)}</span>
+              <span class="ls-proj">${fmtPts(p.proj_points || 0)}</span>
+              <button type="button" class="ls-remove" data-slot="${si}" aria-label="Remove ${escapeHtml(p.name)} from lineup ${i + 1}">&times;</button>
+            </li>`;
+        })
+        .join("");
+
+      const remainingCls = s.remaining < 0 ? "over" : "";
+      const sleeperTxt = s.sleeperCount ? `${fmtPts(s.sleeperProj)}${s.sleeperCount < s.filled ? ` <span class="lt-note">(${s.sleeperCount}/${s.filled})</span>` : ""}` : "-";
+      card.innerHTML = `
+        <header class="lineup-card-header">
+          <button type="button" class="lineup-select" aria-pressed="${isActive}">Lineup ${i + 1}</button>
+          ${i === bestIdx ? '<span class="lineup-best">Top proj</span>' : ""}
+          <span class="lineup-badge ${s.valid ? "valid" : "invalid"}">${s.valid ? "Valid" : `${s.filled}/${s.total}`}</span>
+          <button type="button" class="lineup-clear" aria-label="Clear lineup ${i + 1}">Clear</button>
+          <button type="button" class="lineup-delete" aria-label="Delete lineup ${i + 1}">&times;</button>
+        </header>
+        <ol class="lineup-slots">${slotsHtml}</ol>
+        <dl class="lineup-totals">
+          <div><dt>Salary</dt><dd>${fmtSalary(s.salary)}</dd></div>
+          <div><dt>Remaining</dt><dd class="${remainingCls}">${s.remaining < 0 ? "-" : ""}${fmtSalary(Math.abs(s.remaining))}</dd></div>
+          <div><dt>Avg/open slot</dt><dd>${s.avgRemaining != null ? fmtSalary(Math.max(0, s.avgRemaining)) : "-"}</dd></div>
+          <div><dt>Proj</dt><dd class="lt-proj">${fmtPts(s.proj)}</dd></div>
+          <div><dt>Sleeper Proj</dt><dd>${sleeperTxt}</dd></div>
+        </dl>
+        ${s.errors.length && s.filled > 0 ? `<ul class="lineup-errors">${s.errors.map((e) => `<li>${escapeHtml(e)}</li>`).join("")}</ul>` : ""}
+      `;
+      lineupCardsEl.appendChild(card);
+    });
+    updateScrollShadow(lineupCardsEl.closest(".table-scroll"));
+
+    const cur = summaries[state.activeLineup];
+    lineupStickyEl.hidden = !cur || state.players.length === 0;
+    if (cur) {
+      lineupStickySummaryEl.innerHTML =
+        `<strong>Lineup ${state.activeLineup + 1}</strong> ${cur.filled}/${cur.total} &middot; ` +
+        `<span class="${cur.remaining < 0 ? "over" : ""}">${cur.remaining < 0 ? "-" : ""}${fmtSalary(Math.abs(cur.remaining))} left</span> &middot; ` +
+        `Proj <span class="lt-proj">${fmtPts(cur.proj)}</span>`;
+    }
+  }
+
+  function refreshLineupViews() {
+    saveLineups();
+    renderLineups();
+    renderTable();
+  }
+
+  function togglePlayer(player) {
+    const slateType = activeSlateType();
+    const lu = state.lineups[state.activeLineup];
+    const idx = L.indexOfPlayer(lu, player);
+    if (idx !== -1) {
+      state.lineups[state.activeLineup] = L.removeAt(lu, idx);
+      setLineupStatus(`Removed ${player.name} from Lineup ${state.activeLineup + 1}.`);
+    } else {
+      const res = L.addPlayer(lu, slateType, player);
+      if (!res.ok) {
+        setLineupStatus(res.reason, true);
+        return;
+      }
+      state.lineups[state.activeLineup] = res.slots;
+      const label = L.template(slateType)[res.index].label;
+      setLineupStatus(`Added ${player.name} to Lineup ${state.activeLineup + 1} (${label}).`);
+    }
+    refreshLineupViews();
+  }
+
+  function selectLineup(i) {
+    if (i === state.activeLineup) return;
+    state.activeLineup = i;
+    setLineupStatus(`Now editing Lineup ${i + 1} -- click players below to add them.`);
+    refreshLineupViews();
+  }
+
+  addLineupBtn.addEventListener("click", () => {
+    if (state.lineups.length >= L.MAX_LINEUPS) return;
+    state.lineups.push(L.emptyLineup(activeSlateType()));
+    state.activeLineup = state.lineups.length - 1;
+    setLineupStatus(`Created Lineup ${state.lineups.length} -- click players below to add them.`);
+    refreshLineupViews();
+  });
+
+  lineupCardsEl.addEventListener("click", (e) => {
+    const card = e.target.closest(".lineup-card");
+    if (!card) return;
+    const i = Number(card.dataset.index);
+
+    if (e.target.closest(".ls-remove")) {
+      const si = Number(e.target.closest(".ls-remove").dataset.slot);
+      const p = state.lineups[i][si];
+      state.lineups[i] = L.removeAt(state.lineups[i], si);
+      setLineupStatus(p ? `Removed ${p.name} from Lineup ${i + 1}.` : "");
+      refreshLineupViews();
+      return;
+    }
+    if (e.target.closest(".lineup-clear")) {
+      state.lineups[i] = L.emptyLineup(activeSlateType());
+      setLineupStatus(`Cleared Lineup ${i + 1}.`);
+      refreshLineupViews();
+      return;
+    }
+    if (e.target.closest(".lineup-delete")) {
+      if (state.lineups.length === 1) {
+        state.lineups[0] = L.emptyLineup(activeSlateType());
+      } else {
+        state.lineups.splice(i, 1);
+        if (state.activeLineup >= state.lineups.length || state.activeLineup > i) {
+          state.activeLineup = Math.max(0, state.activeLineup - 1);
+        }
+      }
+      setLineupStatus(`Deleted Lineup ${i + 1}.`);
+      refreshLineupViews();
+      return;
+    }
+    selectLineup(i);
+  });
+
+  tbodyEl.addEventListener("click", (e) => {
+    const tr = e.target.closest("tr[data-id]");
+    if (!tr) return;
+    const player = state.players.find((p) => String(p.dk_draftable_id) === tr.dataset.id);
+    if (player) togglePlayer(player);
+  });
 
   async function selectSlate(slateId) {
     state.activeSlateId = slateId;
@@ -328,10 +560,21 @@
       state.players = data.players;
       state.unmatched = data.unmatched_dk_names;
       matchStatsEl.textContent = `${data.match_count}/${data.total_count} players matched to Sleeper projections`;
+      loadLineups();
+      setLineupStatus(
+        state.players.length
+          ? `Editing Lineup ${state.activeLineup + 1} -- click players below to add them.`
+          : "Lineups open up once DraftKings posts salaries for this slate."
+      );
+      renderLineups();
       renderUnmatchedBanner();
       renderPositionFilters();
       renderTable();
     } catch (err) {
+      state.players = [];
+      state.lineups = [];
+      renderLineups();
+      setLineupStatus("");
       matchStatsEl.textContent = "";
       tbodyEl.innerHTML = "";
       emptyStateEl.hidden = false;
@@ -379,7 +622,7 @@
     state.search = e.target.value;
     renderTable();
   });
-  document.querySelectorAll("#players-table thead th").forEach((th) => {
+  document.querySelectorAll("#players-table thead th[data-key]").forEach((th) => {
     const sortByThisColumn = () => {
       const key = th.dataset.key;
       if (state.sortKey === key) {

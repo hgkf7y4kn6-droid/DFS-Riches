@@ -57,6 +57,17 @@
 
   <section id="unmatched-banner" class="unmatched-banner" role="status" hidden></section>
 
+  <section class="lineup-builder" aria-labelledby="lineup-heading">
+    <div class="lineup-toolbar">
+      <h2 id="lineup-heading">Lineups <span id="lineup-count" class="lineup-count"></span></h2>
+      <button id="add-lineup-btn" type="button">+ New lineup</button>
+      <p id="lineup-status" class="lineup-status" aria-live="polite"></p>
+    </div>
+    <div class="table-scroll">
+      <div id="lineup-cards" class="lineup-cards"></div>
+    </div>
+  </section>
+
   <main class="table-wrap">
     <div class="table-toolbar">
       <label class="visually-hidden" for="search-box">Search players by name, team, or opponent</label>
@@ -68,6 +79,7 @@
       <table id="players-table">
         <thead>
           <tr>
+            <th scope="col" class="add-col"><span class="visually-hidden">Add to lineup</span></th>
             <th scope="col" data-key="roster_slot">Slot</th>
             <th scope="col" data-key="name">Player</th>
             <th scope="col" data-key="position">Pos</th>
@@ -91,16 +103,23 @@
     <div id="empty-state" class="empty-state" hidden></div>
   </main>
 
+  <div id="lineup-sticky" class="lineup-sticky" hidden>
+    <span id="lineup-sticky-summary"></span>
+    <span id="lineup-sticky-status" class="lineup-sticky-status"></span>
+    <a href="#lineup-heading" class="lineup-sticky-link">View lineups</a>
+  </div>
+
   <footer class="site-footer">
     Data: real player pool &amp; salaries from DraftKings' public draft-group API;
     schedule &amp; kickoff times from Sleeper; closing spread/total lines and
     team pace (offensive plays vs. season baseline) from nflverse's public
     game and box-score data. "Proj" is DraftKings' own FPPG (season fantasy
-    points per game), x1.5 for the Showdown Captain slot; "Sleeper Proj"
-    merges in Sleeper's week-specific PPR projection when Sleeper's endpoint
-    has one available. Refreshed on each slate load.
+    points per game), x1.5 for the Showdown Captain slot; "Sleeper Proj" is
+    Sleeper's week-specific PPR projection, for the ~400 players Sleeper
+    projects each week. Refreshed on each slate load.
   </footer>
 
+  <script src="/static/lineups.js"></script>
   <script src="/static/app.js"></script>
 </body>
 </html>

@@ -101,11 +101,34 @@ site's "unmatched" banner rather than being silently guessed at.
 
 DraftKings' own per-player **FPPG** (season fantasy points per game) is the
 primary projection the Value column is computed from -- it's reliably
-populated on every draft group. Sleeper's week-specific PPR projection is
-merged in as a bonus "Sleeper Proj" column when Sleeper's endpoint has one
-available for that week (see the docstring on
-`app.sleeper_client.get_projections` for the current caveat there). Showdown
-Captain (CPT) rows show both salary and points at DraftKings' 1.5x multiplier.
+populated on every draft group. Sleeper's week-specific PPR projection fills
+the "Sleeper Proj" column. It comes from `api.sleeper.com/projections` (the
+endpoint Sleeper's own app uses), not the public `api.sleeper.app/v1/projections`,
+which returns empty stats for every player. Sleeper projects roughly the top
+~400 fantasy-relevant players each week, DSTs included, so deep backups show
+"-". Showdown Captain (CPT) rows show salary, Proj, and Sleeper Proj at
+DraftKings' 1.5x multiplier.
+
+### Lineup builder
+
+On any slate, click a player row (or its **+** button) to add them to the
+lineup you're editing; click again to remove them. Players drop into the
+first open slot they're eligible for, following DraftKings' roster rules:
+
+- **Classic:** QB, RB, RB, WR, WR, WR, TE, FLEX (RB/WR/TE), DST. A third RB,
+  fourth WR, or second TE goes to FLEX.
+- **Showdown:** CPT + 5 FLEX. A CPT row can only go in the CPT slot, and the
+  same player can't be both CPT and FLEX.
+
+You can build up to **5 lineups** per slate. They show side by side so you
+can compare salary used, salary remaining, average salary per open slot,
+total Proj, and total Sleeper Proj, with a "Top proj" tag on the
+highest-projected one. Each lineup is checked against the $50,000 cap and
+DraftKings' multi-game rule (Classic: at least 2 games; Showdown: both
+teams). Click a lineup card to edit it. Each player row shows how many of
+your lineups include them (e.g. "2/3"). Lineups are saved in your browser's
+local storage per season/week/slate, so they survive a reload but aren't
+shared across devices.
 
 ### Lines, implied totals, and pace of play
 
@@ -312,5 +335,6 @@ data/
   cache/            runtime API response cache (gitignored)
 templates/index.html, templates/breakdown.html
 static/style.css, static/app.js, static/breakdown.js         frontend
+static/lineups.js   DK Classic/Showdown roster rules for the lineup builder
 tests/                                                    pytest suite
 ```
