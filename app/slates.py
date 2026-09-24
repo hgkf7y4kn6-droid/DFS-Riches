@@ -3,10 +3,13 @@ DraftKings draft groups (app.dk_client) + real Sleeper projections
 (app.sleeper_client), merged by name (app.matching) into the table the
 frontend renders.
 
-One Classic slate always covers every game in the week. One Showdown slate
-is built for each isolated Wednesday/Thursday/Sunday/Monday night game.
+A Classic Sunday Main slate covers the Sunday 1:00 + afternoon games; a Full
+Week slate covers every game (Thu-Mon). One Showdown slate is built for each
+isolated Wednesday/Thursday/Sunday/Monday night game.
 """
 from __future__ import annotations
+
+from datetime import datetime
 
 from app import ceiling, dk_client, matching, nflverse_client, sleeper_client
 from app.cache import memoize_async
@@ -29,6 +32,27 @@ async def list_slates(season: int, week: int) -> tuple[WeekSchedule, list[Slate]
     discovery = await dk_client.discover_draft_groups(schedule)
 
     slates: list[Slate] = []
+
+    sunday = discovery["classic_sunday"]
+    first, last = sunday.get("first_kickoff"), sunday.get("last_kickoff")
+    sunday_games = [
+        g for g in schedule.games
+        if g.day_part in dk_client.SUNDAY_DAY_PARTS
+        and (first is None or g.kickoff_utc >= datetime.fromisoformat(first))
+        and (last is None or g.kickoff_utc <= datetime.fromisoformat(last))
+    ]
+    slates.append(
+        Slate(
+            slate_id="classic_sunday",
+            label=sunday["label"],
+            slate_type="classic",
+            day_part=None,
+            draft_group_id=sunday["draft_group_id"],
+            games=sunday_games,
+            available=sunday["draft_group_id"] is not None,
+            source=sunday["source"],
+        )
+    )
 
     classic = discovery["classic"]
     slates.append(

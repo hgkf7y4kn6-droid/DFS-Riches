@@ -45,6 +45,16 @@ _HEADERS = {"User-Agent": "DFSRiches/1.0 (+https://github.com/)"}
 # DraftKings' public contestType.contestTypeId for Showdown Captain Mode.
 DK_SHOWDOWN_CONTEST_TYPE_ID = DK_SHOWDOWN_GAME_TYPE_ID
 
+SUNDAY_DAY_PARTS = {"SUN_EARLY", "SUN_LATE"}
+
+
+def full_week_label(week: int, n_games: int) -> str:
+    return f"Full Week {week} Slate ({n_games} games)"
+
+
+def sunday_label(n_games: int) -> str:
+    return f"Classic - Sunday Main ({n_games} games)"
+
 
 async def _get_json(url: str) -> Any:
     async with httpx.AsyncClient() as client:
@@ -95,11 +105,13 @@ def _team_pair_from_suffix(suffix: str | None) -> tuple[str, str] | None:
 
 
 async def discover_draft_groups(schedule: WeekSchedule) -> dict[str, Any]:
-    """Returns {"classic": {...}, "showdown": {day_part: {...}}} where each
-    leaf is {"draft_group_id": int, "label": str, "source": "live"|"override"} or
-    {"draft_group_id": None, "label": str, "source": "unavailable"}.
+    """Returns {"classic": {...}, "classic_sunday": {...}, "showdown": {day_part: {...}}}
+    where each leaf is {"draft_group_id": int, "label": str, "source": "live"|"override"}
+    or {"draft_group_id": None, "label": str, "source": "unavailable"}. "classic"
+    is the full-week (Thu-Mon) group; "classic_sunday" is DraftKings' Sunday
+    Main group, whose leaf also carries its first/last kickoff (ISO UTC).
     """
-    result: dict[str, Any] = {"classic": None, "showdown": {}}
+    result: dict[str, Any] = {"classic": None, "classic_sunday": None, "showdown": {}}
 
     try:
         nfl_groups = await _fetch_all_nfl_draft_groups()
@@ -136,9 +148,34 @@ async def discover_draft_groups(schedule: WeekSchedule) -> dict[str, Any]:
         best = max(classic_candidates, key=lambda g: len(g.get("games") or []))
         result["classic"] = {
             "draft_group_id": best["draftGroupId"],
-            "label": f"Classic - Full Week {schedule.week} Slate ({total_games} games)",
+            "label": full_week_label(schedule.week, total_games),
             "source": "live",
         }
+
+    # --- Classic Sunday: DraftKings' Sunday Main -- the largest Classic
+    # group whose games all kick off on Sunday before the night game (the
+    # suffix-less 1:00 + 4:05/4:25 group; "Early Only"/"Afternoon" are subsets).
+    sunday_games = [g for g in schedule.games if g.day_part in SUNDAY_DAY_PARTS]
+    if sunday_games:
+        sun_first = min(g.kickoff_utc for g in sunday_games)
+        sun_last = max(g.kickoff_utc for g in sunday_games)
+        sunday_candidates = []
+        for g in nfl_groups:
+            if (g.get("contestType") or {}).get("contestTypeId") != DK_CLASSIC_CONTEST_TYPE_ID:
+                continue
+            start = _parse_dk_timestamp(g.get("minStartTime", ""))
+            end = _parse_dk_timestamp(g.get("maxStartTime", ""))
+            if start and end and sun_first <= start and end <= sun_last and len(g.get("games") or []) > 1:
+                sunday_candidates.append((g, start, end))
+        if sunday_candidates:
+            best, start, end = max(sunday_candidates, key=lambda c: len(c[0].get("games") or []))
+            result["classic_sunday"] = {
+                "draft_group_id": best["draftGroupId"],
+                "label": sunday_label(len(best.get("games") or [])),
+                "source": "live",
+                "first_kickoff": start.isoformat(),
+                "last_kickoff": end.isoformat(),
+            }
 
     # --- Showdown: one live "Upcoming" Showdown Captain Mode group per
     # isolated game, matched by team pair.
@@ -174,9 +211,13 @@ async def discover_draft_groups(schedule: WeekSchedule) -> dict[str, Any]:
         ov = season_overrides["classic"]
         result["classic"] = {
             "draft_group_id": ov["draft_group_id"],
-            "label": ov.get("label", "Classic"),
+            "label": full_week_label(schedule.week, total_games),
             "source": "override",
         }
+
+    if result["classic_sunday"] is None and "classic_sunday" in season_overrides:
+        ov = season_overrides["classic_sunday"]
+        result["classic_sunday"] = {**ov, "source": "override"}
 
     for game in schedule.isolated_games:
         if game.day_part in result["showdown"]:
@@ -198,9 +239,13 @@ async def discover_draft_groups(schedule: WeekSchedule) -> dict[str, Any]:
     if result["classic"] is None:
         result["classic"] = {
             "draft_group_id": None,
-            "label": f"Classic - Full Week {schedule.week} Slate",
+            "label": full_week_label(schedule.week, total_games),
             "source": "unavailable",
         }
+
+    if result["classic_sunday"] is None:
+        n_sunday = sum(1 for g in schedule.games if g.day_part in SUNDAY_DAY_PARTS)
+        result["classic_sunday"] = {"draft_group_id": None, "label": sunday_label(n_sunday), "source": "unavailable"}
 
     return result
 

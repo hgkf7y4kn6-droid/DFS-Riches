@@ -34,7 +34,7 @@ def merge_discovery(overrides: dict, season: int, week: int, discovery: dict, ha
         if not found or found["source"] != "live":
             report.append(f"{name}: not in DraftKings' live listing (kept {existing['draft_group_id'] if existing else 'nothing'})")
             return
-        new = {"draft_group_id": found["draft_group_id"], "label": found["label"]}
+        new = {k: v for k, v in found.items() if k != "source"}
         if not has_salaries(new["draft_group_id"], slate_type):
             report.append(f"{name}: group {new['draft_group_id']} has no salaries yet, not recorded")
             return
@@ -42,10 +42,14 @@ def merge_discovery(overrides: dict, season: int, week: int, discovery: dict, ha
             report.append(f"{name}: {new['draft_group_id']} already recorded")
             return
         store(new)
-        report.append(f"{name}: recorded {new['draft_group_id']}" + (f" (was {existing['draft_group_id']})" if existing else ""))
+        if existing and existing["draft_group_id"] == new["draft_group_id"]:
+            report.append(f"{name}: {new['draft_group_id']} details updated")
+        else:
+            report.append(f"{name}: recorded {new['draft_group_id']}" + (f" (was {existing['draft_group_id']})" if existing else ""))
 
-    consider("classic", "classic", discovery.get("classic"), week_entry.get("classic"),
-             lambda v: week_entry.__setitem__("classic", v))
+    for key in ("classic_sunday", "classic"):
+        consider(key, "classic", discovery.get(key), week_entry.get(key),
+                 lambda v, k=key: week_entry.__setitem__(k, v))
     for day_part, found in sorted(discovery.get("showdown", {}).items()):
         existing = week_entry.get("showdown", {}).get(day_part)
         consider(f"showdown {day_part}", "showdown", found, existing,
@@ -69,9 +73,10 @@ async def record(season: int, week: int) -> list[str]:
     discovery = await dk_client.discover_draft_groups(schedule)
 
     salaried: dict[int, bool] = {}
-    for leaf in [discovery["classic"], *discovery["showdown"].values()]:
+    leaves = [("classic", discovery["classic"]), ("classic", discovery["classic_sunday"])]
+    leaves += [("showdown", leaf) for leaf in discovery["showdown"].values()]
+    for slate_type, leaf in leaves:
         if leaf and leaf["source"] == "live":
-            slate_type = "classic" if leaf is discovery["classic"] else "showdown"
             raw = await dk_client.fetch_draftables(leaf["draft_group_id"])
             salaried[leaf["draft_group_id"]] = bool(dk_client.parse_draftables(raw, slate_type))
 

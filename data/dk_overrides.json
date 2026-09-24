@@ -4,7 +4,7 @@
     "1": {
       "classic": {
         "draft_group_id": 153054,
-        "label": "Classic - Full Week 1 Slate (16 games)"
+        "label": "Full Week 1 Slate (16 games)"
       },
       "showdown": {
         "WED_NIGHT": {
@@ -28,7 +28,7 @@
     "3": {
       "classic": {
         "draft_group_id": 153768,
-        "label": "Classic - Full Week 3 Slate (16 games)"
+        "label": "Full Week 3 Slate (16 games)"
       },
       "showdown": {
         "MON_NIGHT": {
@@ -43,6 +43,12 @@
           "draft_group_id": 153775,
           "label": "Showdown - Thu Night (ATL @ GB)"
         }
+      },
+      "classic_sunday": {
+        "draft_group_id": 153769,
+        "label": "Classic - Sunday Main (13 games)",
+        "first_kickoff": "2026-09-27T17:00:00+00:00",
+        "last_kickoff": "2026-09-27T20:25:00+00:00"
       }
     }
   }
