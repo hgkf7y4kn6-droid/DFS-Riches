@@ -13,6 +13,10 @@ NAME_ALIASES_PATH = DATA_DIR / "name_aliases.json"
 ET = ZoneInfo("America/New_York")
 
 SLEEPER_BASE = "https://api.sleeper.app"
+# Weekly projections come from a different Sleeper host: api.sleeper.app's
+# /v1/projections returns {} stats for every player, while api.sleeper.com
+# (the endpoint Sleeper's own app uses) returns real per-player projections.
+SLEEPER_PROJECTIONS_BASE = "https://api.sleeper.com"
 DK_BASE = "https://api.draftkings.com"
 
 # nflverse (https://github.com/nflverse) publishes real, free, public NFL

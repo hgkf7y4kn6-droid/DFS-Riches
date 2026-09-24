@@ -92,13 +92,11 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
             unmatched.append(row["name"])
 
         sleeper_proj = projections.get(sleeper_id) if sleeper_id else None
-        # DraftKings' own FPPG is the reliably-populated projection source;
-        # Sleeper's week-specific projection is merged in as a bonus column
-        # when present (see sleeper_client.get_projections for why it's
-        # usually unavailable).
         base_proj = row["dk_fppg"] or 0.0
 
         is_captain = row["roster_slot"] == "CPT"
+        if is_captain and sleeper_proj is not None:
+            sleeper_proj = round(sleeper_proj * 1.5, 2)
         effective_proj = round(base_proj * 1.5, 2) if is_captain else base_proj
         salary = row["salary"]
         value = round(effective_proj / (salary / 1000.0), 2) if salary > 0 else 0.0

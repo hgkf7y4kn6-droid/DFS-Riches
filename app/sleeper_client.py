@@ -3,7 +3,7 @@
 Endpoints used:
   - /v1/state/nfl                         current season/week
   - /v1/players/nfl                       full player metadata dict (~5MB)
-  - /v1/projections/nfl/{season}/{week}   weekly fantasy projections
+  - api.sleeper.com/projections/nfl/{season}/{week}   weekly fantasy projections
   - /scores/nfl/{season_type}/{season}/{week}
         per-game data including real kickoff time (epoch ms) and broadcaster,
         used to build the schedule and detect isolated Wed/Thu/Sun/Mon games.
@@ -15,7 +15,9 @@ from typing import Any
 import httpx
 
 from app.cache import cached_fetch
-from app.config import SLEEPER_BASE, TTL_PLAYERS, TTL_PROJECTIONS, TTL_SCHEDULE
+from app.config import SLEEPER_BASE, SLEEPER_PROJECTIONS_BASE, TTL_PLAYERS, TTL_PROJECTIONS, TTL_SCHEDULE
+
+_PROJECTION_POSITIONS = ("QB", "RB", "WR", "TE", "DEF")
 
 _HEADERS = {"User-Agent": "DFSRiches/1.0 (+https://github.com/)"}
 
@@ -43,24 +45,16 @@ async def get_players() -> dict[str, dict]:
 
 
 async def get_projections(season: int, week: int, season_type: str = "regular") -> dict[str, float]:
-    """player_id -> projected PPR points for the given week.
-
-    Note: as of this writing Sleeper's public /v1/projections endpoint
-    responds 200 with a per-player dict but every player's stats come back
-    as {} (verified against both an already-played and a future week), so
-    this returns an empty mapping in practice. It's kept as the shape the
-    app expects and merged in as a bonus "Sleeper Proj" column so it starts
-    populating automatically if/when Sleeper's endpoint does; DraftKings'
-    own per-player FPPG (app.dk_client) is the primary, reliably-populated
-    projection the app's Value column is computed from.
-    """
+    """player_id -> projected PPR points for the given week. DEF entries are
+    keyed by team abbreviation, matching Sleeper's DEF player_ids."""
 
     async def fetch() -> Any:
         async with httpx.AsyncClient() as client:
-            url = f"{SLEEPER_BASE}/v1/projections/nfl/{season}/{week}?season_type={season_type}"
+            positions = "&".join(f"position[]={p}" for p in _PROJECTION_POSITIONS)
+            url = f"{SLEEPER_PROJECTIONS_BASE}/projections/nfl/{season}/{week}?season_type={season_type}&{positions}"
             return await _get_json(client, url)
 
-    key = f"sleeper_projections_{season}_{season_type}_{week}"
+    key = f"sleeper_projections_v2_{season}_{season_type}_{week}"
     raw = await cached_fetch(key, TTL_PROJECTIONS, fetch)
 
     def _extract_points(stats: dict) -> float | None:
