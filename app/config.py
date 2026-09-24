@@ -9,6 +9,7 @@ CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 DK_OVERRIDES_PATH = DATA_DIR / "dk_overrides.json"
 NAME_ALIASES_PATH = DATA_DIR / "name_aliases.json"
+OPTIMAL_LINEUPS_PATH = DATA_DIR / "optimal_lineups.json"
 
 ET = ZoneInfo("America/New_York")
 

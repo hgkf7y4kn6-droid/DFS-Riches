@@ -23,6 +23,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
+from app import optimal as optimal_module
 from app import slates
 from app.config import BASE_DIR, DEFAULT_SEASON, DEFAULT_WEEK
 from app.models import SlatePlayers, WeekBreakdown, WeekData, WeekSchedule
@@ -111,6 +112,16 @@ async def api_slate_players(slate_id: str, season: int = DEFAULT_SEASON, week: i
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not load slate players: {exc}") from exc
+
+
+@app.get("/api/slates/{slate_id}/optimal")
+async def api_slate_optimal(slate_id: str, season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
+    try:
+        return await optimal_module.get_optimal(season, week, slate_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not build optimal lineups: {exc}") from exc
 
 
 @app.get("/breakdown", response_class=HTMLResponse)
