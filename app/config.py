@@ -31,6 +31,8 @@ NFLVERSE_TEAM_STATS_URL_TMPL = (
 NFLVERSE_PLAYER_STATS_URL_TMPL = (
     "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{season}.csv"
 )
+# Play-by-play, for neutral-situation tempo and pass rate (app.nflverse_client.neutral_stats_from_pbp).
+NFLVERSE_PBP_URL_TMPL = "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_{season}.csv.gz"
 # nflverse spells the Rams "LA"; every other team code matches ours exactly.
 NFLVERSE_TO_APP_TEAM = {"LA": "LAR"}
 
@@ -45,6 +47,7 @@ TTL_DK_DISCOVERY = 60 * 10       # DK draft-group listing
 TTL_DK_DRAFTABLES = 60 * 5       # DK salaries move as slates get edited
 TTL_NFLVERSE_GAMES = 60 * 20     # closing lines + scores, updates through/after games
 TTL_NFLVERSE_TEAM_STATS = 60 * 30  # per-game team box-score stats, used for pace baselines
+TTL_NFLVERSE_PBP_PAST = 60 * 60 * 24 * 7  # a finished season's play-by-play aggregates barely change
 
 # Day-part windows used to bucket a game's ET kickoff into a broadcast window.
 # "Isolated" windows are the ones DraftKings builds single-game Showdown

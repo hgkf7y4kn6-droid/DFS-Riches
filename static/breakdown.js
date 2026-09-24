@@ -75,7 +75,7 @@
         <table class="breakdown-stat-table">
           <thead>
             <tr>
-              <th scope="col">Trailing metric (L8)</th>
+              <th scope="col" title="Last 8 games; tempo and pass rates are season-to-date once a team has 2+ games">Metric</th>
               <th scope="col" class="num">${g.away}</th>
               <th scope="col" class="num">${g.home}</th>
             </tr>
@@ -85,10 +85,11 @@
             ${statRow("Points allowed/gm", away.points_against, away.points_against_rank, home.points_against, home.points_against_rank)}
             ${statRow("Yards/play", away.yards_per_play, away.yards_per_play_rank, home.yards_per_play, home.yards_per_play_rank, (v) => fmtNum(v, 2))}
             ${statRow("Yards/play allowed", away.yards_allowed_per_play, away.yards_allowed_per_play_rank, home.yards_allowed_per_play, home.yards_allowed_per_play_rank, (v) => fmtNum(v, 2))}
-            ${statRow("Plays/gm (pace)", away.pace_plays, away.pace_rank, home.pace_plays, home.pace_rank, (v) => fmtNum(v, 0))}
-            ${statRow("Pass rate", away.pass_pct, null, home.pass_pct, null, fmtPct)}
-            ${statRow("Opp. pass rate allowed", away.opp_pass_pct_allowed, away.opp_pass_pct_allowed_rank, home.opp_pass_pct_allowed, home.opp_pass_pct_allowed_rank, fmtPct)}
-            ${statRow("Opp. rush rate allowed", away.opp_rush_pct_allowed, away.opp_rush_pct_allowed_rank, home.opp_rush_pct_allowed, home.opp_rush_pct_allowed_rank, fmtPct)}
+            ${statRow("Neutral tempo (sec/snap)", away.tempo_secs, away.tempo_rank, home.tempo_secs, home.tempo_rank, (v) => fmtNum(v, 1))}
+            ${statRow("Plays/gm (volume)", away.plays_per_game, away.plays_rank, home.plays_per_game, home.plays_rank, (v) => fmtNum(v, 0))}
+            ${statRow("Neutral pass rate", away.pass_pct, null, home.pass_pct, null, fmtPct)}
+            ${statRow("Neutral pass rate faced (D)", away.opp_pass_pct_allowed, away.opp_pass_pct_allowed_rank, home.opp_pass_pct_allowed, home.opp_pass_pct_allowed_rank, fmtPct)}
+            ${statRow("Neutral rush rate faced (D)", away.opp_rush_pct_allowed, away.opp_rush_pct_allowed_rank, home.opp_rush_pct_allowed, home.opp_rush_pct_allowed_rank, fmtPct)}
           </tbody>
         </table>
       </div>

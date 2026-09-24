@@ -21,9 +21,11 @@ from app import slates as slates_module
 from app.models import Game, GameBreakdown, TeamStatLine, TopPlayer, WeekBreakdown
 from app.schedule import get_week_schedule
 
-_RANK_WINDOW = 8            # trailing games used for all league-rank context
+_RANK_WINDOW = 8            # trailing games for league-rank context (tendency metrics use season-to-date; see nc.TENDENCY_METRICS)
 _FUNNEL_RANK_THRESHOLD = 10  # a defense ranking in the top 10 of 32 counts as a real funnel
 _PACE_RANK_THRESHOLD = 10
+_PACE_GAP_THRESHOLD = 10     # ranks apart before one offense counts as notably faster...
+_PACE_GAP_SECS = 1.5         # ...and seconds per snap apart
 _EFFICIENCY_RANK_THRESHOLD = 10
 _TOP_PLAYERS_PER_TEAM = 3
 
@@ -34,6 +36,7 @@ _RANK_DIRECTION = {
     "yards_per_play": True,
     "yards_allowed_per_play": False,
     "plays": True,
+    "neutral_secs": False,          # rank 1 = fastest tempo (fewest seconds per snap)
     "opp_pass_pct_allowed": True,   # rank 1 = biggest pass funnel
     "opp_rush_pct_allowed": True,   # rank 1 = biggest rush funnel
 }
@@ -61,8 +64,10 @@ def _build_team_stats(index: dict, team: str, season: int, week: int, ranks: dic
         yards_per_play_rank=ranks["yards_per_play"].get(team),
         yards_allowed_per_play=trail("yards_allowed_per_play"),
         yards_allowed_per_play_rank=ranks["yards_allowed_per_play"].get(team),
-        pace_plays=trail("plays"),
-        pace_rank=ranks["plays"].get(team),
+        plays_per_game=trail("plays"),
+        plays_rank=ranks["plays"].get(team),
+        tempo_secs=trail("neutral_secs"),
+        tempo_rank=ranks["neutral_secs"].get(team),
         pass_pct=trail("pass_pct"),
         rush_pct=trail("rush_pct"),
         opp_pass_pct_allowed=trail("opp_pass_pct_allowed"),
@@ -105,25 +110,29 @@ def _vegas_takeaways(
 
 
 def _pace_takeaway(game: Game, away: TeamStatLine, home: TeamStatLine) -> str | None:
-    if away.pace_rank is None or home.pace_rank is None:
+    """Tempo: neutral-situation seconds from snap to snap (not plays/game,
+    which also reflects possessions and game script)."""
+    if away.tempo_rank is None or home.tempo_rank is None:
         return None
 
+    def fmt(team: str, s: TeamStatLine) -> str:
+        return f"{team} {_ordinal(s.tempo_rank)}, {s.tempo_secs:.1f}s/snap"
+
     bottom_cutoff = 32 - _PACE_RANK_THRESHOLD + 1
-    if away.pace_rank <= _PACE_RANK_THRESHOLD and home.pace_rank <= _PACE_RANK_THRESHOLD:
+    if away.tempo_rank <= _PACE_RANK_THRESHOLD and home.tempo_rank <= _PACE_RANK_THRESHOLD:
         return (
-            f"Both offenses rank in the top {_PACE_RANK_THRESHOLD} for plays/game "
-            f"({game.away} {_ordinal(away.pace_rank)}, {game.home} {_ordinal(home.pace_rank)}) -- "
-            f"expect a plays-heavy environment."
+            f"Both offenses play fast in neutral situations ({fmt(game.away, away)}; {fmt(game.home, home)}) -- "
+            f"expect extra snaps."
         )
-    if away.pace_rank >= bottom_cutoff and home.pace_rank >= bottom_cutoff:
+    if away.tempo_rank >= bottom_cutoff and home.tempo_rank >= bottom_cutoff:
         return (
-            f"Both offenses rank in the bottom {_PACE_RANK_THRESHOLD} for plays/game "
-            f"({game.away} {_ordinal(away.pace_rank)}, {game.home} {_ordinal(home.pace_rank)}) -- "
-            f"expect a slower, more deliberate script."
+            f"Both offenses play slow in neutral situations ({fmt(game.away, away)}; {fmt(game.home, home)}) -- "
+            f"expect fewer snaps and a more deliberate game."
         )
-    if away.pace_rank < home.pace_rank:
-        return f"{game.away} plays at a notably faster pace ({_ordinal(away.pace_rank)} in plays/gm) than {game.home} ({_ordinal(home.pace_rank)})."
-    return f"{game.home} plays at a notably faster pace ({_ordinal(home.pace_rank)} in plays/gm) than {game.away} ({_ordinal(away.pace_rank)})."
+    if abs(away.tempo_rank - home.tempo_rank) < _PACE_GAP_THRESHOLD or abs(away.tempo_secs - home.tempo_secs) < _PACE_GAP_SECS:
+        return None
+    fast, slow = ((game.away, away), (game.home, home)) if away.tempo_rank < home.tempo_rank else ((game.home, home), (game.away, away))
+    return f"{fast[0]} plays notably faster in neutral situations ({fmt(*fast)}) than {slow[0]} ({fmt(*slow)})."
 
 
 def _funnel_takeaways(game: Game, away: TeamStatLine, home: TeamStatLine) -> list[str]:
@@ -133,24 +142,24 @@ def _funnel_takeaways(game: Game, away: TeamStatLine, home: TeamStatLine) -> lis
     if home.opp_pass_pct_allowed_rank is not None and home.opp_pass_pct_allowed_rank <= _FUNNEL_RANK_THRESHOLD:
         bullets.append(
             f"{game.away}'s passing game projects for extra volume: {game.home}'s defense ranks "
-            f"{_ordinal(home.opp_pass_pct_allowed_rank)} in opponent pass rate faced, a real pass funnel."
+            f"{_ordinal(home.opp_pass_pct_allowed_rank)} in neutral pass rate faced, a real pass funnel."
         )
     elif home.opp_rush_pct_allowed_rank is not None and home.opp_rush_pct_allowed_rank <= _FUNNEL_RANK_THRESHOLD:
         bullets.append(
             f"{game.away}'s ground game gets a runway: {game.home}'s defense ranks "
-            f"{_ordinal(home.opp_rush_pct_allowed_rank)} in opponent rush rate faced, a real rush funnel."
+            f"{_ordinal(home.opp_rush_pct_allowed_rank)} in neutral rush rate faced, a real rush funnel."
         )
 
     # home's offense against away's defense
     if away.opp_pass_pct_allowed_rank is not None and away.opp_pass_pct_allowed_rank <= _FUNNEL_RANK_THRESHOLD:
         bullets.append(
             f"{game.home}'s passing game projects for extra volume: {game.away}'s defense ranks "
-            f"{_ordinal(away.opp_pass_pct_allowed_rank)} in opponent pass rate faced, a real pass funnel."
+            f"{_ordinal(away.opp_pass_pct_allowed_rank)} in neutral pass rate faced, a real pass funnel."
         )
     elif away.opp_rush_pct_allowed_rank is not None and away.opp_rush_pct_allowed_rank <= _FUNNEL_RANK_THRESHOLD:
         bullets.append(
             f"{game.home}'s ground game gets a runway: {game.away}'s defense ranks "
-            f"{_ordinal(away.opp_rush_pct_allowed_rank)} in opponent rush rate faced, a real rush funnel."
+            f"{_ordinal(away.opp_rush_pct_allowed_rank)} in neutral rush rate faced, a real rush funnel."
         )
 
     return bullets

@@ -16,12 +16,15 @@ nfl-data community. Two files are used:
   - releases/stats_team/stats_team_week_{season}.csv (nflverse/nflverse-data)
         One row per team per game with real box-score stats. Total
         offensive plays (pass attempts + rush attempts + sacks taken) is
-        used as the "pace of play" metric -- the standard, simplest real
-        pace stat (as opposed to seconds-per-play, which needs full
-        play-by-play data this app doesn't otherwise need). The same rows'
-        defensive columns, combined with points allowed from games.csv,
-        feed app.dk_scoring.dk_dst_points for a team's real trailing DST
+        each team's play volume (plays/game). The same rows' defensive
+        columns, combined with points allowed from games.csv, feed
+        app.dk_scoring.dk_dst_points for a team's real trailing DST
         fantasy scoring.
+  - releases/pbp/play_by_play_{season}.csv.gz (nflverse/nflverse-data)
+        Every play. Aggregated per team-game into neutral-situation tempo
+        (seconds per snap) and dropback rate, for offense and for the
+        defense facing it -- see neutral_stats_from_pbp. Plays/game alone
+        measures volume, not how fast or pass-happy a team operates.
   - releases/stats_player/stats_player_week_{season}.csv (nflverse/nflverse-data)
         One row per skill-position player per game with real box-score
         stats. Joined onto a DK salary row by normalized name + position
@@ -33,9 +36,11 @@ abbreviations Sleeper/DraftKings use (see app.config.NFLVERSE_TO_APP_TEAM).
 """
 from __future__ import annotations
 
+import asyncio
 import csv
+import gzip
 import io
-from typing import Any
+from typing import Any, Iterable
 
 import httpx
 
@@ -43,10 +48,12 @@ from app import dk_scoring
 from app.cache import cached_fetch
 from app.config import (
     NFLVERSE_GAMES_CSV_URL,
+    NFLVERSE_PBP_URL_TMPL,
     NFLVERSE_PLAYER_STATS_URL_TMPL,
     NFLVERSE_TEAM_STATS_URL_TMPL,
     NFLVERSE_TO_APP_TEAM,
     TTL_NFLVERSE_GAMES,
+    TTL_NFLVERSE_PBP_PAST,
     TTL_NFLVERSE_TEAM_STATS,
 )
 from app.matching import normalize_name, resolve_alias
@@ -78,6 +85,108 @@ async def _fetch_csv_text(url: str) -> str:
         resp = await client.get(url, headers=_HEADERS, timeout=60)
         resp.raise_for_status()
         return resp.text
+
+
+def _is_neutral(qtr: float | None, score_diff: float | None, half_secs: float | None) -> bool:
+    """Sharp Football's neutral definition: quarters 1-3, score within 14
+    points, excluding the final two minutes of the half."""
+    return (
+        qtr in (1, 2, 3)
+        and score_diff is not None and abs(score_diff) <= 14
+        and half_secs is not None and half_secs > 120
+    )
+
+
+def _clock_kept_running(prev: dict) -> bool:
+    """True if the game clock ran from the end of this play to the next snap,
+    so the elapsed game clock between the two snaps measures the offense's
+    tempo (play duration + time to the next snap) rather than a stoppage."""
+    return (
+        (prev["play_type"] == "run" or (prev["play_type"] == "pass" and prev.get("complete_pass") == "1"))
+        and prev.get("out_of_bounds") == "0"
+        and prev.get("penalty") in ("0", "NA", "")
+        and prev.get("timeout") in ("0", "NA", "")
+        and prev.get("touchdown") == "0"
+        and prev.get("fumble_lost") == "0"
+    )
+
+
+def neutral_stats_from_pbp(rows: Iterable[dict]) -> dict[str, dict]:
+    """Aggregates nflverse play-by-play rows (dicts of strings, in play
+    order) into per team-game neutral-situation stats, keyed "week|team":
+
+    offense  neutral_pass_rate  dropbacks (incl. sacks & scrambles) / scrimmage plays
+             neutral_secs       seconds of game clock from snap to snap when the
+                                clock kept running, adjusted for the league's
+                                typical gap after a run vs a completion
+    defense  opp_neutral_pass_rate  the same dropback rate for offenses it faced
+    """
+    off: dict[str, dict[str, float]] = {}
+    de: dict[str, dict[str, float]] = {}
+    gaps_by_kind = {"run": [0.0, 0], "pass": [0.0, 0]}
+    prev: dict | None = None
+    for r in rows:
+        if r.get("play_type") not in ("pass", "run"):
+            continue
+        week = _to_int(r.get("week"))
+        team, opp = to_app_team(r.get("posteam", "")), to_app_team(r.get("defteam", ""))
+        if week is None or not team:
+            prev = r
+            continue
+        if _is_neutral(_to_float(r.get("qtr")), _to_float(r.get("score_differential")), _to_float(r.get("half_seconds_remaining"))):
+            dropback = 1.0 if r.get("qb_dropback") == "1" else 0.0
+            o = off.setdefault(f"{week}|{team}", {"drop": 0.0, "plays": 0, "run_sum": 0.0, "run_n": 0, "pass_sum": 0.0, "pass_n": 0})
+            o["drop"] += dropback
+            o["plays"] += 1
+            d = de.setdefault(f"{week}|{opp}", {"drop": 0.0, "plays": 0})
+            d["drop"] += dropback
+            d["plays"] += 1
+            if (prev is not None and prev.get("game_id") == r.get("game_id") and prev.get("drive") == r.get("drive")
+                    and prev.get("qtr") == r.get("qtr") and _clock_kept_running(prev)):
+                start, end = _to_float(prev.get("game_seconds_remaining")), _to_float(r.get("game_seconds_remaining"))
+                if start is not None and end is not None and 5 <= start - end <= 60:
+                    kind = "run" if prev["play_type"] == "run" else "pass"
+                    o[f"{kind}_sum"] += start - end
+                    o[f"{kind}_n"] += 1
+                    gaps_by_kind[kind][0] += start - end
+                    gaps_by_kind[kind][1] += 1
+        prev = r
+
+    total_n = gaps_by_kind["run"][1] + gaps_by_kind["pass"][1]
+    league = (gaps_by_kind["run"][0] + gaps_by_kind["pass"][0]) / total_n if total_n else None
+    kind_mean = {k: (s / n if n else 0.0) for k, (s, n) in gaps_by_kind.items()}
+
+    offense = {}
+    for key, o in off.items():
+        n = o["run_n"] + o["pass_n"]
+        secs = None
+        if n and league is not None:
+            residual = (o["run_sum"] - o["run_n"] * kind_mean["run"]) + (o["pass_sum"] - o["pass_n"] * kind_mean["pass"])
+            secs = round(league + residual / n, 2)
+        offense[key] = {"neutral_pass_rate": round(o["drop"] / o["plays"], 4), "neutral_secs": secs}
+    defense = {key: {"opp_neutral_pass_rate": round(d["drop"] / d["plays"], 4)} for key, d in de.items()}
+    return {"offense": offense, "defense": defense}
+
+
+async def _team_week_neutral(season: int, current_season: int) -> dict[str, dict]:
+    async def fetch() -> dict:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            resp = await client.get(NFLVERSE_PBP_URL_TMPL.format(season=season), headers=_HEADERS, timeout=120)
+            resp.raise_for_status()
+            raw = resp.content
+
+        def parse() -> dict:
+            text = io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(raw)), encoding="utf-8")
+            return neutral_stats_from_pbp(csv.DictReader(text))
+
+        # ~50k plays x ~370 columns for a full season: keep it off the event loop.
+        return await asyncio.to_thread(parse)
+
+    ttl = TTL_NFLVERSE_TEAM_STATS if season >= current_season else TTL_NFLVERSE_PBP_PAST
+    try:
+        return await cached_fetch(f"nflverse_pbp_neutral_{season}", ttl, fetch)
+    except Exception:
+        return {"offense": {}, "defense": {}}
 
 
 async def get_games(season: int) -> dict[tuple[int, str, str], dict[str, Any]]:
@@ -366,15 +475,15 @@ async def get_baseline_plays(season: int, week: int, team: str) -> float | None:
 
 
 _TEAM_METRICS = (
-    "spread", "total", "implied_total", "plays",
+    "spread", "total", "implied_total", "plays", "neutral_secs",
     "points_for", "points_against", "yards_per_play", "yards_allowed_per_play",
     "pass_pct", "rush_pct", "opp_pass_pct_allowed", "opp_rush_pct_allowed",
 )
 
 
 async def _team_week_box_scores(season: int) -> dict[tuple[int, str], dict]:
-    """{(week, team): {opponent, plays, yards_per_play, pass_pct, rush_pct}}
-    from real per-game box-score stats, one season."""
+    """{(week, team): {opponent, plays, yards_per_play}} from real per-game
+    box-score stats, one season."""
     scores: dict[tuple[int, str], dict] = {}
     for row in await _fetch_team_week_rows(season):
         try:
@@ -391,8 +500,6 @@ async def _team_week_box_scores(season: int) -> dict[tuple[int, str], dict]:
             "opponent": to_app_team(row.get("opponent_team", "")),
             "plays": plays,
             "yards_per_play": round(total_yards / plays, 2) if plays else None,
-            "pass_pct": round(attempts / plays, 3) if plays else None,
-            "rush_pct": round(carries / plays, 3) if plays else None,
         }
     return scores
 
@@ -402,15 +509,21 @@ async def get_team_context_trailing_index(season: int) -> dict[str, dict[str, li
     combining this season and the prior one. "spread"/"implied_total" are
     from the team's own perspective (negative spread = they were favored)
     regardless of home/away, so a team's trend is comparable game to game.
-    "opp_*_allowed" metrics are what that team's DEFENSE has faced: the
-    opponent's own pass/rush split in that game (a real, direct measure of
-    which offenses funnel their opponents to the air vs. the ground)."""
+    "plays" is volume (plays/game, box scores). "neutral_secs" is tempo:
+    seconds of game clock from snap to snap in neutral situations (lower =
+    faster). "pass_pct"/"rush_pct" are the offense's neutral-situation
+    dropback/run rates, and "opp_*_allowed" the same rates for the offenses
+    that team's DEFENSE faced -- which defenses funnel opponents to the air
+    vs. the ground. Neutral (quarters 1-3, within 14 points, outside the last
+    two minutes of the half) keeps game script out of tendencies; see
+    neutral_stats_from_pbp."""
 
     async def fetch() -> dict[str, dict[str, list[list]]]:
         index: dict[str, dict[str, list[list]]] = {}
         for szn in (season - 1, season):
             games = await get_games(szn)
             box_scores = await _team_week_box_scores(szn)
+            neutral = await _team_week_neutral(szn, season)
 
             for (week, away, home), row in games.items():
                 spread_line = row.get("spread_line")
@@ -439,22 +552,24 @@ async def get_team_context_trailing_index(season: int) -> dict[str, dict[str, li
                             d["plays"].append([szn, week, own["plays"]])
                         if own["yards_per_play"] is not None:
                             d["yards_per_play"].append([szn, week, own["yards_per_play"]])
-                        if own["pass_pct"] is not None:
-                            d["pass_pct"].append([szn, week, own["pass_pct"]])
-                        if own["rush_pct"] is not None:
-                            d["rush_pct"].append([szn, week, own["rush_pct"]])
 
                     opp_box = box_scores.get((week, opp))
-                    if opp_box:
-                        if opp_box["yards_per_play"] is not None:
-                            d["yards_allowed_per_play"].append([szn, week, opp_box["yards_per_play"]])
-                        if opp_box["pass_pct"] is not None:
-                            d["opp_pass_pct_allowed"].append([szn, week, opp_box["pass_pct"]])
-                        if opp_box["rush_pct"] is not None:
-                            d["opp_rush_pct_allowed"].append([szn, week, opp_box["rush_pct"]])
+                    if opp_box and opp_box["yards_per_play"] is not None:
+                        d["yards_allowed_per_play"].append([szn, week, opp_box["yards_per_play"]])
+
+                    n_off = neutral["offense"].get(f"{week}|{team}")
+                    if n_off:
+                        d["pass_pct"].append([szn, week, n_off["neutral_pass_rate"]])
+                        d["rush_pct"].append([szn, week, round(1 - n_off["neutral_pass_rate"], 4)])
+                        if n_off["neutral_secs"] is not None:
+                            d["neutral_secs"].append([szn, week, n_off["neutral_secs"]])
+                    n_def = neutral["defense"].get(f"{week}|{team}")
+                    if n_def:
+                        d["opp_pass_pct_allowed"].append([szn, week, n_def["opp_neutral_pass_rate"]])
+                        d["opp_rush_pct_allowed"].append([szn, week, round(1 - n_def["opp_neutral_pass_rate"], 4)])
         return index
 
-    return await cached_fetch(f"nflverse_team_context_trailing_index_{season}", TTL_NFLVERSE_GAMES, fetch)
+    return await cached_fetch(f"nflverse_team_context_trailing_index_v2_{season}", TTL_NFLVERSE_GAMES, fetch)
 
 
 def team_trend(index: dict, team: str, metric: str, season: int, week: int) -> dict[str, float | None]:
@@ -468,22 +583,38 @@ def team_trend(index: dict, team: str, metric: str, season: int, week: int) -> d
     }
 
 
+# Scheme tendencies change with coordinators every offseason, so once a team
+# has this many games this season, these use season-to-date only (as Sharp
+# Football's pace page does) instead of reaching back into last season.
+TENDENCY_METRICS = frozenset({"neutral_secs", "pass_pct", "rush_pct", "opp_pass_pct_allowed", "opp_rush_pct_allowed"})
+MIN_CURRENT_SEASON_GAMES = 2
+
+
+def _window_avg(entries: list[list], metric: str, season: int, week: int, n: int) -> float | None:
+    if metric in TENDENCY_METRICS:
+        current = [e[2] for e in entries if e[0] == season and e[1] < week]
+        if len(current) >= MIN_CURRENT_SEASON_GAMES:
+            return round(sum(current) / len(current), 4)
+    return _trailing_avg(entries, season, week, n)
+
+
 def team_trailing(index: dict, team: str, metric: str, season: int, week: int, n: int = 8) -> float | None:
-    """A single trailing n-game average for one team/metric, from
-    get_team_context_trailing_index."""
-    return _trailing_avg(index.get(team, {}).get(metric, []), season, week, n)
+    """One team/metric's value entering (season, week), from
+    get_team_context_trailing_index: the trailing n-game average, or for
+    TENDENCY_METRICS the season-to-date average once there are enough games."""
+    return _window_avg(index.get(team, {}).get(metric, []), metric, season, week, n)
 
 
 def rank_teams(
     index: dict, metric: str, season: int, week: int, *, n: int = 8, descending: bool = True
 ) -> dict[str, int]:
-    """team -> 1-based league rank by trailing n-game average of metric
+    """team -> 1-based league rank by metric (as team_trailing computes it)
     among all teams that have one. descending=True means higher is
     better/rank 1 (points scored, yards/play); descending=False means
     lower is better/rank 1 (points allowed, yards/play allowed)."""
     values: dict[str, float] = {}
     for team, metrics in index.items():
-        v = _trailing_avg(metrics.get(metric, []), season, week, n)
+        v = _window_avg(metrics.get(metric, []), metric, season, week, n)
         if v is not None:
             values[team] = v
     ranked = sorted(values.items(), key=lambda kv: kv[1], reverse=descending)

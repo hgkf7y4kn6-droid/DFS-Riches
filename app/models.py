@@ -141,11 +141,13 @@ class TeamStatLine(BaseModel):
     yards_per_play_rank: int | None = None
     yards_allowed_per_play: float | None = None
     yards_allowed_per_play_rank: int | None = None
-    pace_plays: float | None = None
-    pace_rank: int | None = None
-    pass_pct: float | None = None
+    plays_per_game: float | None = None            # volume, from box scores
+    plays_rank: int | None = None                  # 1 = most plays/game
+    tempo_secs: float | None = None                # neutral-situation seconds from snap to snap
+    tempo_rank: int | None = None                  # 1 = fastest tempo
+    pass_pct: float | None = None                  # neutral-situation dropback rate
     rush_pct: float | None = None
-    opp_pass_pct_allowed: float | None = None      # how often opponents have thrown against this defense
+    opp_pass_pct_allowed: float | None = None      # neutral dropback rate of offenses this defense faced
     opp_pass_pct_allowed_rank: int | None = None   # 1 = biggest pass funnel
     opp_rush_pct_allowed: float | None = None
     opp_rush_pct_allowed_rank: int | None = None   # 1 = biggest rush funnel

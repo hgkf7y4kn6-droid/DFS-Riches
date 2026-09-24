@@ -31,7 +31,7 @@
   <section class="odds-wrap">
     <div class="odds-header">
       <h2>Lines &amp; Performance</h2>
-      <span class="odds-source">Real closing lines &amp; team pace via nflverse. Small text under each metric is that team's own trailing L3/L6/L9-game average (away/home).</span>
+      <span class="odds-source">Real closing lines &amp; team play volume via nflverse. Small text under each metric is that team's own trailing L3/L6/L9-game average (away/home).</span>
     </div>
     <div class="table-scroll">
       <table id="odds-table">
@@ -45,7 +45,7 @@
             <th scope="col" class="num">Final (A/H)</th>
             <th scope="col">ATS Result</th>
             <th scope="col">O/U Result</th>
-            <th scope="col" class="num" title="Trailing rows: each team's average offensive plays over their last 3/6/9 games">Pace vs. Baseline (A/H)</th>
+            <th scope="col" class="num" title="Plays run in this game vs. the team's own average (volume, not tempo). Trailing rows: each team's average offensive plays over their last 3/6/9 games">Plays vs. Baseline (A/H)</th>
           </tr>
         </thead>
         <tbody id="odds-tbody"></tbody>
@@ -127,7 +127,7 @@
   <footer class="site-footer">
     Data: real player pool &amp; salaries from DraftKings' public draft-group API;
     schedule &amp; kickoff times from Sleeper; closing spread/total lines and
-    team pace (offensive plays vs. season baseline) from nflverse's public
+    team play volume (offensive plays vs. season baseline) from nflverse's public
     game and box-score data. "Proj" is DraftKings' own FPPG (season fantasy
     points per game), x1.5 for the Showdown Captain slot; "Sleeper Proj" is
     Sleeper's week-specific PPR projection, for the ~400 players Sleeper

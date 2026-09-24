@@ -15,7 +15,7 @@ matchup   DK points the opponent allowed to this position over its last
 game env  The team's implied total this week vs the slate average (DST: the
           opponent's implied total, inverted).
 breakdown The same flags the Week Breakdown page raises: pass/rush funnel
-          defense, both offenses top-10 pace, yards/play efficiency mismatch.
+          defense, both offenses top-10 neutral tempo, yards/play efficiency mismatch.
 usage     The player's share of team targets + carries over the last 3 games
           vs the last 8 -- a growing role raises the ceiling (RB/WR/TE).
 role      Halved for a player with past-season games but none this season
@@ -50,7 +50,7 @@ NO_GAMES_THIS_SEASON = 0.5
 _RANK_METRICS = {
     "opp_pass_pct_allowed": True,
     "opp_rush_pct_allowed": True,
-    "plays": True,
+    "neutral_secs": False,
     "yards_per_play": True,
     "yards_allowed_per_play": False,
 }
@@ -215,9 +215,9 @@ def player_ceiling(
             flags.append((0.04, f"{opponent} D is a pass funnel (#{pass_rank})"))
         if position == "RB" and rush_rank and rush_rank <= TOP_RANK:
             flags.append((0.04, f"{opponent} D is a rush funnel (#{rush_rank})"))
-        tp, op = r["plays"].get(team), r["plays"].get(opponent)
+        tp, op = r["neutral_secs"].get(team), r["neutral_secs"].get(opponent)
         if tp and op and tp <= TOP_RANK and op <= TOP_RANK:
-            flags.append((0.03, "both offenses top-10 pace"))
+            flags.append((0.03, "both offenses top-10 neutral tempo"))
         ypp, ypa = r["yards_per_play"].get(team), r["yards_allowed_per_play"].get(opponent)
         if ypp and ypa and ypp <= TOP_RANK and ypa >= BOTTOM_RANK:
             flags.append((0.03, f"efficiency mismatch ({team} #{ypp} yds/play vs {opponent} D #{ypa})"))

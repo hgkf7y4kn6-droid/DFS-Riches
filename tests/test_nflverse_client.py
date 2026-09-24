@@ -92,3 +92,57 @@ def test_dk_dst_points_applies_points_allowed_tiers():
 def test_dk_dst_points_penalizes_blowout_losses():
     row = {}
     assert dk_dst_points(row, points_allowed=42) == -4
+
+
+def _play(**kw):
+    base = dict(game_id="g1", week="3", posteam="LA", defteam="SEA", drive="1", qtr="1", play_type="run",
+                qb_dropback="0", score_differential="0", half_seconds_remaining="1700", game_seconds_remaining="3500",
+                complete_pass="0", out_of_bounds="0", penalty="0", timeout="0", touchdown="0", fumble_lost="0")
+    base.update(kw)
+    return base
+
+
+def test_neutral_stats_counts_tied_games_and_maps_team_codes():
+    from app.nflverse_client import neutral_stats_from_pbp
+
+    plays = [
+        _play(play_type="pass", qb_dropback="1", complete_pass="1", game_seconds_remaining="3500"),
+        _play(play_type="run", game_seconds_remaining="3462"),     # 38s after an in-bounds completion
+        _play(play_type="pass", qb_dropback="1", game_seconds_remaining="3420"),   # 42s after a run
+    ]
+    out = neutral_stats_from_pbp(plays)
+    off = out["offense"]["3|LAR"]
+    assert off["neutral_pass_rate"] == round(2 / 3, 4)   # score_differential 0 (tied) still counts as neutral
+    assert off["neutral_secs"] == 40.0
+    assert out["defense"]["3|SEA"]["opp_neutral_pass_rate"] == round(2 / 3, 4)
+
+
+def test_neutral_stats_skip_non_neutral_plays_and_stopped_clocks():
+    from app.nflverse_client import neutral_stats_from_pbp
+
+    plays = [
+        _play(play_type="pass", qb_dropback="1", complete_pass="0", game_seconds_remaining="3500"),  # incompletion stops clock
+        _play(play_type="run", game_seconds_remaining="3495"),
+        _play(play_type="run", out_of_bounds="1", game_seconds_remaining="3460"),                   # counted gap: 35s
+        _play(play_type="run", game_seconds_remaining="3452"),                                      # after out of bounds: not counted
+        _play(play_type="pass", qb_dropback="1", qtr="4", game_seconds_remaining="800"),            # 4th quarter: not neutral
+        _play(play_type="pass", qb_dropback="1", score_differential="-21", game_seconds_remaining="3000"),  # blowout: not neutral
+        _play(play_type="pass", qb_dropback="1", half_seconds_remaining="90", game_seconds_remaining="1890"),  # 2-minute drill
+    ]
+    off = neutral_stats_from_pbp(plays)["offense"]["3|LAR"]
+    assert off["neutral_pass_rate"] == 0.25   # 1 dropback in the 4 neutral plays
+    assert off["neutral_secs"] == 35.0
+
+
+def test_tendency_metrics_use_season_to_date_once_there_are_two_games():
+    from app.nflverse_client import rank_teams, team_trailing
+
+    index = {
+        "A": {"neutral_secs": [[2025, w, 42.0] for w in range(10, 18)] + [[2026, 1, 35.0], [2026, 2, 36.0]],
+              "plays": [[2025, w, 70.0] for w in range(10, 18)] + [[2026, 1, 60.0], [2026, 2, 60.0]]},
+        "B": {"neutral_secs": [[2025, w, 36.0] for w in range(10, 18)] + [[2026, 1, 40.0], [2026, 2, 41.0]]},
+    }
+    assert team_trailing(index, "A", "neutral_secs", 2026, 3) == 35.5          # this season only
+    assert team_trailing(index, "A", "neutral_secs", 2026, 2) == 41.12         # 1 game this season: trailing 8
+    assert team_trailing(index, "A", "plays", 2026, 3) == 67.5                 # not a tendency: trailing 8
+    assert rank_teams(index, "neutral_secs", 2026, 3, descending=False) == {"A": 1, "B": 2}

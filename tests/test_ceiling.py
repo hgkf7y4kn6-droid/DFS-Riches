@@ -17,7 +17,7 @@ def _ctx(**overrides) -> CeilingContext:
         cv_by_pos={"RB": 0.5},
         implied={"TM": 22.0, "OPP": 22.0},
         slate_avg_implied=22.0,
-        ranks={m: {} for m in ("opp_pass_pct_allowed", "opp_rush_pct_allowed", "plays", "yards_per_play", "yards_allowed_per_play")},
+        ranks={m: {} for m in ("opp_pass_pct_allowed", "opp_rush_pct_allowed", "neutral_secs", "yards_per_play", "yards_allowed_per_play")},
         points_for={},
         league_points_for=None,
     )
@@ -57,7 +57,7 @@ def test_higher_implied_total_raises_ceiling():
 
 
 def test_breakdown_rush_funnel_applies_to_rbs_only():
-    ranks = {m: {} for m in ("opp_pass_pct_allowed", "plays", "yards_per_play", "yards_allowed_per_play")}
+    ranks = {m: {} for m in ("opp_pass_pct_allowed", "neutral_secs", "yards_per_play", "yards_allowed_per_play")}
     ranks["opp_rush_pct_allowed"] = {"OPP": 3}
     ctx = _ctx(ranks=ranks)
     _, rb_notes = _ceil(ctx)
@@ -75,7 +75,7 @@ def test_rising_usage_raises_ceiling_and_falling_usage_lowers_it():
 
 
 def test_combined_adjustments_are_capped():
-    ranks = {m: {} for m in ("opp_pass_pct_allowed", "plays", "yards_per_play", "yards_allowed_per_play")}
+    ranks = {m: {} for m in ("opp_pass_pct_allowed", "neutral_secs", "yards_per_play", "yards_allowed_per_play")}
     ranks["opp_rush_pct_allowed"] = {"OPP": 1}
     ctx = _ctx(
         def_vs_pos={"OPP": {"RB": [[2025, w, 60.0] for w in range(10, 18)]}},

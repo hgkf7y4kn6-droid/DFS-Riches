@@ -124,6 +124,37 @@ DraftKings' 1.5x multiplier.
 
 The **Injury status** menu above the player table filters the pool: **All players**, **Hide Out, IR & Doubtful** (keeps Questionable players, who usually play), or **Healthy only**. It shows how many players are hidden, combines with the position and search filters, and is remembered in your browser. Players already in one of your lineups stay there even if hidden.
 
+### Tempo and pass rate (checked against Sharp Football)
+
+"Pace" on the Week Breakdown page and in the Ceiling is **neutral tempo**:
+seconds of game clock from snap to snap, from nflverse play-by-play. It only
+counts gaps where the previous play kept the clock running (a run or
+completed pass that stayed in bounds, no penalty or timeout), adjusted for
+the league's typical gap after a run vs a completion. Neutral means quarters
+1-3, within 14 points, outside the last two minutes of the half, which is
+Sharp Football's definition. **Neutral pass rate** is the dropback rate (sacks and
+scrambles count as passes) in the same situations. For defenses, the same
+rate for the offenses they faced drives the pass/rush funnel flags. Both use
+season-to-date numbers once a team has played 2 games, since schemes change
+with coordinators, and the last 8 games before that. Plays/game is still
+shown, but as volume: it also reflects possessions, defense and game script.
+
+Checked against Sharp Football's 2026 Week 3 team pace and matchup pages:
+
+| Metric | Match with Sharp |
+|---|---|
+| Neutral pass rate | 0.98 rank correlation, within 0.7 pts on average (NO 65.8% in both) |
+| Neutral tempo | 0.84 rank correlation with Sharp's neutral play clock used (NO 1st, CAR 3rd vs 2nd) |
+| Plays/game | 0.99, within 1 play/game (we count sacks as plays) |
+| Yards/play (offense / defense) | 0.66-0.83 / 0.65-0.69 vs Sharp's opponent-adjusted efficiency ranks |
+
+Sharp's play clock comes from tracking data that nflverse doesn't publish
+(its `play_clock` column is always 0), hence game-clock tempo. The old
+plays/game "pace" matched Sharp's tempo at only 0.28. For example,
+Carolina and Las Vegas play fast but run few plays per game. The Lines &
+Performance table's plays-vs-baseline column is labeled as volume for the
+same reason.
+
 ### Ceiling
 
 The **Ceiling** column estimates each player's 85th-percentile DraftKings

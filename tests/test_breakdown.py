@@ -75,27 +75,28 @@ def test_vegas_takeaways_empty_without_a_line():
 
 def test_pace_takeaway_flags_both_fast_offenses():
     game = _game()
-    away = _stat_line("ATL", pace_rank=3)
-    home = _stat_line("GB", pace_rank=8)
+    away = _stat_line("ATL", tempo_rank=3, tempo_secs=35.4)
+    home = _stat_line("GB", tempo_rank=8, tempo_secs=36.9)
     text = _pace_takeaway(game, away, home)
-    assert "top 10 for plays/game" in text
-    assert "ATL 3rd" in text and "GB 8th" in text
+    assert text.startswith("Both offenses play fast in neutral situations")
+    assert "ATL 3rd, 35.4s/snap" in text and "GB 8th, 36.9s/snap" in text
 
 
 def test_pace_takeaway_flags_both_slow_offenses():
     game = _game()
-    away = _stat_line("ATL", pace_rank=28)
-    home = _stat_line("GB", pace_rank=29)
-    text = _pace_takeaway(game, away, home)
-    assert "bottom 10 for plays/game" in text
+    away = _stat_line("ATL", tempo_rank=28, tempo_secs=41.0)
+    home = _stat_line("GB", tempo_rank=29, tempo_secs=41.3)
+    assert _pace_takeaway(game, away, home).startswith("Both offenses play slow")
 
 
-def test_pace_takeaway_flags_the_faster_side_when_mixed():
+def test_pace_takeaway_flags_the_faster_side_only_when_the_gap_is_real():
     game = _game()
-    away = _stat_line("ATL", pace_rank=5)
-    home = _stat_line("GB", pace_rank=20)
-    text = _pace_takeaway(game, away, home)
-    assert text.startswith("ATL plays at a notably faster pace")
+    far = _pace_takeaway(game, _stat_line("ATL", tempo_rank=20, tempo_secs=39.5), _stat_line("GB", tempo_rank=5, tempo_secs=36.0))
+    assert far.startswith("GB plays notably faster in neutral situations (GB 5th, 36.0s/snap) than ATL (ATL 20th, 39.5s/snap)")
+    close = _pace_takeaway(game, _stat_line("ATL", tempo_rank=12, tempo_secs=38.0), _stat_line("GB", tempo_rank=13, tempo_secs=38.1))
+    assert close is None
+    small_secs = _pace_takeaway(game, _stat_line("ATL", tempo_rank=25, tempo_secs=40.1), _stat_line("GB", tempo_rank=15, tempo_secs=39.0))
+    assert small_secs is None  # 10 ranks apart but only 1.1s/snap: not "notably" faster
 
 
 def test_pace_takeaway_none_without_ranks():
@@ -160,8 +161,8 @@ def test_generate_takeaways_falls_back_when_nothing_stands_out():
 
 def test_generate_takeaways_combines_all_categories():
     game = _game(context=GameContext(home_spread=-3.0, total_line=48.0))
-    away = _stat_line("ATL", pace_rank=2, opp_rush_pct_allowed_rank=1, yards_per_play_rank=1)
-    home = _stat_line("GB", pace_rank=25, opp_pass_pct_allowed_rank=3, yards_allowed_per_play_rank=32)
+    away = _stat_line("ATL", tempo_rank=2, tempo_secs=35.0, opp_rush_pct_allowed_rank=1, yards_per_play_rank=1)
+    home = _stat_line("GB", tempo_rank=25, tempo_secs=40.0, opp_pass_pct_allowed_rank=3, yards_allowed_per_play_rank=32)
     bullets = generate_takeaways(game, away, home, total_rank=1)
     assert len(bullets) >= 4  # vegas + pace + funnel(s) + efficiency
 
