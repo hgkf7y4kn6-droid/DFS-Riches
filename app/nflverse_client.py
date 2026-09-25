@@ -198,7 +198,7 @@ async def get_pbp_aggregates(season: int, current_season: int | None = None) -> 
     current = current_season if current_season is not None else DEFAULT_SEASON
     ttl = TTL_NFLVERSE_TEAM_STATS if season >= current else TTL_NFLVERSE_PBP_PAST
     try:
-        return await cached_fetch(f"nflverse_pbp_aggregates_v1_{season}", ttl, fetch)
+        return await cached_fetch(f"nflverse_pbp_aggregates_v2_{season}", ttl, fetch)
     except Exception:
         return {"neutral": {"offense": {}, "defense": {}}, "trenches": {}}
 
@@ -433,10 +433,12 @@ async def get_week_actuals(season: int, week: int) -> dict:
     """Actual DraftKings points scored in one week, from nflverse box scores:
 
     players: player_key -> points (QB/RB/WR/TE, and K with Showdown kicker scoring)
+    by_team: team -> [[name, position, points], ...] for the same players
     dst:     team -> DST points
     teams:   teams with a box-score row that week, i.e. whose stats are in
     """
     players: dict[str, float] = {}
+    by_team: dict[str, list[list]] = {}
     for row in await _fetch_player_week_rows(season):
         if _to_int(row.get("week")) != week or not row.get("player_display_name"):
             continue
@@ -448,11 +450,12 @@ async def get_week_actuals(season: int, week: int) -> dict:
         else:
             continue
         players[player_key(row["player_display_name"], position)] = points
+        by_team.setdefault(to_app_team(row.get("team", "")), []).append([row["player_display_name"], position, round(points, 2)])
 
     dst = {team: e[2] for team, entries in (await get_team_dst_trailing_index(season)).items()
            for e in entries if e[0] == season and e[1] == week}
     teams = sorted({to_app_team(r.get("team", "")) for r in await _fetch_team_week_rows(season) if _to_int(r.get("week")) == week})
-    return {"players": players, "dst": dst, "teams": teams}
+    return {"players": players, "dst": dst, "teams": teams, "by_team": by_team}
 
 
 def actual_points(actuals: dict, *, name: str, position: str, team: str, roster_slot: str = "") -> float:
@@ -524,6 +527,11 @@ async def _team_week_box_scores(season: int) -> dict[tuple[int, str], dict]:
             + sum(_to_float(row.get(k)) or 0.0 for k in ("sack_fumbles_lost", "rushing_fumbles_lost", "receiving_fumbles_lost")),
         }
     return scores
+
+
+async def team_box_scores(season: int) -> dict[tuple[int, str], dict]:
+    """Public alias of the per-game box scores, for postgame summaries."""
+    return await _team_week_box_scores(season)
 
 
 async def get_team_context_trailing_index(season: int) -> dict[str, dict[str, list[list]]]:

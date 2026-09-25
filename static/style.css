@@ -1243,3 +1243,20 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
 .own-num-heads thead th:not(:first-child) { text-align: right; }
 .own-table thead th:nth-child(n+3) { text-align: right; }
 .dm-card a { color: var(--gold); }
+
+/* postgame */
+.pg-card { border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 6px; padding: 8px 10px; margin: 8px 0 10px; background: var(--panel-2); }
+.pg-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 4px; }
+.pg-label { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gold); }
+.pg-headline { font-weight: 600; margin-bottom: 4px; }
+.pg-list { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.45; }
+.pg-list li { margin-bottom: 3px; }
+.pg-note { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+.pg-verdict, .pg-tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 10px; border: 1px solid var(--border); }
+.pg-v-expected { color: var(--green); border-color: var(--green); }
+.pg-v-fav, .pg-v-flip { color: var(--text); }
+.pg-v-mild { color: var(--gold); border-color: var(--gold); }
+.pg-v-upset, .pg-tag { color: var(--red); border-color: var(--red); }
+.pg-section h4 { margin: 14px 0 6px; font-size: 13px; }
+.gd-trench-table td.pg-hit { color: var(--green); }
+.gd-trench-table td.pg-miss { color: var(--red); }

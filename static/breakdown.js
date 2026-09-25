@@ -67,6 +67,26 @@
       .join("");
   }
 
+  // --- postgame (app/postgame.py) ---
+  const VERDICT_CLS = { Expected: "pg-v-expected", "Favorite won": "pg-v-fav", "Coin flip": "pg-v-flip", "Mild upset": "pg-v-mild", Upset: "pg-v-upset" };
+
+  function verdictTags(pred) {
+    return `<span class="pg-verdict ${VERDICT_CLS[pred.verdict] || "pg-v-flip"}">${escapeHtml(pred.verdict)}</span>`
+      + (pred.surprises || []).map((t) => `<span class="pg-tag">${escapeHtml(t)}</span>`).join("");
+  }
+
+  function renderPostgameCard(pg) {
+    if (!pg) return "";
+    const pred = pg.predictability || {};
+    const items = [...pg.result, ...pg.flow.slice(1, 2), ...pg.exploited.slice(0, 1), ...pg.struggled.slice(0, 1), ...(pred.text || []).slice(0, 1)];
+    return `<div class="pg-card">
+        <div class="pg-top"><span class="pg-label">Postgame</span>${verdictTags(pred)}</div>
+        <div class="pg-headline">${escapeHtml(pg.headline)}</div>
+        <ul class="pg-list">${items.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ul>
+        ${pg.note ? `<p class="pg-note">${escapeHtml(pg.note)}</p>` : ""}
+      </div>`;
+  }
+
   function renderGameCard(gb) {
     const g = gb.game;
     const away = gb.away_stats;
@@ -78,10 +98,11 @@
       <header class="breakdown-card-header">
         <div>
           <div class="matchup">${escapeHtml(g.away)} @ ${escapeHtml(g.home)}</div>
-          <div class="meta">${escapeHtml(g.kickoff_et)}${g.network ? " &middot; " + escapeHtml(g.network) : ""}</div>
+          <div class="meta">${escapeHtml(g.kickoff_et)}${g.network ? " &middot; " + escapeHtml(g.network) : ""}${gb.postgame ? ` &middot; <b>Final: ${escapeHtml(g.away)} ${g.context.away_score}, ${escapeHtml(g.home)} ${g.context.home_score}</b>` : ""}</div>
         </div>
-        <button type="button" class="gd-open" data-game="${escapeHtml(g.game_id)}">Advanced matchup &rarr;</button>
+        <button type="button" class="gd-open" data-game="${escapeHtml(g.game_id)}">${gb.postgame ? "Game recap" : "Advanced matchup"} &rarr;</button>
       </header>
+      ${renderPostgameCard(gb.postgame)}
 
       <div class="table-scroll">
         <table class="breakdown-stat-table">
@@ -330,6 +351,83 @@
     ]);
   }
 
+  function bulletList(items) {
+    return el("ul", { cls: "gd-notes" }, items.map((t) => el("li", { text: t })));
+  }
+
+  function postgameSection(pg, g) {
+    const pred = pg.predictability || {};
+    const c = g.context;
+    const parts = [el("h3", { text: "Postgame: how it played out" })];
+    const tags = el("div", { cls: "pg-top" });
+    tags.innerHTML = verdictTags(pred);
+    parts.push(tags);
+    parts.push(el("div", { cls: "gd-tiles" }, [
+      statTile("Final", `${g.away} ${c.away_score}, ${g.home} ${c.home_score}`),
+      pred.line_win_prob != null ? statTile(`${pred.winner} pregame win prob`, fmtPct(pred.line_win_prob), "closing line") : null,
+      pred.margin_miss != null ? statTile("Margin vs spread", `${pred.margin_miss} pts`, pred.margin_miss_share != null ? `${fmtPct(pred.margin_miss_share)} of games miss by as much` : null) : null,
+      pred.total_miss != null ? statTile("Total vs line", `${pred.total_miss} pts`, pred.total_miss_share != null ? `${fmtPct(pred.total_miss_share)} of games miss by as much` : null) : null,
+    ]));
+    parts.push(el("p", { cls: "gd-insight" }, [el("strong", { text: pg.headline + " " }), document.createTextNode(pg.result.join(" "))]));
+    if (pg.flow.length) parts.push(bulletList(pg.flow));
+    const ts = pg.team_stats || {};
+    const A = ts[g.away], H = ts[g.home];
+    if (A && H) {
+      const rows = [
+        ["Plays", (t) => t.plays], ["Success rate", (t) => (t.success != null ? fmtPct(t.success) : null)],
+        ["EPA/play", (t) => (t.epa_play != null ? fmtSigned2(t.epa_play) : null)], ["Dropback EPA/play", (t) => (t.db_epa != null ? fmtSigned2(t.db_epa) : null)],
+        ["Rush EPA/play", (t) => (t.rush_epa != null ? fmtSigned2(t.rush_epa) : null)], ["Yards/play", (t) => t.yards_per_play],
+        ["Explosive plays", (t) => t.explosive], ["Sacks taken", (t) => t.sacks_taken], ["Turnovers", (t) => t.turnovers],
+      ].filter(([, f]) => f(A) != null || f(H) != null);
+      const thead = el("thead", {}, [el("tr", {}, ["Metric", g.away, g.home].map((h) => el("th", { text: h, attrs: { scope: "col" } })))]);
+      const tbody = el("tbody", {}, rows.map(([label, f]) => el("tr", {}, [el("th", { text: label, attrs: { scope: "row" } }), el("td", { text: String(f(A) ?? "-") }), el("td", { text: String(f(H) ?? "-") })])));
+      parts.push(el("div", { cls: "gd-trench-wrap", attrs: { tabindex: "0", role: "region", "aria-label": "Game stats" } }, [el("table", { cls: "gd-trench-table" }, [thead, tbody])]));
+    }
+    if (pg.matchups.length) {
+      parts.push(el("h4", { text: "Matchups: pregame expectation vs what happened" }));
+      parts.push(el("p", { cls: "gd-sub", text: "Expected = the offense's pregame rate + the defense's pregame rate allowed - league average (competitive plays). Bars to the right mean the offense beat that expectation; gray = within one standard error (played to form)." }));
+      parts.push(divergingChart(pg.matchups.map((m) => ({
+        label: m.label, value: m.better * m.z, team: teamKey(m.offense, g), muted: m.verdict === "to form",
+        valueText: `${fmtPct(m.actual)} vs ${fmtPct(m.expected)}`,
+        tip: m.text,
+      })), 3, "As expected"));
+      const called = pg.matchups.filter((m) => m.verdict !== "to form" || m.call).map((m) => m.text);
+      if (called.length) parts.push(bulletList(called));
+      parts.push(dataTable(["Matchup", "Attempts", "Actual", "Expected", "League", "Pregame edge", "Verdict", "Pregame call"], pg.matchups.map((m) => [
+        m.label, String(m.attempts), fmtPct(m.actual), fmtPct(m.expected), fmtPct(m.league),
+        m.pregame ? `${m.pregame.edge > 0 ? "+" : ""}${m.pregame.edge.toFixed(1)} (${m.pregame.strength})` : "-", m.verdict, m.call || "-"])));
+    }
+    parts.push(el("h4", { text: "How predictable was this?" }));
+    parts.push(bulletList(pred.text || []));
+    const dfs = pg.dfs;
+    if (dfs) {
+      parts.push(el("h4", { text: "DFS results" }));
+      if (dfs.text) parts.push(el("p", { cls: "gd-sub", text: dfs.text }));
+      const top = dfs.top_scorers.map((p) => [p.name, p.team, p.position, p.points.toFixed(1), fmtSalary(p.salary), p.value != null ? p.value.toFixed(2) : "-"]);
+      if (top.length) {
+        const thead = el("thead", {}, [el("tr", {}, ["Top scorers", "Team", "Pos", "DK pts", "Salary", "Pts/$1k"].map((h) => el("th", { text: h, attrs: { scope: "col" } })))]);
+        const tbody = el("tbody", {}, top.map((r) => el("tr", {}, [el("th", { text: r[0], attrs: { scope: "row" } }), ...r.slice(1).map((v) => el("td", { text: v }))])));
+        parts.push(el("div", { cls: "gd-trench-wrap", attrs: { tabindex: "0", role: "region", "aria-label": "Top DraftKings scorers" } }, [el("table", { cls: "gd-trench-table" }, [thead, tbody])]));
+      }
+      if (dfs.targets.length) {
+        const thead = el("thead", {}, [el("tr", {}, ["Pregame target", "Team", "Proj", "Ceiling", "Actual", "Result"].map((h) => el("th", { text: h, attrs: { scope: "col" } })))]);
+        const tbody = el("tbody", {}, dfs.targets.map((t) => el("tr", {}, [
+          el("th", { text: `${t.name} (${t.position})`, attrs: { scope: "row" } }), el("td", { text: t.team }),
+          el("td", { text: t.proj != null ? t.proj.toFixed(1) : "-" }), el("td", { text: t.ceiling != null ? t.ceiling.toFixed(1) : "-" }),
+          el("td", { text: t.points.toFixed(1) }), el("td", { cls: t.result === "Missed" ? "pg-miss" : "pg-hit", text: t.result })])));
+        parts.push(el("div", { cls: "gd-trench-wrap", attrs: { tabindex: "0", role: "region", "aria-label": "Pregame targets graded" } }, [el("table", { cls: "gd-trench-table" }, [thead, tbody])]));
+      }
+      if (dfs.note) parts.push(el("p", { cls: "gd-sub", text: dfs.note }));
+    }
+    if (pg.note) parts.push(el("p", { cls: "gd-sub", text: pg.note }));
+    parts.push(el("p", { cls: "gd-sub", text: "The sections below show the matchup as it looked before kickoff (stats entering the week)." }));
+    return el("section", { cls: "gd-section pg-section" }, parts);
+  }
+
+  function fmtSigned2(v) {
+    return (v > 0 ? "+" : "") + v.toFixed(2);
+  }
+
   function renderDetail(d) {
     const gb = d.breakdown;
     const g = gb.game;
@@ -342,6 +440,7 @@
     dialogTitleEl.textContent = `${g.away} @ ${g.home}`;
     body.push(el("p", { cls: "gd-meta", text: `${g.kickoff_et}${g.network ? " · " + g.network : ""} · stats entering Week ${g.week}` }));
     body.push(legend(g));
+    if (gb.postgame) body.push(postgameSection(gb.postgame, g));
 
     // Vegas
     const tiles = el("div", { cls: "gd-tiles" }, [

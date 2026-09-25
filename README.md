@@ -428,6 +428,57 @@ The charts follow a data-viz method:
 - Each chart has a "View as table" version.
 - The dialog goes full-screen on phones.
 
+### Postgame summaries (`app/postgame.py`)
+
+Once a game is final, its Week Breakdown card shows a **Postgame** block,
+and the game view (now labeled "Game recap") opens with a full postgame
+section. The pregame sections below it are unchanged, so you can compare
+what was expected with what happened. Every number is real and every
+sentence is generated from those numbers.
+
+- **Result:** final score against the closing spread, total and each
+  team's implied total.
+- **How it played out:** from the game's play-by-play:
+  - Success rate and EPA/play, overall and split into dropbacks and runs.
+  - Explosive plays and sacks taken.
+  - Turnovers and yards/play from the box score.
+  - A sentence on whether the winner won the efficiency battle, the split,
+    or won despite worse efficiency (and on what: turnovers or explosive
+    plays).
+- **Matchups exploited or held:** each pregame trench matchup (protection
+  vs pass rush, run game vs run defense, dropback game vs pass defense) is
+  compared with the game's competitive plays.
+  - The expected rate is the offense's pregame rate plus the defense's
+    pregame rate allowed, minus the league rate.
+  - A side "won" the matchup when the result lands one standard error or
+    more from that expectation. Anything closer is "played to form".
+  - The pregame metrics come from the stats entering the week, so there's
+    no hindsight. The summary says whether each flagged edge played out as
+    called.
+- **How predictable it was:**
+  - **Closing line:** the winner's pregame win probability comes from a
+    logistic fit of home wins on the closing spread over every game since
+    2010 (4,363 games, 2010-2025).
+  - **Line + matchup metrics:** the same line adjusted by the pregame
+    matchup edges. That adjustment is fit only on games played before this
+    week, and the summary says plainly when the metrics didn't improve on
+    the line. As of 2026 Week 3 they haven't; the line alone remains the best pregame
+    estimate.
+  - **Distance from the line:** how far the margin and total landed from
+    it, and the share of historical games that miss by as much.
+  - **Matchup calls:** how many flagged matchups played out as called.
+  - **Verdict:** Expected (65%+), Favorite won, Coin flip, Mild upset or
+    Upset. Margin and total misses rarer than 1 in 10 are tagged as
+    surprises.
+- **DFS results:** the game's top DraftKings scorers and how the pregame
+  targets did (hit ceiling, beat projection, missed). DraftKings removes
+  past slates, so salaries, values and target grades exist only for weeks
+  whose slate is still posted.
+
+nflverse publishes play-by-play within about a day. Until it does, a final
+game shows the score and line results, with a note that the efficiency and
+matchup review is coming.
+
 ### Trenches, efficiency and schemes (`app/trenches.py`)
 
 The advanced matchup view has a **Trenches, efficiency and schemes**
@@ -871,6 +922,7 @@ app/
   optimal.py        per-slate optimal lineups, saved pre-kickoff to data/optimal_lineups.json
   breakdown.py      builds the per-game Week Breakdown page (stats, ranks, original takeaways)
   targets.py        per-team DFS targets tailored to the matchup, with reasons
+  postgame.py       postgame summaries: result vs lines, game flow, matchups exploited/held, predictability, DFS results
   trenches.py       OL/DL strength, success rates, coverage and scheme tendencies (pbp + FTN + participation), matchup edges
   game_detail.py    the advanced matchup view: chart data + "What it means" notes
   sources.py        projected stat lines from Sleeper, ESPN, CBS, FFToday, FantasyPros

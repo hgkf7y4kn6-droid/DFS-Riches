@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app import ceiling, targets, trenches
+from app import ceiling, postgame, targets, trenches
 from app.cache import memoize_async
 from app import nflverse_client as nc
 from app import slates as slates_module
@@ -239,6 +239,25 @@ class WeekData:
     league_sacks: float | None
     league_giveaways: float | None
     trenches: dict | None = None     # app.trenches.week_profiles (None if play-by-play is unavailable)
+    postgame_inputs: dict | None = None  # only once a game this week is final; see _postgame_inputs
+
+
+async def _postgame_inputs(season: int, week: int) -> dict:
+    """What app.postgame.summarize needs beyond the pregame data: this season's
+    per-game play-by-play counts, box scores, actual DK points, line history
+    and the metrics calibration (fit on games before this week)."""
+    agg = await nc.get_pbp_aggregates(season, season)
+    t = agg.get("trenches") or {}
+    try:
+        actuals = await nc.get_week_actuals(season, week)
+    except Exception:
+        actuals = None
+    try:
+        box = await nc.team_box_scores(season)
+    except Exception:
+        box = {}
+    return {"competitive": t.get("off") or {}, "full_game": t.get("game") or {}, "box": box, "actuals": actuals,
+            "hist": await postgame.line_history(season), "calib": await postgame.calibration(season, week)}
 
 
 @memoize_async(60)
@@ -273,6 +292,12 @@ async def load_week(season: int, week: int) -> WeekData:
         trench_week = await trenches.week_profiles(season, week)
     except Exception:
         trench_week = None
+    post = None
+    if any(g.context is not None and g.context.is_final for g in schedule.games):
+        try:
+            post = await _postgame_inputs(season, week)
+        except Exception:
+            post = None
 
     def league_avg(metric: str) -> float | None:
         vals = [v for t in index if (v := nc.team_trailing(index, t, metric, season, week, _RANK_WINDOW)) is not None]
@@ -293,6 +318,7 @@ async def load_week(season: int, week: int) -> WeekData:
         league_sacks=league_avg("sacks_taken"),
         league_giveaways=league_avg("giveaways"),
         trenches=trench_week if trench_week and trench_week.get("teams") else None,
+        postgame_inputs=post,
     )
 
 
@@ -321,6 +347,11 @@ def game_breakdown(wd: WeekData, g: Game) -> GameBreakdown:
         )
         return picks + ([dst] if dst else [])
 
+    away_targets, home_targets = team_targets(g.away, g.home, away_stats), team_targets(g.home, g.away, home_stats)
+    post = None
+    if wd.postgame_inputs is not None:
+        post = postgame.summarize(g, tw=wd.trenches, players=wd.players, targets={g.away: away_targets, g.home: home_targets},
+                                  **wd.postgame_inputs)
     return GameBreakdown(
         game=g,
         away_stats=away_stats,
@@ -329,8 +360,9 @@ def game_breakdown(wd: WeekData, g: Game) -> GameBreakdown:
         away_implied_rank_this_week=wd.implied_rank.get(g.away),
         home_implied_rank_this_week=wd.implied_rank.get(g.home),
         takeaways=takeaways,
-        away_top_players=team_targets(g.away, g.home, away_stats),
-        home_top_players=team_targets(g.home, g.away, home_stats),
+        away_top_players=away_targets,
+        home_top_players=home_targets,
+        postgame=post,
     )
 
 

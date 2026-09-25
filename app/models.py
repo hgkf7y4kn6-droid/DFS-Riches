@@ -179,6 +179,7 @@ class GameBreakdown(BaseModel):
     takeaways: list[str]        # short, original, template-generated from the real numbers above
     away_top_players: list[TopPlayer]
     home_top_players: list[TopPlayer]
+    postgame: dict | None = None  # app.postgame.summarize once the game is final
 
 
 class PositionMatchup(BaseModel):

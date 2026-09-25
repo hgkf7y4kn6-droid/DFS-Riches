@@ -93,27 +93,36 @@ def ftn_index(rows) -> dict[str, tuple]:
 class TrenchAccumulator:
     """Feed nflverse play-by-play rows (dicts of strings) through add(); result()
     gives per team-game counts {"off": {"week|team": {...}}, "def": {...}}.
-    Both sides count the same plays, so a defense's "sacks" are sacks it made."""
+    Both sides count the same plays, so a defense's "sacks" are sacks it made.
+    "game" holds every scrimmage play of each team's offense (no win-probability
+    filter), for postgame summaries of how the whole game went."""
 
     def __init__(self, ftn: dict[str, tuple] | None = None):
         self.ftn = ftn or {}
         self.off: dict[str, dict[str, float]] = {}
         self.de: dict[str, dict[str, float]] = {}
+        self.game: dict[str, dict[str, float]] = {}
 
     def add(self, r: dict) -> None:
         if r.get("play_type") not in ("pass", "run") or r.get("qb_kneel") == "1" or r.get("qb_spike") == "1":
             return
         wp, week = _f(r.get("wp")), nc._to_int(r.get("week"))
-        if wp is None or week is None or not WP_MIN <= wp <= WP_MAX:
-            return
         team, opp = nc.to_app_team(r.get("posteam", "")), nc.to_app_team(r.get("defteam", ""))
-        if not team or not opp:
+        if week is None or not team or not opp:
             return
         epa = _f(r.get("epa"))
         success = r.get("success") == "1"
         yards = _f(r.get("yards_gained")) or 0.0
         dropback = r.get("qb_dropback") == "1"
         sack = r.get("sack") == "1"
+        explosive = (not sack and yards >= EXPLOSIVE_PASS) if dropback else yards >= EXPLOSIVE_RUN
+        g = self.game.setdefault(f"{week}|{team}", {})
+        for k, v in (("plays", 1), ("epa", epa or 0.0), ("succ", success), ("db", dropback), ("sack", sack),
+                     ("explosive", explosive), ("db_epa", (epa or 0.0) if dropback else 0.0),
+                     ("rush", not dropback), ("rush_epa", 0.0 if dropback else (epa or 0.0))):
+            g[k] = g.get(k, 0.0) + float(v)
+        if wp is None or not WP_MIN <= wp <= WP_MAX:
+            return
         c: dict[str, float] = {"plays": 1, "epa": epa or 0.0, "succ": success}
         if dropback:
             c.update(db=1, db_epa=epa or 0.0, db_succ=success, sack=sack,
@@ -137,7 +146,7 @@ class TrenchAccumulator:
     def result(self) -> dict:
         def rnd(side):
             return {k: {m: round(v, 3) for m, v in d.items()} for k, d in side.items()}
-        return {"off": rnd(self.off), "def": rnd(self.de)}
+        return {"off": rnd(self.off), "def": rnd(self.de), "game": rnd(self.game)}
 
 
 def coverage_counts(rows) -> dict:
@@ -203,24 +212,39 @@ async def _coverage(season: int, current_season: int) -> dict:
 
 
 # ------------------------------------------------------------- team profiles
-def _window(side: dict, team: str, week: int | None) -> tuple[dict[str, float], int]:
-    """Summed counts for one team (weeks before `week`; all weeks if None) and the game count."""
-    total: dict[str, float] = {}
-    games = 0
+def by_team(side: dict) -> dict[str, list[tuple[int, dict]]]:
+    """{"week|team": counts} -> {team: [(week, counts), ...]} for fast windows."""
+    out: dict[str, list[tuple[int, dict]]] = {}
     for key, d in side.items():
         wk, t = key.split("|")
-        if t != team or (week is not None and int(wk) >= week):
+        out.setdefault(t, []).append((int(wk), d))
+    return out
+
+
+def _window(games: list[tuple[int, dict]], week: int | None) -> tuple[dict[str, float], int]:
+    """Summed counts for one team's games (weeks before `week`; all if None) and the game count."""
+    total: dict[str, float] = {}
+    n = 0
+    for wk, d in games:
+        if week is not None and wk >= week:
             continue
-        games += 1
+        n += 1
         for k, v in d.items():
             total[k] = total.get(k, 0.0) + v
-    return total, games
+    return total, n
 
 
 def blend(cur: dict, prev: dict, team: str, side: str, week: int) -> tuple[dict[str, float], int, int]:
-    """This season's counts before `week` plus last season's scaled to PRIOR_GAMES games."""
-    now, n_now = _window(cur.get(side, {}), team, week)
-    last, n_last = _window(prev.get(side, {}), team, None)
+    """This season's counts before `week` plus last season's scaled to PRIOR_GAMES games.
+    `cur`/`prev` are {side: {"week|team": counts}} or already indexed by by_team."""
+    def games(src: dict) -> list:
+        data = src.get(side, {})
+        if data and "|" in next(iter(data)):
+            data = by_team(data)
+        return data.get(team, [])
+
+    now, n_now = _window(games(cur), week)
+    last, n_last = _window(games(prev), None)
     out = dict(now)
     if n_last:
         scale = PRIOR_GAMES / n_last
@@ -315,19 +339,16 @@ def league_averages(teams: dict[str, dict]) -> dict[str, dict[str, float]]:
     return out
 
 
-@memoize_async(300)
-async def week_profiles(season: int, week: int) -> dict:
-    """{"teams": {team: {"off", "def", "cov", "grades", "games", "prior_games"}},
-    "league": {...}, "coverage_season", "sources", "note"} entering (season, week)."""
-    cur, prev = await nc.get_pbp_aggregates(season, season), await nc.get_pbp_aggregates(season - 1, season)
-    cur_t, prev_t = cur.get("trenches") or {}, prev.get("trenches") or {}
-    # Participation is usually published only after a season ends; when this
-    # season's is missing, last season's alone supplies the coverage rates.
-    cov_cur, cov_prev = await _coverage(season, season), await _coverage(season - 1, season)
-    cov_season = season if cov_cur.get("available") else season - 1 if cov_prev.get("available") else None
+def index_counts(counts: dict) -> dict:
+    """Per-season counts ({side: {"week|team": ...}}) indexed by team, for build_teams."""
+    return {side: by_team(data) for side, data in (counts or {}).items() if side in ("off", "def")}
 
+
+def build_teams(week: int, cur_t: dict, prev_t: dict, cov_cur: dict | None = None, cov_prev: dict | None = None) -> dict:
+    """Graded team profiles entering `week` from indexed counts (index_counts)."""
+    cov_cur, cov_prev = cov_cur or {}, cov_prev or {}
     teams: dict[str, dict] = {}
-    names = {k.split("|")[1] for side in (cur_t, prev_t) for k in side.get("off", {})}
+    names = {t for side in (cur_t, prev_t) for t in side.get("off", {})}
     for team in sorted(names):
         off_c, n_now, n_last = blend(cur_t, prev_t, team, "off", week)
         def_c, _, _ = blend(cur_t, prev_t, team, "def", week)
@@ -338,6 +359,20 @@ async def week_profiles(season: int, week: int) -> dict:
         teams[team] = {"off": offense_metrics(off_c), "def": defense_metrics(def_c),
                        "cov": coverage_metrics(cov_off, cov_def), "games": n_now, "prior_games": PRIOR_GAMES if n_last else 0}
     grade_units(teams)
+    return teams
+
+
+@memoize_async(300)
+async def week_profiles(season: int, week: int) -> dict:
+    """{"teams": {team: {"off", "def", "cov", "grades", "games", "prior_games"}},
+    "league": {...}, "coverage_season", "sources", "note"} entering (season, week)."""
+    cur, prev = await nc.get_pbp_aggregates(season, season), await nc.get_pbp_aggregates(season - 1, season)
+    # Participation is usually published only after a season ends; when this
+    # season's is missing, last season's alone supplies the coverage rates.
+    cov_cur, cov_prev = await _coverage(season, season), await _coverage(season - 1, season)
+    cov_season = season if cov_cur.get("available") else season - 1 if cov_prev.get("available") else None
+    teams = build_teams(week, index_counts(cur.get("trenches")), index_counts(prev.get("trenches")),
+                        index_counts(cov_cur), index_counts(cov_prev))
     has_ftn = any(p["off"].get("motion") is not None for p in teams.values())
     return {
         "teams": teams,
