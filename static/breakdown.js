@@ -257,6 +257,79 @@
     return n + s;
   }
 
+  // Line play, efficiency and scheme tendencies (app/trenches.py).
+  const EDGE_LABELS = { protection: ["protection", "pass rush"], run: ["run blocking", "run defense"], pass: ["dropback offense", "pass defense"] };
+  const TRENCH_ROWS = [
+    ["Offense", null],
+    ["Success rate", (t) => t.off.success, "pct"], ["EPA/play", (t) => t.off.epa_play, "epa"],
+    ["Sack rate", (t) => t.off.sack_rate, "pct"], ["Sack + QB-hit rate", (t) => t.off.pressure_rate, "pct"],
+    ["Explosive pass rate (20+)", (t) => t.off.explosive_pass, "pct"], ["Rush success rate", (t) => t.off.rush_success, "pct"],
+    ["Run stuff rate (0 or less)", (t) => t.off.stuff_rate, "pct"], ["Explosive run rate (10+)", (t) => t.off.explosive_run, "pct"],
+    ["Play-action rate", (t) => t.off.play_action, "pct"], ["Motion rate", (t) => t.off.motion, "pct"],
+    ["Screen rate", (t) => t.off.screen, "pct"], ["RPO rate", (t) => t.off.rpo, "pct"], ["No-huddle rate", (t) => t.off.no_huddle, "pct"],
+    ["Runs vs light box (6 or fewer)", (t) => t.off.light_box, "pct"],
+    ["Defense", null],
+    ["Success rate allowed", (t) => t.def.success, "pct"], ["EPA/play allowed", (t) => t.def.epa_play, "epa"],
+    ["Sack rate", (t) => t.def.sack_rate, "pct"], ["Sack + QB-hit rate", (t) => t.def.pressure_rate, "pct"],
+    ["Blitz rate", (t) => t.def.blitz, "pct"], ["Avg pass rushers", (t) => t.def.rushers, "dec"],
+    ["Rush success allowed", (t) => t.def.rush_success, "pct"], ["Run stuff rate", (t) => t.def.stuff_rate, "pct"],
+    ["Heavy box rate (8+)", (t) => t.def.heavy_box, "pct"],
+    ["Coverage", null],
+    ["Man coverage rate", (t) => t.cov.man, "pct"], ["Single-high shell", (t) => t.cov.single_high, "pct"],
+    ["Two-high shell", (t) => t.cov.two_high, "pct"], ["Most-used coverage", (t) => t.cov.top_shell, "text"],
+    ["Pressure rate (NGS)", (t) => t.cov.true_pressure, "pct"], ["Offense: pressure allowed (NGS)", (t) => t.cov.pressure_allowed, "pct"],
+    ["Offense: time to throw", (t) => t.cov.time_to_throw, "sec"],
+  ];
+
+  function fmtTrench(v, kind) {
+    if (v == null || v === "") return "-";
+    if (kind === "pct") return fmtPct(v);
+    if (kind === "epa") return (v > 0 ? "+" : "") + v.toFixed(3);
+    if (kind === "sec") return v.toFixed(2) + "s";
+    if (kind === "dec") return v.toFixed(2);
+    return String(v);
+  }
+
+  function trenchSection(t, g) {
+    const rows = [];
+    for (const m of [t.away_offense, t.home_offense]) {
+      for (const [key, e] of Object.entries(m.edges)) {
+        const [ou, du] = EDGE_LABELS[key];
+        rows.push({
+          label: `${m.offense} ${ou} (${ordinal(e.offense_rank)}) vs ${m.defense} ${du} (${ordinal(e.defense_rank)})`,
+          value: e.edge, team: teamKey(m.offense, g), muted: e.strength === "neutral",
+          valueText: `${e.edge > 0 ? "+" : ""}${e.edge.toFixed(1)}`,
+          tip: `${m.offense} ${ou} ranks ${ordinal(e.offense_rank)}; ${m.defense} ${du} ranks ${ordinal(e.defense_rank)}. Edge = difference in league z-scores; gray = no real edge.`,
+        });
+      }
+    }
+    const notes = [...t.away_offense.notes, ...t.home_offense.notes].filter((n) => !t.insight.includes(n));
+    const league = (fn) => { try { return fn({ off: t.league.off || {}, def: t.league.def || {}, cov: t.league.cov || {} }); } catch (e) { return null; } };
+    const units = Object.keys(t.away.units).map((u) => [t.away.units[u].label, `#${t.away.units[u].rank}`, `#${t.home.units[u].rank}`, "-"]);
+    const tableRows = [["Unit grades (1 = best)", null], ...units.map((u) => [u[0], () => u]), ...TRENCH_ROWS];
+    const tbody = el("tbody", {}, tableRows.map(([label, fn, kind]) => {
+      if (!fn) return el("tr", { cls: "gd-group" }, [el("th", { text: label + (label === "Coverage" && t.coverage_season ? ` (${t.coverage_season} season)` : ""), attrs: { scope: "colgroup", colspan: "4" } })]);
+      const vals = kind ? [fmtTrench(fn(t.away), kind), fmtTrench(fn(t.home), kind), fmtTrench(league(fn), kind)] : fn().slice(1);
+      return el("tr", {}, [el("th", { text: label, attrs: { scope: "row" } }), ...vals.map((v) => el("td", { text: v }))]);
+    }));
+    const thead = el("thead", {}, [el("tr", {}, ["Metric", g.away, g.home, "League"].map((h) => el("th", { text: h, attrs: { scope: "col" } })))]);
+    const table = el("div", { cls: "gd-trench-wrap", attrs: { tabindex: "0", role: "region", "aria-label": "Line play and scheme table" } },
+      [el("table", { cls: "gd-trench-table" }, [thead, tbody])]);
+    const refs = el("p", { cls: "gd-sub" }, [document.createTextNode(`${t.window}. Sources: ${t.sources.join(", ")}. ${t.note} Compare: `)]);
+    t.references.forEach((r, i) => {
+      refs.appendChild(el("a", { text: r.label, attrs: { href: r.url, target: "_blank", rel: "noopener noreferrer" } }));
+      if (i < t.references.length - 1) refs.appendChild(document.createTextNode(" · "));
+    });
+    const extra = notes.length ? el("ul", { cls: "gd-notes" }, notes.map((n) => el("li", { text: n }))) : null;
+    return el("section", { cls: "gd-section" }, [
+      el("h3", { text: "Trenches, efficiency and schemes" }),
+      el("p", { cls: "gd-sub", text: "Each offense unit vs the defense unit it faces. Bars to the right favor the offense; gray = no real edge. Competitive plays only (win probability 10-90%)." }),
+      rows.length ? divergingChart(rows, 2.5, "Even matchup") : null,
+      el("p", { cls: "gd-insight" }, [el("strong", { text: "What it means: " }), document.createTextNode(t.insight)]),
+      extra, table, refs,
+    ]);
+  }
+
   function renderDetail(d) {
     const gb = d.breakdown;
     const g = gb.game;
@@ -305,6 +378,8 @@
         dataTable(["Metric", "vs league avg", "Value"], rows.map((r) => [r.label, fmtSigned(r.value), r.valueText.replace(/^.*\(|\)$/g, "")]))
       ));
     }
+
+    if (d.trenches) body.push(trenchSection(d.trenches, g));
 
     // Tempo and volume
     if (a.tempo_secs != null && h.tempo_secs != null && L.tempo_min != null) {

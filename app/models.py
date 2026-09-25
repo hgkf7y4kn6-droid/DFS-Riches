@@ -221,6 +221,7 @@ class GameDetail(BaseModel):
     away_usage: list[UsageShare]
     home_usage: list[UsageShare]
     insights: dict[str, str]                 # section -> 1-2 sentence game/DFS impact, generated from the numbers
+    trenches: dict | None = None             # unit ranks, scheme rates and matchup edges (app.trenches); None if unavailable
 
 
 class WeekBreakdown(BaseModel):

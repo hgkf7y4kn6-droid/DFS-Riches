@@ -428,6 +428,49 @@ The charts follow a data-viz method:
 - Each chart has a "View as table" version.
 - The dialog goes full-screen on phones.
 
+### Trenches, efficiency and schemes (`app/trenches.py`)
+
+The advanced matchup view has a **Trenches, efficiency and schemes**
+section. It covers the same ground as Sharp Football's OL/DL, coverage and
+tendency tools, but every number is computed here from open data:
+
+| Source | What it gives |
+|---|---|
+| nflverse play-by-play | success rate, EPA/play, sack and sack + QB-hit rates, explosive passes (20+) and runs (10+), run stuffs (0 yards or less) |
+| FTN charting (via nflverse, weekly) | box counts (light 6 or fewer, heavy 8+), blitz rate, pass rushers, play-action, motion, screen, RPO, no-huddle |
+| nflverse participation / NGS | man vs zone, single-high vs two-high shells, most-used coverage, true pressure, time to throw |
+
+- **Which plays count:** competitive plays only (win probability 10-90%), no
+  kneels or spikes.
+- **Window:** this season's games before the week, plus last season's rates
+  weighted as 3 games. So Week 1 shows last season, and the current season
+  takes over as games are played.
+- **Coverage data lags a season.** Participation data is published after
+  the season ends, so in-season coverage and pressure numbers are last
+  season's. They're labeled that way, and the DFS Model lists the gap under
+  missing data.
+- **Unit grades:** pass protection, run blocking, dropback efficiency, pass
+  rush, run defense and pass defense. Each grade is the average league
+  z-score of its parts, ranked 1 = best.
+- **Matchup edge:** the offense unit's z-score minus the defense unit's.
+  Positive favors the offense. An edge only counts when the defense itself
+  points the same way: a bad offense against an average defense is the
+  offense's problem, not the matchup's. A gap of 0.5 or more is a lean; 1.0
+  or more is strong.
+- **Where edges show up:**
+  - Week Breakdown card takeaways (strong edges only) and the game view.
+  - DFS Model pool scores and reasons: QB (pass + protection), RB (run +
+    light boxes), WR (pass), and DST (the opponent's protection and passing
+    game).
+  - Chalk failure modes and the game notes on the Slate tab.
+- **Projections are not changed.** The sources already price in matchups,
+  so edges only re-rank players within the pools.
+
+**Sharp Football Analysis is referenced, not ingested or weighted.** Its
+Terms of Service prohibit automated access and copying, so the app never
+fetches it. Links to its stats, fantasy and betting tools appear next to the
+section for manual comparison.
+
 ## DFS Model page
 
 The **DFS Model** tab (`/dfs-model`) has its own page. It builds lineups
@@ -828,6 +871,7 @@ app/
   optimal.py        per-slate optimal lineups, saved pre-kickoff to data/optimal_lineups.json
   breakdown.py      builds the per-game Week Breakdown page (stats, ranks, original takeaways)
   targets.py        per-team DFS targets tailored to the matchup, with reasons
+  trenches.py       OL/DL strength, success rates, coverage and scheme tendencies (pbp + FTN + participation), matchup edges
   game_detail.py    the advanced matchup view: chart data + "What it means" notes
   sources.py        projected stat lines from Sleeper, ESPN, CBS, FFToday, FantasyPros
   consensus.py      per-player consensus (mean/median/range/SD/count) + accuracy weighting

@@ -8,6 +8,7 @@ from __future__ import annotations
 import statistics
 
 from app import nflverse_client as nc
+from app import trenches
 from app.breakdown import WeekData, game_breakdown, load_week
 from app.models import Game, GameDetail, LeagueContext, PositionMatchup, TeamStatLine, UsageShare
 
@@ -189,6 +190,24 @@ def usage_insight(game: Game, away_usage: list[UsageShare], home_usage: list[Usa
     return " ".join(parts) or None
 
 
+def trench_section(tw: dict | None, game: Game) -> dict | None:
+    """Both teams' unit ranks and scheme rates, each offense's matchup vs the
+    other defense, and a short DFS read built from the strongest edges."""
+    away, home = trenches.team_card(tw, game.away), trenches.team_card(tw, game.home)
+    if not away or not home:
+        return None
+    away_off, home_off = trenches.matchup(tw, game.away, game.home), trenches.matchup(tw, game.home, game.away)
+    ranked = sorted(((abs(e["edge"]), m["notes_by"][k]) for m in (away_off, home_off) for k, e in m["edges"].items()
+                     if e["strength"] != "neutral" and k in m["notes_by"]), key=lambda x: -x[0])
+    insight = " ".join(n for _e, n in ranked[:2]) or "No meaningful line or efficiency mismatch on either side -- the trenches grade as a wash."
+    return {
+        "away": away, "home": home, "away_offense": away_off, "home_offense": home_off,
+        "league": tw["league"], "coverage_season": tw.get("coverage_season"), "has_ftn": tw.get("has_ftn"),
+        "window": tw.get("window"), "sources": tw.get("sources"), "note": tw.get("note"),
+        "references": tw.get("references"), "insight": insight,
+    }
+
+
 async def build_game_detail(season: int, week: int, game_id: str) -> GameDetail:
     wd = await load_week(season, week)
     game = next((g for g in wd.schedule.games if g.game_id == game_id), None)
@@ -209,6 +228,9 @@ async def build_game_detail(season: int, week: int, game_id: str) -> GameDetail:
         "positions": positions_insight(game, away_def, home_def),
         "usage": usage_insight(game, away_usage, home_usage),
     }
+    trench = trench_section(wd.trenches, game)
+    if trench:
+        insights["trenches"] = trench["insight"]
     return GameDetail(
         breakdown=gb,
         league=league,
@@ -217,4 +239,5 @@ async def build_game_detail(season: int, week: int, game_id: str) -> GameDetail:
         away_usage=away_usage,
         home_usage=home_usage,
         insights={k: v for k, v in insights.items() if v},
+        trenches=trench,
     )

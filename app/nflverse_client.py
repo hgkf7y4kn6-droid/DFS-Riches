@@ -47,6 +47,7 @@ import httpx
 from app import dk_scoring
 from app.cache import cached_fetch
 from app.config import (
+    DEFAULT_SEASON,
     NFLVERSE_GAMES_CSV_URL,
     NFLVERSE_PBP_URL_TMPL,
     NFLVERSE_PLAYER_STATS_URL_TMPL,
@@ -168,8 +169,14 @@ def neutral_stats_from_pbp(rows: Iterable[dict]) -> dict[str, dict]:
     return {"offense": offense, "defense": defense}
 
 
-async def _team_week_neutral(season: int, current_season: int) -> dict[str, dict]:
+async def get_pbp_aggregates(season: int, current_season: int | None = None) -> dict:
+    """One parse of a season's play-by-play feeds every per-play aggregate:
+    {"neutral": neutral_stats_from_pbp(...), "trenches": app.trenches
+    TrenchAccumulator counts (joined to FTN charting when published)}."""
+    from app import trenches
+
     async def fetch() -> dict:
+        ftn = await trenches.get_ftn_index(season)
         async with httpx.AsyncClient(follow_redirects=True) as client:
             resp = await client.get(NFLVERSE_PBP_URL_TMPL.format(season=season), headers=_HEADERS, timeout=120)
             resp.raise_for_status()
@@ -177,16 +184,27 @@ async def _team_week_neutral(season: int, current_season: int) -> dict[str, dict
 
         def parse() -> dict:
             text = io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(raw)), encoding="utf-8")
-            return neutral_stats_from_pbp(csv.DictReader(text))
+            acc = trenches.TrenchAccumulator(ftn)
+
+            def tap(rows):
+                for r in rows:
+                    acc.add(r)
+                    yield r
+            return {"neutral": neutral_stats_from_pbp(tap(csv.DictReader(text))), "trenches": acc.result()}
 
         # ~50k plays x ~370 columns for a full season: keep it off the event loop.
         return await asyncio.to_thread(parse)
 
-    ttl = TTL_NFLVERSE_TEAM_STATS if season >= current_season else TTL_NFLVERSE_PBP_PAST
+    current = current_season if current_season is not None else DEFAULT_SEASON
+    ttl = TTL_NFLVERSE_TEAM_STATS if season >= current else TTL_NFLVERSE_PBP_PAST
     try:
-        return await cached_fetch(f"nflverse_pbp_neutral_{season}", ttl, fetch)
+        return await cached_fetch(f"nflverse_pbp_aggregates_v1_{season}", ttl, fetch)
     except Exception:
-        return {"offense": {}, "defense": {}}
+        return {"neutral": {"offense": {}, "defense": {}}, "trenches": {}}
+
+
+async def _team_week_neutral(season: int, current_season: int) -> dict[str, dict]:
+    return (await get_pbp_aggregates(season, current_season))["neutral"]
 
 
 async def get_games(season: int) -> dict[tuple[int, str, str], dict[str, Any]]:

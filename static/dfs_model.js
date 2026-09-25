@@ -65,6 +65,8 @@
   }
 
   // --- metric chips for position pools
+  // Trench matchup edge (league z-score gap); positive favors this player.
+  function edge(v) { return (v > 0 ? "+" : "") + num(v, 1); }
   const METRIC_LABELS = {
     proj_rush_yd: ["Proj rush yds", (v) => num(v, 0)], rush_share: ["Rush share of proj", pct], ypa: ["YPA (L4)", (v) => num(v, 1)],
     td_rate: ["TD rate", pct], pass_att_l4: ["Pass att/g", (v) => num(v, 1)], implied: ["Implied", (v) => num(v, 1)],
@@ -76,6 +78,8 @@
     pass_rate_rank: ["Neutral pass rate rank", (v) => "#" + v], proj_sacks: ["Proj sacks", (v) => num(v, 1)],
     proj_takeaways: ["Proj takeaways", (v) => num(v, 1)], opp_implied: ["Opp implied", (v) => num(v, 1)],
     opp_sacks_taken: ["Opp sacks taken/g", (v) => num(v, 1)], opp_giveaways: ["Opp giveaways/g", (v) => num(v, 1)],
+    pass_edge: ["Pass matchup", edge], protection_edge: ["Protection vs rush", edge], run_edge: ["Run matchup", edge],
+    pressure_edge: ["Pressure edge", edge],
   };
   function metrics(m) {
     if (!m) return "";
@@ -153,7 +157,7 @@
       <td>${[g.shootout ? '<span class="dm-tag dm-tag-sourced">Shootout</span>' : "", g.negative_script ? '<span class="dm-tag">Script risk</span>' : "",
              g.live_dog ? '<span class="dm-tag">Live dog</span>' : "", g.popular ? '<span class="dm-pop dm-pop-high">Popular</span>' : "",
              g.leverage_game ? '<span class="dm-tag dm-tag-model">Leverage</span>' : ""].join(" ")}
-        <div class="dm-reason">${esc(g.script)}</div><div class="dm-muted">${esc(g.ownership_vs_quality)}</div></td>
+        <div class="dm-reason">${esc(g.script)}</div>${(g.trench_notes || []).map((n) => `<div class="dm-reason">${esc(n)}</div>`).join("")}<div class="dm-muted">${esc(g.ownership_vs_quality)}</div></td>
     </tr>`).join("");
     return `<div class="dm-table-wrap"><table class="dm-table"><thead><tr><th scope="col">Game</th><th scope="col" title="Weighted z-score: total 40%, closeness of spread 20%, top-10 ceiling 20%, neutral tempo 10%, pass rate 10%">Environment</th><th scope="col">Total</th><th scope="col">Spread</th><th scope="col">Implied</th><th scope="col" title="Share of the slate's popularity (ownership, or the estimate)">Popularity</th><th scope="col">Script</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
@@ -401,8 +405,13 @@
       return `<td class="num" title="${v ? `MAE ${v.mae} vs Sleeper ${v.sleeper_mae} on the same ${v.games} player-games` : "No graded history (CBS serves only the current week)"}">${v ? v.ratio.toFixed(3) : "-"}</td>`;
     }).join("")}<td class="num">${acc.consensus && acc.consensus[pos] ? `${acc.consensus[pos].mae_consensus} vs ${acc.consensus[pos].mae_sleeper}` : "-"}</td><td>${esc((d.weighting || {})[pos] || "")}</td></tr>`).join("");
     const missing = d.strategy.missing_data.map((m) => `<b>${esc(m.item)}</b>: ${esc(m.why)}`);
+    const tr = d.trenches;
+    const trenchCard = tr ? card("Line play &amp; scheme data", note(`${esc(tr.window)}. Used in the QB, RB, WR and DST pools (scores and reasons), chalk failure modes and game notes; projections themselves are not changed.`)
+      + bullets(tr.sources.map(esc)) + note(tr.note)
+      + `<ul class="dm-bullets">${tr.references.map((r) => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.label)}</a></li>`).join("")}</ul>`) : "";
     return `<div class="dm-grid">
       ${card("Missing data (not guessed)", bullets(missing) + note("Used instead where possible: projected carries/targets/TDs from the sources' stat lines, and nflverse target share, air-yards share, aDOT, carries and carry share."))}
+      ${trenchCard}
       ${card("Sources this week", `<table class="dm-table"><thead><tr><th scope="col">Source</th><th scope="col">Players matched</th><th scope="col">Fetched (UTC)</th></tr></thead><tbody>${src}</tbody></table>`
         + note("FantasyPros' public page lists only the top 10 per position (the rest needs a premium account). FFToday has no DST lines or fumbles. Sources refresh every 2 hours; DraftKings salaries and injury statuses every 5 minutes.") + "<h4>Not used</h4>" + bullets(un))}
       ${card("Historical accuracy &amp; weighting", note(`Each source's mean absolute error (actual DK points) divided by Sleeper's on the same player-games, ${(acc.weeks || []).length} weeks graded. Below 1.000 = more accurate. Weights become 1/MAE only if sources differ by more than 5%.`)

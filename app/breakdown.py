@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app import ceiling, targets
+from app import ceiling, targets, trenches
 from app.cache import memoize_async
 from app import nflverse_client as nc
 from app import slates as slates_module
@@ -198,6 +198,7 @@ def generate_takeaways(
     total_rank: int | None = None,
     away_implied_rank: int | None = None,
     home_implied_rank: int | None = None,
+    trench_week: dict | None = None,
 ) -> list[str]:
     bullets: list[str] = []
     bullets.extend(_vegas_takeaways(game, total_rank, away_implied_rank, home_implied_rank))
@@ -211,6 +212,8 @@ def generate_takeaways(
     efficiency = _efficiency_takeaway(game, away, home)
     if efficiency:
         bullets.append(efficiency)
+
+    bullets.extend(trenches.game_notes(trench_week, game.away, game.home))
 
     if not bullets:
         bullets.append("No standout statistical edge for either side yet -- an early-season, projection-neutral matchup.")
@@ -235,6 +238,7 @@ class WeekData:
     dst_rank: dict[str, int]
     league_sacks: float | None
     league_giveaways: float | None
+    trenches: dict | None = None     # app.trenches.week_profiles (None if play-by-play is unavailable)
 
 
 @memoize_async(60)
@@ -265,6 +269,10 @@ async def load_week(season: int, week: int) -> WeekData:
         players = []
 
     ceiling_ctx = await ceiling.context_for(season, week)
+    try:
+        trench_week = await trenches.week_profiles(season, week)
+    except Exception:
+        trench_week = None
 
     def league_avg(metric: str) -> float | None:
         vals = [v for t in index if (v := nc.team_trailing(index, t, metric, season, week, _RANK_WINDOW)) is not None]
@@ -284,6 +292,7 @@ async def load_week(season: int, week: int) -> WeekData:
         dst_rank=targets.dst_ceiling_ranks(players, ceiling_ctx),
         league_sacks=league_avg("sacks_taken"),
         league_giveaways=league_avg("giveaways"),
+        trenches=trench_week if trench_week and trench_week.get("teams") else None,
     )
 
 
@@ -297,6 +306,7 @@ def game_breakdown(wd: WeekData, g: Game) -> GameBreakdown:
         total_rank=wd.total_rank.get(g.game_id),
         away_implied_rank=wd.implied_rank.get(g.away),
         home_implied_rank=wd.implied_rank.get(g.home),
+        trench_week=wd.trenches,
     )
 
     def team_targets(team: str, opp: str, stats: TeamStatLine):

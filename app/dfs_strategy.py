@@ -34,6 +34,7 @@ import statistics
 
 from app import lineup_builder
 from app import nflverse_client as nc
+from app import trenches
 
 SALARY_CAP = 50000
 GPP_MIN_SALARY = 49000
@@ -54,6 +55,8 @@ MISSING_DATA = [
     ("Targets per route run / yards per route run", "need route data"),
     ("Red-zone, end-zone and goal-line work", "not in the box-score feed"),
     ("Depth charts", "not connected; roles are read from projected carries/targets and recent usage"),
+    ("Individual lineman / defender grades", "no open source; line strength is graded at the unit level from play-by-play "
+                                            "(sack, QB-hit, stuff and success rates) and FTN charting"),
     ("Historical winning-lineup salary tendencies", "no contest-results data is connected"),
 ]
 
@@ -64,6 +67,24 @@ def _pct(values: list[float], v: float) -> float:
     if len(values) <= 1:
         return 1.0
     return sum(1 for x in values if x < v) / (len(values) - 1)
+
+
+def _edge(r: dict, key: str) -> float:
+    """Trench matchup edge (app.trenches; positive = offense advantage),
+    clipped to +-2 and zero unless it counts as a lean or strong edge."""
+    e = ((r.get("trench") or {}).get("edges") or {}).get(key)
+    return max(-2.0, min(2.0, e["edge"])) if e and e["strength"] != "neutral" else 0.0
+
+
+def _edge_metric(r: dict, key: str, sign: float = 1.0) -> float | None:
+    e = ((r.get("trench") or {}).get("edges") or {}).get(key)
+    return round(sign * e["edge"], 2) if e else None
+
+
+def _trench_reason(r: dict, keys: tuple[str, ...]) -> str | None:
+    """The first matchup note (in `keys` order) for this player's side of the ball."""
+    by = (r.get("trench") or {}).get("notes_by") or {}
+    return next((f"Trenches: {by[k]}" for k in keys if by.get(k)), None)
 
 
 def _z(values: list[float], v: float) -> float:
@@ -131,9 +152,10 @@ def team_context(slate) -> dict[str, dict]:
     return ctx
 
 
-def enrich(pool: list[dict], rows: list[dict], slate, usage: dict) -> dict[str, dict]:
-    """Adds game context, projected opportunity, recent usage and derived
-    flags to every pool row. Returns the team context."""
+def enrich(pool: list[dict], rows: list[dict], slate, usage: dict, trench_week: dict | None = None) -> dict[str, dict]:
+    """Adds game context, projected opportunity, recent usage, trench matchup
+    (offense vs the opposing defense; for a DST, the opposing offense vs it)
+    and derived flags to every pool row. Returns the team context."""
     ctx = team_context(slate)
     out_by_team: dict[str, list[dict]] = {}
     for r in rows:
@@ -167,6 +189,10 @@ def enrich(pool: list[dict], rows: list[dict], slate, usage: dict) -> dict[str, 
                      or (r["position"] in ("WR", "TE") and o["position"] in ("WR", "TE"))]
         r["injury_opportunity"] = [f"{o['name']} ({o['position']}, {o['injury']})" for o in mates_out]
         r["ceiling_path"] = r["position"] == "DST" or r["ceiling_pct"] >= 0.35 or r["ceiling"] >= 3.5 * r["salary"] / 1000
+        if trench_week and r.get("opponent"):
+            off, de = (r["opponent"], r["team"]) if r["position"] == "DST" else (r["team"], r["opponent"])
+            m = trenches.matchup(trench_week, off, de)
+            r["trench"] = {k: m[k] for k in ("edges", "notes_by", "flags")}
     return ctx
 
 
@@ -229,6 +255,7 @@ def analyze_games(pool: list[dict], slate, wd, has_own: bool) -> list[dict]:
         dog_imp = x["home_implied"] if dog == x["home"] else x["away_implied"]
         x["live_dog"] = bool(margin >= 3 and dog_imp is not None and dog_imp >= 21.5)
         x["script"] = game_script(x)
+        x["trench_notes"] = trenches.game_notes(getattr(wd, "trenches", None) if wd else None, x["away"], x["home"])
     games.sort(key=lambda x: -x["env_score"])
     by_pop = sorted(games, key=lambda x: -x["pop_share"])
     env_rank = {x["game"]: i + 1 for i, x in enumerate(games)}
@@ -311,8 +338,10 @@ def qb_pool(pool: list[dict], games_by_team: dict) -> dict:
         stack_q = statistics.fmean([m["ceiling"] for m in mates[:2]]) if mates else 0
         u = r.get("usage") or {}
         g = games_by_team.get(r["team"], {})
-        r["gpp_qb_score"] = round(r["ceiling"] * _q(r) + rush_bonus + 0.15 * stack_q + 0.5 * (g.get("env_score") or 0), 2)
-        r["cash_qb_score"] = round((r["final"] + 0.5 * r["floor"]) * _q(r) - (2 if r.get("uncertainty_label") == "High" else 0), 2)
+        trench = 0.6 * _edge(r, "pass") + 0.4 * _edge(r, "protection")
+        r["gpp_qb_score"] = round(r["ceiling"] * _q(r) + rush_bonus + 0.15 * stack_q + 0.5 * (g.get("env_score") or 0) + trench, 2)
+        r["cash_qb_score"] = round((r["final"] + 0.5 * r["floor"]) * _q(r) - (2 if r.get("uncertainty_label") == "High" else 0)
+                                   + trench, 2)
         reasons = []
         if rush_yd >= 25:
             reasons.append(f"Rushing path: {rush_yd:.0f} projected rush yds ({_pct_txt(r.get('rush_share'))} of his projection)")
@@ -324,7 +353,10 @@ def qb_pool(pool: list[dict], games_by_team: dict) -> dict:
             reasons.append(f"Efficient: {u['ypa']:.1f} yds/att, {_pct_txt(u.get('td_rate'))} TD rate (last {u.get('games')} games)")
         if r["ceiling"] >= 30:
             reasons.append(f"Ceiling {r['ceiling']:.1f} can anchor a first-place lineup")
-        metrics = {"proj_rush_yd": round(rush_yd, 1), "rush_share": r.get("rush_share"), "ypa": u.get("ypa"),
+        if tr := _trench_reason(r, ("protection", "pass", "blitz", "coverage")):
+            reasons.append(tr)
+        metrics = {"proj_rush_yd": round(rush_yd, 1), "pass_edge": _edge_metric(r, "pass"),
+                   "protection_edge": _edge_metric(r, "protection"), "rush_share": r.get("rush_share"), "ypa": u.get("ypa"),
                    "td_rate": u.get("td_rate"), "pass_att_l4": u.get("pass_att"), "implied": r.get("implied"),
                    "spread": r.get("spread"), "total": r.get("total"), "concentration": r.get("concentration"),
                    "stack_partners": [f"{m['name']} ({m['ceiling']:.1f})" for m in mates[:3]],
@@ -354,6 +386,8 @@ def rb_pool(pool: list[dict]) -> dict:
         if r["injury"] == "Q":
             cash -= 4
         gpp = r["ceiling"] * _q(r) + 0.15 * opps + 3 * (r.get("proj_tds") or 0) + (1 if spread <= -3 else 0)
+        run_edge = 0.8 * _edge(r, "run") + (0.3 if "light_boxes" in (r.get("trench") or {}).get("flags", []) else 0)
+        cash, gpp = cash + run_edge, gpp + run_edge
         r["cash_rb_score"], r["gpp_rb_score"] = round(cash, 2), round(gpp, 2)
         reasons = []
         if workhorse:
@@ -368,7 +402,9 @@ def rb_pool(pool: list[dict]) -> dict:
             reasons.append(f"{spread:g}-point underdog: script can cut into carries")
         if (r.get("proj_tds") or 0) >= 0.6:
             reasons.append(f"TD equity: {r['proj_tds']:.2f} projected TDs, team implied {r.get('implied') or '-'}")
-        metrics = {"proj_carries": r.get("proj_carries"), "proj_targets": r.get("proj_targets"), "proj_rec": r.get("proj_rec"),
+        if tr := _trench_reason(r, ("run", "box")):
+            reasons.append(tr)
+        metrics = {"proj_carries": r.get("proj_carries"), "run_edge": _edge_metric(r, "run"), "proj_targets": r.get("proj_targets"), "proj_rec": r.get("proj_rec"),
                    "proj_opps": opps, "proj_tds": r.get("proj_tds"), **_usage_txt(r), "implied": r.get("implied"),
                    "spread": r.get("spread"), "home": r.get("home"), "matchup": r.get("matchup_factor"),
                    "workhorse": workhorse, "receiving_role": receiving}
@@ -390,7 +426,8 @@ def wr_pool(pool: list[dict], wd) -> dict:
         cash = r["floor"] + r["final"] + 0.5 * tgts + 10 * ts - (4 if r["injury"] == "Q" else 0)
         if r["salary"] <= CHEAP["WR"] and tgts < 5:
             cash -= 5
-        gpp = r["ceiling"] * _q(r) + 8 * ays + 0.2 * tgts
+        gpp = r["ceiling"] * _q(r) + 8 * ays + 0.2 * tgts + 0.6 * _edge(r, "pass")
+        cash += 0.5 * _edge(r, "pass")
         r["cash_wr_score"], r["gpp_wr_score"] = round(cash, 2), round(gpp, 2)
         reasons = []
         if ts >= 0.22 or tgts >= 7:
@@ -404,7 +441,9 @@ def wr_pool(pool: list[dict], wd) -> dict:
         pr = wd.pass_rate_rank.get(r["team"]) if wd else None
         if pr and pr <= 10:
             reasons.append(f"Pass-leaning offense (#{pr} neutral pass rate)")
-        metrics = {"proj_targets": r.get("proj_targets"), "proj_rec": r.get("proj_rec"), **_usage_txt(r),
+        if tr := _trench_reason(r, ("pass", "coverage")):
+            reasons.append(tr)
+        metrics = {"proj_targets": r.get("proj_targets"), "pass_edge": _edge_metric(r, "pass"), "proj_rec": r.get("proj_rec"), **_usage_txt(r),
                    "pass_rate_rank": pr, "implied": r.get("implied"), "total": r.get("total")}
         out.append((r, metrics, reasons))
     cash = [x for x in sorted(out, key=lambda x: -x[0]["cash_wr_score"]) if x[0]["injury"] != "Q"][:5]
@@ -470,7 +509,8 @@ def dst_pool(pool: list[dict], wd, season: int, week: int) -> list[dict]:
         opp_sacks = nc.team_trailing(wd.index, opp, "sacks_taken", season, week, 8) if wd else None
         opp_give = nc.team_trailing(wd.index, opp, "giveaways", season, week, 8) if wd else None
         score = (r["final"] + 0.5 * (line.get("sack") or 0) + (line.get("int") or 0) + (line.get("fum_rec") or 0)
-                 - 0.15 * ((r.get("opp_implied") or 21) - 21) - 0.1 * (r.get("spread") or 0))
+                 - 0.15 * ((r.get("opp_implied") or 21) - 21) - 0.1 * (r.get("spread") or 0)
+                 - 0.8 * _edge(r, "protection") - 0.4 * _edge(r, "pass"))    # edges are the opposing offense's
         reasons = []
         if r.get("opp_implied") is not None and r["opp_implied"] <= 19:
             reasons.append(f"{opp} implied for just {r['opp_implied']:g}")
@@ -480,10 +520,14 @@ def dst_pool(pool: list[dict], wd, season: int, week: int) -> list[dict]:
             reasons.append(f"{opp} takes {opp_sacks:.1f} sacks/gm (league {wd.league_sacks:.1f})")
         if opp_give and wd and wd.league_giveaways and opp_give >= wd.league_giveaways * 1.15:
             reasons.append(f"{opp} gives it away {opp_give:.1f} times/gm")
+        if _edge(r, "protection") < 0 and (tr := _trench_reason(r, ("protection",))):
+            reasons.append(tr)
+        if "blitz_heavy" in (r.get("trench") or {}).get("flags", []):
+            reasons.append(_trench_reason(r, ("blitz",)))
         if r.get("home"):
             reasons.append("Home")
         out.append(card(r, reasons=reasons or ["Projection only; no standout script edge"], score=round(score, 2),
-                        metrics={"proj_sacks": line.get("sack"), "proj_takeaways": round((line.get("int") or 0) + (line.get("fum_rec") or 0), 2),
+                        metrics={"proj_sacks": line.get("sack"), "pressure_edge": _edge_metric(r, "protection", -1), "proj_takeaways": round((line.get("int") or 0) + (line.get("fum_rec") or 0), 2),
                                  "opp_implied": r.get("opp_implied"), "spread": r.get("spread"), "home": r.get("home"),
                                  "opp_sacks_taken": round(opp_sacks, 2) if opp_sacks else None,
                                  "opp_giveaways": round(opp_give, 2) if opp_give else None}))
@@ -510,6 +554,28 @@ def salary_savers(pool: list[dict]) -> list[dict]:
 
 
 # ------------------------------------------------------------ 7. chalk
+def _tough_trenches(r: dict) -> str | None:
+    """A strong line/efficiency matchup against this player's role, if any."""
+    edges = (r.get("trench") or {}).get("edges") or {}
+
+    def strong(key: str, sign: int) -> dict | None:
+        e = edges.get(key)
+        return e if e and e["strength"] == "strong" and sign * e["edge"] > 0 else None
+
+    opp = r.get("opponent")
+    if r["position"] == "DST":
+        if e := strong("protection", 1):
+            return f"{opp} protects well (#{e['offense_rank']} pass protection vs this #{e['defense_rank']} pass rush)"
+        return None
+    if r["position"] == "QB" and (e := strong("protection", -1)):
+        return f"pressure mismatch: {opp}'s #{e['defense_rank']} pass rush vs #{e['offense_rank']} protection"
+    if r["position"] == "RB" and (e := strong("run", -1)):
+        return f"tough front: {opp}'s #{e['defense_rank']} run defense vs #{e['offense_rank']} run blocking"
+    if r["position"] in ("QB", "WR", "TE") and (e := strong("pass", -1)):
+        return f"tough pass defense: {opp} #{e['defense_rank']} vs a #{e['offense_rank']} dropback offense"
+    return None
+
+
 def chalk_table(pool: list[dict], games_by_team: dict, has_own: bool) -> list[dict]:
     if has_own:
         chalk = [r for r in pool if (r.get("ownership") or 0) >= 15]
@@ -548,6 +614,8 @@ def chalk_table(pool: list[dict], games_by_team: dict, has_own: bool) -> list[di
             fail.append("new role, small sample")
         if r.get("matchup_factor", 1) < 1:
             fail.append("defense has held this position under projection")
+        if tough := _tough_trenches(r):
+            fail.append(tough)
         fail = fail or ["Needs his usual role to hold; nothing specific flagged"]
         cheap_value = r["salary"] <= CHEAP[r["position"]] and vrank <= 3
         if cheap_value:
@@ -1150,8 +1218,24 @@ def _shown_stacks(stacks: list[dict], top: int = 6, per_game: int = 4) -> list[d
 
 
 # ------------------------------------------------------------------ main
+def _trench_gaps(tw: dict | None, season: int) -> list[dict]:
+    if not tw:
+        return [{"item": "Line play, success rates and scheme tendencies", "why": "nflverse play-by-play was unavailable"}]
+    gaps = []
+    if not tw.get("has_ftn"):
+        gaps.append({"item": "Box counts, blitz rate, play-action/motion/RPO rates", "why": "FTN charting not published for this window"})
+    cov = tw.get("coverage_season")
+    if cov is None:
+        gaps.append({"item": "Man/zone, coverage shells, true pressure", "why": "nflverse participation data unavailable"})
+    elif cov < season:
+        gaps.append({"item": f"{season} man/zone, coverage shells, true pressure", "why": f"NGS participation is published after the "
+                     f"season; coverage tendencies use {cov} (labeled wherever shown)"})
+    return gaps
+
+
 def run(pool: list[dict], rows: list[dict], slate, wd, usage: dict, has_own: bool, season: int, week: int) -> dict:
-    ctx = enrich(pool, rows, slate, usage)
+    trench_week = getattr(wd, "trenches", None) if wd else None
+    ctx = enrich(pool, rows, slate, usage, trench_week)
     games = analyze_games(pool, slate, wd, has_own)
     games_by_team = {}
     for g in games:
@@ -1179,7 +1263,7 @@ def run(pool: list[dict], rows: list[dict], slate, wd, usage: dict, has_own: boo
         "stacks": _shown_stacks(stacks),
         "lineups": lineups,
         "fades": fades(pool, chalk_rows, pools, games_by_team),
-        "missing_data": [{"item": a, "why": b} for a, b in MISSING_DATA]
+        "missing_data": [{"item": a, "why": b} for a, b in MISSING_DATA] + _trench_gaps(trench_week, season)
                         + [{"item": "Ownership sources", "why": "no free projected-ownership feed exists; the Bayesian ownership model "
                                                                 "uses its behavioral prior until sources, crowd submissions or actual results are added "
                                                                 "(Ownership tab)"}],

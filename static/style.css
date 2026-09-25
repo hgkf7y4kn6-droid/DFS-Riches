@@ -1025,6 +1025,14 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
 
 .gd-facets { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .gd-table { margin-top: 8px; font-size: 12px; }
+.gd-notes { margin: 6px 0 10px; padding-left: 18px; font-size: 13px; }
+.gd-notes li { margin: 3px 0; }
+.gd-trench-wrap { overflow-x: auto; margin: 8px 0; }
+.gd-trench-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+.gd-trench-table th, .gd-trench-table td { padding: 4px 8px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.gd-trench-table th[scope="row"], .gd-trench-table thead th:first-child { text-align: left; font-weight: 500; }
+.gd-trench-table .gd-group th { text-align: left; color: var(--gold); padding-top: 10px; font-weight: 600; }
+.gd-section a { color: var(--gold); }
 .gd-table summary { color: var(--muted); cursor: pointer; min-height: 28px; }
 .gd-table table { margin-top: 6px; font-size: 12px; }
 .gd-table th, .gd-table td { padding: 4px 8px; }
@@ -1234,3 +1242,4 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
 .own-mine { margin: 8px 0; }
 .own-num-heads thead th:not(:first-child) { text-align: right; }
 .own-table thead th:nth-child(n+3) { text-align: right; }
+.dm-card a { color: var(--gold); }

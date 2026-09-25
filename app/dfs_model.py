@@ -409,6 +409,8 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
                       "note": "Bayesian posterior ownership (large-field GPP): behavioral prior + pasted sources + crowd "
                               "+ news. See the Ownership tab for intervals and confidence."},
         "ownership_model": own_report,
+        "trenches": ({k: wd.trenches.get(k) for k in ("window", "sources", "coverage_season", "note", "references")}
+                     if wd is not None and wd.trenches else None),
         "summary": {
             "top_projections": [_card(r, f"Consensus {r['consensus']:.1f} from {r['n_sources']} sources")
                                 for r in sorted(pool, key=lambda r: -r["final"])[:10]],
