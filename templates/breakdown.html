@@ -38,6 +38,41 @@
     </p>
   </section>
 
+  <section id="dfs-model" class="dfs-model" aria-labelledby="dm-title">
+    <div class="dm-head">
+      <h2 id="dm-title">DFS Model</h2>
+      <label class="dm-slate-label">Slate <select id="dm-slate" aria-label="DraftKings Classic slate"></select></label>
+      <button type="button" id="dm-refresh" class="dm-btn">Recalculate</button>
+      <span id="dm-asof" class="dm-asof" aria-live="polite"></span>
+    </div>
+    <p class="dm-lede">
+      Consensus of public projection sources (each source's stat line scored with DraftKings rules), then only
+      backtested adjustments. Consensus is always shown before adjustments; sourced facts and model estimates are
+      labeled. Nothing is filled in when a source is missing a player.
+    </p>
+    <details class="dm-own" id="dm-own">
+      <summary>Add projected ownership <span class="dm-own-status" id="dm-own-status"></span></summary>
+      <p class="dm-note">No projected-ownership source is connected, so ownership is blank unless you paste it
+        here (one per line: <code>Name, 23.5</code> or <code>Name, TEAM, 23.5</code>; DSTs by team code, e.g.
+        <code>BUF, 8</code>). It stays in this browser and is labeled "user-provided".</p>
+      <textarea id="dm-own-text" rows="6" spellcheck="false" aria-label="Projected ownership, one player per line"></textarea>
+      <div class="dm-own-actions">
+        <button type="button" id="dm-own-apply" class="dm-btn">Apply ownership</button>
+        <button type="button" id="dm-own-clear" class="dm-btn dm-btn-quiet">Clear</button>
+      </div>
+    </details>
+    <div class="dm-tabs" role="tablist" aria-label="DFS Model views">
+      <button type="button" role="tab" data-tab="summary" aria-selected="true">Summary</button>
+      <button type="button" role="tab" data-tab="pool" aria-selected="false">Player Pool</button>
+      <button type="button" role="tab" data-tab="games" aria-selected="false">Games &amp; Stacks</button>
+      <button type="button" role="tab" data-tab="table" aria-selected="false">Projections</button>
+      <button type="button" role="tab" data-tab="lineups" aria-selected="false">Lineups</button>
+      <button type="button" role="tab" data-tab="method" aria-selected="false">Sources &amp; Method</button>
+    </div>
+    <div id="dm-panel" class="dm-panel" role="tabpanel" aria-labelledby="dm-title"></div>
+  </section>
+
+  <h2 class="breakdown-games-title">Game-by-game breakdown</h2>
   <main id="breakdown-games" class="breakdown-games" aria-label="Game breakdowns"></main>
 
   <div id="breakdown-empty-state" class="empty-state" hidden></div>
@@ -61,5 +96,6 @@
   </footer>
 
   <script src="/static/breakdown.js"></script>
+  <script src="/static/dfs_model.js"></script>
 </body>
 </html>

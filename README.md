@@ -428,6 +428,95 @@ The charts follow a data-viz method:
 - Each chart has a "View as table" version.
 - The dialog goes full-screen on phones.
 
+## DFS Model (on the Week Breakdown page)
+
+The Week Breakdown page opens with a **DFS Model** section for any
+DraftKings Classic slate (Sunday Main by default). Tabs: Summary, Player
+Pool, Games & Stacks, Projections, Lineups, Sources & Method. It is built
+by `app/dfs_model.py` and served at `GET /api/dfs-model?season=&week=&slate_id=`
+(`POST` the same URL with `{"ownership": "..."}` to include pasted ownership).
+
+**Sources** (`app/sources.py`). Each source's projected *stat line* is
+scored with DraftKings rules, so every source is on the same scoring:
+
+| Source | Coverage | Notes |
+|---|---|---|
+| Sleeper | Everyone | the app's existing line source |
+| ESPN | ~400 players incl. DST | ESPN Fantasy's public player feed |
+| CBS Sports | ~400 players incl. DST | current week only |
+| FFToday | ~250 players | no DST lines, no fumbles |
+| FantasyPros | top 10 per position | the rest of the page needs a premium account, which the app doesn't bypass |
+
+Not used: NFL.com (its robots.txt disallows its fantasy API), FantasySharks
+(HTTP 403), NumberFire (shut down), Fantasy Football Analytics (it scrapes
+the sources above rather than publishing its own). A source that doesn't
+list a player is shown as "missing". Nothing is filled in for it.
+
+**Consensus, then final.** The Projections table shows the consensus first:
+mean, median, range, SD and source count, with each source's number on
+hover. Then the adjustments, each labeled:
+- *Sourced*: DraftKings injury status. OUT, Doubtful or IR sets the
+  projection to 0. Questionable keeps the player and raises uncertainty.
+- *Model*: the backtested matchup nudge (at most 5% either way).
+
+Workload, news and game environment are already in the sources' lines.
+Stacking another multiplier on top made the 2025 backtest worse, so the page
+shows them as context instead.
+
+**Accuracy weighting** (`scripts/source_accuracy.py` writes
+`data/source_accuracy.json`). Each source is graded against actual DK points
+over 2025 Weeks 4-17 and 2026 Weeks 1-2 (7,000+ player-games). Its MAE is
+compared with Sleeper's on the same player-games. Every source landed within
+about 3% of the others at every position, so the consensus uses **equal
+weights**. Weights switch to 1/MAE only if a source pulls more than 5% ahead.
+The equal-weight consensus slightly beats any single source. QB MAE is 6.55
+vs 6.59, for example.
+
+**Floor / Median / Ceiling.** Floor and Median are the 15th and 50th
+percentiles of actual-vs-consensus in those same graded weeks, by position
+and projection range. Ceiling averages that 85th percentile with the
+matchup Ceiling. **Value** is Final per $1,000. **Uncertainty** combines
+source disagreement, source count, Questionable status and the position's
+outcome spread. High, Medium and Low are thirds of the slate.
+
+**Ownership.** No projected-ownership source is connected, so ownership is
+blank unless you paste it in (one player per line, e.g. `Name, 23.5`; it's
+kept in your browser and labeled "user-provided"). Without pasted numbers,
+chalk and leverage use a *popularity estimate*: value and projection rank at
+the position. It's shown only as a tier ("est. High"), never as a
+percentage, and it isn't a measure of quality.
+
+**Player pool.** Top DFS plays, best values (relative to the position
+median, since raw value always favors QBs), GPP leverage, chalk (worth
+eating vs likely over-owned), salary savers, fades/caution, the most
+uncertain projections, and the biggest news/context changes (DraftKings
+injury statuses and the largest model adjustments, each labeled).
+
+**Games & stacks.** Games are sorted by Vegas total. Each has stacks built
+as QB + 1 or 2 pass catchers + a bring-back, ranked by stack ceiling minus
+3.5x salary.
+
+**Lineups** (`app/lineup_builder.py`, exact integer programs):
+- 5 high-floor lineups: maximize Floor + Final, each at least 2 players
+  different from the others.
+- 10 GPP lineups: 5 constructions x 2 each. The constructions are a
+  top-total game stack, a second-game stack, the best stack outside those
+  games, RB-heavy, and 4-WR. GPP lineups maximize ceiling. The QB is stacked
+  with a bring-back, the DST never faces your own players, each lineup
+  differs from the others by at least 3 players, and no player is in more
+  than 6 of the 10.
+- 5 contrarian lineups: ceiling discounted by ownership or the popularity
+  estimate, a different QB stack in each, taken from outside the two
+  highest-total games.
+
+In every lineup objective, a Questionable player counts at 90% (the risk he
+sits). His projection doesn't change.
+
+**Late news.** Sources refresh every 2 hours, and DraftKings salaries and
+injury statuses every 5 minutes. **Recalculate** rebuilds everything from
+the latest data. A source that still projects a player DraftKings has ruled
+out is named in the news list, since its line may predate the news.
+
 ## Running it
 
 ```bash
@@ -540,6 +629,10 @@ app/
   breakdown.py      builds the per-game Week Breakdown page (stats, ranks, original takeaways)
   targets.py        per-team DFS targets tailored to the matchup, with reasons
   game_detail.py    the advanced matchup view: chart data + "What it means" notes
+  sources.py        projected stat lines from Sleeper, ESPN, CBS, FFToday, FantasyPros
+  consensus.py      per-player consensus (mean/median/range/SD/count) + accuracy weighting
+  dfs_model.py      the DFS Model: final projections, pool, stacks, lineups, summary
+  lineup_builder.py Classic lineups with stack / count / uniqueness constraints
   models.py         shared pydantic response models
   main.py           FastAPI routes
 data/
@@ -547,10 +640,11 @@ data/
   optimal_lineups.json  each slate's optimal lineups as they stood before kickoff
 scripts/record_draft_groups.py   records the current week's live ids into dk_overrides.json
 scripts/save_optimal_lineups.py  records the current week's open slates' optimal lineups
+scripts/source_accuracy.py       grades each projection source vs actual DK points -> data/source_accuracy.json
   name_aliases.json manual DK-name -> Sleeper-name bridge, empty by default
   cache/            runtime API response cache (gitignored)
 templates/index.html, templates/breakdown.html
-static/style.css, static/app.js, static/breakdown.js         frontend
+static/style.css, static/app.js, static/breakdown.js, static/dfs_model.js   frontend
 static/lineups.js   DK Classic/Showdown roster rules for the lineup builder
 tests/                                                    pytest suite
 ```

@@ -16,16 +16,18 @@ from __future__ import annotations
 
 import os
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Body, FastAPI, HTTPException, Request
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
+from app import dfs_model
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
+from app.cache import memoize_async
 from app.config import BASE_DIR, DEFAULT_SEASON, DEFAULT_WEEK
 from app.models import GameDetail, SlatePlayers, WeekBreakdown, WeekData, WeekSchedule
 from app.sleeper_client import get_nfl_state
@@ -149,6 +151,31 @@ async def api_breakdown(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
         return await breakdown_module.build_week_breakdown(season, week)
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not build week breakdown: {exc}") from exc
+
+
+@memoize_async(ttl_seconds=120)
+async def _dfs_model(season: int, week: int, slate_id: str | None, ownership: str | None) -> dict:
+    return await dfs_model.build(season, week, slate_id, ownership)
+
+
+@app.get("/api/dfs-model")
+async def api_dfs_model(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK, slate_id: str | None = None):
+    """Weekly projection & lineup analysis for a Classic slate (app.dfs_model)."""
+    try:
+        return await _dfs_model(season, week, slate_id, None)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not build the DFS model: {exc}") from exc
+
+
+@app.post("/api/dfs-model")
+async def api_dfs_model_with_ownership(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK, slate_id: str | None = None,
+                                       body: dict = Body(default={})):
+    """Same, with user-provided ownership: {"ownership": "Name, 23.5\n..."}."""
+    ownership = str(body.get("ownership") or "")[:50000] or None
+    try:
+        return await _dfs_model(season, week, slate_id, ownership)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not build the DFS model: {exc}") from exc
 
 
 if __name__ == "__main__":

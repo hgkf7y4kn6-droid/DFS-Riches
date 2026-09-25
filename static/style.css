@@ -1007,3 +1007,82 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
   .gd-row, .gd-axis { grid-template-columns: minmax(96px, 38%) 1fr 72px; gap: 8px; }
   .gd-facets { grid-template-columns: 1fr; }
 }
+
+/* ---- DFS Model (Week Breakdown page) ---- */
+.dfs-model { padding: 8px 20px 4px; }
+.dm-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.dm-head h2 { font-size: 18px; margin: 0; }
+.dm-slate-label { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.dm-slate-label select { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px 6px; font: inherit; font-size: 13px; }
+.dm-asof { font-size: 12px; color: var(--muted); }
+.dm-lede { color: var(--muted); font-size: 12px; line-height: 1.5; max-width: 900px; margin: 6px 0 8px; }
+.dm-btn { background: var(--gold); color: var(--bg); border: 0; border-radius: 6px; padding: 5px 12px; font-weight: 700; font-size: 12px; cursor: pointer; }
+.dm-btn-quiet { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.dm-btn:focus-visible, .dm-tabs [role=tab]:focus-visible, .dm-chip:focus-visible, .dm-sort:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.dm-own { margin: 0 0 10px; font-size: 12px; max-width: 900px; }
+.dm-own summary { cursor: pointer; color: var(--muted); }
+.dm-own textarea { width: 100%; box-sizing: border-box; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 6px; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; padding: 6px; }
+.dm-own-actions { display: flex; gap: 8px; margin-top: 6px; }
+.dm-own-status { color: var(--green); }
+.dm-tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.dm-tabs [role=tab] { background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; padding: 8px 10px; cursor: pointer; }
+.dm-tabs [role=tab][aria-selected=true] { color: var(--text); border-bottom-color: var(--gold); }
+.dm-panel { min-height: 120px; }
+.dm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.dm-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.dm-card.dm-wide { grid-column: 1 / -1; margin-bottom: 12px; }
+.dm-card h3 { font-size: 14px; margin: 0 0 6px; }
+.dm-card h4 { font-size: 13px; margin: 10px 0 4px; }
+.dm-note { color: var(--muted); font-size: 11px; line-height: 1.45; margin: 0 0 6px; }
+.dm-muted { color: var(--muted); font-size: 11px; }
+.dm-error { color: var(--red); }
+.dm-list { list-style: decimal; margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 7px; }
+.dm-list li::marker { color: var(--muted); font-size: 11px; }
+.dm-li-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; font-size: 12px; }
+.dm-name { font-weight: 600; }
+.dm-team { color: var(--muted); font-size: 11px; }
+.dm-sal { color: var(--muted); font-size: 11px; margin-left: auto; font-variant-numeric: tabular-nums; }
+.dm-li-nums { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dm-li-nums b { color: var(--gold); }
+.dm-reason { font-size: 11px; line-height: 1.4; color: var(--text); opacity: 0.85; }
+.dm-stack-players { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: 12px; }
+.dm-pop, .dm-unc, .dm-inj, .dm-tag, .dm-own-pct { display: inline-block; font-size: 10px; font-weight: 700; padding: 0 5px; border-radius: 4px; line-height: 16px; border: 1px solid var(--border); }
+.dm-pop-high { color: var(--gold); border-color: var(--gold); }
+.dm-pop-medium { color: var(--text); }
+.dm-pop-low { color: var(--muted); }
+.dm-own-pct { color: var(--text); }
+.dm-unc-high { color: var(--red); border-color: var(--red); }
+.dm-unc-medium { color: var(--text); }
+.dm-unc-low { color: var(--green); border-color: var(--green); }
+.dm-inj { color: var(--red); border-color: var(--red); margin-left: 2px; }
+.dm-tag-sourced { color: var(--green); border-color: var(--green); }
+.dm-tag-model { color: var(--gold); border-color: var(--gold); }
+.dm-adj { color: var(--gold); margin-left: 1px; }
+.dm-table-wrap { overflow-x: auto; }
+.dm-table-tall { max-height: 70vh; overflow-y: auto; }
+.dm-table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+.dm-table th, .dm-table td { padding: 4px 6px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.dm-table thead th { position: sticky; top: 0; background: var(--panel); color: var(--muted); font-size: 11px; font-weight: 600; z-index: 1; }
+.dm-table tbody th { font-weight: 600; }
+.dm-table .num { text-align: right; white-space: nowrap; }
+.dm-row-out { opacity: 0.5; }
+.dm-sort { background: none; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 0; white-space: nowrap; }
+.dm-table-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 8px; }
+.dm-chip { background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+.dm-chip[aria-pressed=true] { color: var(--bg); background: var(--gold); border-color: var(--gold); }
+#dm-search { margin-left: auto; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font: inherit; font-size: 12px; min-width: 180px; }
+.dm-lineups { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+.dm-lineup { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dm-lineup header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.dm-lineup h4 { margin: 0; font-size: 13px; }
+.dm-lineup .dm-reason { margin: 0; }
+.dm-lineup-table th, .dm-lineup-table td { padding: 2px 4px; }
+.dm-copy { align-self: flex-start; }
+.dm-bullets { margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.5; }
+.breakdown-games-title { font-size: 18px; margin: 16px 20px 0; }
+@media (max-width: 640px) {
+  .dfs-model { padding: 8px 12px 4px; }
+  .dm-grid, .dm-lineups { grid-template-columns: 1fr; }
+  #dm-search { margin-left: 0; min-width: 0; flex: 1 1 100%; }
+  .breakdown-games-title { margin: 12px 12px 0; }
+}

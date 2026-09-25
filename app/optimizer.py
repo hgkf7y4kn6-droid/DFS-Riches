@@ -100,6 +100,11 @@ def optimize(players: list, slate_type: str, metric: str, *, hindsight: bool = F
         flex = sorted((p for p in lineup if _attr(p, "roster_slot") == "FLEX"), key=lambda p: -_attr(p, "salary"))
         return cpt + flex
 
+    return classic_order(lineup)
+
+
+def classic_order(lineup: list) -> list:
+    """A valid Classic lineup in DK slot order: QB, RB, RB, WR, WR, WR, TE, FLEX, DST."""
     by_pos: dict[str, list] = {}
     for p in sorted(lineup, key=lambda p: -_attr(p, "salary")):
         by_pos.setdefault(_attr(p, "position"), []).append(p)
