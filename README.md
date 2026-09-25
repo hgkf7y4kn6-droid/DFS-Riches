@@ -483,12 +483,9 @@ matchup Ceiling. **Value** is Final per $1,000. **Uncertainty** combines
 source disagreement, source count, Questionable status and the position's
 outcome spread. High, Medium and Low are thirds of the slate.
 
-**Ownership.** No projected-ownership source is connected, so ownership is
-blank unless you paste it in (one player per line, e.g. `Name, 23.5`; it's
-kept in your browser and labeled "user-provided"). Without pasted numbers,
-chalk and leverage use a *popularity estimate*: value and projection rank at
-the position. It's shown only as a tier ("est. High"), never as a
-percentage, and it isn't a measure of quality.
+**Ownership.** Each player's ownership is the Bayesian posterior described
+under "Bayesian ownership" below: a distribution with credible intervals and
+a confidence label, never a bare guess.
 
 **Opportunity data** (`app/usage.py`). From nflverse box scores, the app
 reads recent targets, target share, air-yards share, aDOT, carries, carry
@@ -596,6 +593,114 @@ projection doesn't change.
 injury statuses every 5 minutes. **Recalculate** rebuilds everything from
 the latest data. A source that still projects a player DraftKings has ruled
 out is named in the news list, since its line may predate the news.
+
+### Bayesian ownership (Ownership tab)
+
+Ownership is an estimate of the *probability distribution* of true field
+ownership for each player and contest type, P(true ownership | everything
+known). It's not a single guess. Code: `app/ownership_model.py` (the
+engine), `app/ownership_report.py` (report sections A-M),
+`app/ownership_field.py` (duplication simulator), `app/ownership_learning.py`
+(learning from actual results), and `app/ownership_store.py` (storage).
+
+**The model.** Each player's ownership is a Beta distribution. Three models
+feed it, and each contributes an *effective sample size*: how much it's
+worth, never a plain average.
+
+- **Model C, behavioral prior.** A multinomial-logit allocation within each
+  position. Its inputs are value, projection, implied total, ceiling,
+  salary and injury status. Every Classic lineup has fixed slots, so each
+  position's ownership sums to its slot count: QB 100%, RB 200% plus the
+  FLEX share, and so on.
+  - Untrained, its coefficients are weak defaults, worth N = 8. Each
+    position's most-owned player is anchored at an *assumed* typical level
+    (QB 15%, RB 25%, WR 25%, TE 18%, DST 15%). The page labels this VERY
+    LOW confidence and shows wide intervals.
+  - Once actual ownership is uploaded, the coefficients are fitted by
+    L2-regularized least squares, with N taken from the residuals.
+- **Model A, ownership sources.** Projections pasted from any named source.
+  - Each source's historical bias is subtracted.
+  - Each is weighted by 1 / (MAE + 1 pt) and worth N = mu(1 - mu) / sigma^2 - 1.
+  - Sources whose errors move together are discounted:
+    N_eff = sum N / (1 + (k - 1) rho).
+  - Unscored sources are assumed to miss by 5 pts with rho = 0.5 until
+    graded.
+- **Model B, crowd.** Anonymous submissions from this site's users.
+  - Each contributor is weighted by 1 / (MAE + 1 pt), shrunk toward a
+    newcomer's assumed 6-pt MAE until their history is graded, and by
+    their stated confidence.
+  - It's never one-user-one-vote, and it's discounted for herding.
+
+The posterior is the conjugate Beta update, alpha = sum(mu N) and
+beta = sum((1 - mu) N). Other rules:
+- **Recency:** observations decay with a half-life of 12h early, 6h
+  mid-slate, 2h in the final 3 hours and about 20 minutes in the final 30.
+  Nothing timestamped after lock is used.
+- **News:** a confirmed DraftKings OUT, Doubtful or IR overrides everything.
+  Questionable widens the interval.
+- **Contest types:** large-field GPP, small/medium GPP, 3-max, 20-max,
+  150-max and cash are modeled hierarchically. Information from another
+  contest type is translated by a learned logit shift and counts half.
+  Showdown FLEX/CPT posteriors are shown for players whose game has a
+  Showdown slate.
+- **Calibration:** once 100+ graded player-contests exist, an isotonic
+  calibration curve maps posterior means onto actual results.
+
+**Monte Carlo** (10,000 draws per player) produces:
+- mean, median, mode and SD
+- 50%, 80% and 95% credible intervals
+- P(>10/20/30/40%)
+- the ownership-rank distribution: P(#1), P(#2-3), P(#4-5), P(#6-10),
+  P(outside top 10), P(top 5), P(top 10)
+- spike and drop flags vs the previous snapshot
+
+**Duplication** (SIMULATED). A correlated field sampler draws lineups from
+the posterior:
+- QB/pass-catcher stacking, bring-backs, RB/DST correlation, and DSTs
+  avoiding the lineup's QB
+- the salary cap and a minimum spend
+- a fresh posterior draw for each batch
+
+Because the sampler is explicit, the exact probability of drawing a given
+lineup is computable. A test confirms it matches the sampled frequency.
+That gives, for the model's lineups or your own Lineup Builder lineups at
+any contest size:
+- expected duplicates and P(duplicated)
+- expected entries sharing 5+, 6+ or 7+ players
+- a uniqueness percentile
+
+Ownership leverage is shown as field ownership minus exposure, and as
+exposure / field.
+
+**Inputs** (Ownership tab, "Add data"). Each has a timestamp, is stored on
+the server, and is never edited:
+- ownership **sources** you paste
+- **crowd** submissions
+- **actual ownership**: the DraftKings contest-standings CSV. It carries
+  every player's %Drafted and every entry's lineup.
+
+An actual-ownership upload triggers relearning. The learner computes:
+- per-source and per-user MAE, RMSE, bias and error correlation
+- model accuracy by contest and position, including 80% coverage and
+  Brier score
+- calibration and contest adjustments
+- FLEX shares, but only from complete ownership files
+- behavioral coefficients
+- the simulator's stacking parameters
+
+It always grades the last pre-lock snapshot, so historical predictions are
+never altered. Projection history snapshots are written whenever
+information changes before lock.
+
+**Labels.** Every number is labeled ACTUAL, PROJECTED, CROWDSOURCED,
+BAYESIAN POSTERIOR or SIMULATED. The DFS strategy uses the large-field GPP
+posterior mean as each player's ownership, so chalk, leverage and
+contrarian lineups follow it.
+
+**Storage.** Ownership data lives in `data/ownership/` on the server
+(gitignored). On Render's free plan the disk is wiped on every deploy or
+restart. Attach a persistent disk mounted at `/app/data/ownership` to keep
+history, crowd submissions and what the model has learned.
 
 ## Running it
 
@@ -715,6 +820,11 @@ app/
   dfs_strategy.py   the Cash/GPP lineup-construction framework (slate, pools, chalk, leverage, stacks, lineups, audits)
   usage.py          recent usage from nflverse: targets, target/air-yards share, aDOT, carries, QB rushing
   lineup_builder.py Classic lineups with stack / bring-back / naked-QB / force / count / uniqueness constraints
+  ownership_model.py   Bayesian ownership engine: behavioral prior, sources, crowd, contests, calibration, Monte Carlo
+  ownership_report.py  ownership report (table, intervals, movement, concentration, crowd, duplication, leverage)
+  ownership_field.py   correlated field-lineup simulator and exact lineup probabilities (duplication)
+  ownership_learning.py learns source/user accuracy, calibration, contest shifts, coefficients from actual ownership
+  ownership_store.py   append-only storage of sources, crowd, actual ownership, field lineups and history
   models.py         shared pydantic response models
   main.py           FastAPI routes
 data/
@@ -726,7 +836,7 @@ scripts/source_accuracy.py       grades each projection source vs actual DK poin
   name_aliases.json manual DK-name -> Sleeper-name bridge, empty by default
   cache/            runtime API response cache (gitignored)
 templates/index.html, templates/breakdown.html, templates/dfs_model.html
-static/style.css, static/app.js, static/breakdown.js, static/dfs_model.js   frontend
+static/style.css, static/app.js, static/breakdown.js, static/dfs_model.js, static/ownership.js   frontend
 static/lineups.js   DK Classic/Showdown roster rules for the lineup builder
 tests/                                                    pytest suite
 ```

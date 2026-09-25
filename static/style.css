@@ -1130,3 +1130,59 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
   .dm-audit { grid-template-columns: 1fr; }
 }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Ownership tab */
+.own-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 12px; margin-bottom: 6px; }
+.own-bar label { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.own-bar select, .own-bar input, .own-form input, .own-form select { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px 6px; font: inherit; font-size: 12px; }
+.own-bar input { width: 110px; }
+.own-warn { color: var(--gold); font-size: 12px; line-height: 1.5; margin: 4px 0 8px; max-width: 980px; }
+.own-label { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; padding: 0 4px; border-radius: 3px; border: 1px solid var(--border); color: var(--muted); line-height: 15px; }
+.own-subnav { margin-bottom: 10px; }
+.own-conf { display: inline-block; font-size: 10px; font-weight: 700; padding: 0 5px; border-radius: 4px; border: 1px solid var(--border); line-height: 16px; white-space: nowrap; }
+.own-conf-vh, .own-conf-h { color: var(--green); border-color: var(--green); }
+.own-conf-m { color: var(--text); }
+.own-conf-l { color: var(--gold); border-color: var(--gold); }
+.own-conf-vl { color: var(--red); border-color: var(--red); }
+.own-open { background: none; border: 0; color: var(--text); font: inherit; font-weight: 600; padding: 0; cursor: pointer; text-align: left; }
+.own-open:hover, .own-open:focus-visible { color: var(--gold); outline: none; text-decoration: underline; }
+.own-strip-cell { min-width: 120px; }
+.own-strip { width: 120px; height: 12px; display: block; }
+.own-strip .s95 { stroke: #3987e5; stroke-width: 1; opacity: 0.6; vector-effect: non-scaling-stroke; }
+.own-strip .s80 { fill: #3987e5; opacity: 0.35; }
+.own-strip .s50 { fill: #3987e5; opacity: 0.7; }
+.own-strip .sdot { fill: var(--text); stroke: var(--panel); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.own-detail-row td { background: var(--bg); }
+.own-detail { padding: 6px 4px; font-size: 12px; }
+.own-models { display: flex; flex-direction: column; gap: 3px; margin-bottom: 6px; }
+.own-spike { color: var(--gold); font-weight: 700; }
+.own-meter { display: inline-block; width: 60px; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; vertical-align: middle; }
+.own-meter span { display: block; height: 100%; background: #3987e5; border-radius: 3px; }
+.own-tiles { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
+.own-tile { border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; min-width: 120px; font-size: 11px; }
+.own-tile-v { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.own-shares { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.own-bars { width: 100%; max-width: 420px; height: auto; display: block; }
+.own-bar-mark { fill: #3987e5; }
+.own-bars g:focus-visible .own-bar-mark, .own-bars g:hover .own-bar-mark { opacity: 0.8; }
+.own-bars g:focus { outline: none; }
+.own-bar-val { fill: var(--text); font-size: 10px; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.own-bar-lab { fill: var(--muted); font-size: 9px; text-anchor: middle; }
+.own-axis { stroke: var(--border); stroke-width: 1; }
+.own-sparks { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.own-spark { margin: 0; }
+.own-spark figcaption { font-size: 12px; font-weight: 600; }
+.own-spark svg { width: 100%; height: 60px; overflow: visible; }
+.own-spark .sp-line { fill: none; stroke: #3987e5; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.own-spark .sp-dot { fill: #3987e5; stroke: var(--panel); stroke-width: 2; }
+.own-spark .sp-dot:focus { outline: none; stroke: var(--text); }
+.own-spark .sp-label { fill: var(--text); font-size: 10px; font-variant-numeric: tabular-nums; }
+.own-hist { max-height: 220px; overflow-y: auto; }
+.own-form { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+.own-form label { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.own-form textarea { width: 100%; box-sizing: border-box; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; padding: 6px; }
+.own-form .dm-btn { align-self: flex-start; }
+.own-status { font-size: 12px; color: var(--muted); }
+.own-mine { margin: 8px 0; }
+.own-num-heads thead th:not(:first-child) { text-align: right; }
+.own-table thead th:nth-child(n+3) { text-align: right; }

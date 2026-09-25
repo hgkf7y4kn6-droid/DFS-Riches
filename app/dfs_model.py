@@ -20,10 +20,11 @@ Order of operations (each step visible in the output):
    range (scripts/source_accuracy.py, 2025 W4-17 + 2026). Ceiling blends the
    same 85th percentile with the app's matchup Ceiling (app.ceiling).
 4. Value = Final / (salary / $1,000).
-5. Ownership. No projected-ownership source is connected, so ownership is
-   "not available" unless the user pastes numbers (sourced "User-provided").
-   Without it, chalk/leverage use a clearly labeled popularity *estimate*
-   (value + projection rank at the position) -- a tier, never a percentage.
+5. Ownership: the Bayesian ownership engine (app.ownership_report /
+   app.ownership_model) -- a Beta posterior per player and contest type from
+   a behavioral prior, pasted ownership sources, crowd submissions and news,
+   with credible intervals and a labeled confidence. The DFS strategy uses
+   the large-field GPP posterior mean as each player's ownership.
 6. Uncertainty from source disagreement, source count, injury status and
    the position's outcome spread.
 7. Strategy and lineups: app.dfs_strategy -- the Cash/GPP lineup-construction
@@ -44,10 +45,9 @@ import time
 from datetime import datetime, timezone
 
 from app import breakdown as breakdown_module
-from app import consensus, dfs_strategy, projections, sources, usage
+from app import consensus, dfs_strategy, ownership_report, projections, sources, usage
 from app import slates as slates_module
 from app.cache import _cache_path
-from app.matching import normalize_name, resolve_alias
 from app.sleeper_client import get_nfl_state
 
 POSITIONS = ("QB", "RB", "WR", "TE", "DST")
@@ -79,29 +79,6 @@ def calibration(accuracy: dict, position: str, proj: float) -> dict:
     return table[min(table, key=lambda b: abs(int(b.split("-")[0]) - lo))]
 
 
-def own_key(name: str, team: str, position: str) -> str:
-    return f"DST|{team}" if position == "DST" else resolve_alias(normalize_name(name))
-
-
-def parse_ownership(text: str | None) -> dict[str, float]:
-    """Pasted ownership, one player per line: "Name, 23.5" or "Name, TEAM, 23.5"
-    (tabs work too; a trailing % is fine; DSTs by team code, e.g. "BUF, 8")."""
-    out: dict[str, float] = {}
-    for line in (text or "").splitlines():
-        parts = [p.strip() for p in line.replace("\t", ",").split(",") if p.strip()]
-        if len(parts) < 2:
-            continue
-        try:
-            pct = float(parts[-1].rstrip("%"))
-        except ValueError:
-            continue
-        name = parts[0]
-        if len(name) <= 3 and name.isupper():
-            out[f"DST|{sources.team_code(name)}"] = pct
-        else:
-            out[resolve_alias(normalize_name(name))] = pct
-    return out
-
 
 def _fetched_at(source: str, season: int, week: int) -> str | None:
     path = _cache_path(f"proj_source_{source}_{season}_{week}")
@@ -127,7 +104,7 @@ def _pct_rank(values: list[float], v: float) -> float:
 
 
 # -------------------------------------------------------------- per player
-def _player_rows(players, indexes, accuracy, weights, vs_expectation, ownership, game_of=None):
+def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=None):
     game_of = game_of or {}
     rows = []
     for p in players:
@@ -182,7 +159,6 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, ownership,
                 unc_reasons.append("Questionable")
             unc = round(unc, 3)
 
-        own = ownership.get(own_key(p.name, p.team, pos)) if ownership else None
         rows.append({
             "id": p.dk_draftable_id, "name": p.name, "position": pos, "team": p.team, "opponent": p.opponent,
             "salary": p.salary, "game": game_of.get(p.team, p.game_info), "injury": p.injury or "Healthy", "dk_fppg": p.dk_fppg,
@@ -190,7 +166,7 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, ownership,
             "sd": c.sd, "n_sources": c.n, "by_source": c.by_source, "missing": c.missing,
             "final": final, "adjustments": adjustments, "floor": floor, "median": median, "ceiling": ceil,
             "app_ceiling": p.ceiling, "value": round(final / (p.salary / 1000), 2) if final and p.salary else None,
-            "ownership": own, "uncertainty": unc, "uncertainty_reasons": unc_reasons, "line": c.line,
+            "ownership": None, "uncertainty": unc, "uncertainty_reasons": unc_reasons, "line": c.line,
         })
     return rows
 
@@ -211,24 +187,18 @@ def _label_uncertainty(pool: list[dict]) -> None:
         r["uncertainty_label"] = "High" if u > hi else ("Low" if u <= lo else "Medium")
 
 
-def _popularity(pool: list[dict], has_ownership: bool) -> None:
-    """Chalk tier per player: from real ownership when pasted, else a labeled estimate."""
+def _popularity(pool: list[dict]) -> None:
+    """Chalk tier from the Bayesian posterior ownership (percent)."""
     for pos in POSITIONS:
         group = [r for r in pool if r["position"] == pos]
         values = [r["value"] for r in group]
         finals = [r["final"] for r in group]
         for r in group:
-            r["pop_score"] = 0.6 * _pct_rank(values, r["value"]) + 0.4 * _pct_rank(finals, r["final"])
-        ranked = sorted(group, key=lambda r: -r["pop_score"])
-        n = POP_TIER_SIZE[pos]
-        for i, r in enumerate(ranked):
-            if has_ownership and r["ownership"] is not None:
-                o = r["ownership"]
-                r["popularity"] = "High" if o >= 20 else ("Medium" if o >= 8 else "Low")
-                r["popularity_source"] = "user-provided ownership"
-            else:
-                r["popularity"] = "High" if i < n else ("Medium" if i < 2 * n else "Low")
-                r["popularity_source"] = "estimate"
+            r["pop_score"] = r["ownership"] if r["ownership"] is not None else \
+                0.6 * _pct_rank(values, r["value"]) + 0.4 * _pct_rank(finals, r["final"])
+            o = r["ownership"] or 0
+            r["popularity"] = "High" if o >= 15 else ("Medium" if o >= 7 else "Low")
+            r["popularity_source"] = "Bayesian posterior"
 
 
 def _card(r: dict, reason: str) -> dict:
@@ -332,7 +302,31 @@ def news_changes(rows: list[dict], n: int = 5) -> list[dict]:
 
 
 # ---------------------------------------------------------------------- main
-async def build(season: int, week: int, slate_id: str | None = None, ownership_text: str | None = None) -> dict:
+_STATE: dict[tuple, dict] = {}   # latest ownership state per (season, week, slate, contest), for user-lineup duplication
+
+
+async def _showdown_players(season: int, week: int, slate_list: list, ctx: dict) -> list[tuple]:
+    """(slate, players) for this week's Showdown slates, for the Showdown ownership column."""
+    out = []
+    implied = {t: c.get("implied") for t, c in ctx.items()}
+    for s in slate_list:
+        if s.slate_type != "showdown" or not s.available:
+            continue
+        try:
+            sp = await slates_module.get_slate_players(season, week, s.slate_id)
+        except Exception:
+            continue
+        for g in s.games:
+            c = g.context
+            if c:
+                implied.setdefault(g.away, c.away_implied_total)
+                implied.setdefault(g.home, c.home_implied_total)
+        out.append((s, ownership_report.showdown_players(sp.players, implied)))
+    return out
+
+
+async def build(season: int, week: int, slate_id: str | None = None, contest: str = "gpp",
+                contest_size: int | None = None) -> dict:
     t0 = time.time()
     _schedule, slate_list = await slates_module.list_slates(season, week)
     classic = [s for s in slate_list if s.slate_type == "classic" and s.available]
@@ -361,17 +355,28 @@ async def build(season: int, week: int, slate_id: str | None = None, ownership_t
     indexes = {s: consensus.index_rows(rows) for s, rows in src_rows.items() if rows}
     accuracy = consensus.load_accuracy()
     weights = {pos: consensus.position_weights(accuracy, pos, list(indexes)) for pos in POSITIONS}
-    ownership = parse_ownership(ownership_text)
-    has_own = bool(ownership)
 
     game_of = {t: f"{g.away}@{g.home}" for g in slate.games for t in (g.away, g.home)}
-    rows = _player_rows(sp.players, indexes, accuracy, weights, vs_exp, ownership, game_of)
+    rows = _player_rows(sp.players, indexes, accuracy, weights, vs_exp, game_of)
+    ctx = dfs_strategy.team_context(slate)
+    for r in rows:
+        r["implied"] = (ctx.get(r["team"]) or {}).get("implied")
+    showdowns = await _showdown_players(season, week, slate_list, ctx)
+    own_state = ownership_report.compute(season, week, slate, rows, contest=contest, showdowns=showdowns)
+    gpp_own = ownership_report.own_pct_by_id(own_state, "gpp")
     pool = [r for r in rows if _eligible(r)]
+    for r in rows:
+        r["ownership"] = gpp_own.get(r["id"])
     _label_uncertainty(pool)
-    _popularity(pool, has_own)
-    matched_own = sum(1 for r in pool if r["ownership"] is not None)
+    _popularity(pool)
 
-    strategy = dfs_strategy.run(pool, rows, slate, wd, profiles, has_own, season, week)
+    strategy = dfs_strategy.run(pool, rows, slate, wd, profiles, True, season, week)
+    lineup_ids = {lu["label"]: [p["id"] for p in lu["players"]]
+                  for grp in ("cash", "gpp", "contrarian") for lu in strategy["lineups"][grp]}
+    tournament_ids = {k: v for k, v in lineup_ids.items() if not k.startswith(("Recommended", "Cash"))}
+    own_report = ownership_report.report(own_state, contest=contest, contest_size=contest_size,
+                                         model_lineups=lineup_ids, exposure_lineups=list(tournament_ids.values()))
+    _STATE[(season, week, slate.slate_id, contest)] = own_state
 
     slate_teams = {t for g in slate.games for t in (g.away, g.home)}
     source_meta = []
@@ -400,10 +405,10 @@ async def build(season: int, week: int, slate_id: str | None = None, ownership_t
         "weighting": {pos: note for pos, (_w, note) in weights.items()},
         "accuracy": {"consensus": accuracy.get("consensus"), "relative_mae": accuracy.get("relative_mae"),
                      "weeks": accuracy.get("weeks"), "generated_at": accuracy.get("generated_at")},
-        "ownership": {"provided": has_own, "matched": matched_own,
-                      "note": ("User-provided ownership" if has_own else
-                               "No projected-ownership source is connected. Chalk and leverage use a popularity estimate "
-                               "(value + projection rank at the position), shown as a tier, not a percentage.")},
+        "ownership": {"provided": True, "matched": len(gpp_own),
+                      "note": "Bayesian posterior ownership (large-field GPP): behavioral prior + pasted sources + crowd "
+                              "+ news. See the Ownership tab for intervals and confidence."},
+        "ownership_model": own_report,
         "summary": {
             "top_projections": [_card(r, f"Consensus {r['consensus']:.1f} from {r['n_sources']} sources")
                                 for r in sorted(pool, key=lambda r: -r["final"])[:10]],

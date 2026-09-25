@@ -2,7 +2,7 @@
 just who projects best. Cash and GPP use different logic throughout.
 
 Inputs are the DFS Model's player rows (consensus projection, floor,
-ceiling, value, ownership or a labeled popularity estimate, uncertainty)
+ceiling, value, Bayesian posterior ownership, uncertainty)
 plus real context: Vegas lines, nflverse usage (targets, target share, air
 yards share, carries, QB rushing), neutral tempo / pass rate, and each
 source's projected stat line (carries, targets, TDs).
@@ -288,7 +288,7 @@ def slate_overview(games: list[dict], pool: list[dict], ctx: dict, rows: list[di
         "best_rb": pools["RB"]["cash"][:3],
         "best_wr_teams": pools["wr_environments"],
         "te_approach": pools["TE"]["recommendation"],
-        "popularity_note": "user-provided ownership" if has_own else "popularity estimate (no ownership data connected)",
+        "popularity_note": "Bayesian posterior ownership (large-field GPP)" if has_own else "popularity estimate",
     }
 
 
@@ -801,7 +801,7 @@ def evaluate(lu: list[dict], kind: str, games_by_team: dict, has_own: bool, cash
         "te_strategy": f"{te_strategy}: {te['name']} (${te['salary']:,})",
         "flex_strategy": f"{flex['position']} {flex['name']}",
         "leverage": ", ".join(f"{p['name']} ({_own_txt(p)})" for p in lev) or "None",
-        "projected_ownership": f"{own_total:.1f}%" if own_total is not None else f"{len(chalk)} est. chalk (no ownership data)",
+        "projected_ownership": f"{own_total:.1f}% (sum of Bayesian posterior means)" if own_total is not None else f"{len(chalk)} est. chalk (no ownership data)",
         "salary_remaining": f"${sal['remaining']:,}",
         "primary_game_script": g.get("script") or "-",
         "biggest_failure_point": f"{weakest['name']}: ${weakest['salary']:,} with a {_num(weakest['floor'])} floor"
@@ -1170,5 +1170,7 @@ def run(pool: list[dict], rows: list[dict], slate, wd, usage: dict, has_own: boo
         "lineups": lineups,
         "fades": fades(pool, chalk_rows, pools, games_by_team),
         "missing_data": [{"item": a, "why": b} for a, b in MISSING_DATA]
-                        + ([] if has_own else [{"item": "Projected ownership", "why": "no source connected; paste it to replace the popularity estimate"}]),
+                        + [{"item": "Ownership sources", "why": "no free projected-ownership feed exists; the Bayesian ownership model "
+                                                                "uses its behavioral prior until sources, crowd submissions or actual results are added "
+                                                                "(Ownership tab)"}],
     }

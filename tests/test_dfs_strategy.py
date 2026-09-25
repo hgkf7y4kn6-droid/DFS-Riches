@@ -118,7 +118,7 @@ def test_full_run_builds_cash_and_gpp_with_audits():
         teams = [p["team"] for p in lu["players"] if p["position"] == "RB"]
         assert len(teams) == len(set(teams))
     assert any(m["item"] == "Player props" for m in result["missing_data"])
-    assert any(m["item"] == "Projected ownership" for m in result["missing_data"])
+    assert any(m["item"] == "Ownership sources" for m in result["missing_data"])
 
 
 def test_correlation_scores_stacks_and_penalizes_conflicts():

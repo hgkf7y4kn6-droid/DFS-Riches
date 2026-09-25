@@ -37,25 +37,15 @@
     <p class="dm-lede">
       Lineups built to fit together, not just the best nine players. Cash lineups chase floor, volume and
       stability; GPP lineups chase ceiling, correlation, leverage and game environment. Projections are a consensus of
-      public sources scored with DraftKings rules; every sourced fact and model estimate is labeled, and missing data
-      (ownership, props, snaps, routes) is called out instead of guessed.
+      public sources scored with DraftKings rules; ownership is a Bayesian posterior with credible intervals and a
+      confidence level. Every sourced fact and model estimate is labeled, and missing data (props, snaps, routes) is
+      called out instead of guessed.
     </p>
-    <details class="dm-own" id="dm-own">
-      <summary>Add projected ownership <span class="dm-own-status" id="dm-own-status"></span></summary>
-      <p class="dm-note">No projected-ownership source is connected, so ownership is blank unless you paste it
-        here (one per line: <code>Name, 23.5</code> or <code>Name, TEAM, 23.5</code>; DSTs by team code, e.g.
-        <code>BUF, 8</code>). It stays in this browser and is labeled "user-provided". Chalk, leverage, contrarian
-        lineups and lineup ownership totals all switch to it.</p>
-      <textarea id="dm-own-text" rows="6" spellcheck="false" aria-label="Projected ownership, one player per line"></textarea>
-      <div class="dm-own-actions">
-        <button type="button" id="dm-own-apply" class="dm-btn">Apply ownership</button>
-        <button type="button" id="dm-own-clear" class="dm-btn dm-btn-quiet">Clear</button>
-      </div>
-    </details>
     <div class="dm-tabs" role="tablist" aria-label="DFS Model views">
       <button type="button" role="tab" data-tab="summary" aria-selected="true">Summary</button>
       <button type="button" role="tab" data-tab="slate" aria-selected="false">Slate</button>
       <button type="button" role="tab" data-tab="pools" aria-selected="false">Player Pools</button>
+      <button type="button" role="tab" data-tab="ownership" aria-selected="false">Ownership</button>
       <button type="button" role="tab" data-tab="chalk" aria-selected="false">Chalk &amp; Leverage</button>
       <button type="button" role="tab" data-tab="stacks" aria-selected="false">Games &amp; Stacks</button>
       <button type="button" role="tab" data-tab="cash" aria-selected="false">Cash</button>
@@ -72,6 +62,7 @@
     Usage: nflverse box scores. Lines: nflverse closing lines. Salaries and injury statuses: DraftKings.
   </footer>
 
+  <script src="/static/ownership.js"></script>
   <script src="/static/dfs_model.js"></script>
 </body>
 </html>

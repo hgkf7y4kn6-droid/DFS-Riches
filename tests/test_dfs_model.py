@@ -72,11 +72,6 @@ def test_weights_stay_equal_when_sources_are_similar():
     assert w["a"] > w["c"] > w["b"] and "1/historical MAE" in note
 
 
-def test_parse_ownership_accepts_common_paste_formats():
-    own = dfs_model.parse_ownership("Ja'Marr Chase, 22.5%\nA.J. Brown\tPHI\t14\nBUF, 8\nbad line")
-    assert own == {"jamarr chase": 22.5, "aj brown": 14.0, "DST|BUF": 8.0}
-
-
 def test_calibration_falls_back_to_nearest_graded_range():
     acc = {"calibration": {"TE": {"8-12": {"q15": 0.3, "q50": 0.9, "q85": 1.7}}}}
     assert dfs_model.calibration(acc, "TE", 21)["q85"] == 1.7

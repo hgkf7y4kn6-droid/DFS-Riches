@@ -5,13 +5,12 @@
   const slateEl = document.getElementById("dm-slate");
   const asofEl = document.getElementById("dm-asof");
   const weekEl = document.getElementById("dm-week");
-  const ownTextEl = document.getElementById("dm-own-text");
-  const ownStatusEl = document.getElementById("dm-own-status");
   const tabs = Array.from(document.querySelectorAll(".dm-tabs [role=tab]"));
   const TAB_KEY = "dfsriches:dfsModelTab";
 
   const state = { season: null, week: null, slate: null, data: null, tab: "summary", requestKey: null,
-                  tableSort: { key: "final", dir: -1 }, tablePos: "ALL", tableQuery: "", poolPos: "QB" };
+                  tableSort: { key: "final", dir: -1 }, tablePos: "ALL", tableQuery: "", poolPos: "QB",
+                  contest: "gpp", contestSize: null };
   try { state.tab = localStorage.getItem(TAB_KEY) || "summary"; } catch (e) { /* private mode */ }
 
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -21,16 +20,9 @@
   const spread = (s) => (s == null ? "-" : s === 0 ? "PK" : (s > 0 ? "+" : "") + s);
   const INJ = { Q: "Q", D: "D", O: "OUT", IR: "IR" };
 
-  // ------------------------------------------------------------ ownership
-  function ownKey() { return `dfsriches:ownership:${state.season}:${state.week}`; }
-  function loadOwnership() { try { return localStorage.getItem(ownKey()) || ""; } catch (e) { return ""; } }
-  function saveOwnership(text) {
-    try { text ? localStorage.setItem(ownKey(), text) : localStorage.removeItem(ownKey()); } catch (e) { /* private mode */ }
-  }
-
   // --------------------------------------------------------------- badges
   function popBadge(p) {
-    if (p.ownership != null) return `<span class="dm-own-pct" title="User-provided projected ownership">${num(p.ownership, 1)}%</span>`;
+    if (p.ownership != null) return `<span class="dm-own-pct" title="Bayesian posterior ownership (large-field GPP mean). Intervals and confidence: Ownership tab">${num(p.ownership, 1)}%</span>`;
     if (!p.popularity) return '<span class="dm-muted" title="No ownership data">-</span>';
     return `<span class="dm-pop dm-pop-${p.popularity.toLowerCase()}" title="Popularity estimate from value and projection rank at the position -- not ownership data">est. ${esc(p.popularity)}</span>`;
   }
@@ -131,7 +123,7 @@
   // ------------------------------------------------------------ Summary
   function renderSummary(d) {
     const s = d.summary;
-    const ownNote = d.ownership.provided ? "" : "Popularity is an estimate (no ownership data connected).";
+    const ownNote = "Ownership = Bayesian posterior mean (see the Ownership tab for intervals and confidence).";
     const rec = d.lineups.cash[0];
     return `<div class="dm-grid">
       ${rec ? card("Recommended cash lineup", lineupMini(rec) + `<button type="button" class="dm-link" data-goto="cash">Full cash breakdown →</button>`) : ""}
@@ -232,7 +224,7 @@
       <td class="num">${popBadge(c)}</td><td>${esc(c.why_popular)}</td><td>${esc(c.risk)}</td>
       <td><span class="dm-class dm-class-${esc(c.classification.split(" ")[0].toLowerCase())}">${esc(c.classification)}</span></td></tr>`).join("");
     const L = st.leverage;
-    return card("Chalk", note((d.ownership.provided ? "Chalk = 15%+ user-provided ownership." : "Chalk = the popularity estimate's top tier (no ownership data).")
+    return card("Chalk", note("Chalk = 15%+ Bayesian posterior ownership (large-field GPP)."
         + " For each: why the field will play him, how he can fail, and what to do with him. Chalk isn't faded just for being popular.")
         + `<div class="dm-table-wrap"><table class="dm-table"><thead><tr><th scope="col">Player</th><th scope="col">Pos</th><th scope="col">Salary</th><th scope="col">Proj</th><th scope="col">Ceiling</th><th scope="col">Own</th><th scope="col">Why popular?</th><th scope="col">How he fails</th><th scope="col">Classification</th></tr></thead><tbody>${rows || '<tr><td colspan="9" class="dm-muted">No chalk identified.</td></tr>'}</tbody></table></div>`, "dm-wide")
       + `<div class="dm-grid">
@@ -342,7 +334,7 @@
       + note("Each is a genuinely different construction: at least 3 players different from every other GPP lineup, no player in more than 6 of 10, $49,000+ spent, never two RBs from one team or a DST facing your own players.")
       + `<div class="dm-lineups">${L.gpp.map(gppCard).join("")}</div>`
       + `<h3 class="dm-section">Contrarian GPP lineups (${L.contrarian.length})</h3>`
-      + note("Ceiling discounted by " + (d.ownership.provided ? "user-provided ownership" : "the popularity estimate") + "; a different QB stack each, outside the two most popular games, with at least two meaningful leverage plays.")
+      + note("Ceiling discounted by Bayesian posterior ownership; a different QB stack each, outside the two most popular games, with at least two meaningful leverage plays.")
       + `<div class="dm-lineups">${L.contrarian.map(gppCard).join("")}</div>`;
   }
 
@@ -419,7 +411,7 @@
         "<b>Cash</b>: maximize floor + projection + projected opportunities, minus a penalty for high uncertainty. No Questionable players, no cheap RB/WR/TE without a real projected role, TE must be elite or a cheap real role, never two RBs from one team, $48,500+ spent. 1 recommended + 4 alternates (2+ players different).",
         "<b>GPP</b>: maximize ceiling, nudged by game environment, +1.5 for a meaningful leverage play, -2 for fragile/overpriced chalk, +0.5 for WRs (FLEX lean). Every player needs a ceiling path and cheap players need a real role. Each construction tries a QB double stack + bring-back first. No DST vs your own players, never two RBs from one team, $49,000+ spent, 3+ players different from every other GPP lineup, max 6 of 10 for any player.",
         "<b>Constructions</b>: primary game stack (best environment, WR bring-back), contrarian game stack (good environment the field is ignoring), chalk + leverage, expensive QB with RB/TE savings, mid-tier RB leverage, elite TE, low-owned ceiling, naked rushing QB (only when his rushing is 25%+ of his projection), second environment with a WR2 bring-back, 4-WR onslaught.",
-        "<b>Meaningful leverage</b>: lower-owned (8% or less when ownership is pasted, else the estimate's low tier) AND a top-quarter ceiling at the position AND a real role AND not Questionable.",
+        "<b>Meaningful leverage</b>: lower-owned (Bayesian posterior 8% or less) AND a top-quarter ceiling at the position AND a real role AND not Questionable.",
         "<b>Chalk classes</b>: necessary/value (cheap, top-3 value), fragile (Questionable or 2+ failure modes), overpriced (value below the position median), cash-not-GPP (safe floor, limited ceiling), leverage-stack usable (popular player in an under-owned game), strong.",
         "<b>Quality score</b> (0-100 within cash or tournament lineups): GPP weights ceiling 25%, correlation 20%, leverage 15%, environment 15%, ownership 10%, projection/salary/uniqueness 5% each; Cash weights floor 30%, projection 25%, opportunity 20%, stability 15%, value 10%.",
         "Questionable players count 90% in every lineup objective; their projection doesn't change.",
@@ -428,13 +420,19 @@
         "<b>Consensus</b>: every source's projected stat line scored with DraftKings rules, then mean, median, range, SD and source count. Missing sources stay missing.",
         "<b>Final</b> = consensus, then only DraftKings injury status (sourced) and the backtested matchup nudge (model, +/-5% max).",
         "<b>Floor / Median</b>: 15th / 50th percentile of actual / consensus in past weeks, by position and projection range. <b>Ceiling</b>: average of that 85th percentile and the matchup Ceiling.",
-        `<b>Ownership</b>: ${esc(d.ownership.note)}${d.ownership.provided ? ` (${d.ownership.matched} players matched)` : ""}`,
+        `<b>Ownership</b>: ${esc(d.ownership.note)}`,
       ]), "dm-wide")}
     </div>`;
   }
 
   // ------------------------------------------------------------- plumbing
-  const VIEWS = { summary: renderSummary, slate: renderSlate, pools: renderPools, chalk: renderChalk, stacks: renderStacks,
+  function ctx() {
+    return { esc, num, money, card, note, bullets, injBadge, popBadge, state, rerender: render,
+             reload: (opts) => { if (opts.contest) state.contest = opts.contest; if ("contestSize" in opts) state.contestSize = opts.contestSize; load(false); } };
+  }
+  const renderOwnership = (d) => window.DFSOwnership.render(d, ctx());
+
+  const VIEWS = { summary: renderSummary, slate: renderSlate, pools: renderPools, ownership: renderOwnership, chalk: renderChalk, stacks: renderStacks,
                   cash: renderCash, gpp: renderGpp, fades: renderFades, table: renderTable, method: renderMethod };
 
   function render() {
@@ -460,18 +458,16 @@
     state.season = Number(document.getElementById("season-input").value);
     state.week = Number(document.getElementById("week-input").value);
     weekEl.textContent = `-- Week ${state.week}`;
-    const own = loadOwnership();
-    ownTextEl.value = own;
-    const key = `${state.season}|${state.week}|${state.slate || ""}|${own.length}|${Date.now()}`;
+    const key = `${state.season}|${state.week}|${state.slate || ""}|${state.contest}|${Date.now()}`;
     state.requestKey = key;
     asofEl.textContent = "Building model...";
     if (force || !state.data) panelEl.innerHTML = '<p class="dm-muted">Pulling every source and building lineups (can take ~20s on a cold start)...</p>';
     const params = new URLSearchParams({ season: state.season, week: state.week });
     if (state.slate) params.set("slate_id", state.slate);
+    params.set("contest", state.contest);
+    if (state.contestSize) params.set("contest_size", state.contestSize);
     try {
-      const res = await fetch(`/api/dfs-model?${params}`, own
-        ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ownership: own }) }
-        : undefined);
+      const res = await fetch(`/api/dfs-model?${params}`);
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.detail || `Request failed: ${res.status}`);
       if (state.requestKey !== key) return;
@@ -481,7 +477,6 @@
         slateEl.innerHTML = body.slates.map((s) => `<option value="${esc(s.slate_id)}"${s.slate_id === body.slate.slate_id ? " selected" : ""}>${esc(s.label)}</option>`).join("");
         const when = new Date(body.generated_at);
         asofEl.textContent = `Built ${when.toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit" })} from ${body.sources.filter((s) => s.available).length} sources`;
-        ownStatusEl.textContent = body.ownership.provided ? `(${body.ownership.matched} matched)` : "";
       } else {
         slateEl.innerHTML = "";
         asofEl.textContent = "";
@@ -505,10 +500,10 @@
   slateEl.addEventListener("change", () => { state.slate = slateEl.value; load(true); });
   document.getElementById("dm-refresh").addEventListener("click", () => load(true));
   document.getElementById("load-week-btn").addEventListener("click", () => { state.slate = null; state.data = null; load(true); });
-  document.getElementById("dm-own-apply").addEventListener("click", () => { saveOwnership(ownTextEl.value.trim()); load(true); });
-  document.getElementById("dm-own-clear").addEventListener("click", () => { ownTextEl.value = ""; saveOwnership(""); load(true); });
+  panelEl.addEventListener("submit", (e) => { if (state.tab === "ownership") window.DFSOwnership.submit(e, ctx()); });
 
   panelEl.addEventListener("click", (e) => {
+    if (state.tab === "ownership" && window.DFSOwnership.click(e, ctx())) return;
     const go = e.target.closest("[data-goto]");
     if (go) {
       if (go.dataset.pos) state.poolPos = go.dataset.pos;
@@ -536,6 +531,7 @@
     }
   });
   panelEl.addEventListener("input", (e) => {
+    if (state.tab === "ownership" && window.DFSOwnership.input(e, ctx())) return;
     if (e.target.id !== "dm-search") return;
     state.tableQuery = e.target.value;
     const pos = e.target.selectionStart;
