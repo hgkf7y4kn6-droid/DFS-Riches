@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import math
 import statistics
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from app import nflverse_client as nc
 from app.models import WeekSchedule
@@ -165,15 +165,33 @@ def _history(ctx: CeilingContext, entries: list, position: str, fallback_mean: f
     return base, note
 
 
-def player_ceiling(
+@dataclass
+class CeilingDetail:
+    """A ceiling plus the structured pieces behind it, for explaining a pick.
+    factors: multiplier per applied factor ("matchup", "game_env", "breakdown",
+    "usage"); reasons: a short plain-English phrase per factor; flags: the
+    Week Breakdown flags that applied."""
+
+    value: float
+    base: float
+    notes: list[str]
+    factors: dict[str, float] = field(default_factory=dict)
+    reasons: dict[str, str] = field(default_factory=dict)
+    flags: list[str] = field(default_factory=list)
+    usage_l3: float | None = None
+    usage_l8: float | None = None
+    matchup_vs_avg: float | None = None   # opponent's DK pts allowed to this position vs league, e.g. +0.42
+
+
+def player_ceiling_detail(
     ctx: CeilingContext, *, name: str, position: str, team: str, opponent: str, fallback_mean: float | None
-) -> tuple[float | None, list[str]]:
+) -> CeilingDetail | None:
     is_dst = position == "DST"
     entries = ctx.dst_index.get(team, []) if is_dst else ctx.players.get(nc.player_key(name, position), [])
     base, history_note = _history(ctx, entries, position, fallback_mean)
     if base is None:
-        return None, []
-    notes = [history_note]
+        return None
+    d = CeilingDetail(value=0.0, base=base, notes=[history_note])
     mult = 1.0
 
     # Matchup
@@ -182,7 +200,10 @@ def player_ceiling(
         if opp_pf and ctx.league_points_for:
             m = _shrunk(ctx.league_points_for / opp_pf, 0.5, 0.85, 1.15)
             mult *= m
-            notes.append(f"Matchup x{m:.2f}: {opponent} score {opp_pf:.1f} pts/gm (L8) vs {ctx.league_points_for:.1f} avg")
+            d.factors["matchup"] = m
+            d.matchup_vs_avg = opp_pf / ctx.league_points_for - 1
+            d.reasons["matchup"] = f"{opponent} score {abs(d.matchup_vs_avg):.0%} {'fewer' if d.matchup_vs_avg < 0 else 'more'} pts than avg"
+            d.notes.append(f"Matchup x{m:.2f}: {opponent} score {opp_pf:.1f} pts/gm (L8) vs {ctx.league_points_for:.1f} avg")
     else:
         allowed = nc.recent_values(ctx.def_vs_pos.get(opponent, {}).get(position, []), ctx.season, ctx.week, MATCHUP_WINDOW)
         league = ctx.league_allowed.get(position)
@@ -190,7 +211,10 @@ def player_ceiling(
             avg = statistics.fmean(allowed)
             m = _shrunk(avg / league, 0.5, 0.85, 1.15)
             mult *= m
-            notes.append(f"Matchup x{m:.2f}: {opponent} allow {avg:.1f} DK pts/gm to {position}s (L8) vs {league:.1f} avg")
+            d.factors["matchup"] = m
+            d.matchup_vs_avg = avg / league - 1
+            d.reasons["matchup"] = f"{opponent} allow {d.matchup_vs_avg:+.0%} DK pts to {position}s"
+            d.notes.append(f"Matchup x{m:.2f}: {opponent} allow {avg:.1f} DK pts/gm to {position}s (L8) vs {league:.1f} avg")
 
     # Game environment
     avg_imp = ctx.slate_avg_implied
@@ -199,7 +223,9 @@ def player_ceiling(
     if imp and avg_imp:
         m = _shrunk((avg_imp / imp) if is_dst else (imp / avg_imp), 0.6, 0.85, 1.15)
         mult *= m
-        notes.append(f"Game env x{m:.2f}: {side} implied {imp:g} vs {avg_imp:.1f} slate avg")
+        d.factors["game_env"] = m
+        d.reasons["game_env"] = f"{side} implied for {imp:g} (slate avg {avg_imp:.1f})"
+        d.notes.append(f"Game env x{m:.2f}: {side} implied {imp:g} vs {avg_imp:.1f} slate avg")
 
     # Week Breakdown flags
     r = ctx.ranks
@@ -224,7 +250,9 @@ def player_ceiling(
     if flags:
         m = round(1 + min(sum(f[0] for f in flags), 0.08), 3)
         mult *= m
-        notes.append(f"Breakdown x{m:.2f}: " + "; ".join(f[1] for f in flags))
+        d.factors["breakdown"] = m
+        d.flags = [f[1] for f in flags]
+        d.notes.append(f"Breakdown x{m:.2f}: " + "; ".join(d.flags))
 
     # Team utilization
     if position in ("RB", "WR", "TE"):
@@ -234,16 +262,29 @@ def player_ceiling(
             s3, s8 = statistics.fmean(recent_shares), statistics.fmean(base_shares)
             m = _shrunk(s3 / s8, 0.5, 0.9, 1.15)
             mult *= m
-            notes.append(f"Usage x{m:.2f}: {s3:.0%} of team targets+carries (L3) vs {s8:.0%} (L8)")
+            d.factors["usage"] = m
+            d.usage_l3, d.usage_l8 = s3, s8
+            trend = "up from" if s3 > s8 * 1.03 else "down from" if s3 < s8 * 0.97 else "steady vs"
+            d.reasons["usage"] = f"{s3:.0%} of {team} targets+carries ({trend} {s8:.0%})"
+            d.notes.append(f"Usage x{m:.2f}: {s3:.0%} of team targets+carries (L3) vs {s8:.0%} (L8)")
 
     capped = _clamp(mult, MIN_COMBINED, MAX_COMBINED)
     if capped != mult:
-        notes.append(f"Combined adjustments capped at x{capped:.2f} (were x{mult:.2f})")
+        d.notes.append(f"Combined adjustments capped at x{capped:.2f} (were x{mult:.2f})")
     value = base * capped
 
     # Past-season history but no game this season: a backup, inactive, or
     # returning from injury -- last year's role can't be assumed.
     if not is_dst and ctx.week > 1 and entries and not any(e[0] == ctx.season for e in entries):
         value *= NO_GAMES_THIS_SEASON
-        notes.append(f"Role x{NO_GAMES_THIS_SEASON:.2f}: no games played this season (backup, inactive, or returning from injury)")
-    return round(value, 1), notes
+        d.factors["role"] = NO_GAMES_THIS_SEASON
+        d.notes.append(f"Role x{NO_GAMES_THIS_SEASON:.2f}: no games played this season (backup, inactive, or returning from injury)")
+    d.value = round(value, 1)
+    return d
+
+
+def player_ceiling(
+    ctx: CeilingContext, *, name: str, position: str, team: str, opponent: str, fallback_mean: float | None
+) -> tuple[float | None, list[str]]:
+    d = player_ceiling_detail(ctx, name=name, position=position, team=team, opponent=opponent, fallback_mean=fallback_mean)
+    return (d.value, d.notes) if d else (None, [])

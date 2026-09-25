@@ -16,9 +16,12 @@ season -- so a rank of 1 in Week 1 just means "the only team with data."
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
+
+from app import ceiling, targets
 from app import nflverse_client as nc
 from app import slates as slates_module
-from app.models import Game, GameBreakdown, TeamStatLine, TopPlayer, WeekBreakdown
+from app.models import Game, GameBreakdown, TeamStatLine, WeekBreakdown
 from app.schedule import get_week_schedule
 
 _RANK_WINDOW = 8            # trailing games for league-rank context (tendency metrics use season-to-date; see nc.TENDENCY_METRICS)
@@ -27,7 +30,6 @@ _PACE_RANK_THRESHOLD = 10
 _PACE_GAP_THRESHOLD = 10     # ranks apart before one offense counts as notably faster...
 _PACE_GAP_SECS = 1.5         # ...and seconds per snap apart
 _EFFICIENCY_RANK_THRESHOLD = 10
-_TOP_PLAYERS_PER_TEAM = 3
 
 # metric -> whether a *higher* trailing value means a better rank (1st)
 _RANK_DIRECTION = {
@@ -215,24 +217,23 @@ def generate_takeaways(
     return bullets
 
 
-async def _top_players_by_team(season: int, week: int) -> dict[str, list[TopPlayer]]:
-    try:
-        classic = await slates_module.get_slate_players(season, week, "classic")
-    except Exception:
-        return {}
+@dataclass
+class WeekData:
+    """Everything the breakdown and game-detail views compute from, loaded once."""
 
-    by_team: dict[str, list] = {}
-    for p in classic.players:
-        by_team.setdefault(p.team, []).append(p)
+    season: int
+    week: int
+    schedule: object
+    index: dict
+    ranks: dict[str, dict[str, int]]
+    pass_rate_rank: dict[str, int]
+    implied_rank: dict[str, int]
+    total_rank: dict[str, int]
+    ceiling_ctx: ceiling.CeilingContext
+    players: list
 
-    result: dict[str, list[TopPlayer]] = {}
-    for team, players in by_team.items():
-        top = sorted(players, key=lambda p: p.salary, reverse=True)[:_TOP_PLAYERS_PER_TEAM]
-        result[team] = [TopPlayer(name=p.name, position=p.position, salary=p.salary, trend_l3=p.trend_l3) for p in top]
-    return result
 
-
-async def build_week_breakdown(season: int, week: int) -> WeekBreakdown:
+async def load_week(season: int, week: int) -> WeekData:
     schedule = await get_week_schedule(season, week)
     index = await nc.get_team_context_trailing_index(season)
 
@@ -253,39 +254,53 @@ async def build_week_breakdown(season: int, week: int) -> WeekBreakdown:
         if g.context.total_line is not None:
             total_by_game[g.game_id] = g.context.total_line
 
-    implied_rank_this_week = {
-        team: i + 1 for i, (team, _v) in enumerate(sorted(implied_by_team.items(), key=lambda kv: kv[1], reverse=True))
-    }
-    total_rank_this_week = {
-        gid: i + 1 for i, (gid, _v) in enumerate(sorted(total_by_game.items(), key=lambda kv: kv[1], reverse=True))
-    }
+    try:
+        players = (await slates_module.get_slate_players(season, week, "classic")).players
+    except Exception:
+        players = []
 
-    top_players = await _top_players_by_team(season, week)
+    return WeekData(
+        season=season,
+        week=week,
+        schedule=schedule,
+        index=index,
+        ranks=ranks,
+        pass_rate_rank=nc.rank_teams(index, "pass_pct", season, week, n=_RANK_WINDOW, descending=True),
+        implied_rank={t: i + 1 for i, (t, _v) in enumerate(sorted(implied_by_team.items(), key=lambda kv: kv[1], reverse=True))},
+        total_rank={gid: i + 1 for i, (gid, _v) in enumerate(sorted(total_by_game.items(), key=lambda kv: kv[1], reverse=True))},
+        ceiling_ctx=await ceiling.build_context(season, week, schedule),
+        players=players,
+    )
 
-    games_out: list[GameBreakdown] = []
-    for g in schedule.games:
-        away_stats = _build_team_stats(index, g.away, season, week, ranks)
-        home_stats = _build_team_stats(index, g.home, season, week, ranks)
-        takeaways = generate_takeaways(
-            g,
-            away_stats,
-            home_stats,
-            total_rank=total_rank_this_week.get(g.game_id),
-            away_implied_rank=implied_rank_this_week.get(g.away),
-            home_implied_rank=implied_rank_this_week.get(g.home),
-        )
-        games_out.append(
-            GameBreakdown(
-                game=g,
-                away_stats=away_stats,
-                home_stats=home_stats,
-                total_rank_this_week=total_rank_this_week.get(g.game_id),
-                away_implied_rank_this_week=implied_rank_this_week.get(g.away),
-                home_implied_rank_this_week=implied_rank_this_week.get(g.home),
-                takeaways=takeaways,
-                away_top_players=top_players.get(g.away, []),
-                home_top_players=top_players.get(g.home, []),
-            )
-        )
 
-    return WeekBreakdown(season=season, week=week, games=games_out)
+def game_breakdown(wd: WeekData, g: Game) -> GameBreakdown:
+    away_stats = _build_team_stats(wd.index, g.away, wd.season, wd.week, wd.ranks)
+    home_stats = _build_team_stats(wd.index, g.home, wd.season, wd.week, wd.ranks)
+    takeaways = generate_takeaways(
+        g,
+        away_stats,
+        home_stats,
+        total_rank=wd.total_rank.get(g.game_id),
+        away_implied_rank=wd.implied_rank.get(g.away),
+        home_implied_rank=wd.implied_rank.get(g.home),
+    )
+
+    def team_targets(team: str, opp: str, stats: TeamStatLine):
+        return targets.pick_targets(wd.players, team, opp, wd.ceiling_ctx, wd.pass_rate_rank.get(team), stats.pass_pct)
+
+    return GameBreakdown(
+        game=g,
+        away_stats=away_stats,
+        home_stats=home_stats,
+        total_rank_this_week=wd.total_rank.get(g.game_id),
+        away_implied_rank_this_week=wd.implied_rank.get(g.away),
+        home_implied_rank_this_week=wd.implied_rank.get(g.home),
+        takeaways=takeaways,
+        away_top_players=team_targets(g.away, g.home, away_stats),
+        home_top_players=team_targets(g.home, g.away, home_stats),
+    )
+
+
+async def build_week_breakdown(season: int, week: int) -> WeekBreakdown:
+    wd = await load_week(season, week)
+    return WeekBreakdown(season=season, week=week, games=[game_breakdown(wd, g) for g in wd.schedule.games])

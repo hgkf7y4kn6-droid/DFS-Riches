@@ -154,13 +154,18 @@ class TeamStatLine(BaseModel):
 
 
 class TopPlayer(BaseModel):
-    """A real DK salary + trailing performance snapshot, used for a quick
-    "players to watch" callout per team on the breakdown page."""
+    """A DFS target for one team in one game (app.targets): real DK salary,
+    trailing performance, the matchup-adjusted ceiling, and why."""
 
     name: str
     position: str
     salary: int
     trend_l3: float | None = None
+    ceiling: float | None = None
+    proj_points: float | None = None
+    role: str = "Core"                 # "Core" or "Value"
+    usage_l3: float | None = None      # share of team targets + carries, last 3 games
+    reasons: list[str] = []
 
 
 class GameBreakdown(BaseModel):
@@ -173,6 +178,48 @@ class GameBreakdown(BaseModel):
     takeaways: list[str]        # short, original, template-generated from the real numbers above
     away_top_players: list[TopPlayer]
     home_top_players: list[TopPlayer]
+
+
+class PositionMatchup(BaseModel):
+    """What one defense allows to a position: DK points/game (last 8) vs league."""
+
+    position: str
+    allowed: float | None = None
+    league_avg: float | None = None
+    vs_avg: float | None = None        # +0.42 = allows 42% more than average
+    rank: int | None = None            # 1 = allows the most (softest)
+
+
+class UsageShare(BaseModel):
+    name: str
+    position: str
+    injury: str = "Healthy"
+    share_l3: float                    # share of team targets + carries, last 3 games
+    share_l8: float | None = None
+
+
+class LeagueContext(BaseModel):
+    """League averages (and tempo/volume ranges) this week, for chart reference lines."""
+
+    yards_per_play: float | None = None
+    points: float | None = None
+    tempo_secs: float | None = None
+    tempo_min: float | None = None
+    tempo_max: float | None = None
+    plays: float | None = None
+    plays_min: float | None = None
+    plays_max: float | None = None
+    pass_rate: float | None = None
+
+
+class GameDetail(BaseModel):
+    breakdown: GameBreakdown
+    league: LeagueContext
+    away_def_vs_pos: list[PositionMatchup]   # what the AWAY defense allows (the home offense attacks it)
+    home_def_vs_pos: list[PositionMatchup]
+    away_usage: list[UsageShare]
+    home_usage: list[UsageShare]
+    insights: dict[str, str]                 # section -> 1-2 sentence game/DFS impact, generated from the numbers
 
 
 class WeekBreakdown(BaseModel):

@@ -23,10 +23,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
+from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
 from app.config import BASE_DIR, DEFAULT_SEASON, DEFAULT_WEEK
-from app.models import SlatePlayers, WeekBreakdown, WeekData, WeekSchedule
+from app.models import GameDetail, SlatePlayers, WeekBreakdown, WeekData, WeekSchedule
 from app.sleeper_client import get_nfl_state
 
 
@@ -130,6 +131,16 @@ async def breakdown_page(request: Request):
         "breakdown.html",
         {"request": request, "default_season": DEFAULT_SEASON, "default_week": DEFAULT_WEEK},
     )
+
+
+@app.get("/api/breakdown/game/{game_id}", response_model=GameDetail)
+async def api_game_detail(game_id: str, season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
+    try:
+        return await game_detail_module.build_game_detail(season, week, game_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not build game detail: {exc}") from exc
 
 
 @app.get("/api/breakdown", response_model=WeekBreakdown)

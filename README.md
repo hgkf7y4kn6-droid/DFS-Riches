@@ -324,20 +324,60 @@ app's own already-integrated data, not reproduced from any outside site's
 actual written commentary.
 
 For each game it shows, per team, the trailing (last up-to-8 games)
-points/gm, points allowed/gm, yards/play (offense and allowed), pace
-(plays/gm), pass/rush rate, and opponent pass/rush rate allowed -- each
-ranked 1-32 across the league (`app.nflverse_client.rank_teams`) among
-whichever teams have a trailing value at that point in the season. From
-those numbers, `app.breakdown.generate_takeaways` produces short bullets
-covering: the real closing spread/total and how they rank league-wide this
-week, a pace mismatch, a "funnel" defense (a top-10 opponent pass- or
-rush-rate-allowed, meaning that side leans on the run or pass more than
-usual against this defense), and a yards/play efficiency mismatch (a top-10
-offense against a bottom-10 defense in the same stat) -- each is only
-included when the underlying numbers actually support it. A "players to
-watch" callout per team lists the top-3 real DraftKings salaries with their
-trailing L3 DK-style FPPG, when DraftKings has posted pricing for that slate
-yet.
+points/gm, points allowed/gm, yards/play (offense and allowed), neutral
+tempo, plays/gm, neutral pass rate, and the neutral pass/rush rate each
+defense faces. Each is ranked 1-32 across the league
+(`app.nflverse_client.rank_teams`) among whichever teams have a value at
+that point in the season. From those numbers,
+`app.breakdown.generate_takeaways` produces short bullets covering:
+
+- the real closing spread/total and how they rank league-wide this week,
+- a tempo mismatch,
+- a "funnel" defense (top-10 in neutral pass or rush rate faced),
+- a yards/play efficiency mismatch (a top-10 offense against a bottom-10
+  defense in the same stat).
+
+Each bullet is only included when the numbers support it.
+
+**Targets** (`app/targets.py`): each team gets two "core" DFS targets plus
+one "value" target (best ceiling per $1k at $5,500 or less). Candidates are
+players who are Healthy or Questionable and have played this season. They're
+ranked by their matchup-adjusted Ceiling, which covers:
+
+- DK points the defense allows to the position,
+- the team's implied total,
+- funnel, tempo and efficiency flags,
+- usage trend.
+
+That's tilted toward what the offense does most: a top-10 neutral pass rate
+favors its QB/WR/TE, a bottom-10 one its RBs. At most two picks per position.
+Each target lists up to three plain-English reasons, e.g. "NYJ allow +42% DK
+pts to RBs · DET implied for 27 · 41% of DET targets+carries (up from
+37%)".
+
+**Advanced matchup view**: "Advanced matchup ->" on any card opens a detail
+view (`app/game_detail.py`, `GET /api/breakdown/game/{game_id}`). The URL
+gets `#game=<id>`, so a matchup can be linked directly. Each section pairs a
+simple chart with a short "What it means" note on how it's likely to affect
+the game and DFS lineups:
+
+| Section | What it shows |
+|---|---|
+| Vegas outlook | Spread, total and implied totals with their weekly rank; game-script read |
+| When X has the ball | Offense yards/play and points vs the opponent defense's allowed, as % above/below league average |
+| Tempo and volume | Where each team sits between the league's slowest and fastest (tempo) and fewest-most plays |
+| Pass/run tendencies | Neutral pass rate for each offense and the pass rate each defense faces (funnels) |
+| Where to attack | DK points each defense allows to QB/RB/WR/TE vs league average, with rank |
+| Who gets the ball | Top players' share of team targets + carries: last 3 games vs last 8 |
+| DFS targets | The tailored targets with all their reasons |
+
+The charts follow a data-viz method:
+- The two team colors are validated for colorblind separation on the app's
+  dark surface.
+- Marks are thin, and every value is labeled directly.
+- A tooltip appears on hover and keyboard focus.
+- Each chart has a "View as table" version.
+- The dialog goes full-screen on phones.
 
 ## Running it
 
@@ -449,6 +489,8 @@ app/
   optimizer.py      exact DK Classic/Showdown lineup optimizer (integer program)
   optimal.py        per-slate optimal lineups, saved pre-kickoff to data/optimal_lineups.json
   breakdown.py      builds the per-game Week Breakdown page (stats, ranks, original takeaways)
+  targets.py        per-team DFS targets tailored to the matchup, with reasons
+  game_detail.py    the advanced matchup view: chart data + "What it means" notes
   models.py         shared pydantic response models
   main.py           FastAPI routes
 data/

@@ -42,9 +42,20 @@
 
   <div id="breakdown-empty-state" class="empty-state" hidden></div>
 
+  <dialog id="game-detail" class="game-detail" aria-labelledby="gd-title">
+    <div class="gd-inner">
+      <header class="gd-header">
+        <h2 id="gd-title"></h2>
+        <button type="button" id="gd-close" class="gd-close" aria-label="Close matchup details">&times;</button>
+      </header>
+      <div id="gd-body" class="gd-body"></div>
+    </div>
+    <div id="gd-tooltip" class="gd-tooltip" role="tooltip" hidden></div>
+  </dialog>
+
   <footer class="site-footer">
     Data: real closing spread/total lines and team box-score trends from nflverse; real DraftKings
-    salaries and trailing DK-style FPPG for the "players to watch" callouts, when DraftKings has posted
+    salaries, trailing DK-style FPPG and matchup-adjusted ceilings for each team's DFS targets, when DraftKings has posted
     pricing for the week. League ranks are computed among whichever teams have a trailing value at this
     point in the season.
   </footer>
