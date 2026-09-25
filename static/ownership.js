@@ -15,6 +15,7 @@
     "SIMULATED": "From Monte Carlo simulation (posterior draws or simulated field lineups)",
   };
   const view = { sub: "table", pos: "ALL", q: "", sort: { key: "mean", dir: -1 }, open: null };
+  let searchTimer = null;
 
   const tag = (label) => `<span class="own-label" title="${LABEL_TIPS[label]}">${label}</span>`;
   const pct = (v, d) => (v == null ? "-" : Number(v).toFixed(d == null ? 1 : d) + "%");
@@ -82,7 +83,7 @@
       <div class="dm-chips">${tag("SIMULATED")} ${Object.entries(r.p_over).map(([t, p]) => `<span class="dm-chip-static">P(&gt;${t}%) ${prob(p)}</span>`).join("")}
         <span class="dm-chip-static">mode ${pct(r.mode)}</span><span class="dm-chip-static">SD ${pct(r.sd)}</span>
         <span class="dm-chip-static">P(top 5 owned) ${prob(r.p_top5)}</span><span class="dm-chip-static">P(top 10) ${prob(r.p_top10)}</span>
-        <span class="dm-chip-static">expected rank ${r.rank_mean}</span></div>
+        <span class="dm-chip-static">expected rank ${r.rank_mean != null ? r.rank_mean : "outside top 10"}</span></div>
       <p class="dm-note">Confidence ${r.confidence}: ${ctx.esc((r.confidence_why || []).join("; "))}${r.news ? " · " + ctx.esc(r.news) : ""}</p>
       ${r.spike && r.spike.flag ? `<p class="own-warn">${ctx.esc(r.spike.flag)} (P up ${prob(r.spike.p_up)}, P down ${prob(r.spike.p_down)})</p>` : ""}
     </div>`;
@@ -414,10 +415,14 @@
   function input(e, ctx) {
     if (e.target.id !== "own-search") return false;
     view.q = e.target.value;
-    const pos = e.target.selectionStart;
-    ctx.rerender();
-    const again = document.getElementById("own-search");
-    if (again) { again.focus(); again.setSelectionRange(pos, pos); }
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      const cur = document.getElementById("own-search");
+      const pos = cur ? cur.selectionStart : view.q.length;
+      ctx.rerender();
+      const again = document.getElementById("own-search");
+      if (again) { again.focus(); again.setSelectionRange(pos, pos); }
+    }, 120);
     return true;
   }
 

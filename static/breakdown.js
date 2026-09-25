@@ -375,7 +375,7 @@
 
   async function openGameDetail(gameId) {
     dialogTitleEl.textContent = "Loading matchup...";
-    dialogBodyEl.replaceChildren(el("p", { cls: "breakdown-loading", text: "Loading advanced matchup stats..." }));
+    dialogBodyEl.replaceChildren(el("p", { cls: "breakdown-loading loading", text: "Loading advanced matchup stats..." }));
     if (!dialogEl.open) dialogEl.showModal();
     history.replaceState(null, "", `#game=${encodeURIComponent(gameId)}`);
     try {
@@ -445,7 +445,7 @@
     emptyStateEl.textContent = "";
 
     const loading = document.createElement("p");
-    loading.className = "breakdown-loading";
+    loading.className = "breakdown-loading loading";
     loading.textContent = "Loading week breakdown...";
     gamesEl.appendChild(loading);
 

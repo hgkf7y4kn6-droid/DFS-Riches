@@ -29,7 +29,7 @@ from dataclasses import dataclass
 from app import dk_scoring
 from app import nflverse_client as nc
 from app import sleeper_client
-from app.cache import cached_fetch
+from app.cache import cached_fetch, memoize_async
 from app.config import TTL_PROJECTIONS
 
 SKILL = ("QB", "RB", "WR", "TE")
@@ -121,6 +121,7 @@ class ProjectionContext:
     vs_expectation: dict[str, list]
 
 
+@memoize_async(120)
 async def build_context(season: int, week: int) -> ProjectionContext:
     try:
         lines = await sleeper_client.get_projection_lines(season, week)

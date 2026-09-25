@@ -16,11 +16,15 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
 import os
+import re
 
-from fastapi import Body, FastAPI, HTTPException, Request
+from typing import Annotated
+
+from fastapi import Body, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -58,6 +62,9 @@ class _CachedStaticFiles(StaticFiles):
         response.headers.setdefault("Cache-Control", "public, max-age=31536000, immutable" if versioned else "public, max-age=300")
         return response
 
+
+Season = Annotated[int, Query(ge=2000, le=2100)]
+Week = Annotated[int, Query(ge=1, le=22)]
 
 app = FastAPI(title="DFSRiches", description="DraftKings DFS explorer")
 app.add_middleware(GZipMiddleware, minimum_size=1000)
@@ -104,8 +111,8 @@ async def _page(request: Request, template: str, active: str, season_q: str | No
     season, week = _int(season_q), _int(week_q)
     if not (season and week and 2000 <= season <= 2100 and 1 <= week <= 18):
         season, week = await current_season_week()
-    return templates.TemplateResponse(template, {"request": request, "season": season, "week": week,
-                                                 "active": active, "asset_version": ASSET_VERSION})
+    return templates.TemplateResponse(request, template, {"season": season, "week": week, "active": active,
+                                                          "asset_version": ASSET_VERSION})
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -123,7 +130,7 @@ async def api_state():
 
 
 @app.get("/api/schedule", response_model=WeekSchedule)
-async def api_schedule(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
+async def api_schedule(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
     try:
         schedule, _slates = await slates.list_slates(season, week)
     except Exception as exc:
@@ -132,7 +139,7 @@ async def api_schedule(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
 
 
 @app.get("/api/slates")
-async def api_slates(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
+async def api_slates(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
     try:
         _schedule, slate_list = await slates.list_slates(season, week)
     except Exception as exc:
@@ -141,7 +148,7 @@ async def api_slates(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
 
 
 @app.get("/api/week", response_model=WeekData)
-async def api_week(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
+async def api_week(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
     """Combines /api/schedule and /api/slates into one response, since both
     already come from the same list_slates() call -- lets the frontend's
     initial load skip a redundant round trip."""
@@ -153,7 +160,7 @@ async def api_week(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
 
 
 @app.get("/api/slates/{slate_id}/players", response_model=SlatePlayers)
-async def api_slate_players(slate_id: str, season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
+async def api_slate_players(slate_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
     try:
         return await slates.get_slate_players(season, week, slate_id)
     except ValueError as exc:
@@ -162,10 +169,15 @@ async def api_slate_players(slate_id: str, season: int = DEFAULT_SEASON, week: i
         raise HTTPException(status_code=502, detail=f"Could not load slate players: {exc}") from exc
 
 
+@memoize_async(ttl_seconds=60)
+async def _optimal(season: int, week: int, slate_id: str) -> dict:
+    return await optimal_module.get_optimal(season, week, slate_id)
+
+
 @app.get("/api/slates/{slate_id}/optimal")
-async def api_slate_optimal(slate_id: str, season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
+async def api_slate_optimal(slate_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
     try:
-        return await optimal_module.get_optimal(season, week, slate_id)
+        return await _optimal(season, week, slate_id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
@@ -183,7 +195,7 @@ async def dfs_model_page(request: Request, season: str | None = None, week: str 
 
 
 @app.get("/api/breakdown/game/{game_id}", response_model=GameDetail)
-async def api_game_detail(game_id: str, season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
+async def api_game_detail(game_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
     try:
         return await game_detail_module.build_game_detail(season, week, game_id)
     except ValueError as exc:
@@ -193,17 +205,27 @@ async def api_game_detail(game_id: str, season: int = DEFAULT_SEASON, week: int 
 
 
 @app.get("/api/breakdown", response_model=WeekBreakdown)
-async def api_breakdown(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
+async def api_breakdown(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
     try:
         return await breakdown_module.build_week_breakdown(season, week)
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not build week breakdown: {exc}") from exc
 
 
+def _json_default(o):
+    if hasattr(o, "item"):          # numpy scalars
+        return o.item()
+    if hasattr(o, "isoformat"):
+        return o.isoformat()
+    raise TypeError(f"Not JSON serializable: {type(o).__name__}")
+
+
 @memoize_async(ttl_seconds=120)
 async def _dfs_model(season: int, week: int, slate_id: str | None, contest: str, contest_size: int | None,
-                     version: float) -> dict:
-    return await dfs_model.build(season, week, slate_id, contest, contest_size)
+                     version: tuple) -> bytes:
+    """The model, serialized once: repeat requests reuse the bytes."""
+    result = await dfs_model.build(season, week, slate_id, contest, contest_size)
+    return json.dumps(result, separators=(",", ":"), default=_json_default).encode()
 
 
 def _check_contest(contest: str) -> str:
@@ -213,16 +235,24 @@ def _check_contest(contest: str) -> str:
 
 
 @app.get("/api/dfs-model")
-async def api_dfs_model(season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK, slate_id: str | None = None,
+async def api_dfs_model(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, slate_id: str | None = None,
                         contest: str = "gpp", contest_size: int | None = None):
     """Weekly projection, ownership & lineup analysis for a Classic slate (app.dfs_model)."""
     _check_contest(contest)
     if contest_size is not None and not 2 <= contest_size <= 2_000_000:
         raise HTTPException(status_code=400, detail="contest_size must be between 2 and 2,000,000")
     try:
-        return await _dfs_model(season, week, slate_id, contest, contest_size, ownership_store.week_version(season, week))
+        body = await _dfs_model(season, week, slate_id, contest, contest_size, ownership_store.data_version())
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not build the DFS model: {exc}") from exc
+    return Response(body, media_type="application/json")
+
+
+def _slate_args(body: dict) -> tuple[int, int, str]:
+    season, week, slate_id = int(body["season"]), int(body["week"]), str(body["slate_id"])
+    if not (2000 <= season <= 2100 and 1 <= week <= 22 and re.fullmatch(r"[a-z_]{1,40}", slate_id)):
+        raise ValueError("Invalid season, week or slate_id")
+    return season, week, slate_id
 
 
 async def _resolver_players(season: int, week: int, slate_id: str) -> list[dict]:
@@ -240,7 +270,7 @@ async def _resolver_players(season: int, week: int, slate_id: str) -> list[dict]
 async def api_ownership_source(body: dict = Body(...)):
     """Ownership projections pasted from a named source: {season, week, slate_id, contest, source, text}."""
     try:
-        season, week, slate_id = int(body["season"]), int(body["week"]), str(body["slate_id"])
+        season, week, slate_id = _slate_args(body)
         source = str(body.get("source") or "").strip()
         if not source:
             raise HTTPException(status_code=400, detail="Name the source")
@@ -256,7 +286,7 @@ async def api_ownership_source(body: dict = Body(...)):
 async def api_ownership_crowd(body: dict = Body(...)):
     """A crowdsourced submission: {season, week, slate_id, contest, user_id, display_name, confidence (1-5), text}."""
     try:
-        season, week, slate_id = int(body["season"]), int(body["week"]), str(body["slate_id"])
+        season, week, slate_id = _slate_args(body)
         user_id = str(body.get("user_id") or "").strip()
         if not 8 <= len(user_id) <= 64:
             raise HTTPException(status_code=400, detail="Missing contributor id")
@@ -276,7 +306,7 @@ async def api_ownership_actual(body: dict = Body(...)):
     """Actual contest ownership: a DraftKings contest-standings CSV (preferred: also carries every
     field lineup) or "Name, pct" lines. {season, week, slate_id, contest, text}. Triggers relearning."""
     try:
-        season, week, slate_id = int(body["season"]), int(body["week"]), str(body["slate_id"])
+        season, week, slate_id = _slate_args(body)
         contest = str(body.get("contest") or "gpp")
         text = str(body.get("text") or "")[:30_000_000]
         players = await _resolver_players(season, week, slate_id)
@@ -313,13 +343,13 @@ async def api_ownership_duplication(body: dict = Body(...)):
     """Duplication + exposure leverage for your own Lineup Builder lineups:
     {season, week, slate_id, contest, contest_size, lineups: [[dk_draftable_id, ...], ...]}."""
     try:
-        season, week, slate_id = int(body["season"]), int(body["week"]), str(body["slate_id"])
+        season, week, slate_id = _slate_args(body)
         contest = _check_contest(str(body.get("contest") or "gpp"))
         size = int(body.get("contest_size") or ownership_report.DEFAULT_CONTEST_SIZE[contest])
         lineups = [[int(x) for x in lu] for lu in (body.get("lineups") or [])[:5] if isinstance(lu, list) and len(lu) == 9]
     except (KeyError, ValueError, TypeError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    await _dfs_model(season, week, slate_id, contest, None, ownership_store.week_version(season, week))
+    await _dfs_model(season, week, slate_id, contest, None, ownership_store.data_version())
     state = dfs_model._STATE.get((season, week, slate_id, contest))
     if state is None:
         raise HTTPException(status_code=404, detail="Build the DFS model for this slate first")

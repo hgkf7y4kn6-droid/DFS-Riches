@@ -1,14 +1,15 @@
 {% extends "_base.html" %}
 {% block title %}DFSRiches{% endblock %}
 {% block content %}
-  <section id="schedule-strip" class="schedule-strip table-scroll" aria-label="Week schedule"></section>
+  <h1 class="visually-hidden">DraftKings slates, lines and lineup builder</h1>
+  <section id="schedule-strip" class="schedule-strip table-scroll" aria-label="Week schedule" tabindex="0"></section>
 
   <section class="odds-wrap">
     <div class="odds-header">
       <h2>Lines &amp; Performance</h2>
       <span class="odds-source">Real closing lines &amp; team play volume via nflverse. Small text under each metric is that team's own trailing L3/L6/L9-game average (away/home).</span>
     </div>
-    <div class="table-scroll">
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Lines and performance table">
       <table id="odds-table">
         <thead>
           <tr>
@@ -40,16 +41,16 @@
     </div>
     <div id="optimal-wrap" class="optimal-wrap" hidden>
       <h3 class="optimal-heading">Optimal lineups <span id="optimal-status" class="optimal-status"></span></h3>
-      <div class="table-scroll">
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Optimal lineups">
         <div id="optimal-cards" class="lineup-cards"></div>
       </div>
     </div>
-    <div class="table-scroll">
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Your lineups">
       <div id="lineup-cards" class="lineup-cards"></div>
     </div>
   </section>
 
-  <main class="table-wrap">
+  <section class="table-wrap" aria-label="Player pool">
     <div class="table-toolbar">
       <label class="visually-hidden" for="search-box">Search players by name, team, or opponent</label>
       <input id="search-box" type="search" placeholder="Search player, team..." />
@@ -64,7 +65,7 @@
       </label>
       <div class="match-stats" id="match-stats" aria-live="polite"></div>
     </div>
-    <div class="table-scroll">
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Player pool table">
       <table id="players-table">
         <thead>
           <tr>
@@ -91,7 +92,7 @@
       </table>
     </div>
     <div id="empty-state" class="empty-state" hidden></div>
-  </main>
+  </section>
 
   <div id="lineup-sticky" class="lineup-sticky" hidden>
     <span id="lineup-sticky-summary"></span>

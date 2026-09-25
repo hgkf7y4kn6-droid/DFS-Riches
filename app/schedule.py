@@ -9,6 +9,7 @@ from collections import Counter
 from datetime import datetime, timezone
 
 from app import sleeper_client
+from app.cache import memoize_async
 from app.config import ET, ISOLATED_DAY_PARTS
 from app.game_context import attach_game_context
 from app.models import Game, WeekSchedule
@@ -57,6 +58,7 @@ def mark_isolated_games(games: list[Game]) -> list[Game]:
     return games
 
 
+@memoize_async(60)
 async def get_week_schedule(season: int, week: int, season_type: str = "regular") -> WeekSchedule:
     raw_games = await sleeper_client.get_week_games(season, week, season_type)
 

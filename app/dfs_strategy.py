@@ -931,7 +931,6 @@ def build_lineups(pool: list[dict], games: list[dict], games_by_team: dict, stac
 
     by_env = [g for g in games]
     by_pop = sorted(games, key=lambda g: -g["pop_share"])
-    qbp = {c["id"]: c for c in pools["QB"]["gpp"]}
     qb_by_game: dict[str, list[dict]] = {}
     for r in sorted(gpp_pool, key=lambda r: -r.get("gpp_qb_score", 0)):
         if r["position"] == "QB":
@@ -1139,6 +1138,17 @@ def fades(pool: list[dict], chalk_rows: list[dict], pools: dict, games_by_team: 
             "poor_fit": poor_fit[:6]}
 
 
+def _shown_stacks(stacks: list[dict], top: int = 6, per_game: int = 4) -> list[dict]:
+    """The stacks the page shows: the best overall plus the best few per game."""
+    counts: dict = {}
+    keep = []
+    for i, st in enumerate(stacks):
+        counts[st["game"]] = counts.get(st["game"], 0) + 1
+        if i < top or counts[st["game"]] <= per_game:
+            keep.append(st)
+    return keep
+
+
 # ------------------------------------------------------------------ main
 def run(pool: list[dict], rows: list[dict], slate, wd, usage: dict, has_own: bool, season: int, week: int) -> dict:
     ctx = enrich(pool, rows, slate, usage)
@@ -1166,7 +1176,7 @@ def run(pool: list[dict], rows: list[dict], slate, wd, usage: dict, has_own: boo
                      "salary_savers": pools["salary_savers"]},
         "chalk": chalk_rows,
         "leverage": lev,
-        "stacks": stacks,
+        "stacks": _shown_stacks(stacks),
         "lineups": lineups,
         "fades": fades(pool, chalk_rows, pools, games_by_team),
         "missing_data": [{"item": a, "why": b} for a, b in MISSING_DATA]

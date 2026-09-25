@@ -47,11 +47,24 @@ class FieldModel:
         self.opp = np.array([p["opponent"] for p in players])
         self.salary = np.array([p["salary"] for p in players], dtype=float)
         self.index = {p["key"]: i for i, p in enumerate(players)}
-        self.theta = self.rng.beta(alpha, beta, size=(BATCHES, self.n))
+        draws = self.rng.beta(alpha, beta, size=(BATCHES, self.n))
+        self.theta = np.vstack([draws, draws.mean(axis=0)])   # row BATCHES = the mean draw
+        self.MEAN = BATCHES
         self.idx = {pos: np.where(self.pos == pos)[0] for pos in ("QB", "RB", "WR", "TE", "DST")}
+        self.flex_ids = np.concatenate([self.idx["RB"], self.idx["WR"], self.idx["TE"]])
+        self.pos_index = {pos: {int(pid): j for j, pid in enumerate(self.idx[pos])} for pos in ("RB", "WR", "TE", "DST")}
+        self.flex_index = {int(pid): j for j, pid in enumerate(self.flex_ids)}
+        self._weights: dict[tuple, dict] = {}
 
     # ---------------------------------------------------------- weights
-    def slot_weights(self, theta: np.ndarray, q: int) -> dict[str, np.ndarray]:
+    def slot_weights(self, b: int, q: int) -> dict[str, np.ndarray]:
+        """Per-slot draw probabilities given posterior draw b and QB q (cached)."""
+        key = (b, int(q))
+        if key not in self._weights:
+            self._weights[key] = self._slot_weights(self.theta[b], q)
+        return self._weights[key]
+
+    def _slot_weights(self, theta: np.ndarray, q: int) -> dict[str, np.ndarray]:
         pr = self.params
         qt, qo = self.team[q], self.opp[q]
         w = {}
@@ -81,7 +94,7 @@ class FieldModel:
         counts = np.zeros(self.n)
         per_batch = max(1, k // BATCHES)
         qb_ids = self.idx["QB"]
-        flex_ids = np.concatenate([self.idx["RB"], self.idx["WR"], self.idx["TE"]])
+        flex_ids = self.flex_ids
         rounds = 0
         while len(accepted) < k and rounds < max_rounds:
             rounds += 1
@@ -97,7 +110,7 @@ class FieldModel:
             qs = self.rng.choice(qb_ids, size=per_batch, p=pq)
             for q in np.unique(qs):
                 m = int((qs == q).sum())
-                w = self.slot_weights(theta, q)
+                w = self.slot_weights(b, q)
                 rb = self.idx["RB"][self.rng.choice(len(self.idx["RB"]), size=(m, 2), p=w["RB"])]
                 wr = self.idx["WR"][self.rng.choice(len(self.idx["WR"]), size=(m, 3), p=w["WR"])]
                 te = self.idx["TE"][self.rng.choice(len(self.idx["TE"]), size=(m, 1), p=w["TE"])]
@@ -122,14 +135,14 @@ class FieldModel:
         return total
 
     # ------------------------------------------------------ exact P(L)
-    def lineup_prob(self, lineup: list[int], theta: np.ndarray) -> float:
+    def lineup_prob(self, lineup: list[int], b: int) -> float:
         qs = [i for i in lineup if self.pos[i] == "QB"]
         if len(qs) != 1:
             return 0.0
         q = qs[0]
-        w = self.slot_weights(theta, q)
-        pos_index = {pos: {int(pid): j for j, pid in enumerate(self.idx[pos])} for pos in ("RB", "WR", "TE", "DST")}
-        flex_index = {int(pid): j for j, pid in enumerate(np.concatenate([self.idx["RB"], self.idx["WR"], self.idx["TE"]]))}
+        theta = self.theta[b]
+        w = self.slot_weights(b, q)
+        pos_index, flex_index = self.pos_index, self.flex_index
         groups = {pos: [i for i in lineup if self.pos[i] == pos] for pos in ("RB", "WR", "TE", "DST")}
         if len(groups["DST"]) != 1:
             return 0.0
@@ -155,18 +168,17 @@ class FieldModel:
         return float(p_qb * total * p_dst)
 
     def expected_prob(self, lineup: list[int]) -> float:
-        return float(np.mean([self.lineup_prob(lineup, self.theta[b]) for b in range(BATCHES)]))
+        return float(np.mean([self.lineup_prob(lineup, b) for b in range(BATCHES)]))
 
 
 def duplication(model: FieldModel, lineups: dict[str, list[str]], contest_size: int, sims: int = 5000,
-                percentile_sample: int = 1500) -> dict:
+                percentile_sample: int = 800) -> dict:
     accepted, p_valid, sim_own = model.sample(sims)
     if not accepted or p_valid <= 0:
         return {"error": "The simulated field produced no valid lineups", "lineups": {}}
-    mean_theta = model.theta.mean(axis=0)
     rng = np.random.default_rng(5)
     sample_idx = rng.choice(len(accepted), size=min(percentile_sample, len(accepted)), replace=False)
-    field_probs = np.array([model.lineup_prob(list(accepted[i]), mean_theta) for i in sample_idx])
+    field_probs = np.array([model.lineup_prob(list(accepted[i]), model.MEAN) for i in sample_idx])
     acc_sets = [set(a) for a in accepted]
     out = {}
     for label, keys in lineups.items():
@@ -178,7 +190,7 @@ def duplication(model: FieldModel, lineups: dict[str, list[str]], contest_size: 
         e_dup = (contest_size - 1) * p
         s = set(ids)
         overlaps = np.array([len(s & a) for a in acc_sets])
-        p_mean = model.lineup_prob(ids, mean_theta) / p_valid
+        p_mean = model.lineup_prob(ids, model.MEAN) / p_valid
         out[label] = {
             "p_lineup": p, "expected_duplicates": e_dup, "p_duplicated": 1 - math.exp(-e_dup),
             "expected_share_5": float((overlaps >= 5).mean() * (contest_size - 1)),

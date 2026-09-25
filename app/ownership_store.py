@@ -30,7 +30,6 @@ import json
 import os
 import re
 import threading
-import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -53,6 +52,22 @@ CONTESTS = {
 CLASSIC_CONTESTS = ("gpp", "se", "3max", "20max", "150max", "cash")
 MAX_ENTRIES = 600
 _lock = threading.Lock()
+_writes = 0   # bumped by every write of new information (not history snapshots)
+
+
+def data_version() -> tuple[int, float]:
+    """Changes when new ownership information or learning arrives -- the DFS
+    Model's cache key. Projection-history snapshots deliberately don't count."""
+    try:
+        learned = LEARNING_PATH.stat().st_mtime
+    except OSError:
+        learned = 0.0
+    return _writes, learned
+
+
+def _bump() -> None:
+    global _writes
+    _writes += 1
 
 
 def now_iso() -> str:
@@ -93,28 +108,6 @@ def save(data: dict) -> None:
     tmp = path.with_suffix(".tmp")
     tmp.write_text(json.dumps(data, separators=(",", ":")))
     os.replace(tmp, path)
-
-
-def version(season: int, week: int, slate_id: str) -> float:
-    """Changes whenever the slate's ownership file or the learning file changes."""
-    out = 0.0
-    for p in (slate_path(season, week, slate_id), LEARNING_PATH):
-        try:
-            out += p.stat().st_mtime
-        except OSError:
-            pass
-    return round(out, 3)
-
-
-def week_version(season: int, week: int) -> float:
-    """Changes whenever any of the week's ownership files, or what the engine learned, changes."""
-    out = 0.0
-    for p in list(OWN_DIR.glob(f"{season}_w{week}_*.json")) + [LEARNING_PATH]:
-        try:
-            out += p.stat().st_mtime
-        except OSError:
-            pass
-    return round(out, 3)
 
 
 def all_slate_files() -> list[Path]:
@@ -222,6 +215,7 @@ def add_observations(season: int, week: int, slate_id: str, kind: str, contest: 
             })
             added += 1
         save(data)
+        _bump()
     return {"added": added, "unmatched": unmatched[:50], "batch": batch, "timestamp": ts}
 
 
@@ -230,6 +224,7 @@ def add_field_lineups(season: int, week: int, slate_id: str, contest: str, lineu
         data = load(season, week, slate_id)
         data.setdefault("field_lineups", {})[contest] = lineups[:200000]
         save(data)
+        _bump()
 
 
 def append_history(season: int, week: int, slate_id: str, snapshot: dict, features: dict, lock: str | None) -> None:
@@ -255,10 +250,3 @@ def save_learning(learning: dict) -> None:
     tmp.write_text(json.dumps(learning, indent=1))
     os.replace(tmp, LEARNING_PATH)
 
-
-def hours_between(a: str, b: str) -> float:
-    return (parse_iso(b) - parse_iso(a)).total_seconds() / 3600
-
-
-def epoch() -> float:
-    return time.time()

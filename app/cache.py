@@ -97,13 +97,14 @@ async def cached_fetch(
             del _in_flight[key]
 
 
-def memoize_async(ttl_seconds: float):
+def memoize_async(ttl_seconds: float, max_entries: int = 32):
     """In-memory memoization for an async function, keyed by its arguments.
     For deriving a Python object from data that's already cheap to fetch
     (via cached_fetch) but non-trivial to rebuild each call -- e.g. a name
     lookup index, or a whole request's worth of orchestration that multiple
     routes independently repeat. Concurrent calls with the same arguments
-    share one underlying computation."""
+    share one underlying computation. Holds at most max_entries results
+    (oldest evicted), so arbitrary request parameters can't grow memory."""
 
     def decorator(fn: Callable[..., Awaitable[Any]]) -> Callable[..., Awaitable[Any]]:
         store: dict[tuple, tuple[float, Any]] = {}
@@ -123,7 +124,10 @@ def memoize_async(ttl_seconds: float):
 
                 async def run() -> Any:
                     value = await fn(*args, **kwargs)
+                    store.pop(key, None)
                     store[key] = (time.time(), value)
+                    while len(store) > max_entries:
+                        del store[next(iter(store))]
                     return value
 
                 task = asyncio.ensure_future(run())

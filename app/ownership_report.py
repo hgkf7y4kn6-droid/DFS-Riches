@@ -69,7 +69,10 @@ def compute(season: int, week: int, slate, rows: list[dict], *, contest: str = "
                         contests=store.CLASSIC_CONTESTS, group_of=lambda p: p["position"], slots=slots)
     by_c = post["by_contest"]
     keys = [p["key"] for p in players]
-    sim = om.simulate(by_c[contest], keys)
+    det = by_c[contest]
+    sim_keys = [k for k in keys if _mean(det[k]) >= om.SIM_MIN_MEAN]
+    sim = om.simulate(det, sim_keys)
+    sim["stats"].update(om.analytic_stats(det, [k for k in keys if k not in sim["stats"]]))
 
     # --- projection history (append-only, pre-lock only)
     history = data.get("history") or []
@@ -191,8 +194,8 @@ def report(state: dict, *, contest: str, contest_size: int | None, model_lineups
             "salary": p["salary"], "injury": p["injury"], "game": p.get("game"),
             "mean": _pct(s["mean"]), "median": _pct(s["median"]), "mode": _pct(s["mode"]), "sd": _pct(s["sd"]),
             "ci50": [_pct(x) for x in s["ci50"]], "ci80": [_pct(x) for x in s["ci80"]], "ci95": [_pct(x) for x in s["ci95"]],
-            "p_over": s["p_over"], "rank_mean": round(s["rank_mean"], 1), "rank_probs": s["rank_probs"],
-            "p_top5": s["p_top5"], "p_top10": s["p_top10"],
+            "p_over": {t: round(v, 3) for t, v in s["p_over"].items()}, "rank_mean": round(s["rank_mean"], 1) if s["rank_mean"] is not None else None, "rank_probs": {t: round(v, 3) for t, v in s["rank_probs"].items()},
+            "p_top5": round(s["p_top5"], 3), "p_top10": round(s["p_top10"], 3),
             "contests": contest_cols,
             "showdown": sd and {"slate": sd["slate"], "flex": sd.get("flex") and _pct(sd["flex"]["mean"]),
                                 "cpt": sd.get("cpt") and _pct(sd["cpt"]["mean"])},
@@ -205,7 +208,7 @@ def report(state: dict, *, contest: str, contest_size: int | None, model_lineups
             "n_total": round(d["alpha"] + d["beta"], 1),
             "trend": mv.get("change"), "movement": mv or None, "spike": spikes.get(k),
             "confidence": quality, "confidence_why": qwhy, "news": d.get("news"), "calibrated": d.get("calibrated", False),
-            "actual": d.get("actual"), "label": "BAYESIAN POSTERIOR",
+            "actual": d.get("actual"),
         })
     table.sort(key=lambda r: -(r["mean"] or 0))
     for i, r in enumerate(table):
@@ -310,7 +313,7 @@ def report(state: dict, *, contest: str, contest_size: int | None, model_lineups
                     cnt[k] = cnt.get(k, 0) + 1
         return {k: v / len(lineups) for k, v in cnt.items()}
 
-    model_exp = exposure(list(model_lineups.values()))
+    model_exp = exposure(exposure_lineups)
     lev_rows = []
     for r in table:
         e = model_exp.get(r["key"], 0.0) * 100
@@ -343,7 +346,8 @@ def report(state: dict, *, contest: str, contest_size: int | None, model_lineups
         "contest_sizes": DEFAULT_CONTEST_SIZE, "contests": store.CONTESTS,
         "generated_at": store.now_iso(), "lock": state["lock"].isoformat() if state["lock"] else None,
         "hours_to_lock": round(state["post"]["hours_to_lock"], 2), "history_written": state["history_written"],
-        "table": [r for r in table if (r["mean"] or 0) >= 0.3 or r["actual"] is not None or r["news"]],
+        "table": [{k: v for k, v in r.items() if k != "movement"} for r in table
+                  if (r["mean"] or 0) >= 0.3 or r["actual"] is not None or r["news"]],
         "table_omitted": sum(1 for r in table if not ((r["mean"] or 0) >= 0.3 or r["actual"] is not None or r["news"])),
         "concentration": concentration, "chalk_distribution": chalk_dist,
         "sources": sources, "source_corr": corr, "crowd": crowd, "disagreement": disagreement[:40],

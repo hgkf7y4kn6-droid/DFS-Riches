@@ -90,8 +90,9 @@ async def list_slates(season: int, week: int) -> tuple[WeekSchedule, list[Slate]
     return schedule, slates
 
 
+@memoize_async(60)
 async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlayers:
-    schedule, slates = await list_slates(season, week)
+    _schedule, slates = await list_slates(season, week)
     slate = next((s for s in slates if s.slate_id == slate_id), None)
     if slate is None:
         raise ValueError(f"Unknown slate_id: {slate_id}")
@@ -106,7 +107,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
     index = await _get_sleeper_index()
     player_trailing_index = await nflverse_client.get_player_trailing_index(season)
     team_dst_trailing_index = await nflverse_client.get_team_dst_trailing_index(season)
-    ceiling_ctx = await ceiling.build_context(season, week, schedule)
+    ceiling_ctx = await ceiling.context_for(season, week)
     projection_ctx = await projections.build_context(season, week)
 
     players: list[Player] = []

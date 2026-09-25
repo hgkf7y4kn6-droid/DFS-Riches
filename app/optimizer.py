@@ -31,16 +31,15 @@ def _attr(p, name: str):
 
 def _solve(values, rows, lows, highs):
     n = len(values)
-    res = milp(
-        c=-np.asarray(values, dtype=float),
-        constraints=LinearConstraint(np.asarray(rows, dtype=float), lows, highs),
-        integrality=np.ones(n),
-        bounds=Bounds(0, 1),
+    args = dict(c=-np.asarray(values, dtype=float),
+                constraints=LinearConstraint(np.asarray(rows, dtype=float), lows, highs),
+                integrality=np.ones(n), bounds=Bounds(0, 1))
+    res = milp(**args)   # presolve on: ~30% faster on Classic models
+    if not res.success:
         # HiGHS presolve (SciPy 1.14) wrongly reports some small, feasible
-        # Showdown models as infeasible; these problems are small enough
-        # that solving without it is still fast.
-        options={"presolve": False},
-    )
+        # Showdown models as infeasible, so "no solution" is always re-checked
+        # without it.
+        res = milp(**args, options={"presolve": False})
     if not res.success:
         return None
     return [i for i, x in enumerate(res.x) if x > 0.5]

@@ -43,6 +43,11 @@
   const injuryHiddenCountEl = document.getElementById("injury-hidden-count");
 
   const escapeHtml = DFS.esc;
+
+  function setStats(text, loading) {
+    matchStatsEl.textContent = text;
+    matchStatsEl.classList.toggle("loading", Boolean(loading));
+  }
   const fmtSalary = DFS.money;
 
   function updateScrollShadow(el) {
@@ -57,9 +62,11 @@
       updateScrollShadow(el);
       el.addEventListener("scroll", () => updateScrollShadow(el), { passive: true });
     });
+    let frame = 0;
     window.addEventListener("resize", () => {
-      document.querySelectorAll(".table-scroll").forEach(updateScrollShadow);
-    });
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => document.querySelectorAll(".table-scroll").forEach(updateScrollShadow));
+    }, { passive: true });
   }
 
 
@@ -699,7 +706,7 @@
     renderOptimal();
     renderTabs();
     tbodyEl.innerHTML = "";
-    matchStatsEl.textContent = "Loading...";
+    setStats("Loading...", true);
 
     try {
       const data = await DFS.getJson(
@@ -707,7 +714,7 @@
       );
       state.players = data.players;
       state.unmatched = data.unmatched_dk_names;
-      matchStatsEl.textContent = `${data.match_count}/${data.total_count} players matched to Sleeper projections`;
+      setStats(`${data.match_count}/${data.total_count} players matched to Sleeper projections`);
       loadLineups();
       setLineupStatus(
         state.players.length
@@ -725,7 +732,7 @@
       state.lineups = [];
       renderLineups();
       setLineupStatus("");
-      matchStatsEl.textContent = "";
+      setStats("");
       tbodyEl.innerHTML = "";
       emptyStateEl.hidden = false;
       emptyStateEl.textContent = "Error loading slate: " + err.message;
@@ -743,7 +750,7 @@
     slateTabsEl.innerHTML = "";
     tbodyEl.innerHTML = "";
     unmatchedBannerEl.hidden = true;
-    matchStatsEl.textContent = "Loading schedule...";
+    setStats("Loading schedule...", true);
 
     try {
       const weekData = await DFS.getJson(`/api/week?season=${state.season}&week=${state.week}`, "week");
@@ -760,11 +767,11 @@
       if (state.activeSlateId) {
         await selectSlate(state.activeSlateId);
       } else {
-        matchStatsEl.textContent = "";
+        setStats("");
       }
     } catch (err) {
       if (DFS.isAbort(err)) return;
-      matchStatsEl.textContent = "";
+      setStats("");
       emptyStateEl.hidden = false;
       emptyStateEl.textContent = "Error loading week: " + err.message;
     }
@@ -802,15 +809,12 @@
       }
       renderTable();
     };
-    th.tabIndex = 0;
-    th.setAttribute("role", "button");
-    th.addEventListener("click", sortByThisColumn);
-    th.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        sortByThisColumn();
-      }
-    });
+    const btn = document.createElement("button");   // a real button inside the header cell (aria-sort stays on the th)
+    btn.type = "button";
+    btn.className = "th-sort";
+    btn.append(...th.childNodes);
+    th.append(btn);
+    btn.addEventListener("click", sortByThisColumn);
   });
 
   initScrollShadows();

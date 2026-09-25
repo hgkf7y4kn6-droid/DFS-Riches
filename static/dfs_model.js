@@ -439,7 +439,8 @@
     const d = state.data;
     if (!d) return;
     if (!d.available) { panelEl.innerHTML = `<p class="dm-muted">${esc(d.reason)}</p>`; return; }
-    panelEl.innerHTML = (VIEWS[state.tab] || renderSummary)(d);
+    const label = (tabs.find((t) => t.dataset.tab === state.tab) || tabs[0]).textContent;
+    panelEl.innerHTML = `<h2 class="visually-hidden">${esc(label)}</h2>` + (VIEWS[state.tab] || renderSummary)(d);
   }
 
   function selectTab(name, focus) {
@@ -449,7 +450,7 @@
       const on = t.dataset.tab === state.tab;
       t.setAttribute("aria-selected", String(on));
       t.tabIndex = on ? 0 : -1;
-      if (on && focus) t.focus();
+      if (on && focus) { t.focus(); t.scrollIntoView({ block: "nearest", inline: "nearest" }); }
     }
     render();
   }
@@ -459,7 +460,8 @@
     state.week = DFS.week;
     weekEl.textContent = `-- Week ${state.week}`;
     asofEl.textContent = "Building model...";
-    if (force || !state.data) panelEl.innerHTML = '<p class="dm-muted">Pulling every source and building lineups (can take ~20s on a cold start)...</p>';
+    if (force || !state.data) panelEl.innerHTML = '<p class="dm-muted loading">Pulling every source and building lineups (can take ~10s on a cold start)...</p>';
+    panelEl.setAttribute("aria-busy", "true");
     const params = new URLSearchParams({ season: state.season, week: state.week });
     if (state.slate) params.set("slate_id", state.slate);
     params.set("contest", state.contest);
@@ -476,15 +478,17 @@
         slateEl.innerHTML = "";
         asofEl.textContent = "";
       }
+      panelEl.removeAttribute("aria-busy");
       selectTab(state.tab);
     } catch (err) {
       if (DFS.isAbort(err)) return;
+      panelEl.removeAttribute("aria-busy");
       asofEl.textContent = "";
       panelEl.innerHTML = `<p class="dm-error">Could not build the DFS model: ${esc(err.message)}</p>`;
     }
   }
 
-  for (const t of tabs) t.addEventListener("click", () => selectTab(t.dataset.tab));
+  for (const t of tabs) t.addEventListener("click", () => { selectTab(t.dataset.tab); t.scrollIntoView({ block: "nearest", inline: "nearest" }); });
   document.querySelector(".dm-tabs").addEventListener("keydown", (e) => {
     if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(e.key)) return;
     e.preventDefault();
@@ -525,14 +529,19 @@
       }).catch(() => {});
     }
   });
+  let searchTimer = null;
   panelEl.addEventListener("input", (e) => {
     if (state.tab === "ownership" && window.DFSOwnership.input(e, ctx())) return;
     if (e.target.id !== "dm-search") return;
     state.tableQuery = e.target.value;
-    const pos = e.target.selectionStart;
-    render();
-    const again = document.getElementById("dm-search");
-    if (again) { again.focus(); again.setSelectionRange(pos, pos); }
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      const cur = document.getElementById("dm-search");
+      const pos = cur ? cur.selectionStart : state.tableQuery.length;
+      render();
+      const again = document.getElementById("dm-search");
+      if (again) { again.focus(); again.setSelectionRange(pos, pos); }
+    }, 120);
   });
 
   load(true);

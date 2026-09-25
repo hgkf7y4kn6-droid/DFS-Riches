@@ -51,7 +51,7 @@ import statistics
 from datetime import datetime, timezone
 
 import numpy as np
-from scipy import stats
+from scipy import special
 
 from app import ownership_store as store
 
@@ -74,6 +74,7 @@ UNLEARNED_CONTEST_SHRINK = 0.6    # contest adjustment not learned yet -> wider
 Q_SHRINK = 0.6
 OUT_BETA = (0.4, 199.6)           # confirmed out: ~0.2%
 N_SIMS = 10_000
+SIM_MIN_MEAN = 0.002              # players under 0.2% posterior ownership get exact Beta summaries instead
 THRESHOLDS = (0.10, 0.20, 0.30, 0.40)
 DISPERSION_FLAG = 0.05
 SPIKE_DELTA = 0.05
@@ -374,36 +375,60 @@ def posterior(players: list[dict], obs: list[dict], learning: dict, *, now: date
 
 # ------------------------------------------------------ Monte Carlo
 def simulate(details: dict[str, dict], keys: list[str], seed: int = 7) -> dict:
+    """N_SIMS posterior draws per player -> summaries and ownership-rank odds (vectorized)."""
     rng = np.random.default_rng(seed)
     a = np.array([details[k]["alpha"] for k in keys], dtype=float)
     b = np.array([details[k]["beta"] for k in keys], dtype=float)
     draws = rng.beta(a, b, size=(N_SIMS, len(keys))).astype(np.float32)
     order = np.argsort(-draws, axis=1)
-    ranks = np.empty_like(order)
-    rows = np.arange(N_SIMS)[:, None]
-    ranks[rows, order] = np.arange(1, len(keys) + 1)[None, :]
+    ranks = np.empty(order.shape, dtype=np.int32)
+    ranks[np.arange(N_SIMS)[:, None], order] = np.arange(1, len(keys) + 1, dtype=np.int32)[None, :]
     q = np.percentile(draws, [2.5, 10, 25, 50, 75, 90, 97.5], axis=0)
+    mean, sd = draws.mean(axis=0), draws.std(axis=0)
+    over = {t: (draws > t).mean(axis=0) for t in THRESHOLDS}
+    top = {k: (ranks <= k).mean(axis=0) for k in (1, 3, 5, 10)}
+    rank_mean = ranks.mean(axis=0)
+    mode = np.where((a > 1) & (b > 1), (a - 1) / np.maximum(a + b - 2, 1e-9), np.where(a <= 1, 0.0, 1.0))
     out = {}
     for j, k in enumerate(keys):
-        r = ranks[:, j]
-        aj, bj = a[j], b[j]
-        mode = (aj - 1) / (aj + bj - 2) if aj > 1 and bj > 1 else (0.0 if aj <= 1 else 1.0)
         out[k] = {
-            "mean": float(draws[:, j].mean()), "median": float(q[3, j]), "mode": float(mode), "sd": float(draws[:, j].std()),
+            "mean": float(mean[j]), "median": float(q[3, j]), "mode": float(mode[j]), "sd": float(sd[j]),
             "ci50": [float(q[2, j]), float(q[4, j])], "ci80": [float(q[1, j]), float(q[5, j])], "ci95": [float(q[0, j]), float(q[6, j])],
-            "p_over": {f"{int(t * 100)}": float((draws[:, j] > t).mean()) for t in THRESHOLDS},
-            "rank_mean": float(r.mean()),
-            "rank_probs": {"1": float((r == 1).mean()), "2-3": float(((r >= 2) & (r <= 3)).mean()),
-                           "4-5": float(((r >= 4) & (r <= 5)).mean()), "6-10": float(((r >= 6) & (r <= 10)).mean()),
-                           "11+": float((r > 10).mean())},
-            "p_top5": float((r <= 5).mean()), "p_top10": float((r <= 10).mean()),
+            "p_over": {f"{int(t * 100)}": float(over[t][j]) for t in THRESHOLDS},
+            "rank_mean": float(rank_mean[j]),
+            "rank_probs": {"1": float(top[1][j]), "2-3": float(top[3][j] - top[1][j]), "4-5": float(top[5][j] - top[3][j]),
+                           "6-10": float(top[10][j] - top[5][j]), "11+": float(1 - top[10][j])},
+            "p_top5": float(top[5][j]), "p_top10": float(top[10][j]),
         }
     return {"stats": out, "draws": draws, "keys": keys}
 
 
 def beta_summary(a: float, b: float) -> dict:
-    dist = stats.beta(a, b)
-    return {"mean": a / (a + b), "ci80": [float(dist.ppf(0.10)), float(dist.ppf(0.90))]}
+    lo, hi = special.betaincinv(a, b, [0.10, 0.90])
+    return {"mean": a / (a + b), "ci80": [float(lo), float(hi)]}
+
+
+def analytic_stats(details: dict[str, dict], keys: list[str]) -> dict[str, dict]:
+    """Exact Beta summaries for players not worth simulating (near-zero
+    ownership); they're never in the top 10, so their rank odds are 11+."""
+    if not keys:
+        return {}
+    a = np.array([details[k]["alpha"] for k in keys], dtype=float)
+    b = np.array([details[k]["beta"] for k in keys], dtype=float)
+    qs = {p: special.betaincinv(a, b, p) for p in (0.025, 0.10, 0.25, 0.50, 0.75, 0.90, 0.975)}
+    mean = a / (a + b)
+    sd = np.sqrt(a * b / ((a + b) ** 2 * (a + b + 1)))
+    over = {t: 1 - special.betainc(a, b, t) for t in THRESHOLDS}
+    out = {}
+    for j, k in enumerate(keys):
+        mode = (a[j] - 1) / (a[j] + b[j] - 2) if a[j] > 1 and b[j] > 1 else 0.0
+        out[k] = {"mean": float(mean[j]), "median": float(qs[0.50][j]), "mode": float(mode), "sd": float(sd[j]),
+                  "ci50": [float(qs[0.25][j]), float(qs[0.75][j])], "ci80": [float(qs[0.10][j]), float(qs[0.90][j])],
+                  "ci95": [float(qs[0.025][j]), float(qs[0.975][j])],
+                  "p_over": {f"{int(t * 100)}": float(over[t][j]) for t in THRESHOLDS},
+                  "rank_mean": None, "rank_probs": {"1": 0.0, "2-3": 0.0, "4-5": 0.0, "6-10": 0.0, "11+": 1.0},
+                  "p_top5": 0.0, "p_top10": 0.0}
+    return out
 
 
 def spikes(sim: dict, prev: dict[str, list] | None, seed: int = 11) -> dict[str, dict]:

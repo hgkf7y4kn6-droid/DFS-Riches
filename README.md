@@ -709,9 +709,13 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Then open http://127.0.0.1:8000/. The season/week fields default to
-whatever `app/config.py` sets (2026 Week 1) but can be changed in the UI --
-any past or future week works the same way, live.
+Then open http://127.0.0.1:8000/. Every page shares one season/week
+selector in the header. It opens on the current NFL week (from Sleeper's
+NFL state; week 1 in the preseason, week 18 after the season) and falls
+back to `app/config.py`'s default if Sleeper is unreachable. Change either
+field and the page reloads on its own. The choice travels with you through
+the nav links (`?season=&week=` in the URL) and stays for the rest of the
+browser session. Any past or future week works the same way.
 
 ## Deploying behind Cloudflare
 
@@ -783,6 +787,7 @@ speeds up cold starts across restarts but is optional.
 ## Tests
 
 ```bash
+pip install -r requirements-dev.txt
 pytest
 ```
 
@@ -835,7 +840,9 @@ scripts/save_optimal_lineups.py  records the current week's open slates' optimal
 scripts/source_accuracy.py       grades each projection source vs actual DK points -> data/source_accuracy.json
   name_aliases.json manual DK-name -> Sleeper-name bridge, empty by default
   cache/            runtime API response cache (gitignored)
+templates/_base.html      shared head, header, nav and season/week selector
 templates/index.html, templates/breakdown.html, templates/dfs_model.html
+static/common.js    shared season/week selector + helpers (esc, money, abortable getJson)
 static/style.css, static/app.js, static/breakdown.js, static/dfs_model.js, static/ownership.js   frontend
 static/lineups.js   DK Classic/Showdown roster rules for the lineup builder
 tests/                                                    pytest suite

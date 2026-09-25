@@ -32,6 +32,7 @@ import statistics
 from dataclasses import dataclass, field
 
 from app import nflverse_client as nc
+from app.cache import memoize_async
 from app.models import WeekSchedule
 
 HISTORY_GAMES = 12
@@ -89,6 +90,14 @@ def _typical_cv(series_list, season: int, week: int) -> float | None:
             if mean >= 3:
                 cvs.append(statistics.pstdev(vals) / mean)
     return round(statistics.median(cvs), 3) if cvs else None
+
+
+@memoize_async(120)
+async def context_for(season: int, week: int) -> CeilingContext:
+    """build_context for a week, shared by every caller for two minutes."""
+    from app.schedule import get_week_schedule
+
+    return await build_context(season, week, await get_week_schedule(season, week))
 
 
 async def build_context(season: int, week: int, schedule: WeekSchedule) -> CeilingContext:

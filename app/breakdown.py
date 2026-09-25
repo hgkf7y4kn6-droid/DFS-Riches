@@ -19,6 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from app import ceiling, targets
+from app.cache import memoize_async
 from app import nflverse_client as nc
 from app import slates as slates_module
 from app.models import Game, GameBreakdown, TeamStatLine, WeekBreakdown
@@ -236,6 +237,7 @@ class WeekData:
     league_giveaways: float | None
 
 
+@memoize_async(60)
 async def load_week(season: int, week: int) -> WeekData:
     schedule = await get_week_schedule(season, week)
     index = await nc.get_team_context_trailing_index(season)
@@ -262,7 +264,7 @@ async def load_week(season: int, week: int) -> WeekData:
     except Exception:
         players = []
 
-    ceiling_ctx = await ceiling.build_context(season, week, schedule)
+    ceiling_ctx = await ceiling.context_for(season, week)
 
     def league_avg(metric: str) -> float | None:
         vals = [v for t in index if (v := nc.team_trailing(index, t, metric, season, week, _RANK_WINDOW)) is not None]
@@ -322,6 +324,7 @@ def game_breakdown(wd: WeekData, g: Game) -> GameBreakdown:
     )
 
 
+@memoize_async(60)
 async def build_week_breakdown(season: int, week: int) -> WeekBreakdown:
     wd = await load_week(season, week)
     return WeekBreakdown(season=season, week=week, games=[game_breakdown(wd, g) for g in wd.schedule.games])
