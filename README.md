@@ -738,6 +738,16 @@ docker build -t dfsriches .
 docker run -p 8000:8000 dfsriches
 ```
 
+### Cloudflare Pages URL (dfs-riches.pages.dev)
+
+Cloudflare Pages only serves static files, so it can't run this app (every
+path returns 404). The app runs on Render at https://dfs-riches.onrender.com.
+To make the Pages URL forward there, set the Pages project's build command
+to empty and its build output directory to `pages-redirect`. That folder
+holds a single `_redirects` rule that sends every path to Render.
+Alternatively, put your own domain on Cloudflare DNS as a proxied CNAME to
+`dfs-riches.onrender.com` and add it as a custom domain in Render.
+
 ### Deploying on Render
 
 A `render.yaml` [Blueprint](https://render.com/docs/blueprint-spec) is
