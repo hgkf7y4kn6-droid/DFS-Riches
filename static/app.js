@@ -2,8 +2,8 @@
   "use strict";
 
   const state = {
-    season: Number(document.getElementById("season-input").value),
-    week: Number(document.getElementById("week-input").value),
+    season: DFS.season,
+    week: DFS.week,
     slates: [],
     activeSlateId: null,
     players: [],
@@ -42,9 +42,8 @@
   const injuryFilterEl = document.getElementById("injury-filter");
   const injuryHiddenCountEl = document.getElementById("injury-hidden-count");
 
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-  }
+  const escapeHtml = DFS.esc;
+  const fmtSalary = DFS.money;
 
   function updateScrollShadow(el) {
     if (!el) return;
@@ -63,18 +62,6 @@
     });
   }
 
-  async function fetchJson(url) {
-    const res = await fetch(url);
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || `Request failed: ${res.status}`);
-    }
-    return res.json();
-  }
-
-  function fmtSalary(n) {
-    return "$" + n.toLocaleString("en-US");
-  }
 
   function renderSchedule(schedule) {
     scheduleStripEl.innerHTML = "";
@@ -82,9 +69,9 @@
       const chip = document.createElement("div");
       chip.className = "game-chip" + (g.isolated ? " isolated" : "");
       chip.innerHTML = `
-        <div class="matchup">${g.away} @ ${g.home}</div>
-        <div class="meta">${g.kickoff_et}${g.network ? " · " + g.network : ""}</div>
-        ${g.isolated ? `<div class="badge">${g.day_part.replace("_", " ")}</div>` : ""}
+        <div class="matchup">${escapeHtml(g.away)} @ ${escapeHtml(g.home)}</div>
+        <div class="meta">${escapeHtml(g.kickoff_et)}${g.network ? " · " + escapeHtml(g.network) : ""}</div>
+        ${g.isolated ? `<div class="badge">${escapeHtml(g.day_part.replace("_", " "))}</div>` : ""}
       `;
       scheduleStripEl.appendChild(chip);
     }
@@ -608,10 +595,11 @@
     const isCurrent = () => requested === `${state.season}|${state.week}|${state.activeSlateId}`;
     let data = null;
     try {
-      data = await fetchJson(
-        `/api/slates/${encodeURIComponent(slateId)}/optimal?season=${state.season}&week=${state.week}`
+      data = await DFS.getJson(
+        `/api/slates/${encodeURIComponent(slateId)}/optimal?season=${state.season}&week=${state.week}`, "optimal"
       );
-    } catch (_err) {
+    } catch (err) {
+      if (DFS.isAbort(err)) return;
       data = null;
     }
     if (!isCurrent()) return;
@@ -714,8 +702,8 @@
     matchStatsEl.textContent = "Loading...";
 
     try {
-      const data = await fetchJson(
-        `/api/slates/${encodeURIComponent(slateId)}/players?season=${state.season}&week=${state.week}`
+      const data = await DFS.getJson(
+        `/api/slates/${encodeURIComponent(slateId)}/players?season=${state.season}&week=${state.week}`, "players"
       );
       state.players = data.players;
       state.unmatched = data.unmatched_dk_names;
@@ -732,6 +720,7 @@
       renderTable();
       loadOptimal(slateId);
     } catch (err) {
+      if (DFS.isAbort(err)) return;
       state.players = [];
       state.lineups = [];
       renderLineups();
@@ -744,8 +733,8 @@
   }
 
   async function loadWeek() {
-    state.season = Number(document.getElementById("season-input").value);
-    state.week = Number(document.getElementById("week-input").value);
+    state.season = DFS.season;
+    state.week = DFS.week;
     state.optimal = null;
     renderOptimal();
 
@@ -757,7 +746,7 @@
     matchStatsEl.textContent = "Loading schedule...";
 
     try {
-      const weekData = await fetchJson(`/api/week?season=${state.season}&week=${state.week}`);
+      const weekData = await DFS.getJson(`/api/week?season=${state.season}&week=${state.week}`, "week");
       const schedule = weekData.schedule;
       renderSchedule(schedule);
       renderOddsTable(schedule);
@@ -774,13 +763,14 @@
         matchStatsEl.textContent = "";
       }
     } catch (err) {
+      if (DFS.isAbort(err)) return;
       matchStatsEl.textContent = "";
       emptyStateEl.hidden = false;
       emptyStateEl.textContent = "Error loading week: " + err.message;
     }
   }
 
-  document.getElementById("load-week-btn").addEventListener("click", loadWeek);
+  DFS.onWeekChange(loadWeek);
   searchBoxEl.addEventListener("input", (e) => {
     state.search = e.target.value;
     renderTable();

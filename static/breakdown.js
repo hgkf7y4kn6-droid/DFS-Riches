@@ -11,22 +11,8 @@
 
   const state = { season: null, week: null };
 
-  async function fetchJson(url) {
-    const res = await fetch(url);
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.detail || `Request failed: ${res.status}`);
-    }
-    return res.json();
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-  }
-
-  function fmtSalary(n) {
-    return "$" + n.toLocaleString("en-US");
-  }
+  const escapeHtml = DFS.esc;
+  const fmtSalary = DFS.money;
 
   function fmtNum(v, decimals) {
     if (v == null) return "-";
@@ -393,9 +379,10 @@
     if (!dialogEl.open) dialogEl.showModal();
     history.replaceState(null, "", `#game=${encodeURIComponent(gameId)}`);
     try {
-      const d = await fetchJson(`/api/breakdown/game/${encodeURIComponent(gameId)}?season=${state.season}&week=${state.week}`);
+      const d = await DFS.getJson(`/api/breakdown/game/${encodeURIComponent(gameId)}?season=${state.season}&week=${state.week}`, "detail");
       renderDetail(d);
     } catch (err) {
+      if (DFS.isAbort(err)) return;
       dialogTitleEl.textContent = "Couldn't load this matchup";
       dialogBodyEl.replaceChildren(el("p", { cls: "empty-state", text: err.message }));
     }
@@ -449,8 +436,8 @@
   }, { passive: true });
 
   async function loadWeek() {
-    state.season = Number(document.getElementById("season-input").value);
-    state.week = Number(document.getElementById("week-input").value);
+    state.season = DFS.season;
+    state.week = DFS.week;
     weekLabelEl.textContent = state.week;
 
     gamesEl.innerHTML = "";
@@ -463,7 +450,7 @@
     gamesEl.appendChild(loading);
 
     try {
-      const data = await fetchJson(`/api/breakdown?season=${state.season}&week=${state.week}`);
+      const data = await DFS.getJson(`/api/breakdown?season=${state.season}&week=${state.week}`, "breakdown");
       weekLabelEl.textContent = data.week;
       gamesEl.innerHTML = "";
       if (data.games.length === 0) {
@@ -479,12 +466,13 @@
         openGameDetail(decodeURIComponent(m[1]));
       }
     } catch (err) {
+      if (DFS.isAbort(err)) return;
       gamesEl.innerHTML = "";
       emptyStateEl.hidden = false;
       emptyStateEl.textContent = "Error loading week breakdown: " + err.message;
     }
   }
 
-  document.getElementById("load-week-btn").addEventListener("click", loadWeek);
+  DFS.onWeekChange(() => { closeGameDetail(); loadWeek(); });
   loadWeek();
 })();

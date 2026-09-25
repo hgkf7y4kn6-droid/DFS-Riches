@@ -62,7 +62,25 @@ body {
   font-size: 22px;
   font-weight: 700;
   letter-spacing: 0.5px;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 6px;
 }
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 100;
+  padding: 8px 12px;
+  background: var(--gold);
+  color: var(--bg);
+  font-weight: 700;
+  border-radius: 6px;
+  text-decoration: none;
+}
+.skip-link:focus { top: 8px; }
+#main:focus { outline: none; }
 .brand-dollar { color: var(--gold); margin-right: 2px; }
 .brand-accent { color: var(--gold); }
 
@@ -92,23 +110,7 @@ body {
 .week-controls input:focus-visible {
   border-color: var(--gold);
 }
-.week-controls button {
-  align-self: flex-end;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px; /* touch target */
-  padding: 7px 16px;
-  background: var(--green);
-  border: none;
-  border-radius: 6px;
-  color: #06170e;
-  font-weight: 600;
-  cursor: pointer;
-  transition: filter 0.12s ease, transform 0.08s ease;
-}
-.week-controls button:hover { filter: brightness(1.08); }
-.week-controls button:active { transform: scale(0.97); }
+.week-controls input[aria-invalid="true"] { border-color: var(--red); }
 
 .schedule-strip {
   display: flex;
@@ -698,12 +700,25 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
   gap: 4px;
 }
 .page-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
   padding: 6px 12px;
   border-radius: 6px;
   color: var(--muted);
   text-decoration: none;
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+@media (max-width: 640px) {
+  .topbar { padding: 10px 12px; }
+  .brand { font-size: 19px; }
+  .page-nav { order: 3; width: 100%; }
+  .page-nav a { flex: 1; min-height: 44px; padding: 6px 8px; }
+  .week-controls input { width: 68px; }
 }
 .page-nav a:hover { color: var(--text); }
 .page-nav a.active {
@@ -1129,7 +1144,6 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
   .dm-mini { columns: 1; }
   .dm-audit { grid-template-columns: 1fr; }
 }
-.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 /* Ownership tab */
 .own-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 12px; margin-bottom: 6px; }

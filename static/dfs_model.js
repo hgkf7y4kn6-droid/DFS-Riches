@@ -8,15 +8,15 @@
   const tabs = Array.from(document.querySelectorAll(".dm-tabs [role=tab]"));
   const TAB_KEY = "dfsriches:dfsModelTab";
 
-  const state = { season: null, week: null, slate: null, data: null, tab: "summary", requestKey: null,
+  const state = { season: null, week: null, slate: null, data: null, tab: "summary",
                   tableSort: { key: "final", dir: -1 }, tablePos: "ALL", tableQuery: "", poolPos: "QB",
                   contest: "gpp", contestSize: null };
   try { state.tab = localStorage.getItem(TAB_KEY) || "summary"; } catch (e) { /* private mode */ }
 
-  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const esc = DFS.esc;
   const num = (v, d) => (v == null ? "-" : Number(v).toFixed(d == null ? 1 : d));
   const pct = (v) => (v == null ? "-" : Math.round(v * 100) + "%");
-  const money = (n) => (n == null ? "-" : "$" + Number(n).toLocaleString("en-US"));
+  const money = DFS.money;
   const spread = (s) => (s == null ? "-" : s === 0 ? "PK" : (s > 0 ? "+" : "") + s);
   const INJ = { Q: "Q", D: "D", O: "OUT", IR: "IR" };
 
@@ -263,7 +263,7 @@
       <span class="dm-q" title="Lineup quality score (Step 17), 0-100 within ${lu.type === "cash" ? "cash" : "tournament"} lineups">Quality ${num(lu.eval.quality, 0)}</span></div>`;
   }
   function checklist(lu) {
-    return `<ul class="dm-check">${lu.eval.checklist.map((c) => `<li class="${c.ok ? "ok" : "no"}"><span aria-hidden="true">${c.ok ? "✓" : "✗"}</span><span class="sr-only">${c.ok ? "Pass" : "Fail"}:</span> ${esc(c.item)}</li>`).join("")}</ul>`;
+    return `<ul class="dm-check">${lu.eval.checklist.map((c) => `<li class="${c.ok ? "ok" : "no"}"><span aria-hidden="true">${c.ok ? "✓" : "✗"}</span><span class="visually-hidden">${c.ok ? "Pass" : "Fail"}:</span> ${esc(c.item)}</li>`).join("")}</ul>`;
   }
   function dims(lu) {
     return `<div class="dm-dims">${Object.entries(lu.eval.dimensions || {}).map(([k, v]) => `<div class="dm-dim"><span class="dm-muted">${esc(k.replace("_", " "))}</span>
@@ -455,11 +455,9 @@
   }
 
   async function load(force) {
-    state.season = Number(document.getElementById("season-input").value);
-    state.week = Number(document.getElementById("week-input").value);
+    state.season = DFS.season;
+    state.week = DFS.week;
     weekEl.textContent = `-- Week ${state.week}`;
-    const key = `${state.season}|${state.week}|${state.slate || ""}|${state.contest}|${Date.now()}`;
-    state.requestKey = key;
     asofEl.textContent = "Building model...";
     if (force || !state.data) panelEl.innerHTML = '<p class="dm-muted">Pulling every source and building lineups (can take ~20s on a cold start)...</p>';
     const params = new URLSearchParams({ season: state.season, week: state.week });
@@ -467,10 +465,7 @@
     params.set("contest", state.contest);
     if (state.contestSize) params.set("contest_size", state.contestSize);
     try {
-      const res = await fetch(`/api/dfs-model?${params}`);
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body.detail || `Request failed: ${res.status}`);
-      if (state.requestKey !== key) return;
+      const body = await DFS.getJson(`/api/dfs-model?${params}`, "model");
       state.data = body;
       if (body.available) {
         state.slate = body.slate.slate_id;
@@ -483,7 +478,7 @@
       }
       selectTab(state.tab);
     } catch (err) {
-      if (state.requestKey !== key) return;
+      if (DFS.isAbort(err)) return;
       asofEl.textContent = "";
       panelEl.innerHTML = `<p class="dm-error">Could not build the DFS model: ${esc(err.message)}</p>`;
     }
@@ -499,7 +494,7 @@
   });
   slateEl.addEventListener("change", () => { state.slate = slateEl.value; load(true); });
   document.getElementById("dm-refresh").addEventListener("click", () => load(true));
-  document.getElementById("load-week-btn").addEventListener("click", () => { state.slate = null; state.data = null; load(true); });
+  DFS.onWeekChange(() => { state.slate = null; state.data = null; load(true); });
   panelEl.addEventListener("submit", (e) => { if (state.tab === "ownership") window.DFSOwnership.submit(e, ctx()); });
 
   panelEl.addEventListener("click", (e) => {

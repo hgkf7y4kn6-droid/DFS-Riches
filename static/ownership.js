@@ -236,7 +236,7 @@
         ctx.note(`Summed posterior ownership. A Classic lineup has 9 spots, so the field's ownership totals ${pct(c.total_roster_pct)} (900% by construction, less rounding and players not shown).`)
         + `<div class="own-tiles">${tiles}</div><div class="own-shares">${shareTable("By position", c.position, ctx)}${shareTable("By team", c.team, ctx)}${shareTable("By game", c.game, ctx)}${shareTable("By salary range", c.salary, ctx)}</div>`, "dm-wide")
       + ctx.card(`Chalk distribution ${tag("BAYESIAN POSTERIOR")}`, ctx.note("Players in each posterior ownership range.") + barChart(o.chalk_distribution, ctx)
-        + `<table class="dm-table sr-only"><tbody>${o.chalk_distribution.map((b) => `<tr><th>${b.range}</th><td>${b.count}</td></tr>`).join("")}</tbody></table>`);
+        + `<table class="dm-table visually-hidden"><tbody>${o.chalk_distribution.map((b) => `<tr><th>${b.range}</th><td>${b.count}</td></tr>`).join("")}</tbody></table>`);
   }
 
   // ------------------------------------------------------------ H / 14
@@ -334,12 +334,7 @@
     }
   }
 
-  async function postJson(url, body) {
-    const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const out = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(out.detail || `Request failed: ${res.status}`);
-    return out;
-  }
+  const postJson = (url, body) => DFS.getJson(url, null, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
   function click(e, ctx) {
     const t = e.target;

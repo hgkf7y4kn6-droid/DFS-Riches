@@ -1,32 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DFSRiches -- DFS Model</title>
-  <link rel="stylesheet" href="/static/style.css" />
-</head>
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="brand-dollar">$</span>DFS<span class="brand-accent">Riches</span>
-    </div>
-    <nav class="page-nav" aria-label="Pages">
-      <a href="/">Slates</a>
-      <a href="/breakdown">Week Breakdown</a>
-      <a href="/dfs-model" class="active" aria-current="page">DFS Model</a>
-    </nav>
-    <div class="week-controls">
-      <label>Season
-        <input id="season-input" type="number" value="{{ default_season }}" />
-      </label>
-      <label>Week
-        <input id="week-input" type="number" value="{{ default_week }}" min="1" max="18" />
-      </label>
-      <button id="load-week-btn">Load</button>
-    </div>
-  </header>
-
+{% extends "_base.html" %}
+{% block title %}DFSRiches -- DFS Model{% endblock %}
+{% block content %}
   <section id="dfs-model" class="dfs-model" aria-labelledby="dm-title">
     <div class="dm-head">
       <h1 id="dm-title">DFS Model <span class="dm-week" id="dm-week"></span></h1>
@@ -56,13 +30,10 @@
     </div>
     <div id="dm-panel" class="dm-panel" role="tabpanel" aria-labelledby="dm-title"></div>
   </section>
-
-  <footer class="site-footer">
-    Projections: Sleeper, ESPN, CBS Sports, FFToday and FantasyPros (public pages), scored with DraftKings rules.
-    Usage: nflverse box scores. Lines: nflverse closing lines. Salaries and injury statuses: DraftKings.
-  </footer>
-
-  <script src="/static/ownership.js"></script>
-  <script src="/static/dfs_model.js"></script>
-</body>
-</html>
+{% endblock %}
+{% block footer %}Projections: Sleeper, ESPN, CBS Sports, FFToday and FantasyPros (public pages), scored with DraftKings rules.
+    Usage: nflverse box scores. Lines: nflverse closing lines. Salaries and injury statuses: DraftKings.{% endblock %}
+{% block scripts %}
+  <script src="/static/ownership.js?v={{ asset_version }}"></script>
+  <script src="/static/dfs_model.js?v={{ asset_version }}"></script>
+{% endblock %}

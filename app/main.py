@@ -15,6 +15,7 @@ section.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import os
 
 from fastapi import Body, FastAPI, HTTPException, Request
@@ -35,15 +36,26 @@ from app.models import GameDetail, SlatePlayers, WeekBreakdown, WeekData, WeekSc
 from app.sleeper_client import get_nfl_state
 
 
+def _asset_version() -> str:
+    """Content hash of static/*, appended to asset URLs (?v=...) so they can be
+    cached for a year and still change the moment a deploy changes them."""
+    h = hashlib.sha1()
+    for f in sorted((BASE_DIR / "static").glob("*")):
+        h.update(f.name.encode())
+        h.update(f.read_bytes())
+    return h.hexdigest()[:10]
+
+
+ASSET_VERSION = _asset_version()
+
+
 class _CachedStaticFiles(StaticFiles):
-    """Adds a short edge-cacheable Cache-Control header so Cloudflare (or
-    any CDN in front of this app) can serve static/* from cache instead of
-    round-tripping to the origin on every request, without risking long
-    staleness after a deploy (there's no cache-busting filename hash)."""
+    """Versioned asset URLs (?v=hash) are immutable; anything else gets a short TTL."""
 
     async def get_response(self, path: str, scope):
         response = await super().get_response(path, scope)
-        response.headers.setdefault("Cache-Control", "public, max-age=300")
+        versioned = b"v=" in scope.get("query_string", b"")
+        response.headers.setdefault("Cache-Control", "public, max-age=31536000, immutable" if versioned else "public, max-age=300")
         return response
 
 
@@ -62,12 +74,43 @@ async def healthz():
     return {"status": "ok"}
 
 
+@memoize_async(ttl_seconds=1800)
+async def current_season_week() -> tuple[int, int]:
+    """The current NFL season and week from Sleeper: week 1 before the regular
+    season starts, week 18 once it's over; the configured default if Sleeper
+    can't be reached."""
+    try:
+        state = await get_nfl_state()
+        season = int(state.get("season") or DEFAULT_SEASON)
+        kind = state.get("season_type")
+        week = int(state.get("display_week") or state.get("week") or DEFAULT_WEEK)
+    except Exception:
+        return DEFAULT_SEASON, DEFAULT_WEEK
+    if kind == "pre":
+        week = 1
+    elif kind in ("post", "off"):
+        week = 18
+    return season, max(1, min(18, week))
+
+
+def _int(value: str | None) -> int | None:
+    try:
+        return int(value) if value else None
+    except ValueError:
+        return None
+
+
+async def _page(request: Request, template: str, active: str, season_q: str | None, week_q: str | None):
+    season, week = _int(season_q), _int(week_q)
+    if not (season and week and 2000 <= season <= 2100 and 1 <= week <= 18):
+        season, week = await current_season_week()
+    return templates.TemplateResponse(template, {"request": request, "season": season, "week": week,
+                                                 "active": active, "asset_version": ASSET_VERSION})
+
+
 @app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
-    return templates.TemplateResponse(
-        "index.html",
-        {"request": request, "default_season": DEFAULT_SEASON, "default_week": DEFAULT_WEEK},
-    )
+async def index(request: Request, season: str | None = None, week: str | None = None):
+    return await _page(request, "index.html", "/", season, week)
 
 
 @app.get("/api/state")
@@ -130,19 +173,13 @@ async def api_slate_optimal(slate_id: str, season: int = DEFAULT_SEASON, week: i
 
 
 @app.get("/breakdown", response_class=HTMLResponse)
-async def breakdown_page(request: Request):
-    return templates.TemplateResponse(
-        "breakdown.html",
-        {"request": request, "default_season": DEFAULT_SEASON, "default_week": DEFAULT_WEEK},
-    )
+async def breakdown_page(request: Request, season: str | None = None, week: str | None = None):
+    return await _page(request, "breakdown.html", "/breakdown", season, week)
 
 
 @app.get("/dfs-model", response_class=HTMLResponse)
-async def dfs_model_page(request: Request):
-    return templates.TemplateResponse(
-        "dfs_model.html",
-        {"request": request, "default_season": DEFAULT_SEASON, "default_week": DEFAULT_WEEK},
-    )
+async def dfs_model_page(request: Request, season: str | None = None, week: str | None = None):
+    return await _page(request, "dfs_model.html", "/dfs-model", season, week)
 
 
 @app.get("/api/breakdown/game/{game_id}", response_model=GameDetail)

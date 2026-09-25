@@ -1,32 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DFSRiches -- Week Breakdown</title>
-  <link rel="stylesheet" href="/static/style.css" />
-</head>
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="brand-dollar">$</span>DFS<span class="brand-accent">Riches</span>
-    </div>
-    <nav class="page-nav" aria-label="Pages">
-      <a href="/">Slates</a>
-      <a href="/breakdown" class="active" aria-current="page">Week Breakdown</a>
-      <a href="/dfs-model">DFS Model</a>
-    </nav>
-    <div class="week-controls">
-      <label>Season
-        <input id="season-input" type="number" value="{{ default_season }}" />
-      </label>
-      <label>Week
-        <input id="week-input" type="number" value="{{ default_week }}" min="1" max="18" />
-      </label>
-      <button id="load-week-btn">Load</button>
-    </div>
-  </header>
-
+{% extends "_base.html" %}
+{% block title %}DFSRiches -- Week Breakdown{% endblock %}
+{% block content %}
   <section class="breakdown-intro">
     <h1>Week <span id="breakdown-week-label"></span> Fantasy Breakdown</h1>
     <p class="breakdown-source">
@@ -53,14 +27,11 @@
     </div>
     <div id="gd-tooltip" class="gd-tooltip" role="tooltip" hidden></div>
   </dialog>
-
-  <footer class="site-footer">
-    Data: real closing spread/total lines and team box-score trends from nflverse; real DraftKings
+{% endblock %}
+{% block footer %}Data: real closing spread/total lines and team box-score trends from nflverse; real DraftKings
     salaries, trailing DK-style FPPG and matchup-adjusted ceilings for each team's DFS targets, when DraftKings has posted
     pricing for the week. League ranks are computed among whichever teams have a trailing value at this
-    point in the season.
-  </footer>
-
-  <script src="/static/breakdown.js"></script>
-</body>
-</html>
+    point in the season.{% endblock %}
+{% block scripts %}
+  <script src="/static/breakdown.js?v={{ asset_version }}"></script>
+{% endblock %}

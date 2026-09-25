@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#1e2227" />
+  <title>{% block title %}DFSRiches{% endblock %}</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="/static/style.css?v={{ asset_version }}" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="/?season={{ season }}&amp;week={{ week }}" aria-label="DFSRiches home">
+      <span class="brand-dollar">$</span>DFS<span class="brand-accent">Riches</span>
+    </a>
+    <nav class="page-nav" aria-label="Pages">
+      {%- for href, label in [("/", "Slates"), ("/breakdown", "Week Breakdown"), ("/dfs-model", "DFS Model")] %}
+      <a href="{{ href }}?season={{ season }}&amp;week={{ week }}"{% if href == active %} class="active" aria-current="page"{% endif %}>{{ label }}</a>
+      {%- endfor %}
+    </nav>
+    <form id="week-form" class="week-controls" aria-label="Season and week (applies to every page)">
+      <label>Season
+        <input id="season-input" type="number" inputmode="numeric" min="2000" max="2100" value="{{ season }}" />
+      </label>
+      <label>Week
+        <input id="week-input" type="number" inputmode="numeric" min="1" max="18" value="{{ week }}" />
+      </label>
+    </form>
+  </header>
+
+  <div id="main" tabindex="-1">
+{% block content %}{% endblock %}
+  </div>
+
+  <footer class="site-footer">{% block footer %}{% endblock %}</footer>
+
+  <script src="/static/common.js?v={{ asset_version }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

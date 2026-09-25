@@ -1,32 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DFSRiches</title>
-  <link rel="stylesheet" href="/static/style.css" />
-</head>
-<body>
-  <header class="topbar">
-    <div class="brand">
-      <span class="brand-dollar">$</span>DFS<span class="brand-accent">Riches</span>
-    </div>
-    <nav class="page-nav" aria-label="Pages">
-      <a href="/" class="active" aria-current="page">Slates</a>
-      <a href="/breakdown">Week Breakdown</a>
-      <a href="/dfs-model">DFS Model</a>
-    </nav>
-    <div class="week-controls">
-      <label>Season
-        <input id="season-input" type="number" value="{{ default_season }}" />
-      </label>
-      <label>Week
-        <input id="week-input" type="number" value="{{ default_week }}" min="1" max="18" />
-      </label>
-      <button id="load-week-btn">Load</button>
-    </div>
-  </header>
-
+{% extends "_base.html" %}
+{% block title %}DFSRiches{% endblock %}
+{% block content %}
   <section id="schedule-strip" class="schedule-strip table-scroll" aria-label="Week schedule"></section>
 
   <section class="odds-wrap">
@@ -124,19 +98,16 @@
     <span id="lineup-sticky-status" class="lineup-sticky-status"></span>
     <a href="#lineup-heading" class="lineup-sticky-link">View lineups</a>
   </div>
-
-  <footer class="site-footer">
-    Data: real player pool &amp; salaries from DraftKings' public draft-group API;
+{% endblock %}
+{% block footer %}Data: real player pool &amp; salaries from DraftKings' public draft-group API;
     schedule &amp; kickoff times from Sleeper; closing spread/total lines and
     team play volume (offensive plays vs. season baseline) from nflverse's public
     game and box-score data. "Proj" is DraftKings points from each player's
     projected stat line (Sleeper), matchup-adjusted, with DK's season FPPG as the
     fallback, x1.5 for the Showdown Captain slot; "Sleeper Proj" is
     Sleeper's week-specific PPR projection, for the ~400 players Sleeper
-    projects each week. Refreshed on each slate load.
-  </footer>
-
-  <script src="/static/lineups.js"></script>
-  <script src="/static/app.js"></script>
-</body>
-</html>
+    projects each week. Refreshed on each slate load.{% endblock %}
+{% block scripts %}
+  <script src="/static/lineups.js?v={{ asset_version }}"></script>
+  <script src="/static/app.js?v={{ asset_version }}"></script>
+{% endblock %}
