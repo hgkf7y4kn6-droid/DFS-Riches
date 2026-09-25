@@ -308,9 +308,13 @@ Once a game is final, the table also shows:
 
 - **ATS result**: `(home_score - away_score) + home_spread` -- positive
   means the home team beat the spread by that many points, negative means
-  the away team did (0 is a push).
+  the away team did (0 is a push). It's shown with the covering team's
+  actual line, e.g. "ATL +4.5 covered by 25.5" for a 4.5-point underdog
+  that won 35-14, so the margin never reads like a spread. Hover for the
+  score.
 - **O/U result**: `(home_score + away_score) - total_line` -- positive
-  means the game went over, negative means it went under.
+  means the game went over, negative means it went under. Shown as e.g.
+  "Over by 5.5 (49 pts)".
 - **Pace delta**: `actual_plays - baseline_plays` per team -- positive means
   they played faster (more plays) than their own baseline, negative means
   slower.

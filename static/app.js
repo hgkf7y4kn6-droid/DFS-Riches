@@ -140,22 +140,37 @@
     return `${c.away_score} / ${c.home_score}`;
   }
 
+  function fmtLine(n) {
+    return n === 0 ? "PK" : (n > 0 ? "+" : "") + n;
+  }
+
+  // Shows the team's actual line and how much it beat it by, e.g. "ATL +4.5 covered by 25.5"
+  // (won 35-14 as a 4.5-point underdog) -- never a bare "+25.5", which reads like a spread.
   function fmtAtsResult(g) {
     const c = g.context;
     if (!c || !c.is_final || c.spread_result == null) return '<span class="pending">-</span>';
-    if (c.spread_result === 0) return '<span class="push">Push</span>';
-    const coveringTeam = c.spread_result > 0 ? g.home : g.away;
+    const score = `${g.away} ${c.away_score}, ${g.home} ${c.home_score}`;
+    if (c.spread_result === 0) {
+      return `<span class="push" title="${escapeHtml(score)}: landed exactly on the line">Push</span>`;
+    }
+    const homeCovered = c.spread_result > 0;
+    const team = homeCovered ? g.home : g.away;
+    const line = homeCovered ? c.home_spread : c.away_spread;
     const margin = Math.abs(c.spread_result).toFixed(1);
-    return `<span class="beat">${coveringTeam} covered +${margin}</span>`;
+    const role = line > 0 ? `a ${line}-point underdog` : line < 0 ? `a ${-line}-point favorite` : "a pick'em";
+    const tip = `${score}. ${team} was ${role} and beat the spread by ${margin} points.`;
+    return `<span class="beat" title="${escapeHtml(tip)}">${escapeHtml(team)} ${fmtLine(line)} covered by ${margin}</span>`;
   }
 
   function fmtTotalResult(g) {
     const c = g.context;
     if (!c || !c.is_final || c.total_result == null) return '<span class="pending">-</span>';
-    if (c.total_result === 0) return '<span class="push">Push</span>';
+    const combined = c.away_score + c.home_score;
+    if (c.total_result === 0) return `<span class="push" title="${combined} points, exactly the ${c.total_line} total">Push</span>`;
     const cls = c.total_result > 0 ? "beat" : "missed";
     const label = c.total_result > 0 ? "Over" : "Under";
-    return `<span class="${cls}">${label} ${fmtSigned(c.total_result)}</span>`;
+    const tip = `${combined} combined points vs a ${c.total_line} total`;
+    return `<span class="${cls}" title="${escapeHtml(tip)}">${label} by ${Math.abs(c.total_result).toFixed(1)} (${combined} pts)</span>`;
   }
 
   function fmtPaceCell(g) {
