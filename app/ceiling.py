@@ -213,7 +213,7 @@ def player_ceiling_detail(
             mult *= m
             d.factors["matchup"] = m
             d.matchup_vs_avg = avg / league - 1
-            d.reasons["matchup"] = f"{opponent} allow {d.matchup_vs_avg:+.0%} DK pts to {position}s"
+            d.reasons["matchup"] = f"{opponent} allow {d.matchup_vs_avg:+.0%} DK pts to {position}s (last 8 games)"
             d.notes.append(f"Matchup x{m:.2f}: {opponent} allow {avg:.1f} DK pts/gm to {position}s (L8) vs {league:.1f} avg")
 
     # Game environment

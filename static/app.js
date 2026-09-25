@@ -337,7 +337,7 @@
         <td>${escapeHtml(p.opponent)}</td>
         <td>${escapeHtml(p.game_info)}</td>
         <td class="num">${fmtSalary(p.salary)}</td>
-        <td class="num">${p.proj_points.toFixed(1)}</td>
+        <td class="num proj-cell"${p.proj_notes && p.proj_notes.length ? ` title="${escapeHtml(p.proj_notes.join("\n"))}"` : ""}>${p.proj_points.toFixed(1)}</td>
         <td class="num ceiling-cell"${p.ceiling_notes && p.ceiling_notes.length ? ` title="${escapeHtml(p.ceiling_notes.join("\n"))}"` : ""}>${p.ceiling != null ? p.ceiling.toFixed(1) : "-"}</td>
         <td class="num">${p.dk_fppg != null ? p.dk_fppg.toFixed(1) : "-"}</td>
         <td class="num">${p.trend_l3 != null ? p.trend_l3.toFixed(1) : "-"}</td>

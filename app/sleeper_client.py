@@ -44,10 +44,7 @@ async def get_players() -> dict[str, dict]:
     return await cached_fetch("sleeper_players_nfl", TTL_PLAYERS, fetch)
 
 
-async def get_projections(season: int, week: int, season_type: str = "regular") -> dict[str, float]:
-    """player_id -> projected PPR points for the given week. DEF entries are
-    keyed by team abbreviation, matching Sleeper's DEF player_ids."""
-
+async def _raw_projections(season: int, week: int, season_type: str = "regular") -> Any:
     async def fetch() -> Any:
         async with httpx.AsyncClient() as client:
             positions = "&".join(f"position[]={p}" for p in _PROJECTION_POSITIONS)
@@ -55,33 +52,50 @@ async def get_projections(season: int, week: int, season_type: str = "regular") 
             return await _get_json(client, url)
 
     key = f"sleeper_projections_v2_{season}_{season_type}_{week}"
-    raw = await cached_fetch(key, TTL_PROJECTIONS, fetch)
+    return await cached_fetch(key, TTL_PROJECTIONS, fetch)
 
-    def _extract_points(stats: dict) -> float | None:
+
+def _entries(raw: Any):
+    """(player_id, entry) pairs from either response shape: the list
+    api.sleeper.com returns ([{"player_id", "stats", "team", ...}]) or a
+    {player_id: stats} dict."""
+    if isinstance(raw, dict):
+        for pid, stats in raw.items():
+            yield pid, {"stats": stats or {}}
+    elif isinstance(raw, list):
+        for entry in raw:
+            if isinstance(entry, dict) and entry.get("player_id"):
+                yield entry["player_id"], entry
+
+
+async def get_projections(season: int, week: int, season_type: str = "regular") -> dict[str, float]:
+    """player_id -> projected PPR points for the given week. DEF entries are
+    keyed by team abbreviation, matching Sleeper's DEF player_ids."""
+    projections: dict[str, float] = {}
+    for pid, entry in _entries(await _raw_projections(season, week, season_type)):
+        stats = entry.get("stats") or {}
         pts = stats.get("pts_ppr")
         if pts is None:
             pts = stats.get("pts_half_ppr", stats.get("pts_std"))
-        return None if pts is None else round(float(pts), 2)
-
-    projections: dict[str, float] = {}
-    if isinstance(raw, dict):
-        # Observed shape: {player_id: {stat: value, ...}}
-        for pid, stats in raw.items():
-            pts = _extract_points(stats or {})
-            if pts:
-                projections[pid] = pts
-    elif isinstance(raw, list):
-        # Alternate shape some Sleeper endpoints use: [{"player_id":..., "stats": {...}}]
-        for entry in raw:
-            if not isinstance(entry, dict):
-                continue
-            pid = entry.get("player_id")
-            if not pid:
-                continue
-            pts = _extract_points(entry.get("stats") or {})
-            if pts:
-                projections[pid] = pts
+        if pts:
+            projections[pid] = round(float(pts), 2)
     return projections
+
+
+async def get_projection_lines(season: int, week: int, season_type: str = "regular") -> dict[str, dict]:
+    """player_id -> {"stats": projected stat line (rush_yd, rec, rec_yd, pass_yd,
+    TDs, ... or sack/int/pts_allow for DEF), "team", "opponent", "position"}."""
+    lines: dict[str, dict] = {}
+    for pid, entry in _entries(await _raw_projections(season, week, season_type)):
+        player = entry.get("player") or {}
+        lines[pid] = {
+            "stats": entry.get("stats") or {},
+            "team": entry.get("team"),
+            "opponent": entry.get("opponent"),
+            "position": player.get("position"),
+            "name": f"{player.get('first_name', '')} {player.get('last_name', '')}".strip(),
+        }
+    return lines
 
 
 async def get_week_games(season: int, week: int, season_type: str = "regular") -> list[dict]:

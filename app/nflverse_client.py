@@ -478,12 +478,13 @@ _TEAM_METRICS = (
     "spread", "total", "implied_total", "plays", "neutral_secs",
     "points_for", "points_against", "yards_per_play", "yards_allowed_per_play",
     "pass_pct", "rush_pct", "opp_pass_pct_allowed", "opp_rush_pct_allowed",
+    "sacks_taken", "giveaways",
 )
 
 
 async def _team_week_box_scores(season: int) -> dict[tuple[int, str], dict]:
-    """{(week, team): {opponent, plays, yards_per_play}} from real per-game
-    box-score stats, one season."""
+    """{(week, team): {opponent, plays, yards_per_play, sacks_taken, giveaways}}
+    from real per-game box-score stats, one season."""
     scores: dict[tuple[int, str], dict] = {}
     for row in await _fetch_team_week_rows(season):
         try:
@@ -500,6 +501,9 @@ async def _team_week_box_scores(season: int) -> dict[tuple[int, str], dict]:
             "opponent": to_app_team(row.get("opponent_team", "")),
             "plays": plays,
             "yards_per_play": round(total_yards / plays, 2) if plays else None,
+            "sacks_taken": sacks,
+            "giveaways": (_to_float(row.get("passing_interceptions")) or 0.0)
+            + sum(_to_float(row.get(k)) or 0.0 for k in ("sack_fumbles_lost", "rushing_fumbles_lost", "receiving_fumbles_lost")),
         }
     return scores
 
@@ -552,6 +556,8 @@ async def get_team_context_trailing_index(season: int) -> dict[str, dict[str, li
                             d["plays"].append([szn, week, own["plays"]])
                         if own["yards_per_play"] is not None:
                             d["yards_per_play"].append([szn, week, own["yards_per_play"]])
+                        d["sacks_taken"].append([szn, week, own["sacks_taken"]])
+                        d["giveaways"].append([szn, week, own["giveaways"]])
 
                     opp_box = box_scores.get((week, opp))
                     if opp_box and opp_box["yards_per_play"] is not None:
@@ -569,7 +575,7 @@ async def get_team_context_trailing_index(season: int) -> dict[str, dict[str, li
                         d["opp_rush_pct_allowed"].append([szn, week, round(1 - n_def["opp_neutral_pass_rate"], 4)])
         return index
 
-    return await cached_fetch(f"nflverse_team_context_trailing_index_v2_{season}", TTL_NFLVERSE_GAMES, fetch)
+    return await cached_fetch(f"nflverse_team_context_trailing_index_v3_{season}", TTL_NFLVERSE_GAMES, fetch)
 
 
 def team_trend(index: dict, team: str, metric: str, season: int, week: int) -> dict[str, float | None]:

@@ -10,7 +10,7 @@ pytestmark = pytest.mark.anyio
 
 
 def _p(pid, name, pos, team, salary, proj, *, game="A@B", slot="", injury="Healthy", ceiling=None):
-    return dict(dk_draftable_id=pid, name=name, position=pos, team=team, salary=salary, proj_points=proj,
+    return dict(dk_draftable_id=pid, name=name, position=pos, team=team, salary=salary, proj_points=proj, dk_fppg=proj,
                 ceiling=ceiling if ceiling is not None else proj * 1.5, roster_slot=slot, game_info=game, injury=injury)
 
 
@@ -58,7 +58,7 @@ def test_showdown_lineup_never_uses_one_player_twice_and_uses_both_teams():
     pool = []
     for i, (name, team, sal, proj) in enumerate([
         ("Stud", "A", 12000, 30), ("QB A", "A", 10000, 20), ("WR A", "A", 8000, 15), ("RB A", "A", 7000, 12),
-        ("TE A", "A", 5000, 9), ("K A", "A", 4000, 8), ("WR2 A", "A", 3000, 7), ("Backup B", "B", 1000, 1),
+        ("TE A", "A", 5000, 9), ("K A", "A", 4000, 8), ("WR2 A", "A", 3000, 7), ("Backup B", "B", 1000, 3),
     ]):
         pool.append(_p(100 + i, name, "WR", team, int(sal * 1.5), proj * 1.5, slot="CPT"))
         pool.append(_p(200 + i, name, "WR", team, sal, proj, slot="FLEX"))
@@ -209,3 +209,9 @@ def test_hindsight_mode_ignores_pre_game_eligibility():
     next(p for p in pool if p["name"] == "RB Out")["actual"] = 40.0
     assert "RB Out" not in {p["name"] for p in optimize(pool, "classic", "actual")}
     assert "RB Out" in {p["name"] for p in optimize(pool, "classic", "actual", hindsight=True)}
+
+
+def test_skill_players_without_a_projected_role_are_never_optimal():
+    pool = _classic_pool()
+    pool.append(_p(98, "Benched QB", "QB", "C", 4000, 1.0, game="C@D", ceiling=60))   # played earlier, no line now
+    assert "Benched QB" not in {p["name"] for p in optimize(pool, "classic", "ceiling")}

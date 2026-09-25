@@ -862,6 +862,8 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
   color: var(--green);
 }
 .target-ceiling { color: var(--green); font-variant-numeric: tabular-nums; }
+.target-proj { color: var(--gold); font-variant-numeric: tabular-nums; }
+.proj-cell { cursor: help; }
 .target-reasons {
   margin: 2px 0 0;
   padding-left: 30px;

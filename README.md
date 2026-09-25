@@ -110,15 +110,49 @@ site's "unmatched" banner rather than being silently guessed at.
 
 ### Projections
 
-DraftKings' own per-player **FPPG** (season fantasy points per game) is the
-primary projection the Value column is computed from -- it's reliably
-populated on every draft group. Sleeper's week-specific PPR projection fills
-the "Sleeper Proj" column. It comes from `api.sleeper.com/projections` (the
-endpoint Sleeper's own app uses), not the public `api.sleeper.app/v1/projections`,
-which returns empty stats for every player. Sleeper projects roughly the top
-~400 fantasy-relevant players each week, DSTs included, so deep backups show
-"-". Showdown Captain (CPT) rows show salary, Proj, and Sleeper Proj at
-DraftKings' 1.5x multiplier.
+**Proj** (`app/projections.py`) is DraftKings points from each player's
+projected stat line for the week, in two steps:
+
+1. **The line.** Sleeper's week-specific projection (rushing and receiving
+   yards, receptions, TDs, passing, turnovers; sacks, takeaways and points
+   allowed for DSTs) run through DraftKings' scoring. The 100/300-yard
+   bonuses are left out: applied to a projected average they made
+   projections run high.
+2. **A slight matchup adjustment.** For each defense and position, it
+   compares how many DK points opposing players actually scored against it
+   earlier this season with what their lines projected. If a defense's RBs
+   have beaten their projections, this week's RB projections go up a
+   little, and vice versa. The adjustment is shrunk for small samples and
+   capped at +/-5%.
+
+Hover a Proj value to see the line and any adjustment. Players without a
+line (kickers, deep backups) fall back to DraftKings' season FPPG, still
+shown in its own column. Showdown Captain rows show salary and projections
+at DraftKings' 1.5x multiplier.
+
+Backtested against actual DK points (mean absolute error; lower is better):
+
+| Projection | Players (2,950 player-games) | DSTs (416 team-games) |
+|---|---|---|
+| Proj: stat line -> DK points | **5.83** (bias +0.06) | **4.01** |
+| Trailing 8-game DK average | 6.18 | 4.36 |
+| Trailing 3-game DK average | 6.54 | - |
+
+- **The matchup adjustment only helps when kept light.** On 2025, using only
+  weeks before each game, the light version moved error from 5.716 to 5.709;
+  stronger versions made it worse.
+- **A player's own record is not used.** Adjusting on a player's own
+  performance vs his projections made projections worse in every setting,
+  because streaks mostly regress, so it isn't applied.
+
+**Projected role:** a QB/RB/WR/TE projected under 3 DK points has no real
+role this week (a backup or inactive), whatever last season's numbers say.
+Their Ceiling is halved with the reason shown, and they're never picked as
+targets or for optimal lineups.
+
+The **Sleeper Proj** column is still Sleeper's own PPR total, from
+`api.sleeper.com/projections` (the endpoint Sleeper's own app uses; the
+public `api.sleeper.app/v1/projections` returns empty stats).
 
 ### Hiding injured players
 
@@ -341,7 +375,8 @@ Each bullet is only included when the numbers support it.
 
 **Targets** (`app/targets.py`): each team gets two "core" DFS targets plus
 one "value" target (best ceiling per $1k at $5,500 or less). Candidates are
-players who are Healthy or Questionable and have played this season. They're
+players who are Healthy or Questionable, have played this season, and are
+projected for at least 3 DK points. They're
 ranked by their matchup-adjusted Ceiling, which covers:
 
 - DK points the defense allows to the position,
@@ -354,6 +389,16 @@ favors its QB/WR/TE, a bottom-10 one its RBs. At most two picks per position.
 Each target lists up to three plain-English reasons, e.g. "NYJ allow +42% DK
 pts to RBs · DET implied for 27 · 41% of DET targets+carries (up from
 37%)".
+
+**DST targets**: each team's DST is listed with its projection, its Ceiling,
+where that Ceiling ranks among the week's DSTs, and why. Reasons cover:
+
+- the opponent's implied total (low is good),
+- how often the opponent takes sacks and gives the ball away vs league
+  average (last 8 games),
+- the opponent's offensive efficiency,
+- a caution line for tough spots, e.g. "Tough spot: BUF implied for
+  28.8".
 
 **Advanced matchup view**: "Advanced matchup ->" on any card opens a detail
 view (`app/game_detail.py`, `GET /api/breakdown/game/{game_id}`). The URL

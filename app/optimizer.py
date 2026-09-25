@@ -5,8 +5,9 @@ Classic:  QB, 2-3 RB, 3-4 WR, 1-2 TE, DST (9 total, so FLEX is the extra
 Showdown: 1 CPT + 5 FLEX, $50,000 cap, a player can't be both CPT and FLEX,
           at least one player from each team.
 
-Only Healthy and Questionable players who have played this season are
-eligible; IR/OUT/Doubtful never make an optimal lineup.
+Only Healthy and Questionable players who have played this season (and, at
+QB/RB/WR/TE, are projected for at least 3 points -- a real role this week)
+are eligible; IR/OUT/Doubtful never make an optimal lineup.
 """
 from __future__ import annotations
 
@@ -15,6 +16,8 @@ from scipy.optimize import Bounds, LinearConstraint, milp
 
 SALARY_CAP = 50000
 ELIGIBLE_STATUSES = {"Healthy", "Q"}
+ROLE_POSITIONS = {"QB", "RB", "WR", "TE"}
+MIN_ROLE_PROJ = 3.0   # a QB/RB/WR/TE projected under this has no real role this week
 CLASSIC_SLOTS = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
 
 
@@ -49,14 +52,17 @@ def optimize(players: list, slate_type: str, metric: str, *, hindsight: bool = F
     or None if no valid lineup exists. metric is the player field to maximize,
     e.g. "proj_points" or "ceiling". hindsight=True is for scoring a finished
     slate on actual points: any player with a salary is eligible."""
-    # Proj is DraftKings' season FPPG, so Proj > 0 also means the player has
-    # actually played this season -- keeps last year's starters who are now
-    # backups out of the Ceiling lineup.
+    # DK season FPPG > 0 means the player has actually played this season --
+    # keeps last year's starters who are now backups out of the Ceiling lineup.
     pool = [
         p for p in players
         if (_value(p, metric) or 0) > 0
         and _attr(p, "salary") > 0
-        and (hindsight or (_attr(p, "injury") in ELIGIBLE_STATUSES and (_attr(p, "proj_points") or 0) > 0))
+        and (hindsight or (
+            _attr(p, "injury") in ELIGIBLE_STATUSES
+            and (_attr(p, "dk_fppg") or 0) > 0
+            and (_attr(p, "position") not in ROLE_POSITIONS or (_attr(p, "proj_points") or 0) >= MIN_ROLE_PROJ)
+        ))
     ]
     if not pool:
         return None

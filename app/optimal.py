@@ -25,7 +25,7 @@ from app.optimizer import CLASSIC_SLOTS, optimize
 METRICS = (("proj_points", "Proj"), ("ceiling", "Ceiling"))
 _FIELDS = (
     "name", "position", "team", "opponent", "roster_slot", "salary", "proj_points",
-    "ceiling", "sleeper_proj", "game_info", "injury", "dk_draftable_id",
+    "ceiling", "sleeper_proj", "game_info", "injury", "dk_draftable_id", "dk_fppg",
 )
 _HINDSIGHT_FIELDS = ("name", "position", "team", "opponent", "roster_slot", "salary", "game_info", "dk_draftable_id")
 

@@ -101,7 +101,7 @@
             <th scope="col" data-key="opponent">Opp</th>
             <th scope="col" data-key="game_info">Game</th>
             <th scope="col" data-key="salary" class="num">Salary</th>
-            <th scope="col" data-key="proj_points" class="num">Proj</th>
+            <th scope="col" data-key="proj_points" class="num" title="DraftKings points from this week's projected stat line (rushing/receiving/passing yards, catches, TDs; sacks, takeaways and points allowed for DSTs), nudged up to 5% by how players at the position have done vs their projections against this opponent this season. Hover a value for its breakdown.">Proj</th>
             <th scope="col" data-key="ceiling" class="num" title="Estimated 85th-percentile DK score this week: recent game history adjusted for matchup, implied total, Week Breakdown flags, and usage trend. Hover a value for its breakdown.">Ceiling</th>
             <th scope="col" data-key="dk_fppg" class="num">DK FPPG</th>
             <th scope="col" data-key="trend_l3" class="num" title="Real DK-style FPPG over the player's last 3 games">L3</th>
@@ -128,8 +128,9 @@
     Data: real player pool &amp; salaries from DraftKings' public draft-group API;
     schedule &amp; kickoff times from Sleeper; closing spread/total lines and
     team play volume (offensive plays vs. season baseline) from nflverse's public
-    game and box-score data. "Proj" is DraftKings' own FPPG (season fantasy
-    points per game), x1.5 for the Showdown Captain slot; "Sleeper Proj" is
+    game and box-score data. "Proj" is DraftKings points from each player's
+    projected stat line (Sleeper), matchup-adjusted, with DK's season FPPG as the
+    fallback, x1.5 for the Showdown Captain slot; "Sleeper Proj" is
     Sleeper's week-specific PPR projection, for the ~400 players Sleeper
     projects each week. Refreshed on each slate load.
   </footer>

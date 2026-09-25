@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from app import ceiling, dk_client, matching, nflverse_client, sleeper_client
+from app import ceiling, dk_client, matching, nflverse_client, projections, sleeper_client
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
 from app.models import Player, Slate, SlatePlayers, WeekSchedule
@@ -102,11 +102,12 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
     raw = await dk_client.fetch_draftables(slate.draft_group_id)
     rows = dk_client.parse_draftables(raw, slate.slate_type)
 
-    projections = await sleeper_client.get_projections(season, week)
+    sleeper_points = await sleeper_client.get_projections(season, week)
     index = await _get_sleeper_index()
     player_trailing_index = await nflverse_client.get_player_trailing_index(season)
     team_dst_trailing_index = await nflverse_client.get_team_dst_trailing_index(season)
     ceiling_ctx = await ceiling.build_context(season, week, schedule)
+    projection_ctx = await projections.build_context(season, week)
 
     players: list[Player] = []
     unmatched: list[str] = []
@@ -116,13 +117,16 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         if sleeper_id is None:
             unmatched.append(row["name"])
 
-        sleeper_proj = projections.get(sleeper_id) if sleeper_id else None
-        base_proj = row["dk_fppg"] or 0.0
+        sleeper_proj = sleeper_points.get(sleeper_id) if sleeper_id else None
+        base_proj, proj_notes = projections.project(
+            projection_ctx, sleeper_id=sleeper_id, position=row["position"], opponent=row["opponent"], fallback=row["dk_fppg"])
 
         is_captain = row["roster_slot"] == "CPT"
         if is_captain and sleeper_proj is not None:
             sleeper_proj = round(sleeper_proj * 1.5, 2)
         effective_proj = round(base_proj * 1.5, 2) if is_captain else base_proj
+        if is_captain:
+            proj_notes = proj_notes + ["Captain x1.50"]
         salary = row["salary"]
         value = round(effective_proj / (salary / 1000.0), 2) if salary > 0 else 0.0
 
@@ -144,6 +148,9 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
             opponent=row["opponent"],
             fallback_mean=row["dk_fppg"],
         )
+        if player_ceiling is not None and not projections.has_projected_role(projection_ctx, sleeper_id, row["position"]):
+            player_ceiling = round(player_ceiling * 0.5, 1)
+            ceiling_notes = ceiling_notes + ["Role x0.50: no meaningful projected stat line this week (backup or inactive)"]
         if is_captain and player_ceiling is not None:
             player_ceiling = round(player_ceiling * 1.5, 1)
             ceiling_notes = ceiling_notes + ["Captain x1.50"]
@@ -157,6 +164,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
                 roster_slot=row["roster_slot"],
                 salary=salary,
                 proj_points=effective_proj,
+                proj_notes=proj_notes,
                 dk_fppg=row["dk_fppg"],
                 sleeper_proj=sleeper_proj,
                 trend_l3=trend_l3,

@@ -81,8 +81,9 @@ class Player(BaseModel):
     position: str
     roster_slot: str          # "" for classic, "CPT" or "FLEX" for showdown
     salary: int
-    proj_points: float         # primary projection used for Value: DraftKings' own FPPG,
-                                # x1.5 for the Showdown Captain slot
+    proj_points: float         # DK points from the projected stat line, matchup-adjusted
+                                # (app.projections); DK FPPG when there's no line; x1.5 for CPT
+    proj_notes: list[str] = []  # how proj_points was built, one line per step
     dk_fppg: float | None = None      # DraftKings' season Fantasy-Points-Per-Game (raw, no CPT bump)
     sleeper_proj: float | None = None  # Sleeper's week-specific PPR projection, when Sleeper has one
     trend_l3: float | None = None     # real DK-style FPPG over the player's last 3 games

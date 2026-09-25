@@ -231,6 +231,9 @@ class WeekData:
     total_rank: dict[str, int]
     ceiling_ctx: ceiling.CeilingContext
     players: list
+    dst_rank: dict[str, int]
+    league_sacks: float | None
+    league_giveaways: float | None
 
 
 async def load_week(season: int, week: int) -> WeekData:
@@ -259,6 +262,12 @@ async def load_week(season: int, week: int) -> WeekData:
     except Exception:
         players = []
 
+    ceiling_ctx = await ceiling.build_context(season, week, schedule)
+
+    def league_avg(metric: str) -> float | None:
+        vals = [v for t in index if (v := nc.team_trailing(index, t, metric, season, week, _RANK_WINDOW)) is not None]
+        return sum(vals) / len(vals) if vals else None
+
     return WeekData(
         season=season,
         week=week,
@@ -268,8 +277,11 @@ async def load_week(season: int, week: int) -> WeekData:
         pass_rate_rank=nc.rank_teams(index, "pass_pct", season, week, n=_RANK_WINDOW, descending=True),
         implied_rank={t: i + 1 for i, (t, _v) in enumerate(sorted(implied_by_team.items(), key=lambda kv: kv[1], reverse=True))},
         total_rank={gid: i + 1 for i, (gid, _v) in enumerate(sorted(total_by_game.items(), key=lambda kv: kv[1], reverse=True))},
-        ceiling_ctx=await ceiling.build_context(season, week, schedule),
+        ceiling_ctx=ceiling_ctx,
         players=players,
+        dst_rank=targets.dst_ceiling_ranks(players, ceiling_ctx),
+        league_sacks=league_avg("sacks_taken"),
+        league_giveaways=league_avg("giveaways"),
     )
 
 
@@ -286,7 +298,16 @@ def game_breakdown(wd: WeekData, g: Game) -> GameBreakdown:
     )
 
     def team_targets(team: str, opp: str, stats: TeamStatLine):
-        return targets.pick_targets(wd.players, team, opp, wd.ceiling_ctx, wd.pass_rate_rank.get(team), stats.pass_pct)
+        picks = targets.pick_targets(wd.players, team, opp, wd.ceiling_ctx, wd.pass_rate_rank.get(team), stats.pass_pct)
+        dst = targets.pick_dst(
+            wd.players, team, opp, wd.ceiling_ctx,
+            opp_sacks=nc.team_trailing(wd.index, opp, "sacks_taken", wd.season, wd.week, _RANK_WINDOW),
+            opp_giveaways=nc.team_trailing(wd.index, opp, "giveaways", wd.season, wd.week, _RANK_WINDOW),
+            league_sacks=wd.league_sacks, league_giveaways=wd.league_giveaways,
+            opp_implied_rank=wd.implied_rank.get(opp), n_teams=len(wd.implied_rank),
+            dst_rank=wd.dst_rank.get(team), n_dst=len(wd.dst_rank),
+        )
+        return picks + ([dst] if dst else [])
 
     return GameBreakdown(
         game=g,

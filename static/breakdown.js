@@ -72,6 +72,7 @@
               <span class="target-name">${escapeHtml(p.name)}</span>
               ${p.role === "Value" ? '<span class="target-role">Value</span>' : ""}
               <span class="tp-salary">${fmtSalary(p.salary)}</span>
+              ${p.proj_points != null ? `<span class="target-proj" title="DK points from the projected stat line, matchup-adjusted">Proj ${p.proj_points.toFixed(1)}</span>` : ""}
               ${p.ceiling != null ? `<span class="target-ceiling" title="Matchup-adjusted ceiling">Ceil ${p.ceiling.toFixed(1)}</span>` : ""}
             </div>
             <ul class="target-reasons">${(p.reasons || []).slice(0, maxReasons).map((r) => `<li>${escapeHtml(r)}</li>`).join("")}</ul>
@@ -381,7 +382,7 @@
     targets.innerHTML = `
       <div><h4>${escapeHtml(g.away)}</h4>${renderTargets(gb.away_top_players, 3)}</div>
       <div><h4>${escapeHtml(g.home)}</h4>${renderTargets(gb.home_top_players, 3)}</div>`;
-    body.push(section("DFS targets", "Picked for this matchup: ceiling adjusted for the defense, implied total, funnels, tempo and usage, tilted toward what each offense does most. Value = best ceiling per $1k at $5,500 or less.", targets, null));
+    body.push(section("DFS targets", "Picked for this matchup: ceiling adjusted for the defense, implied total, funnels, tempo and usage, tilted toward what each offense does most. Value = best ceiling per $1k at $5,500 or less. Each team's DST is ranked against every DST this week.", targets, null));
 
     dialogBodyEl.replaceChildren(...body);
   }
