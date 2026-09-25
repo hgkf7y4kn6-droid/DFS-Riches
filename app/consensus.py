@@ -28,6 +28,8 @@ from app.projections import dk_points_from_line
 ACCURACY_PATH = DATA_DIR / "source_accuracy.json"
 WEIGHT_MIN_SPREAD = 0.05
 WEIGHT_MIN_GAMES = 150
+LINE_KEYS = ("pass_att", "pass_yd", "pass_td", "rush_att", "rush_yd", "rush_td", "rec_tgt", "rec", "rec_yd", "rec_td",
+             "sack", "int", "fum_rec", "pts_allow")
 
 
 def source_key(name: str, team: str, position: str) -> str:
@@ -84,18 +86,24 @@ class Consensus:
     n: int
     missing: list[str] = field(default_factory=list)
     weight_note: str = ""
+    line: dict[str, float] = field(default_factory=dict)   # mean of each projected stat across the sources that list it
 
 
 def consensus_for(indexes: dict[str, dict], name: str, team: str, position: str,
                   weights: dict[str, float], weight_note: str) -> Consensus:
     by_source: dict[str, float | None] = {}
+    stat_vals: dict[str, list[float]] = {}
     for src, idx in indexes.items():
         row = lookup(idx, name, team, position) if idx else None
         by_source[src] = dk_points_from_line(row["stats"], position) if row else None
+        for k in LINE_KEYS:
+            if row and row["stats"].get(k) is not None:
+                stat_vals.setdefault(k, []).append(float(row["stats"][k]))
+    line = {k: round(statistics.fmean(v), 2) for k, v in stat_vals.items()}
     vals = {s: v for s, v in by_source.items() if v is not None}
     missing = [s for s, v in by_source.items() if v is None]
     if not vals:
-        return Consensus(by_source, None, None, None, None, None, None, 0, missing, weight_note)
+        return Consensus(by_source, None, None, None, None, None, None, 0, missing, weight_note, line)
     xs = list(vals.values())
     wsum = sum(weights.get(s, 1.0) for s in vals)
     weighted = sum(v * weights.get(s, 1.0) for s, v in vals.items()) / wsum
@@ -110,4 +118,5 @@ def consensus_for(indexes: dict[str, dict], name: str, team: str, position: str,
         n=len(xs),
         missing=missing,
         weight_note=weight_note,
+        line=line,
     )

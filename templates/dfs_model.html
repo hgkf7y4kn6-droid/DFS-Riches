@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DFSRiches -- DFS Model</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-dollar">$</span>DFS<span class="brand-accent">Riches</span>
+    </div>
+    <nav class="page-nav" aria-label="Pages">
+      <a href="/">Slates</a>
+      <a href="/breakdown">Week Breakdown</a>
+      <a href="/dfs-model" class="active" aria-current="page">DFS Model</a>
+    </nav>
+    <div class="week-controls">
+      <label>Season
+        <input id="season-input" type="number" value="{{ default_season }}" />
+      </label>
+      <label>Week
+        <input id="week-input" type="number" value="{{ default_week }}" min="1" max="18" />
+      </label>
+      <button id="load-week-btn">Load</button>
+    </div>
+  </header>
+
+  <section id="dfs-model" class="dfs-model" aria-labelledby="dm-title">
+    <div class="dm-head">
+      <h1 id="dm-title">DFS Model <span class="dm-week" id="dm-week"></span></h1>
+      <label class="dm-slate-label">Slate <select id="dm-slate" aria-label="DraftKings Classic slate"></select></label>
+      <button type="button" id="dm-refresh" class="dm-btn">Recalculate</button>
+      <span id="dm-asof" class="dm-asof" aria-live="polite"></span>
+    </div>
+    <p class="dm-lede">
+      Lineups built to fit together, not just the best nine players. Cash lineups chase floor, volume and
+      stability; GPP lineups chase ceiling, correlation, leverage and game environment. Projections are a consensus of
+      public sources scored with DraftKings rules; every sourced fact and model estimate is labeled, and missing data
+      (ownership, props, snaps, routes) is called out instead of guessed.
+    </p>
+    <details class="dm-own" id="dm-own">
+      <summary>Add projected ownership <span class="dm-own-status" id="dm-own-status"></span></summary>
+      <p class="dm-note">No projected-ownership source is connected, so ownership is blank unless you paste it
+        here (one per line: <code>Name, 23.5</code> or <code>Name, TEAM, 23.5</code>; DSTs by team code, e.g.
+        <code>BUF, 8</code>). It stays in this browser and is labeled "user-provided". Chalk, leverage, contrarian
+        lineups and lineup ownership totals all switch to it.</p>
+      <textarea id="dm-own-text" rows="6" spellcheck="false" aria-label="Projected ownership, one player per line"></textarea>
+      <div class="dm-own-actions">
+        <button type="button" id="dm-own-apply" class="dm-btn">Apply ownership</button>
+        <button type="button" id="dm-own-clear" class="dm-btn dm-btn-quiet">Clear</button>
+      </div>
+    </details>
+    <div class="dm-tabs" role="tablist" aria-label="DFS Model views">
+      <button type="button" role="tab" data-tab="summary" aria-selected="true">Summary</button>
+      <button type="button" role="tab" data-tab="slate" aria-selected="false">Slate</button>
+      <button type="button" role="tab" data-tab="pools" aria-selected="false">Player Pools</button>
+      <button type="button" role="tab" data-tab="chalk" aria-selected="false">Chalk &amp; Leverage</button>
+      <button type="button" role="tab" data-tab="stacks" aria-selected="false">Games &amp; Stacks</button>
+      <button type="button" role="tab" data-tab="cash" aria-selected="false">Cash</button>
+      <button type="button" role="tab" data-tab="gpp" aria-selected="false">GPP</button>
+      <button type="button" role="tab" data-tab="fades" aria-selected="false">Fades</button>
+      <button type="button" role="tab" data-tab="table" aria-selected="false">Projections</button>
+      <button type="button" role="tab" data-tab="method" aria-selected="false">Sources &amp; Method</button>
+    </div>
+    <div id="dm-panel" class="dm-panel" role="tabpanel" aria-labelledby="dm-title"></div>
+  </section>
+
+  <footer class="site-footer">
+    Projections: Sleeper, ESPN, CBS Sports, FFToday and FantasyPros (public pages), scored with DraftKings rules.
+    Usage: nflverse box scores. Lines: nflverse closing lines. Salaries and injury statuses: DraftKings.
+  </footer>
+
+  <script src="/static/dfs_model.js"></script>
+</body>
+</html>

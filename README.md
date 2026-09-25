@@ -428,13 +428,17 @@ The charts follow a data-viz method:
 - Each chart has a "View as table" version.
 - The dialog goes full-screen on phones.
 
-## DFS Model (on the Week Breakdown page)
+## DFS Model page
 
-The Week Breakdown page opens with a **DFS Model** section for any
-DraftKings Classic slate (Sunday Main by default). Tabs: Summary, Player
-Pool, Games & Stacks, Projections, Lineups, Sources & Method. It is built
-by `app/dfs_model.py` and served at `GET /api/dfs-model?season=&week=&slate_id=`
-(`POST` the same URL with `{"ownership": "..."}` to include pasted ownership).
+The **DFS Model** tab (`/dfs-model`) has its own page. It builds lineups
+whose pieces fit together, not just the nine best projections. Cash and GPP
+use different logic throughout. It works on any DraftKings Classic slate
+(Sunday Main by default). Tabs: Summary, Slate, Player Pools, Chalk &
+Leverage, Games & Stacks, Cash, GPP, Fades, Projections, Sources & Method.
+Projections come from `app/dfs_model.py`, and the lineup-construction
+framework from `app/dfs_strategy.py`. The page is served at
+`GET /api/dfs-model?season=&week=&slate_id=`. To include pasted ownership,
+`POST` the same URL with `{"ownership": "..."}`.
 
 **Sources** (`app/sources.py`). Each source's projected *stat line* is
 scored with DraftKings rules, so every source is on the same scoring:
@@ -486,31 +490,107 @@ chalk and leverage use a *popularity estimate*: value and projection rank at
 the position. It's shown only as a tier ("est. High"), never as a
 percentage, and it isn't a measure of quality.
 
-**Player pool.** Top DFS plays, best values (relative to the position
-median, since raw value always favors QBs), GPP leverage, chalk (worth
-eating vs likely over-owned), salary savers, fades/caution, the most
-uncertain projections, and the biggest news/context changes (DraftKings
-injury statuses and the largest model adjustments, each labeled).
+**Opportunity data** (`app/usage.py`). From nflverse box scores, the app
+reads recent targets, target share, air-yards share, aDOT, carries, carry
+share, and QB rushing, yards per attempt and TD rate. It also reads each
+team's top-two target concentration. From the sources' stat lines it reads
+projected carries, targets and TDs. Some data isn't connected: snaps,
+routes, targets or yards per route run, red-zone and goal-line work,
+depth charts, player props, and historical winning-lineup data. The page
+lists all of these as missing and never guesses them.
 
-**Games & stacks.** Games are sorted by Vegas total. Each has stacks built
-as QB + 1 or 2 pass catchers + a bring-back, ranked by stack ceiling minus
-3.5x salary.
+**The framework** (`app/dfs_strategy.py`, steps numbered as in the
+strategy it follows):
 
-**Lineups** (`app/lineup_builder.py`, exact integer programs):
-- 5 high-floor lineups: maximize Floor + Final, each at least 2 players
-  different from the others.
-- 10 GPP lineups: 5 constructions x 2 each. The constructions are a
-  top-total game stack, a second-game stack, the best stack outside those
-  games, RB-heavy, and 4-WR. GPP lineups maximize ceiling. The QB is stacked
-  with a bring-back, the DST never faces your own players, each lineup
-  differs from the others by at least 3 players, and no player is in more
-  than 6 of the 10.
-- 5 contrarian lineups: ceiling discounted by ownership or the popularity
-  estimate, a different QB stack in each, taken from outside the two
-  highest-total games.
+1. **Slate overview.** Each game gets an environment score. It blends the
+   total (40%), how close the spread is (20%), the top-10 ceiling (20%),
+   neutral tempo (10%) and pass rate (10%). The overview also flags:
+   - shootouts, negative game scripts, heavy favorites and live underdogs
+   - the games the field will like and the leverage games, where
+     popularity lags the environment
+   - injuries and who gains from them, and cheap players whose roles
+     changed
 
-In every lineup objective, a Questionable player counts at 90% (the risk he
-sits). His projection doesn't change.
+   The highest total isn't assumed to be the best stack.
+2. **Position pools, Cash and GPP.**
+   - **QB**: ceiling, plus rushing upside, stack partners and environment.
+     A QB is a naked-QB candidate only when rushing is 25%+ of his
+     projection.
+   - **RB**: carries, receiving role, script and TD equity. Cheap RBs need
+     real volume.
+   - **WR**: targets, target share and air yards. There's no cornerback
+     fade.
+   - **TE**: pay up or punt, compared on ceiling minus 3.5x salary.
+     Popular mid-range TEs without a ceiling edge are GPP fades.
+   - **DST**: sacks, takeaways, opponent implied total, script, and how
+     often the opponent takes sacks or gives the ball away.
+3. **Chalk.** Why the field will play each chalk player, how he can fail,
+   and a class: strong, fragile, overpriced, necessary/value, cash-not-GPP,
+   or usable in a leverage stack.
+4. **Leverage.** Five kinds:
+   - player-vs-player: a same-game RB instead of a chalk RB
+   - same-team
+   - salary: a cheaper player with most of the ceiling
+   - game: a good environment the field is ignoring
+   - ownership: lower-owned *and* a top-quarter ceiling *and* a real role
+
+   "Meaningful" leverage only, never random contrarian plays.
+5. **Stacks.** Basic, double and full-game stacks. The bring-back compares
+   the opposing WR1 with WR2 and picks WR2 when his ceiling is close but
+   he's less popular.
+6. **Cash lineups.** 1 recommended plus 4 alternates. They maximize floor
+   + projection + projected opportunities.
+   - No Questionable players, and no cheap RB/WR/TE without a role.
+   - The TE is elite or a cheap real role.
+   - Never two RBs from one team; $48,500+ spent.
+7. **GPP lineups.** 10 genuinely different constructions:
+   - primary game stack (WR bring-back)
+   - contrarian game stack
+   - chalk + leverage
+   - expensive QB with RB/TE savings
+   - mid-tier RB leverage
+   - elite TE
+   - low-owned ceiling
+   - naked rushing QB
+   - second environment with a WR2 bring-back
+   - 4-WR onslaught
+
+   If a construction can't be built, the best remaining double stack
+   fills its slot. GPP rules:
+   - Every construction tries a double stack first.
+   - Every player needs a ceiling path.
+   - No DST facing your own players, and never two RBs from one team.
+   - $49,000+ spent, 3+ players different from every other GPP lineup,
+     and no player in more than 6 of 10.
+
+   The objective is ceiling, nudged by environment. It adds +1.5 for
+   meaningful leverage, subtracts 2 for fragile or overpriced chalk, and
+   adds +0.5 for WRs to lean the FLEX toward them. 5 **contrarian**
+   lineups discount ceiling by ownership (or the estimate). Each uses a
+   different QB stack from outside the two most popular games, with two
+   or more leverage plays.
+8. **Every lineup is audited**:
+   - its correlation (positive pairs, negative pairs, players outside the
+     stacked games)
+   - the Cash or GPP checklist
+   - salary: total, remaining, and by position
+   - ownership: the total, or the estimated chalk count
+   - a quality score (Step 17) with its dimensions
+   - the full roster-construction audit: QB stack, double stack, game
+     stack, bring-back, RB/WR/TE/FLEX construction, leverage, ownership,
+     salary left, game script, and biggest failure point
+   - a line on what most likely happened on the slate if it wins
+
+   The quality score is 0-100 within cash or tournament lineups. GPP
+   weights: ceiling 25%, correlation 20%, leverage 15%, environment 15%,
+   ownership 10%, and projection, salary and uniqueness 5% each. Cash
+   weights: floor 30%, projection 25%, opportunity 20%, stability 15%,
+   value 10%.
+9. **Fades**, split into cash fades, GPP fades, over-owned (overpriced
+   chalk), fragile chalk, and poor roster-construction fit.
+
+A Questionable player counts at 90% in every lineup objective. His
+projection doesn't change.
 
 **Late news.** Sources refresh every 2 hours, and DraftKings salaries and
 injury statuses every 5 minutes. **Recalculate** rebuilds everything from
@@ -631,8 +711,10 @@ app/
   game_detail.py    the advanced matchup view: chart data + "What it means" notes
   sources.py        projected stat lines from Sleeper, ESPN, CBS, FFToday, FantasyPros
   consensus.py      per-player consensus (mean/median/range/SD/count) + accuracy weighting
-  dfs_model.py      the DFS Model: final projections, pool, stacks, lineups, summary
-  lineup_builder.py Classic lineups with stack / count / uniqueness constraints
+  dfs_model.py      the DFS Model: final projections, floor/ceiling, value, uncertainty, summary
+  dfs_strategy.py   the Cash/GPP lineup-construction framework (slate, pools, chalk, leverage, stacks, lineups, audits)
+  usage.py          recent usage from nflverse: targets, target/air-yards share, aDOT, carries, QB rushing
+  lineup_builder.py Classic lineups with stack / bring-back / naked-QB / force / count / uniqueness constraints
   models.py         shared pydantic response models
   main.py           FastAPI routes
 data/
@@ -643,7 +725,7 @@ scripts/save_optimal_lineups.py  records the current week's open slates' optimal
 scripts/source_accuracy.py       grades each projection source vs actual DK points -> data/source_accuracy.json
   name_aliases.json manual DK-name -> Sleeper-name bridge, empty by default
   cache/            runtime API response cache (gitignored)
-templates/index.html, templates/breakdown.html
+templates/index.html, templates/breakdown.html, templates/dfs_model.html
 static/style.css, static/app.js, static/breakdown.js, static/dfs_model.js   frontend
 static/lineups.js   DK Classic/Showdown roster rules for the lineup builder
 tests/                                                    pytest suite

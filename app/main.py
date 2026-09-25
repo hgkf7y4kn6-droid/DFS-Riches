@@ -135,6 +135,14 @@ async def breakdown_page(request: Request):
     )
 
 
+@app.get("/dfs-model", response_class=HTMLResponse)
+async def dfs_model_page(request: Request):
+    return templates.TemplateResponse(
+        "dfs_model.html",
+        {"request": request, "default_season": DEFAULT_SEASON, "default_week": DEFAULT_WEEK},
+    )
+
+
 @app.get("/api/breakdown/game/{game_id}", response_model=GameDetail)
 async def api_game_detail(game_id: str, season: int = DEFAULT_SEASON, week: int = DEFAULT_WEEK):
     try:
