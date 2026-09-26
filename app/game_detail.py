@@ -190,6 +190,31 @@ def usage_insight(game: Game, away_usage: list[UsageShare], home_usage: list[Usa
     return " ".join(parts) or None
 
 
+def weather_insight(game: Game) -> str | None:
+    w = game.weather or {}
+    if not w:
+        return None
+    if w.get("roof") == "dome":
+        return f"Indoors at {w.get('venue')}: no weather adjustment."
+    if w.get("roof") == "retractable":
+        return f"{w.get('venue')} has a retractable roof -- {w.get('summary')}. No weather adjustment."
+    if not w.get("available"):
+        return f"{w.get('summary')} for {w.get('venue') or 'this venue'}."
+    lead = "Played in" if w.get("observed") else "Kickoff forecast"
+    text = f"{lead} at {w.get('venue')}: {w.get('summary')}."
+    if w.get("observed"):
+        return text
+    if w.get("impact"):
+        text += f" Projections adjusted for it: {w['impact']} (fit on 2016-2025 games)."
+    elif w.get("severity") in ("poor", "severe"):
+        text += " Historically, conditions like these barely move projections."
+    else:
+        text += " No meaningful weather effect."
+    if w.get("long_range"):
+        text += " Long-range forecast: adjustments at half strength until it firms up."
+    return text
+
+
 def trench_section(tw: dict | None, game: Game) -> dict | None:
     """Both teams' unit ranks and scheme rates, each offense's matchup vs the
     other defense, and a short DFS read built from the strongest edges."""
@@ -224,6 +249,7 @@ async def build_game_detail(season: int, week: int, game_id: str) -> GameDetail:
         "away_offense": offense_insight(game.away, game.home, gb.away_stats, gb.home_stats, league),
         "home_offense": offense_insight(game.home, game.away, gb.home_stats, gb.away_stats, league),
         "tempo": tempo_insight(game, gb.away_stats, gb.home_stats, league),
+        "weather": weather_insight(game),
         "tendency": tendency_insight(game, gb.away_stats, gb.home_stats, league),
         "positions": positions_insight(game, away_def, home_def),
         "usage": usage_insight(game, away_usage, home_usage),

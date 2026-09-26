@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ app/
 COPY static/ static/
 COPY templates/ templates/
-COPY data/dk_overrides.json data/name_aliases.json data/optimal_lineups.json data/source_accuracy.json data/
+COPY data/dk_overrides.json data/name_aliases.json data/optimal_lineups.json data/source_accuracy.json data/weather_effects.json data/
 
 # Run as non-root. app/config.py creates data/cache/ on import; give the
 # app user ownership so that succeeds.

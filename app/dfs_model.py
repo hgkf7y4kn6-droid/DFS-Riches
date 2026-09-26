@@ -12,6 +12,9 @@ Order of operations (each step visible in the output):
                the pool; Questionable -> kept, uncertainty raised.
      model     the backtested matchup nudge (app.projections): +-5% max, from
                how the opponent's defense has done vs projections this season.
+     weather   outdoor games: the consensus stat line rescored with
+               weather-scaled stats (app.weather), fit on 2016-2025 games and
+               applied only to the share projections don't already price in.
    Game environment, workload and news are already in the sources' lines; a
    second pass on top double counts (stronger adjustments made the 2025
    backtest worse), so they're shown as context, not multiplied in.
@@ -45,7 +48,7 @@ import time
 from datetime import datetime, timezone
 
 from app import breakdown as breakdown_module
-from app import consensus, dfs_strategy, ownership_report, projections, sources, usage
+from app import consensus, dfs_strategy, ownership_report, projections, sources, usage, weather
 from app import slates as slates_module
 from app.cache import _cache_path
 from app.sleeper_client import get_nfl_state
@@ -104,8 +107,9 @@ def _pct_rank(values: list[float], v: float) -> float:
 
 
 # -------------------------------------------------------------- per player
-def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=None):
+def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=None, team_weather=None):
     game_of = game_of or {}
+    team_weather = team_weather or {}
     rows = []
     for p in players:
         if p.position not in POSITIONS or p.roster_slot == "CPT":
@@ -130,6 +134,12 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
                         f"Matchup: {pos}s vs {p.opponent} have scored {actual / projected - 1:+.0%} vs projections "
                         f"this season ({games} game{'s' if games != 1 else ''}) -> x{m:.2f}")})
                     final = base * m
+            wx = team_weather.get(p.team)
+            factor = weather.player_factor(wx, pos, c.line, projections.dk_points_from_line)
+            if abs(factor - 1) >= 0.01:
+                adjustments.append({"kind": "model", "factor": factor, "source": "Weather",
+                                    "text": projections.weather_note(wx, factor)})
+                final *= factor
             if p.injury == "Q":
                 adjustments.append({"kind": "sourced", "text": "Questionable (DraftKings): kept, uncertainty raised -- sources may assume he plays"})
             final = round(final, 2)
@@ -293,9 +303,9 @@ def news_changes(rows: list[dict], n: int = 5) -> list[dict]:
     for r in rows:
         for adj in r["adjustments"]:
             if adj["kind"] == "model" and r["final"]:
-                delta = r["final"] - (r["consensus"] or 0)
+                delta = (r["consensus"] or 0) * (adj["factor"] - 1)
                 if abs(delta) >= 0.5:
-                    items.append({"impact": round(abs(delta), 1), "kind": "model", "source": "Model matchup adjustment",
+                    items.append({"impact": round(abs(delta), 1), "kind": "model", "source": adj.get("source", "Model matchup adjustment"),
                                   "text": f"{r['name']} ({r['team']} {r['position']}) {delta:+.1f}: {adj['text']}"})
     items.sort(key=lambda x: -x["impact"])
     return items[:n]
@@ -357,7 +367,7 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
     weights = {pos: consensus.position_weights(accuracy, pos, list(indexes)) for pos in POSITIONS}
 
     game_of = {t: f"{g.away}@{g.home}" for g in slate.games for t in (g.away, g.home)}
-    rows = _player_rows(sp.players, indexes, accuracy, weights, vs_exp, game_of)
+    rows = _player_rows(sp.players, indexes, accuracy, weights, vs_exp, game_of, weather.team_weather(slate))
     ctx = dfs_strategy.team_context(slate)
     for r in rows:
         r["implied"] = (ctx.get(r["team"]) or {}).get("implied")

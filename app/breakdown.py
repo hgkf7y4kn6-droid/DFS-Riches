@@ -190,6 +190,16 @@ def _efficiency_takeaway(game: Game, away: TeamStatLine, home: TeamStatLine) -> 
     return None
 
 
+def weather_takeaway(game: Game) -> str | None:
+    """One line when outdoor weather is poor enough to matter (app.weather)."""
+    w = game.weather or {}
+    if not w.get("available") or w.get("indoor") or w.get("severity") not in ("poor", "severe"):
+        return None
+    when = "Played in" if w.get("observed") else "Forecast" + (" (long range)" if w.get("long_range") else "")
+    impact = f" Projections adjusted: {w['impact']}." if w.get("impact") else " The fitted effect on projections is small."
+    return f"Weather -- {when}: {w['summary']} at {w.get('venue')}.{'' if w.get('observed') else impact}"
+
+
 def generate_takeaways(
     game: Game,
     away: TeamStatLine,
@@ -214,6 +224,8 @@ def generate_takeaways(
         bullets.append(efficiency)
 
     bullets.extend(trenches.game_notes(trench_week, game.away, game.home))
+    if wx := weather_takeaway(game):
+        bullets.insert(0, wx)
 
     if not bullets:
         bullets.append("No standout statistical edge for either side yet -- an early-season, projection-neutral matchup.")

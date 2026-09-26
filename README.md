@@ -428,6 +428,74 @@ The charts follow a data-viz method:
 - Each chart has a "View as table" version.
 - The dialog goes full-screen on phones.
 
+### Weather (`app/weather.py`, `scripts/weather_effects.py`)
+
+Every game gets its stadium's weather for the kickoff window: the kickoff
+hour and the next two. That's average temperature and wind, peak gust,
+highest chance of precipitation, rain and snow totals, and conditions.
+
+**Where the weather comes from**
+- **Forecast:** Open-Meteo's free forecast API (no key, CC BY 4.0), up to
+  16 days out. It's one batched request per week, refreshed hourly. If
+  Open-Meteo is down, US games fall back to the National Weather Service's
+  hourly forecast (7 days out).
+- **Finished games:** the weather they were played in, from the same
+  source's historical data.
+- **Venues:** coordinates and roof type for every stadium in nflverse's
+  schedule, international games included.
+- **Roofs:** domes show "Dome" and get no weather. Retractable roofs show
+  the outside forecast but no adjustment, since teams close them in poor
+  weather.
+
+**Where it shows up**
+- **Week Breakdown cards:** a weather badge on every card, plus a
+  takeaway when outdoor weather is poor.
+- **Game view:** a Weather section with temperature, wind, precipitation
+  and projection-impact tiles.
+- **Slates page:** each game chip, and a Weather column in the lines table.
+- **DFS Model Slate tab:** each game's row, plus a Weather card. The card
+  has a "weather watch" of poor-weather games, with each one's projection
+  impact and the players it cuts most, then every game's weather or dome.
+
+**How weather changes projections**
+
+Both projection paths apply it: the Slates page's Proj and the DFS Model's
+Final. Each player's projected stat line is rescored with weather-scaled
+stats:
+- Passing and receiving yards and receptions scale by the passing-yards
+  effect; passing and receiving TDs by the passing-TD effect.
+- Rushing yards and TDs have their own effects.
+- DSTs use the fitted DST-points effect.
+
+Adjustments of 1% or more appear in the projection's breakdown (hover
+Proj) and in the DFS Model's adjustments and news list. A forecast more
+than 7 days out counts at half strength.
+
+**Where the effects come from**
+
+`scripts/weather_effects.py` fits them on every 2016-2025 regular-season
+game: 5,122 team-games, 3,616 of them in open air. Game-time weather comes
+from Open-Meteo's historical data, the same variables used for forecasts.
+The fit is OLS with offense-season and defense-season fixed effects, so a
+bad offense playing in cold weather isn't read as weather. Measured per
+team-game:
+
+| | Passing yds | Passing TDs | Rushing yds | Team points | DST pts |
+|---|---|---|---|---|---|
+| Each mph of wind above 10 | -3.0 | -0.03 | ~0 | -0.33 | ~0 |
+| Rain | -14.2 | -0.20 | ~0 | -1.5 | +0.64 |
+| Snow | -22.3 | ~0 | +18.0 | ~0 | ~0 |
+| Each degree below 40°F | -1.0 | -0.01 | ~0 | -0.12 | +0.05 |
+
+- **Shrinkage:** each effect is shrunk by its standard error, so noisy ones
+  (snow, a rare condition) count for less.
+- **What projections already price in:** on 2,511 player-games from 2025
+  and 2026, actual DK points minus Sleeper's projection moved 0.62 points
+  for every point of predicted weather effect (standard error 0.29). So
+  projections already account for about 40% of weather, and only the
+  remaining 62% is applied. Rerun the script to refresh all of this; it
+  writes `data/weather_effects.json`.
+
 ### Postgame summaries (`app/postgame.py`)
 
 Once a game is final, its Week Breakdown card shows a **Postgame** block,
@@ -922,6 +990,7 @@ app/
   optimal.py        per-slate optimal lineups, saved pre-kickoff to data/optimal_lineups.json
   breakdown.py      builds the per-game Week Breakdown page (stats, ranks, original takeaways)
   targets.py        per-team DFS targets tailored to the matchup, with reasons
+  weather.py        stadium weather (Open-Meteo / NWS), roofs, kickoff-window summary, projection multipliers
   postgame.py       postgame summaries: result vs lines, game flow, matchups exploited/held, predictability, DFS results
   trenches.py       OL/DL strength, success rates, coverage and scheme tendencies (pbp + FTN + participation), matchup edges
   game_detail.py    the advanced matchup view: chart data + "What it means" notes
@@ -944,6 +1013,7 @@ data/
 scripts/record_draft_groups.py   records the current week's live ids into dk_overrides.json
 scripts/save_optimal_lineups.py  records the current week's open slates' optimal lineups
 scripts/source_accuracy.py       grades each projection source vs actual DK points -> data/source_accuracy.json
+scripts/weather_effects.py       fits weather effects on 2016-2025 games -> data/weather_effects.json
   name_aliases.json manual DK-name -> Sleeper-name bridge, empty by default
   cache/            runtime API response cache (gitignored)
 templates/_base.html      shared head, header, nav and season/week selector

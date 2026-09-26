@@ -14,6 +14,17 @@
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const money = (n) => (n == null ? "-" : "$" + Number(n).toLocaleString("en-US"));
 
+  // Game weather (app/weather.py) as a compact badge; the tooltip carries venue, source and projection impact.
+  function weatherBadge(w, opts) {
+    if (!w) return "";
+    const sev = w.roof === "dome" ? "indoor" : w.roof === "retractable" ? "roof" : w.available ? (w.severity || "good") : "na";
+    let text = w.roof === "dome" ? "Dome" : w.summary || "Weather unavailable";
+    if (opts && opts.short && w.roof === "retractable") text = "Retractable roof";
+    const tip = [w.venue, w.roof === "retractable" ? w.summary : null, w.impact ? `Projection impact: ${w.impact}` : null,
+      w.long_range ? "Long-range forecast (adjustments at half strength)" : null, w.source].filter(Boolean).join(" · ");
+    return `<span class="wx wx-${sev}" title="${esc(tip)}">${esc(text)}</span>`;
+  }
+
   function valid(season, week) {
     return Number.isInteger(season) && season >= 2000 && season <= 2100 && Number.isInteger(week) && week >= 1 && week <= 18;
   }
@@ -100,6 +111,7 @@
     getJson,
     isAbort,
     esc,
+    weatherBadge,
     money,
   };
 })();

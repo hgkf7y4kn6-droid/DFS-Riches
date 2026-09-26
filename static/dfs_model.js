@@ -148,7 +148,7 @@
   // -------------------------------------------------------------- Slate
   function gameTable(games) {
     const rows = games.map((g) => `<tr>
-      <th scope="row">${esc(g.game)}<div class="dm-muted">${esc(g.kickoff || "")}</div></th>
+      <th scope="row">${esc(g.game)}<div class="dm-muted">${esc(g.kickoff || "")}</div><div>${DFS.weatherBadge(g.weather, { short: true })}</div></th>
       <td class="num">${num(g.env_score, 2)}<div class="dm-muted">#${g.env_rank}</div></td>
       <td class="num">${num(g.total)}</td>
       <td class="num">${esc(g.home)} ${spread(g.spread_home)}</td>
@@ -162,12 +162,24 @@
     return `<div class="dm-table-wrap"><table class="dm-table"><thead><tr><th scope="col">Game</th><th scope="col" title="Weighted z-score: total 40%, closeness of spread 20%, top-10 ceiling 20%, neutral tempo 10%, pass rate 10%">Environment</th><th scope="col">Total</th><th scope="col">Spread</th><th scope="col">Implied</th><th scope="col" title="Share of the slate's popularity (ownership, or the estimate)">Popularity</th><th scope="col">Script</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }
 
+  function weatherCard(o, games) {
+    const watch = (o.weather_watch || []).map((x) => `<li><b>${esc(x.game)}</b> ${DFS.weatherBadge(x.weather)}
+      ${x.weather.impact ? `<div class="dm-reason">Projections adjusted: ${esc(x.weather.impact)}${x.weather.long_range ? " (long-range forecast, half strength)" : ""}</div>` : '<div class="dm-muted">Fitted effect on projections is small.</div>'}
+      ${x.players.length ? `<div class="dm-muted">Biggest cuts: ${x.players.map((p) => `${esc(p.name)} x${num(p.factor, 2)}`).join(", ")}</div>` : ""}</li>`);
+    const rest = games.filter((g) => g.weather && !(o.weather_watch || []).some((x) => x.game === g.game))
+      .map((g) => `<li><b>${esc(g.game)}</b> ${DFS.weatherBadge(g.weather, { short: true })}</li>`);
+    return (watch.length ? `<h4>Weather watch</h4><ul class="dm-bullets">${watch.join("")}</ul>` : '<p class="dm-muted">No outdoor game has poor weather in the forecast.</p>')
+      + `<h4>Every game</h4><ul class="dm-bullets">${rest.join("")}</ul>`
+      + note("Kickoff-window forecast at each stadium (Open-Meteo, National Weather Service fallback). Domes get none; retractable roofs are usually closed in poor weather, so no adjustment. Wind, rain, snow and cold adjust outdoor projections by the effects measured on 2016-2025 games.");
+  }
+
   function renderSlate(d) {
     const st = d.strategy, o = st.overview;
     const inj = o.injuries.map((i) => `<li><b>${esc(i.player)}</b> (${esc(i.team)} ${esc(i.position)}) ${esc(INJ[i.status] || i.status)} -- ${num(i.season_fppg)} DK pts/g this season
       ${i.impact.length ? `<div class="dm-muted">Opportunity for: ${i.impact.map((c) => `${esc(c.name)} (${esc(c.reason)})`).join("; ")}</div>` : ""}</li>`);
     return `${card("Game environments", note("Don't assume the highest total is the best stack: the environment score blends total, spread, ceiling, pace and pass rate, and popularity shows whether the field agrees. Sourced: nflverse closing lines, neutral tempo/pass rate. Popularity: " + o.popularity_note + ".") + gameTable(st.games), "dm-wide")}
       <div class="dm-grid">
+        ${card("Weather", weatherCard(o, st.games))}
         ${card("Highest implied team totals", bullets(o.top_implied.map((t) => `<b>${esc(t.team)}</b> ${num(t.implied)} vs ${esc(t.opponent)} (${spread(t.spread)})`)))}
         ${card("Highest game totals", bullets(o.top_totals.map((g) => `<b>${esc(g.game)}</b> ${num(g.total)}`)))}
         ${card("Shootout potential", bullets(o.shootouts.map(esc)))}

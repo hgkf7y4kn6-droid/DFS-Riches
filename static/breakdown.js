@@ -98,6 +98,7 @@
       <header class="breakdown-card-header">
         <div>
           <div class="matchup">${escapeHtml(g.away)} @ ${escapeHtml(g.home)}</div>
+          <div class="meta">${DFS.weatherBadge(g.weather)}</div>
           <div class="meta">${escapeHtml(g.kickoff_et)}${g.network ? " &middot; " + escapeHtml(g.network) : ""}${gb.postgame ? ` &middot; <b>Final: ${escapeHtml(g.away)} ${g.context.away_score}, ${escapeHtml(g.home)} ${g.context.home_score}</b>` : ""}</div>
         </div>
         <button type="button" class="gd-open" data-game="${escapeHtml(g.game_id)}">${gb.postgame ? "Game recap" : "Advanced matchup"} &rarr;</button>
@@ -452,6 +453,23 @@
       c.home_implied_total != null ? statTile(`${g.home} implied`, c.home_implied_total.toFixed(1), gb.home_implied_rank_this_week ? `${ordinal(gb.home_implied_rank_this_week)} of the week` : null) : null,
     ]);
     body.push(section("Vegas outlook", null, tiles, d.insights.vegas));
+
+    const w = g.weather;
+    if (w) {
+      const wTiles = w.available && w.roof !== "dome"
+        ? el("div", { cls: "gd-tiles" }, [
+            statTile("Temperature", `${w.temp_f}°F`, w.condition || null),
+            statTile("Wind", `${Math.round(w.wind_mph)} mph`, w.gust_mph ? `gusts ${w.gust_mph} mph` : null),
+            w.precip_chance != null ? statTile("Precipitation", `${w.precip_chance}%`, "chance in the kickoff window")
+              : statTile("Precipitation", `${(w.precip_in || 0).toFixed(2)} in`, w.observed ? "fell in the kickoff window" : null),
+            statTile("Projection impact", w.impact ? w.impact.split(", ")[0] : "None",
+              w.roof === "retractable" ? "retractable roof" : [w.impact ? w.impact.split(", ").slice(1).join(", ") : "", w.long_range ? "long-range, half strength" : ""].filter(Boolean).join("; ") || null),
+          ])
+        : null;
+      const badge = el("p", {});
+      badge.innerHTML = DFS.weatherBadge(w) + (w.source ? ` <span class="gd-sub">${escapeHtml(w.source)}</span>` : "");
+      body.push(section("Weather", w.venue || null, el("div", {}, [badge, wTiles]), d.insights.weather));
+    }
 
     // Efficiency, one section per offense
     const effRows = (off, def, offTeam, defTeam) => {

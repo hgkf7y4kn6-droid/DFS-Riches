@@ -78,6 +78,7 @@
       chip.innerHTML = `
         <div class="matchup">${escapeHtml(g.away)} @ ${escapeHtml(g.home)}</div>
         <div class="meta">${escapeHtml(g.kickoff_et)}${g.network ? " · " + escapeHtml(g.network) : ""}</div>
+        <div class="meta">${DFS.weatherBadge(g.weather, { short: true })}</div>
         ${g.isolated ? `<div class="badge">${escapeHtml(g.day_part.replace("_", " "))}</div>` : ""}
       `;
       scheduleStripEl.appendChild(chip);
@@ -193,6 +194,7 @@
       tr.innerHTML = `
         <td>${g.away} @ ${g.home}</td>
         <td>${g.kickoff_et}</td>
+        <td>${DFS.weatherBadge(g.weather)}</td>
         <td class="num">${fmtSpreadPair(g)}</td>
         <td class="num">${fmtTotalCell(g)}</td>
         <td class="num">${fmtImpliedPair(g)}</td>

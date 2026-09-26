@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections import Counter
 from datetime import datetime, timezone
 
-from app import sleeper_client
+from app import nflverse_client, sleeper_client, weather
 from app.cache import memoize_async
 from app.config import ET, ISOLATED_DAY_PARTS
 from app.game_context import attach_game_context
@@ -96,4 +96,9 @@ async def get_week_schedule(season: int, week: int, season_type: str = "regular"
 
     schedule = WeekSchedule(season=season, week=week, games=games, isolated_games=isolated_games)
     await attach_game_context(schedule)
+    try:
+        lines = await nflverse_client.get_games(season)
+    except Exception:
+        lines = {}
+    await weather.attach_weather(schedule, lines)
     return schedule

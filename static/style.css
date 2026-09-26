@@ -1260,3 +1260,11 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
 .pg-section h4 { margin: 14px 0 6px; font-size: 13px; }
 .gd-trench-table td.pg-hit { color: var(--green); }
 .gd-trench-table td.pg-miss { color: var(--red); }
+
+/* weather badges (DFS.weatherBadge) */
+.wx { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; border: 1px solid var(--border); color: var(--muted); white-space: normal; }
+.wx-indoor, .wx-roof { color: var(--muted); }
+.wx-good { color: var(--text); }
+.wx-mild { color: var(--gold); border-color: var(--gold); }
+.wx-poor, .wx-severe { color: var(--red); border-color: var(--red); }
+.wx-severe { font-weight: 700; }

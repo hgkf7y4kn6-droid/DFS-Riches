@@ -19,6 +19,12 @@ adjusted for how this week's opponent has fared against expectations.
    5.709); stronger versions, or adjusting on a player's own record vs his
    projections, made projections worse (regression to the mean).
 
+3. Weather (app.weather). Outdoor games only: the projected line rescored
+   with weather-scaled stats (passing/receiving yards and TDs, rushing yards
+   and TDs), using effects fit on 2016-2025 games and applied only to the
+   extent projections don't already price weather in
+   (scripts/weather_effects.py). DSTs use the fitted DST-points effect.
+
 Players without a Sleeper line (kickers, deep backups) fall back to
 DraftKings' season FPPG.
 """
@@ -26,7 +32,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app import dk_scoring
+from app import dk_scoring, weather
 from app import nflverse_client as nc
 from app import sleeper_client
 from app.cache import cached_fetch, memoize_async
@@ -130,8 +136,13 @@ async def build_context(season: int, week: int) -> ProjectionContext:
     return ProjectionContext(lines=lines, vs_expectation=await defense_vs_expectation(season, week))
 
 
+def weather_note(w: dict, factor: float) -> str:
+    return (f"Weather ({w.get('summary')}): x{factor:.2f}"
+            + (" -- long-range forecast, half strength" if w.get("long_range") else ""))
+
+
 def project(ctx: ProjectionContext, *, sleeper_id: str | None, position: str, opponent: str,
-            fallback: float | None) -> tuple[float, list[str]]:
+            fallback: float | None, game_weather: dict | None = None) -> tuple[float, list[str]]:
     """(DK points, one line of explanation per step) for one player."""
     line = ctx.lines.get(sleeper_id) if sleeper_id else None
     base = dk_points_from_line(line["stats"], position) if line and line.get("stats") else 0.0
@@ -148,6 +159,10 @@ def project(ctx: ProjectionContext, *, sleeper_id: str | None, position: str, op
             notes.append(f"vs {opponent} this season: {position}s have scored {actual / projected - 1:+.0%} vs their "
                          f"projections ({games} game{'s' if games != 1 else ''}) -> x{m:.2f}")
         base *= m
+    factor = weather.player_factor(game_weather, position, line["stats"], dk_points_from_line)
+    if abs(factor - 1) >= 0.01:
+        notes.append(weather_note(game_weather, factor))
+        base *= factor
     return round(base, 2), notes
 
 

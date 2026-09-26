@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from app import ceiling, dk_client, matching, nflverse_client, projections, sleeper_client
+from app import ceiling, dk_client, matching, nflverse_client, projections, sleeper_client, weather
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
 from app.models import Player, Slate, SlatePlayers, WeekSchedule
@@ -109,6 +109,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
     team_dst_trailing_index = await nflverse_client.get_team_dst_trailing_index(season)
     ceiling_ctx = await ceiling.context_for(season, week)
     projection_ctx = await projections.build_context(season, week)
+    team_wx = weather.team_weather(_schedule)
 
     players: list[Player] = []
     unmatched: list[str] = []
@@ -120,7 +121,8 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
 
         sleeper_proj = sleeper_points.get(sleeper_id) if sleeper_id else None
         base_proj, proj_notes = projections.project(
-            projection_ctx, sleeper_id=sleeper_id, position=row["position"], opponent=row["opponent"], fallback=row["dk_fppg"])
+            projection_ctx, sleeper_id=sleeper_id, position=row["position"], opponent=row["opponent"], fallback=row["dk_fppg"],
+            game_weather=team_wx.get(row["team"]))
 
         is_captain = row["roster_slot"] == "CPT"
         if is_captain and sleeper_proj is not None:

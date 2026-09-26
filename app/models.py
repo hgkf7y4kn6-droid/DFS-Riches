@@ -65,6 +65,7 @@ class Game(BaseModel):
     day_part: str          # WED_NIGHT, THU_NIGHT, SUN_EARLY, SUN_LATE, SUN_NIGHT, MON_NIGHT, ...
     isolated: bool = False # True => the lone game in an isolated (Wed/Thu/Sun/Mon night) window
     context: GameContext | None = None  # real spread/total/pace + performance-vs-line, once available
+    weather: dict | None = None         # app.weather: venue, roof, kickoff-window forecast, projection multipliers
 
 
 class WeekSchedule(BaseModel):

@@ -1,0 +1,125 @@
+{
+ "generated_at": "2026-09-26T00:38:35+00:00",
+ "seasons": [
+  2016,
+  2025
+ ],
+ "team_games": 5122,
+ "open_air_team_games": 3616,
+ "features": [
+  "wind_over_10",
+  "rain",
+  "snow",
+  "cold_below_40"
+ ],
+ "outcomes": {
+  "pass_yd": {
+   "mean": 242.2579,
+   "coef": {
+    "wind_over_10": -3.00832,
+    "rain": -14.19189,
+    "snow": -22.2991,
+    "cold_below_40": -1.03519
+   },
+   "se": {
+    "wind_over_10": 0.51416,
+    "rain": 3.44004,
+    "snow": 8.78517,
+    "cold_below_40": 0.29158
+   },
+   "indoor": 7.7288
+  },
+  "pass_td": {
+   "mean": 1.5127,
+   "coef": {
+    "wind_over_10": -0.03051,
+    "rain": -0.19562,
+    "snow": -0.08779,
+    "cold_below_40": -0.01188
+   },
+   "se": {
+    "wind_over_10": 0.00841,
+    "rain": 0.05627,
+    "snow": 0.14371,
+    "cold_below_40": 0.00477
+   },
+   "indoor": 0.0763
+  },
+  "rush_yd": {
+   "mean": 115.3323,
+   "coef": {
+    "wind_over_10": 0.13354,
+    "rain": 0.69081,
+    "snow": 17.9554,
+    "cold_below_40": 0.01212
+   },
+   "se": {
+    "wind_over_10": 0.3595,
+    "rain": 2.40525,
+    "snow": 6.14252,
+    "cold_below_40": 0.20387
+   },
+   "indoor": 1.5198
+  },
+  "rush_td": {
+   "mean": 0.8948,
+   "coef": {
+    "wind_over_10": -0.00843,
+    "rain": -0.02092,
+    "snow": 0.14315,
+    "cold_below_40": -0.00072
+   },
+   "se": {
+    "wind_over_10": 0.00692,
+    "rain": 0.04632,
+    "snow": 0.11829,
+    "cold_below_40": 0.00393
+   },
+   "indoor": 0.0468
+  },
+  "points": {
+   "mean": 22.7636,
+   "coef": {
+    "wind_over_10": -0.32565,
+    "rain": -1.53525,
+    "snow": -0.41203,
+    "cold_below_40": -0.12102
+   },
+   "se": {
+    "wind_over_10": 0.06941,
+    "rain": 0.46437,
+    "snow": 1.1859,
+    "cold_below_40": 0.03936
+   },
+   "indoor": 0.887
+  },
+  "dst": {
+   "mean": 6.1207,
+   "coef": {
+    "wind_over_10": 0.03752,
+    "rain": 0.64284,
+    "snow": -0.33584,
+    "cold_below_40": 0.0528
+   },
+   "se": {
+    "wind_over_10": 0.03924,
+    "rain": 0.26254,
+    "snow": 0.67046,
+    "cold_below_40": 0.02225
+   },
+   "indoor": -0.4217
+  }
+ },
+ "priced_in_check": {
+  "slope": 0.616,
+  "se": 0.292,
+  "player_games": 2511,
+  "informative": 781,
+  "seasons": [
+   2025,
+   2026
+  ]
+ },
+ "applied_share": 0.616,
+ "source": "Open-Meteo historical weather (CC BY 4.0) + nflverse schedules/box scores"
+}

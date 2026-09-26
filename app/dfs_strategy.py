@@ -184,7 +184,8 @@ def enrich(pool: list[dict], rows: list[dict], slate, usage: dict, trench_week: 
         r["floor_ratio"] = round(r["floor"] / r["final"], 2) if r["final"] else None
         r["ceiling_pct"] = _pct(ceil_by_pos[r["position"]], r["ceiling"])
         r["final_pct"] = _pct(final_by_pos[r["position"]], r["final"])
-        r["matchup_factor"] = next((a["factor"] for a in r["adjustments"] if a["kind"] == "model"), 1.0)
+        r["matchup_factor"] = next((a["factor"] for a in r["adjustments"] if a["kind"] == "model" and a.get("source") != "Weather"), 1.0)
+        r["weather_factor"] = next((a["factor"] for a in r["adjustments"] if a.get("source") == "Weather"), 1.0)
         mates_out = [o for o in out_by_team.get(r["team"], []) if o["position"] == r["position"]
                      or (r["position"] in ("WR", "TE") and o["position"] in ("WR", "TE"))]
         r["injury_opportunity"] = [f"{o['name']} ({o['position']}, {o['injury']})" for o in mates_out]
@@ -211,6 +212,14 @@ def game_script(g: dict) -> str:
     return f"Competitive: {total:g} total, {fav} by {margin:g}"
 
 
+def _weather_brief(w: dict | None) -> dict | None:
+    if not w:
+        return None
+    keys = ("available", "roof", "indoor", "venue", "summary", "severity", "flags", "impact", "long_range", "source",
+            "temp_f", "wind_mph", "gust_mph", "precip_chance", "observed")
+    return {k: w.get(k) for k in keys}
+
+
 def analyze_games(pool: list[dict], slate, wd, has_own: bool) -> list[dict]:
     games = []
     for g in slate.games:
@@ -230,6 +239,7 @@ def analyze_games(pool: list[dict], slate, wd, has_own: bool) -> list[dict]:
             "tempo_ranks": tempo, "pass_rate_ranks": passr,
             "top10_final": round(sum(r["final"] for r in sorted(players, key=lambda r: -r["final"])[:10]), 1),
             "top10_ceiling": round(sum(r["ceiling"] for r in top), 1), "pop_raw": pop,
+            "weather": _weather_brief(getattr(g, "weather", None)),
         })
     if not games:
         return []
@@ -316,6 +326,13 @@ def slate_overview(games: list[dict], pool: list[dict], ctx: dict, rows: list[di
         "best_wr_teams": pools["wr_environments"],
         "te_approach": pools["TE"]["recommendation"],
         "popularity_note": "Bayesian posterior ownership (large-field GPP)" if has_own else "popularity estimate",
+        "weather_watch": [{"game": g["game"], "weather": g["weather"],
+                           "players": [card(p, factor=p["weather_factor"]) for p in sorted(
+                               (p for p in pool if p["team"] in (g["away"], g["home"]) and p.get("weather_factor", 1) < 0.995),
+                               key=lambda p: -(p["final"] / p["weather_factor"] - p["final"]))[:4]]}
+                          for g in games if g.get("weather") and g["weather"].get("severity") in ("poor", "severe")
+                          and not g["weather"].get("indoor")],
+        "indoor_games": [g["game"] for g in games if (g.get("weather") or {}).get("indoor")],
     }
 
 

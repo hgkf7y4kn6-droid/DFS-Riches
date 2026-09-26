@@ -237,6 +237,8 @@ async def get_games(season: int) -> dict[tuple[int, str, str], dict[str, Any]]:
             "away_score": away_score,
             "home_score": home_score,
             "is_final": away_score is not None and home_score is not None,
+            "stadium_id": row.get("stadium_id") or None,
+            "roof": row.get("roof") or None,
         }
     return games
 
