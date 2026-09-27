@@ -16,6 +16,8 @@
     activeLineup: 0,
     optimal: null,
     injuryFilter: "all",
+    slotFilter: "all",      // Showdown: "all" | "CPT" | "FLEX"
+    fitOnly: true,          // hide players who can't go into the active lineup
   };
 
   const L = window.DFSLineups;
@@ -41,6 +43,9 @@
   const optimalCardsEl = document.getElementById("optimal-cards");
   const injuryFilterEl = document.getElementById("injury-filter");
   const injuryHiddenCountEl = document.getElementById("injury-hidden-count");
+  const slotFiltersEl = document.getElementById("slot-filters");
+  const fitFilterEl = document.getElementById("fit-filter");
+  const fitHiddenCountEl = document.getElementById("fit-hidden-count");
 
   const escapeHtml = DFS.esc;
 
@@ -263,6 +268,27 @@
     }
   }
 
+  function renderSlotFilters() {
+    const showdown = activeSlateType() === "showdown";
+    slotFiltersEl.hidden = !showdown;
+    slotFiltersEl.innerHTML = "";
+    if (!showdown) return;
+    for (const [value, label] of [["all", "All slots"], ["CPT", "Captain"], ["FLEX", "Flex"]]) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = label;
+      const on = state.slotFilter === value;
+      btn.className = on ? "active" : "";
+      btn.setAttribute("aria-pressed", String(on));
+      btn.addEventListener("click", () => {
+        state.slotFilter = value;
+        renderSlotFilters();
+        renderTable();
+      });
+      slotFiltersEl.appendChild(btn);
+    }
+  }
+
   function renderUnmatchedBanner() {
     if (state.unmatched.length === 0) {
       unmatchedBannerEl.hidden = true;
@@ -276,6 +302,7 @@
   }
 
   const INJURY_FILTER_KEY = "dfsriches:injuryFilter";
+  const FIT_FILTER_KEY = "dfsriches:fitFilter";
   const PLAYABLE_STATUSES = new Set(["Healthy", "Q"]);
 
   function passesInjuryFilter(p) {
@@ -288,6 +315,26 @@
     let rows = state.players.filter(passesInjuryFilter);
     const hidden = state.players.length - rows.length;
     injuryHiddenCountEl.textContent = hidden ? `${hidden} hidden` : "";
+
+    // Lineup-aware filtering. A rostered Captain always hides the other
+    // Captain rows (and his own FLEX row); "Only players who fit" also hides
+    // anyone without an open slot or the salary to finish the lineup.
+    const slateType = activeSlateType();
+    const active = state.lineups[state.activeLineup] || [];
+    const fit = L.fitChecker(active, slateType, rows);
+    const captain = slateType === "showdown" ? active.find((p) => p && p.roster_slot === "CPT") : null;
+    const before = rows.length;
+    rows = rows.filter((p) => {
+      if (L.indexOfPlayer(active, p) !== -1) return true;
+      if (captain && (p.roster_slot === "CPT" || (p.name === captain.name && p.team === captain.team))) return false;
+      return !state.fitOnly || fit(p).ok;
+    });
+    const unfit = before - rows.length;
+    fitHiddenCountEl.textContent = unfit ? `${unfit} don't fit` : "";
+
+    if (slateType === "showdown" && state.slotFilter !== "all") {
+      rows = rows.filter((p) => p.roster_slot === state.slotFilter);
+    }
     if (state.activePositions.size > 0) {
       rows = rows.filter((p) => state.activePositions.has(p.position));
     }
@@ -317,13 +364,15 @@
     const rows = getFilteredSortedPlayers();
     tbodyEl.innerHTML = "";
     emptyStateEl.hidden = rows.length > 0;
+    const active = state.lineups[state.activeLineup] || [];
     if (rows.length === 0) {
+      const full = active.length > 0 && active.every(Boolean);
       emptyStateEl.textContent = state.players.length === 0
         ? "No salary data available for this slate yet."
-        : "No players match your filters.";
+        : full ? `Lineup ${state.activeLineup + 1} is full -- remove a player or start a new lineup to see more options.`
+          : "No players match your filters.";
     }
 
-    const active = state.lineups[state.activeLineup] || [];
     for (const p of rows) {
       const tr = document.createElement("tr");
       const slotHtml = p.roster_slot
@@ -726,6 +775,7 @@
       renderLineups();
       renderUnmatchedBanner();
       renderPositionFilters();
+      renderSlotFilters();
       renderTable();
       loadOptimal(slateId);
     } catch (err) {
@@ -791,6 +841,21 @@
     // storage unavailable: default to showing all players
   }
   injuryFilterEl.value = state.injuryFilter;
+  try {
+    state.fitOnly = localStorage.getItem(FIT_FILTER_KEY) !== "0";
+  } catch (_e) {
+    // storage unavailable: default on
+  }
+  fitFilterEl.checked = state.fitOnly;
+  fitFilterEl.addEventListener("change", (e) => {
+    state.fitOnly = e.target.checked;
+    try {
+      localStorage.setItem(FIT_FILTER_KEY, state.fitOnly ? "1" : "0");
+    } catch (_e) {
+      // storage unavailable: the choice just won't persist
+    }
+    renderTable();
+  });
   injuryFilterEl.addEventListener("change", (e) => {
     state.injuryFilter = e.target.value;
     try {

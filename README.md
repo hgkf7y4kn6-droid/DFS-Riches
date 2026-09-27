@@ -283,6 +283,22 @@ your lineups include them (e.g. "2/3"). Lineups are saved in your browser's
 local storage per season/week/slate, so they survive a reload but aren't
 shared across devices.
 
+The player pool follows the lineup you're editing:
+
+- **Captain/Flex filter (Showdown):** "All slots", "Captain" or "Flex"
+  narrows the pool to that roster slot.
+- **One captain at a time:** once a lineup has a captain, every other
+  Captain row disappears, along with the captain's own Flex row. They come
+  back when you remove the captain, or when you start or switch to a
+  lineup without one.
+- **Only players who fit** (on by default): as you add players, the pool
+  drops anyone who can't go into the lineup. That means players with no
+  open slot for their position, and players whose salary wouldn't leave
+  enough to fill the other open slots with the cheapest eligible players
+  left. Players already in the lineup always stay visible so you can remove
+  them. Next to the checkbox, a count shows how many are hidden; untick it
+  to see everyone. The captain rule applies either way.
+
 ### Lines, implied totals, and pace of play
 
 `app/game_context.py` attaches real betting/pace context to every game in

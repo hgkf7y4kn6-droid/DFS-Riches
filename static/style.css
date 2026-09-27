@@ -342,6 +342,15 @@ body {
   color: #241c02;
   font-weight: 700;
 }
+.fit-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.fit-filter input { accent-color: var(--gold); width: 16px; height: 16px; }
 .injury-filter {
   display: flex;
   align-items: center;

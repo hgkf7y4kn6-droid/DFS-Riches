@@ -70,6 +70,42 @@
     return { ok: true, slots: next, index: idx };
   }
 
+  // Which pool players can still go into this lineup: an open slot that takes
+  // them, not already rostered (Showdown: not as the other of CPT/FLEX), and a
+  // salary that leaves enough to fill every other open slot with the cheapest
+  // eligible players left in the pool. Players already in the lineup always
+  // "fit" so they stay visible to remove. Returns player -> {ok, reason}.
+  function fitChecker(slots, slateType, pool) {
+    const defs = template(slateType);
+    const filled = slots.filter(Boolean);
+    const remaining = SALARY_CAP - filled.reduce((s, p) => s + p.salary, 0);
+    const open = defs.map((d, i) => i).filter((i) => !slots[i]);
+    const available = pool.filter((p) => !filled.some((f) => samePerson(f, p))).sort((a, b) => a.salary - b.salary);
+    const cheapest = {};
+    for (const i of open) cheapest[i] = available.filter((p) => slotAccepts(defs[i], p));
+
+    return function (player) {
+      if (indexOfPlayer(slots, player) !== -1) return { ok: true, reason: "In this lineup" };
+      const dupe = filled.find((p) => samePerson(p, player));
+      if (dupe) return { ok: false, reason: `Already in this lineup as ${dupe.roster_slot || dupe.position}` };
+      const idx = open.find((i) => slotAccepts(defs[i], player));
+      if (idx === undefined) return { ok: false, reason: "No open slot for this position" };
+      let need = 0;
+      const taken = [player];
+      const others = open.filter((i) => i !== idx).sort((a, b) => cheapest[a].length - cheapest[b].length);
+      for (const i of others) {
+        const pick = cheapest[i].find((p) => !taken.some((t) => samePerson(t, p)));
+        if (!pick) return { ok: false, reason: "Not enough eligible players left to fill the lineup" };
+        taken.push(pick);
+        need += pick.salary;
+      }
+      if (player.salary + need > remaining) {
+        return { ok: false, reason: `Leaves too little salary to fill the other ${others.length} slot${others.length === 1 ? "" : "s"}` };
+      }
+      return { ok: true, reason: null };
+    };
+  }
+
   function removeAt(slots, index) {
     const next = slots.slice();
     next[index] = null;
@@ -112,7 +148,7 @@
     };
   }
 
-  const api = { SALARY_CAP, MAX_LINEUPS, template, emptyLineup, addPlayer, removeAt, indexOfPlayer, summarize };
+  const api = { SALARY_CAP, MAX_LINEUPS, template, emptyLineup, addPlayer, removeAt, indexOfPlayer, summarize, fitChecker };
 
   if (typeof module !== "undefined" && module.exports) {
     module.exports = api;

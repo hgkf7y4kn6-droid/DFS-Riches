@@ -56,6 +56,11 @@
       <label class="visually-hidden" for="search-box">Search players by name, team, or opponent</label>
       <input id="search-box" type="search" placeholder="Search player, team..." />
       <div id="position-filters" class="position-filters" role="group" aria-label="Filter by position"></div>
+      <div id="slot-filters" class="position-filters" role="group" aria-label="Filter by Showdown roster slot" hidden></div>
+      <label class="fit-filter" title="As players are added, hide everyone who can't go into the active lineup: no open slot for them, or too little salary left to fill the other open slots with the cheapest eligible players.">
+        <input id="fit-filter" type="checkbox" checked /> Only players who fit
+        <span id="fit-hidden-count" class="injury-hidden-count" aria-live="polite"></span>
+      </label>
       <label class="injury-filter">Injury status
         <select id="injury-filter">
           <option value="all">All players</option>
