@@ -106,7 +106,7 @@ def compute(season: int, week: int, slate, rows: list[dict], *, contest: str = "
             wrote = trigger
 
     # --- showdown (players whose game has a Showdown slate)
-    sd = {}
+    sd, sd_ids = {}, {}
     for sd_slate, sd_players in showdowns:
         sd_data = store.load(season, week, sd_slate.slate_id)
         sd_lock = min((g.kickoff_utc for g in sd_slate.games), default=None)
@@ -121,14 +121,29 @@ def compute(season: int, week: int, slate, rows: list[dict], *, contest: str = "
                 s = om.beta_summary(det["alpha"], det["beta"])
                 sd.setdefault(p["base_key"], {"slate": sd_slate.label})[p["roster_slot"].lower()] = {
                     "mean": s["mean"], "ci80": s["ci80"], "actual": det.get("actual")}
+                sd_ids[p["id"]] = {"own": _pct(s["mean"]), "lo": _pct(s["ci80"][0]), "hi": _pct(s["ci80"][1]),
+                                   "contest": c, "actual": _pct(det.get("actual"))}
 
     return {"players": players, "post": post, "sim": sim, "contest": contest, "history": history, "lock": lock,
-            "now": now, "data": data, "learning": learning, "showdown": sd, "history_written": wrote, "slots": slots}
+            "now": now, "data": data, "learning": learning, "showdown": sd, "showdown_ids": sd_ids,
+            "history_written": wrote, "slots": slots}
 
 
 def own_pct_by_id(state: dict, contest: str = "gpp") -> dict[int, float]:
     det = state["post"]["by_contest"][contest]
     return {p["id"]: round(_mean(det[p["key"]]) * 100, 2) for p in state["players"]}
+
+
+def summary_by_id(state: dict, contest: str = "gpp") -> dict[int, dict]:
+    """DraftKings id -> posterior ownership % with its 80% interval, for one Classic contest type."""
+    det = state["post"]["by_contest"][contest]
+    out = {}
+    for p in state["players"]:
+        d = det[p["key"]]
+        s = om.beta_summary(d["alpha"], d["beta"])
+        out[p["id"]] = {"own": _pct(s["mean"]), "lo": _pct(s["ci80"][0]), "hi": _pct(s["ci80"][1]),
+                        "contest": contest, "actual": _pct(d.get("actual"))}
+    return out
 
 
 def _pct(x):

@@ -283,6 +283,21 @@ your lineups include them (e.g. "2/3"). Lineups are saved in your browser's
 local storage per season/week/slate, so they survive a reload but aren't
 shared across devices.
 
+**Expected ownership.** The player table has an **Own%** column (sortable).
+Hover a value for its 80% interval. These are the Bayesian ownership
+model's numbers, the same ones as the DFS Model's Ownership tab:
+
+- **Classic slates** use large-field GPP ownership.
+- **Showdown slates** show Captain ownership on CPT rows and Flex ownership
+  on FLEX rows.
+
+Each lineup card shows every player's Own% plus the lineup's **Total own**
+(cumulative ownership, the sum across the roster) and **Avg own**. The
+sticky bar shows the active lineup's total. Ownership loads after the
+player table, since the first request of a week runs the DFS Model (about
+15-20 seconds cold, instant after that). The column shows "…" until it
+arrives.
+
 The player pool follows the lineup you're editing:
 
 - **Captain/Flex filter (Showdown):** "All slots", "Captain" or "Flex"

@@ -89,3 +89,10 @@ def test_ownership_version_changes_only_on_new_information(monkeypatch, tmp_path
     ownership_store.add_observations(2026, 3, "classic_sunday", "source", "gpp",
                                      [{"name": "Josh Allen", "pct": 12.0}], players, source="S")
     assert ownership_store.data_version() != v0
+
+
+def test_slate_ownership_rejects_unknown_slates(client, monkeypatch):
+    async def fake_list(season, week):
+        return None, []
+    monkeypatch.setattr(main.slates, "list_slates", fake_list)
+    assert client.get("/api/slates/nope/ownership?season=2026&week=3").status_code == 404

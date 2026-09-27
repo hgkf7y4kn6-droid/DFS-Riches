@@ -558,7 +558,7 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
 }
 .lineup-slot {
   display: grid;
-  grid-template-columns: 38px 1fr auto auto 28px;
+  grid-template-columns: 38px 1fr auto auto auto 28px;
   align-items: center;
   gap: 6px;
   padding: 3px 0;
@@ -681,7 +681,7 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
 
 @media (pointer: coarse) {
   .ls-remove { width: 44px; height: 44px; }
-  .lineup-slot { grid-template-columns: 38px 1fr auto auto 44px; }
+  .lineup-slot { grid-template-columns: 38px 1fr auto auto auto 44px; }
 }
 
 @media (max-width: 640px) {
@@ -1277,3 +1277,10 @@ td.add-col { padding-top: 4px; padding-bottom: 4px; }
 .wx-mild { color: var(--gold); border-color: var(--gold); }
 .wx-poor, .wx-severe { color: var(--red); border-color: var(--red); }
 .wx-severe { font-weight: 700; }
+
+/* expected ownership (Slates page) */
+.own-cell.muted { color: var(--muted); }
+.own-cell.own-high { color: var(--gold); font-weight: 600; }
+.own-cell.own-low { color: var(--green); }
+.ls-own { color: var(--muted); font-size: 11px; min-width: 34px; text-align: right; }
+.lt-own { color: var(--gold); }

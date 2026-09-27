@@ -34,3 +34,15 @@ const cf = L.fitChecker(c, "classic", cpool);
 assert(!cf(cpool[1]).ok && cf(cpool[1]).reason === "No open slot for this position");
 assert(cf(cpool[2]).ok);
 console.log("fit tests passed");
+// ownership totals in the lineup summary
+{
+  const a = { ...mk(201, "A1", "A", "QB", 7000), ownership: 20 };
+  const b = { ...mk(202, "B1", "B", "RB", 6000), ownership: 5.5 };
+  const d = mk(203, "C1", "C", "WR", 5000);          // no ownership yet
+  let lu2 = L.emptyLineup("classic");
+  for (const p of [a, b, d]) lu2 = L.addPlayer(lu2, "classic", p).slots;
+  const s = L.summarize(lu2, "classic");
+  assert(s.ownSum === 25.5 && s.ownCount === 2 && s.ownAvg === 12.8, JSON.stringify(s));
+  assert(L.summarize(L.emptyLineup("classic"), "classic").ownAvg === null);
+  console.log("ownership summary tests passed");
+}

@@ -18,6 +18,7 @@
     injuryFilter: "all",
     slotFilter: "all",      // Showdown: "all" | "CPT" | "FLEX"
     fitOnly: true,          // hide players who can't go into the active lineup
+    ownership: "idle",      // "loading" | "ready" | "unavailable"
   };
 
   const L = window.DFSLineups;
@@ -399,6 +400,7 @@
         <td class="num">${fmtSalary(p.salary)}</td>
         <td class="num proj-cell"${p.proj_notes && p.proj_notes.length ? ` title="${escapeHtml(p.proj_notes.join("\n"))}"` : ""}>${p.proj_points.toFixed(1)}</td>
         <td class="num ceiling-cell"${p.ceiling_notes && p.ceiling_notes.length ? ` title="${escapeHtml(p.ceiling_notes.join("\n"))}"` : ""}>${p.ceiling != null ? p.ceiling.toFixed(1) : "-"}</td>
+        ${ownCell(p)}
         <td class="num">${p.dk_fppg != null ? p.dk_fppg.toFixed(1) : "-"}</td>
         <td class="num">${p.trend_l3 != null ? p.trend_l3.toFixed(1) : "-"}</td>
         <td class="num">${p.trend_l6 != null ? p.trend_l6.toFixed(1) : "-"}</td>
@@ -416,6 +418,48 @@
       th.setAttribute("aria-sort", isSorted ? (state.sortDir === "asc" ? "ascending" : "descending") : "none");
     });
     updateScrollShadow(tbodyEl.closest(".table-scroll"));
+  }
+
+  const OWN_CONTEST = { gpp: "large-field GPP", showdown_cpt: "Showdown Captain", showdown_flex: "Showdown Flex" };
+
+  function fmtOwn(v) {
+    return v == null ? "-" : (v >= 10 ? v.toFixed(0) : v.toFixed(1)) + "%";
+  }
+
+  function ownCell(p) {
+    if (state.ownership === "loading") return '<td class="num own-cell muted" aria-busy="true">&hellip;</td>';
+    if (p.ownership == null) return '<td class="num own-cell muted">-</td>';
+    const tip = `Expected ownership ${fmtOwn(p.ownership)} (80% interval ${fmtOwn(p.own_lo)}-${fmtOwn(p.own_hi)})`
+      + (p.own_contest ? ` -- ${OWN_CONTEST[p.own_contest] || p.own_contest}` : "");
+    const cls = p.ownership >= 20 ? " own-high" : p.ownership < 5 ? " own-low" : "";
+    return `<td class="num own-cell${cls}" title="${escapeHtml(tip)}">${fmtOwn(p.ownership)}</td>`;
+  }
+
+  async function loadOwnership(slateId) {
+    state.ownership = "loading";
+    for (const p of state.players) p.ownership = p.own_lo = p.own_hi = p.own_contest = null;
+    renderTable();
+    try {
+      const data = await DFS.getJson(
+        `/api/slates/${encodeURIComponent(slateId)}/ownership?season=${state.season}&week=${state.week}`, "ownership"
+      );
+      if (slateId !== state.activeSlateId) return;
+      const byId = data.players || {};
+      for (const p of state.players) {
+        const o = byId[String(p.dk_draftable_id)];
+        if (!o) continue;
+        p.ownership = o.own;
+        p.own_lo = o.lo;
+        p.own_hi = o.hi;
+        p.own_contest = o.contest;
+      }
+      state.ownership = data.available ? "ready" : "unavailable";
+    } catch (err) {
+      if (DFS.isAbort(err)) return;
+      state.ownership = "unavailable";
+    }
+    renderTable();
+    renderLineups();
   }
 
   function activeSlateType() {
@@ -503,6 +547,7 @@
               <span class="ls-name">${escapeHtml(p.name)} <span class="ls-team">${escapeHtml(p.position)} &middot; ${escapeHtml(p.team)}</span></span>
               <span class="ls-salary">${fmtSalary(p.salary)}</span>
               <span class="ls-proj">${fmtPts(p.proj_points || 0)}</span>
+              <span class="ls-own" title="Expected ownership">${p.ownership != null ? fmtOwn(p.ownership) : ""}</span>
               <button type="button" class="ls-remove" data-slot="${si}" aria-label="Remove ${escapeHtml(p.name)} from lineup ${i + 1}">&times;</button>
             </li>`;
         })
@@ -526,6 +571,8 @@
           <div><dt>Proj</dt><dd class="lt-proj">${fmtPts(s.proj)}</dd></div>
           <div><dt>Ceiling</dt><dd class="lt-ceiling">${fmtPts(s.ceiling)}</dd></div>
           <div><dt>Sleeper Proj</dt><dd>${sleeperTxt}</dd></div>
+          <div><dt title="Cumulative ownership: the sum of each rostered player's expected ownership">Total own</dt><dd class="lt-own">${s.ownCount ? fmtOwn(s.ownSum) : "-"}</dd></div>
+          <div><dt>Avg own</dt><dd>${s.ownAvg != null ? fmtOwn(s.ownAvg) : "-"}</dd></div>
         </dl>
         ${s.errors.length && s.filled > 0 ? `<ul class="lineup-errors">${s.errors.map((e) => `<li>${escapeHtml(e)}</li>`).join("")}</ul>` : ""}
       `;
@@ -539,7 +586,8 @@
       lineupStickySummaryEl.innerHTML =
         `<strong>Lineup ${state.activeLineup + 1}</strong> ${cur.filled}/${cur.total} &middot; ` +
         `<span class="${cur.remaining < 0 ? "over" : ""}">${cur.remaining < 0 ? "-" : ""}${fmtSalary(Math.abs(cur.remaining))} left</span> &middot; ` +
-        `Proj <span class="lt-proj">${fmtPts(cur.proj)}</span> &middot; Ceiling <span class="lt-ceiling">${fmtPts(cur.ceiling)}</span>`;
+        `Proj <span class="lt-proj">${fmtPts(cur.proj)}</span> &middot; Ceiling <span class="lt-ceiling">${fmtPts(cur.ceiling)}</span>` +
+        (cur.ownCount ? ` &middot; Own <span class="lt-own">${fmtOwn(cur.ownSum)}</span>` : "");
     }
   }
 
@@ -778,6 +826,7 @@
       renderSlotFilters();
       renderTable();
       loadOptimal(slateId);
+      loadOwnership(slateId);
     } catch (err) {
       if (DFS.isAbort(err)) return;
       state.players = [];

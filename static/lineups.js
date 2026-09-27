@@ -118,6 +118,8 @@
     const proj = filled.reduce((s, p) => s + (p.proj_points || 0), 0);
     const ceiling = filled.reduce((s, p) => s + (p.ceiling || 0), 0);
     const withSleeper = filled.filter((p) => p.sleeper_proj != null);
+    const withOwn = filled.filter((p) => p.ownership != null);
+    const ownSum = withOwn.reduce((s, p) => s + p.ownership, 0);
     const sleeperProj = withSleeper.reduce((s, p) => s + p.sleeper_proj, 0);
     const open = slots.length - filled.length;
     const remaining = SALARY_CAP - salary;
@@ -141,6 +143,9 @@
       ceiling: Math.round(ceiling * 100) / 100,
       sleeperProj: Math.round(sleeperProj * 100) / 100,
       sleeperCount: withSleeper.length,
+      ownSum: Math.round(ownSum * 10) / 10,          // cumulative ownership of the rostered players
+      ownCount: withOwn.length,
+      ownAvg: withOwn.length ? Math.round((ownSum / withOwn.length) * 10) / 10 : null,
       filled: filled.length,
       total: slots.length,
       errors,

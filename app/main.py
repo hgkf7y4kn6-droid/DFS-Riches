@@ -234,6 +234,43 @@ def _check_contest(contest: str) -> str:
     return contest
 
 
+@memoize_async(ttl_seconds=120)
+async def _slate_ownership(season: int, week: int, slate_id: str, version: tuple) -> dict:
+    """Posterior ownership for one slate's players, by DraftKings id. Runs the
+    DFS Model (memoized) so both pages show the same numbers: Classic slates
+    use the large-field GPP posterior, Showdown slates their CPT/FLEX posteriors."""
+    _schedule, slate_list = await slates.list_slates(season, week)
+    slate = next((s for s in slate_list if s.slate_id == slate_id), None)
+    if slate is None:
+        raise HTTPException(status_code=404, detail=f"Unknown slate_id: {slate_id}")
+    classic = [s for s in slate_list if s.slate_type == "classic" and s.available]
+    if not classic or not slate.available:
+        return {"available": False, "players": {}, "reason": "Ownership needs a DraftKings Classic slate with salaries."}
+    model_slate = slate if slate.slate_type == "classic" else classic[0]
+    await _dfs_model(season, week, model_slate.slate_id, "gpp", None, version)
+    state = dfs_model._STATE.get((season, week, model_slate.slate_id, "gpp"))
+    if state is None:
+        return {"available": False, "players": {}, "reason": "The ownership model isn't available for this slate."}
+    if slate.slate_type == "classic":
+        players = ownership_report.summary_by_id(state, "gpp")
+        note = "Large-field GPP posterior (Bayesian ownership model, DFS Model > Ownership)"
+    else:
+        players = {i: v for i, v in (state.get("showdown_ids") or {}).items()}
+        note = "Showdown posterior: Captain and Flex ownership are separate contests"
+    return {"available": True, "players": {str(k): v for k, v in players.items()}, "note": note}
+
+
+@app.get("/api/slates/{slate_id}/ownership")
+async def api_slate_ownership(slate_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
+    """Projected ownership % for a slate's players, keyed by DraftKings draftable id."""
+    try:
+        return await _slate_ownership(season, week, slate_id, ownership_store.data_version())
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not build ownership: {exc}") from exc
+
+
 @app.get("/api/dfs-model")
 async def api_dfs_model(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, slate_id: str | None = None,
                         contest: str = "gpp", contest_size: int | None = None):
