@@ -50,6 +50,24 @@
         "first_kickoff": "2026-09-27T17:00:00+00:00",
         "last_kickoff": "2026-09-27T20:25:00+00:00"
       }
+    },
+    "4": {
+      "classic_sunday": {
+        "draft_group_id": 154078,
+        "label": "Classic - Sunday Main (12 games)",
+        "first_kickoff": "2026-10-04T17:00:00+00:00",
+        "last_kickoff": "2026-10-04T20:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 154077,
+        "label": "Full Week 4 Slate (16 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 154084,
+          "label": "Showdown - Thu Night (PIT @ CLE)"
+        }
+      }
     }
   }
 }
