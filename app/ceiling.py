@@ -4,7 +4,9 @@ week -- a score they'd reach or beat roughly one game in seven.
     ceiling = history x matchup x game environment x breakdown flags x usage
 
 history   The player's own last HISTORY_GAMES games (nflverse box scores run
-          through DK scoring), recency-weighted: mean + 1.04 x spread, the
+          through the Sleeper league's scoring_settings -- app.league_scoring,
+          set up to mirror DraftKings -- or DK scoring if the league can't be
+          fetched), recency-weighted: mean + 1.04 x spread, the
           normal 85th percentile. The spread is blended with PRIOR_GAMES
           pseudo-games of the position's typical game-to-game variability
           (measured from the same data), so a 2-game sample can't produce a
@@ -31,6 +33,7 @@ import math
 import statistics
 from dataclasses import dataclass, field
 
+from app import league_scoring
 from app import nflverse_client as nc
 from app.cache import memoize_async
 from app.models import WeekSchedule
@@ -101,8 +104,9 @@ async def context_for(season: int, week: int) -> CeilingContext:
 
 
 async def build_context(season: int, week: int, schedule: WeekSchedule) -> CeilingContext:
-    log = await nc.get_player_game_log_index(season)
-    dst_index = await nc.get_team_dst_trailing_index(season)
+    scoring = await league_scoring.get_scoring()
+    log = await nc.get_player_game_log_index(season, scoring)
+    dst_index = await nc.get_team_dst_trailing_index(season, scoring)
     team_index = await nc.get_team_context_trailing_index(season)
 
     players, def_vs_pos = log["players"], log["def_vs_pos"]

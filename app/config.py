@@ -19,6 +19,9 @@ SLEEPER_BASE = "https://api.sleeper.app"
 # (the endpoint Sleeper's own app uses) returns real per-player projections.
 SLEEPER_PROJECTIONS_BASE = "https://api.sleeper.com"
 DK_BASE = "https://api.draftkings.com"
+# Sleeper league whose scoring_settings Proj and Ceiling are scored with
+# ("The Breakfast Brunch"; its scoring is set up to mirror DraftKings DFS).
+SLEEPER_LEAGUE_ID = "1313002337484177409"
 
 # nflverse (https://github.com/nflverse) publishes real, free, public NFL
 # data with no API key: schedules + closing sportsbook lines (games.csv) and
@@ -42,6 +45,7 @@ DEFAULT_WEEK = 1
 # Cache time-to-live, in seconds.
 TTL_PLAYERS = 60 * 60 * 12       # Sleeper's full player dict rarely changes intra-day
 TTL_PROJECTIONS = 60 * 15        # weekly projections can move
+TTL_LEAGUE = 60 * 60 * 6         # a league's scoring settings rarely change
 TTL_SCHEDULE = 60 * 30           # kickoff times/broadcasters
 TTL_DK_DISCOVERY = 60 * 10       # DK draft-group listing
 TTL_DK_DRAFTABLES = 60 * 5       # DK salaries move as slates get edited

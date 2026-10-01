@@ -3,6 +3,7 @@
 Endpoints used:
   - /v1/state/nfl                         current season/week
   - /v1/players/nfl                       full player metadata dict (~5MB)
+  - /v1/league/{league_id}                a league's settings, incl. scoring_settings
   - api.sleeper.com/projections/nfl/{season}/{week}   weekly fantasy projections
   - /scores/nfl/{season_type}/{season}/{week}
         per-game data including real kickoff time (epoch ms) and broadcaster,
@@ -15,7 +16,7 @@ from typing import Any
 import httpx
 
 from app.cache import cached_fetch
-from app.config import SLEEPER_BASE, SLEEPER_PROJECTIONS_BASE, TTL_PLAYERS, TTL_PROJECTIONS, TTL_SCHEDULE
+from app.config import SLEEPER_BASE, SLEEPER_PROJECTIONS_BASE, TTL_LEAGUE, TTL_PLAYERS, TTL_PROJECTIONS, TTL_SCHEDULE
 
 _PROJECTION_POSITIONS = ("QB", "RB", "WR", "TE", "DEF")
 
@@ -42,6 +43,14 @@ async def get_players() -> dict[str, dict]:
             return await _get_json(client, f"{SLEEPER_BASE}/v1/players/nfl")
 
     return await cached_fetch("sleeper_players_nfl", TTL_PLAYERS, fetch)
+
+
+async def get_league(league_id: str) -> dict:
+    async def fetch() -> dict:
+        async with httpx.AsyncClient() as client:
+            return await _get_json(client, f"{SLEEPER_BASE}/v1/league/{league_id}")
+
+    return await cached_fetch(f"sleeper_league_{league_id}", TTL_LEAGUE, fetch)
 
 
 async def _raw_projections(season: int, week: int, season_type: str = "regular") -> Any:

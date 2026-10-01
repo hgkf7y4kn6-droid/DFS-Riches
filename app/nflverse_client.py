@@ -44,7 +44,7 @@ from typing import Any, Iterable
 
 import httpx
 
-from app import dk_scoring
+from app import dk_scoring, league_scoring
 from app.cache import cached_fetch
 from app.config import (
     DEFAULT_SEASON,
@@ -344,9 +344,11 @@ async def get_player_trailing_index(season: int) -> dict[str, list[list]]:
     return await cached_fetch(f"nflverse_player_trailing_index_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
 
 
-async def get_team_dst_trailing_index(season: int) -> dict[str, list[list]]:
+async def get_team_dst_trailing_index(season: int, scoring: dict | None = None) -> dict[str, list[list]]:
     """team -> [[season, week, dk_points], ...] combining this season and
-    the prior one, for a team's trailing DST fantasy scoring."""
+    the prior one, for a team's trailing DST fantasy scoring. With scoring
+    (a Sleeper league's scoring_settings), points use the league's rules
+    instead of DraftKings'."""
 
     async def fetch() -> dict[str, list[list]]:
         index: dict[str, list[list]] = {}
@@ -361,11 +363,13 @@ async def get_team_dst_trailing_index(season: int) -> dict[str, list[list]]:
                 except (KeyError, ValueError):
                     continue
                 allowed = points_allowed.get((week, team))
-                points = dk_scoring.dk_dst_points(row, allowed)
+                points = (league_scoring.dst_points(row, allowed, scoring) if scoring
+                          else dk_scoring.dk_dst_points(row, allowed))
                 index.setdefault(team, []).append([szn, week, points])
         return index
 
-    return await cached_fetch(f"nflverse_team_dst_trailing_index_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+    suffix = f"_{league_scoring.scoring_key(scoring)}" if scoring else ""
+    return await cached_fetch(f"nflverse_team_dst_trailing_index_{season}{suffix}", TTL_NFLVERSE_TEAM_STATS, fetch)
 
 
 _SKILL_POSITIONS = ("QB", "RB", "WR", "TE")
@@ -378,7 +382,7 @@ def recent_values(entries: list[list], season: int, week: int, n: int, col: int 
     return [e[col] for e in prior[-n:]]
 
 
-async def get_player_game_log_index(season: int) -> dict:
+async def get_player_game_log_index(season: int, scoring: dict | None = None) -> dict:
     """Per-game data behind the Ceiling column, for this season and the prior:
 
     players:    player_key -> [[season, week, dk_points, opportunity_share], ...]
@@ -387,6 +391,9 @@ async def get_player_game_log_index(season: int) -> dict:
     def_vs_pos: defense team -> position -> [[season, week, dk_points_allowed], ...]
                 the summed DK points every player at that position scored
                 against that defense in that game.
+
+    With scoring (a Sleeper league's scoring_settings), points use the
+    league's rules instead of DraftKings'.
     """
 
     async def fetch() -> dict:
@@ -406,7 +413,8 @@ async def get_player_game_log_index(season: int) -> dict:
                 week = _to_int(row.get("week"))
                 if not name or position not in _SKILL_POSITIONS or week is None:
                     continue
-                points = dk_scoring.dk_offense_points(row)
+                points = (league_scoring.offense_points(row, scoring) if scoring
+                          else dk_scoring.dk_offense_points(row))
                 share = None
                 if position != "QB":
                     denom = team_opps.get((week, to_app_team(row.get("team", ""))))
@@ -428,7 +436,8 @@ async def get_player_game_log_index(season: int) -> dict:
             },
         }
 
-    return await cached_fetch(f"nflverse_player_game_log_index_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+    suffix = f"_{league_scoring.scoring_key(scoring)}" if scoring else ""
+    return await cached_fetch(f"nflverse_player_game_log_index_{season}{suffix}", TTL_NFLVERSE_TEAM_STATS, fetch)
 
 
 async def get_week_actuals(season: int, week: int) -> dict:
