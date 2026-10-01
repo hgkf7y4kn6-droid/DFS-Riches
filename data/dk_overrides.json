@@ -66,6 +66,14 @@
         "THU_NIGHT": {
           "draft_group_id": 154084,
           "label": "Showdown - Thu Night (PIT @ CLE)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 154099,
+          "label": "Showdown - Mon Night (ATL @ NO)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 154098,
+          "label": "Showdown - Sun Night (DET @ CAR)"
         }
       }
     }
