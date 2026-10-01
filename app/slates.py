@@ -119,10 +119,11 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         if sleeper_id is None:
             unmatched.append(row["name"])
 
-        # Sleeper's own projection, scored with the league's settings when
-        # available (else Sleeper's PPR total).
-        sleeper_proj = (projection_ctx.line_points(sleeper_id, row["position"]) or None) if projection_ctx.scoring else None
-        if sleeper_proj is None:
+        # Sleeper's own projected line scored with DraftKings' rules (before
+        # matchup/weather adjustments); Sleeper's PPR total if there's no line.
+        line = projection_ctx.lines.get(sleeper_id) if sleeper_id else None
+        sleeper_proj = projections.dk_points_from_line(line["stats"], row["position"]) if line and line.get("stats") else None
+        if not sleeper_proj:
             sleeper_proj = sleeper_points.get(sleeper_id) if sleeper_id else None
         base_proj, proj_notes = projections.project(
             projection_ctx, sleeper_id=sleeper_id, position=row["position"], opponent=row["opponent"], fallback=row["dk_fppg"],

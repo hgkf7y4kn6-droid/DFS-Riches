@@ -3,10 +3,8 @@ adjusted for how this week's opponent has fared against expectations.
 
 1. The line. Sleeper's week-specific projected stat line (rushing and
    receiving yards, receptions, touchdowns, passing, turnovers; sacks,
-   takeaways and points allowed for defenses) scored with the Sleeper
-   league's own scoring_settings (app.league_scoring; config.SLEEPER_LEAGUE_ID,
-   set up to mirror DraftKings), falling back to DraftKings' scoring below
-   when the league can't be fetched. The 100/300-yard bonuses are left out: applied to a projected
+   takeaways and points allowed for defenses) run through DraftKings'
+   scoring. The 100/300-yard bonuses are left out: applied to a projected
    mean they made the projection run high. Backtested on 2,950 player-games
    (2025 Weeks 4-17 + 2026 Weeks 1-2) against actual DK points: mean
    absolute error 5.83 with +0.06 bias, vs 6.18 for a trailing 8-game DK
@@ -32,9 +30,9 @@ DraftKings' season FPPG.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-from app import dk_scoring, league_scoring, weather
+from app import dk_scoring, weather
 from app import nflverse_client as nc
 from app import sleeper_client
 from app.cache import cached_fetch, memoize_async
@@ -59,6 +57,7 @@ def dk_points_from_line(stats: dict, position: str) -> float:
     pts += g("rec") + g("rec_yd") * 0.1 + g("rec_td") * 6
     pts -= g("fum_lost")
     pts += 2 * (g("pass_2pt") + g("rush_2pt") + g("rec_2pt"))
+    pts += 6 * (g("st_td") + g("fum_rec_td"))   # return and fumble-recovery TDs
     return round(pts, 2)
 
 
@@ -127,21 +126,6 @@ def matchup_adjustment(record: list | None) -> float:
 class ProjectionContext:
     lines: dict[str, dict]
     vs_expectation: dict[str, list]
-    scoring: dict[str, float] | None = field(default=None)
-
-    @property
-    def unit(self) -> str:
-        return "league pts" if self.scoring else "DK pts"
-
-    def points(self, stats: dict, position: str) -> float:
-        """A projected line's points: league scoring, else DraftKings'."""
-        if self.scoring:
-            return league_scoring.line_points(stats, self.scoring)
-        return dk_points_from_line(stats, position)
-
-    def line_points(self, sleeper_id: str | None, position: str) -> float | None:
-        line = self.lines.get(sleeper_id) if sleeper_id else None
-        return self.points(line["stats"], position) if line and line.get("stats") else None
 
 
 @memoize_async(120)
@@ -150,8 +134,7 @@ async def build_context(season: int, week: int) -> ProjectionContext:
         lines = await sleeper_client.get_projection_lines(season, week)
     except Exception:
         lines = {}
-    return ProjectionContext(lines=lines, vs_expectation=await defense_vs_expectation(season, week),
-                             scoring=await league_scoring.get_scoring())
+    return ProjectionContext(lines=lines, vs_expectation=await defense_vs_expectation(season, week))
 
 
 def weather_note(w: dict, factor: float) -> str:
@@ -163,12 +146,12 @@ def project(ctx: ProjectionContext, *, sleeper_id: str | None, position: str, op
             fallback: float | None, game_weather: dict | None = None) -> tuple[float, list[str]]:
     """(DK points, one line of explanation per step) for one player."""
     line = ctx.lines.get(sleeper_id) if sleeper_id else None
-    base = ctx.points(line["stats"], position) if line and line.get("stats") else 0.0
+    base = dk_points_from_line(line["stats"], position) if line and line.get("stats") else 0.0
     if base <= 0:
         value = round(fallback or 0.0, 2)
         return value, [f"No projected stat line this week; DK season FPPG {value:.1f}"]
 
-    notes = [f"Line: {describe_line(line['stats'], position)} = {base:.1f} {ctx.unit}"]
+    notes = [f"Line: {describe_line(line['stats'], position)} = {base:.1f} DK pts"]
     if position in SKILL:
         record = ctx.vs_expectation.get(f"{opponent}|{position}")
         m = matchup_adjustment(record)
@@ -177,7 +160,7 @@ def project(ctx: ProjectionContext, *, sleeper_id: str | None, position: str, op
             notes.append(f"vs {opponent} this season: {position}s have scored {actual / projected - 1:+.0%} vs their "
                          f"projections ({games} game{'s' if games != 1 else ''}) -> x{m:.2f}")
         base *= m
-    factor = weather.player_factor(game_weather, position, line["stats"], ctx.points)
+    factor = weather.player_factor(game_weather, position, line["stats"], dk_points_from_line)
     if abs(factor - 1) >= 0.01:
         notes.append(weather_note(game_weather, factor))
         base *= factor
@@ -192,4 +175,4 @@ def has_projected_role(ctx: ProjectionContext, sleeper_id: str | None, position:
     if position not in SKILL or not ctx.lines:
         return True
     line = ctx.lines.get(sleeper_id) if sleeper_id else None
-    return bool(line) and ctx.points(line.get("stats") or {}, position) >= MIN_ROLE_PROJ
+    return bool(line) and dk_points_from_line(line.get("stats") or {}, position) >= MIN_ROLE_PROJ
