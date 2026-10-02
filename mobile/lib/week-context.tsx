@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { getNflState, getOptimal, getSlatePlayers, getWeek } from '@/lib/api';
@@ -27,7 +28,24 @@ interface WeekContextValue {
   setLineup: (i: number, lineup: BuilderLineup) => void;
   addLineup: () => void;
   deleteLineup: (i: number) => void;
+  /** Saves the selected slate's lineups on the device; they're restored next time the slate opens. */
+  saveLineups: () => void;
+  /** When the selected slate's lineups were last saved (ISO), or null. */
+  savedAt: string | null;
+  /** True when the lineups differ from what was last saved. */
+  unsaved: boolean;
 }
+
+const SAVED_KEY = 'dfsriches:saved-lineups:v1';
+
+/** Saved lineups for one slate: draftable ids per slot (null = open slot). */
+interface SavedSlateLineups {
+  active: number;
+  lineups: (number | null)[][];
+  savedAt: string;
+}
+
+const toIds = (lineups: BuilderLineup[]) => lineups.map((lu) => lu.map((p) => p?.dk_draftable_id ?? null));
 
 const WeekContext = createContext<WeekContextValue | null>(null);
 
@@ -47,6 +65,13 @@ export function WeekProvider({ children }: { children: ReactNode }) {
   const [optimal, setOptimal] = useState<Loadable<OptimalResponse>>(idle);
   const [players, setPlayers] = useState<Loadable<SlatePlayers>>(idle);
   const [builder, setBuilder] = useState<Record<string, { lineups: BuilderLineup[]; active: number }>>({});
+  const [saved, setSaved] = useState<Record<string, SavedSlateLineups>>({});
+
+  useEffect(() => {
+    AsyncStorage.getItem(SAVED_KEY)
+      .then((raw) => raw && setSaved(JSON.parse(raw)))
+      .catch(() => {});
+  }, []);
 
   const load = useCallback(async () => {
     setWeekData((s) => ({ ...s, loading: true, error: null }));
@@ -94,8 +119,28 @@ export function WeekProvider({ children }: { children: ReactNode }) {
   }, [season, week, selectedSlate]);
 
   const slateKey = selectedSlate?.slate_id ?? '';
+  // Saved lineups are per season/week/slate.
+  const savedKey = season && week && slateKey ? `${season}:${week}:${slateKey}` : '';
   const slateType = selectedSlate?.slate_type ?? 'classic';
+
+  // First time a slate's player pool loads this session, restore its saved lineups.
+  useEffect(() => {
+    const pool = players.data?.players;
+    const entry = saved[savedKey];
+    if (!pool || !entry || builder[slateKey] || players.data?.slate.slate_id !== slateKey) return;
+    const byId = new Map(pool.map((p) => [p.dk_draftable_id, p]));
+    const size = emptyLineup(slateType).length;
+    const lineups = entry.lineups
+      .filter((ids) => ids.length === size)
+      .slice(0, MAX_LINEUPS)
+      .map((ids) => ids.map((id) => (id == null ? null : byId.get(id) ?? null)));
+    if (lineups.length) {
+      setBuilder((all) => ({ ...all, [slateKey]: { lineups, active: Math.min(entry.active, lineups.length - 1) } }));
+    }
+  }, [players.data, saved, savedKey, slateKey, slateType, builder]);
+
   const current = builder[slateKey] ?? { lineups: [emptyLineup(slateType)], active: 0 };
+  const savedEntry = saved[savedKey];
 
   const update = useCallback(
     (fn: (cur: { lineups: BuilderLineup[]; active: number }) => { lineups: BuilderLineup[]; active: number }) => {
@@ -129,6 +174,17 @@ export function WeekProvider({ children }: { children: ReactNode }) {
           ? { lineups, active: Math.min(c.active, lineups.length - 1) }
           : { lineups: [emptyLineup(slateType)], active: 0 };
       }),
+    saveLineups: () => {
+      if (!savedKey) return;
+      const entry: SavedSlateLineups = { active: current.active, lineups: toIds(current.lineups), savedAt: new Date().toISOString() };
+      setSaved((all) => {
+        const next = { ...all, [savedKey]: entry };
+        AsyncStorage.setItem(SAVED_KEY, JSON.stringify(next)).catch(() => {});
+        return next;
+      });
+    },
+    savedAt: savedEntry?.savedAt ?? null,
+    unsaved: JSON.stringify(toIds(current.lineups)) !== JSON.stringify(savedEntry?.lineups ?? toIds([emptyLineup(slateType)])),
   };
 
   return <WeekContext.Provider value={value}>{children}</WeekContext.Provider>;

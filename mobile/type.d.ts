@@ -73,7 +73,7 @@ interface UpcomingGame {
 
 /** One Home section: what it's called and how it's laid out. */
 interface HomeSection {
-  id: 'profit' | 'upcoming' | 'allGames' | 'slates' | 'lineups' | 'lines';
+  id: 'profit' | 'upcoming' | 'slates' | 'lineups' | 'lines';
   title: string;
   subtitle: string;
   /** Whether the section starts expanded. */
@@ -297,6 +297,103 @@ interface LineupSummary {
   total: number;
   valid: boolean;
   errors: string[];
+}
+
+// ------------------------------------------------- weekly breakdown (game)
+
+/** A team's trailing profile entering the game; ranks are 1 = best for that side of the ball. */
+interface TeamStatLine {
+  team: string;
+  points_for: number | null;
+  points_for_rank: number | null;
+  points_against: number | null;
+  points_against_rank: number | null;
+  yards_per_play: number | null;
+  yards_per_play_rank: number | null;
+  yards_allowed_per_play: number | null;
+  yards_allowed_per_play_rank: number | null;
+  plays_per_game: number | null;
+  plays_rank: number | null;
+  tempo_secs: number | null;
+  tempo_rank: number | null;
+  pass_pct: number | null;
+  rush_pct: number | null;
+  opp_pass_pct_allowed: number | null;
+  opp_pass_pct_allowed_rank: number | null;
+  opp_rush_pct_allowed: number | null;
+  opp_rush_pct_allowed_rank: number | null;
+}
+
+/** A DFS target for one team in one game. */
+interface TopPlayer {
+  name: string;
+  position: string;
+  salary: number;
+  trend_l3: number | null;
+  ceiling: number | null;
+  proj_points: number | null;
+  role: 'Core' | 'Value' | string;
+  usage_l3: number | null;
+  reasons: string[];
+}
+
+interface GamePostgame {
+  headline?: string;
+  result?: string[];
+  flow?: string[];
+}
+
+interface GameBreakdown {
+  game: Game;
+  away_stats: TeamStatLine;
+  home_stats: TeamStatLine;
+  total_rank_this_week: number | null;
+  away_implied_rank_this_week: number | null;
+  home_implied_rank_this_week: number | null;
+  takeaways: string[];
+  away_top_players: TopPlayer[];
+  home_top_players: TopPlayer[];
+  postgame: GamePostgame | null;
+}
+
+/** What a defense allows to one position: DK points/game (last 8) vs league. */
+interface PositionMatchup {
+  position: string;
+  allowed: number | null;
+  league_avg: number | null;
+  /** +0.42 = allows 42% more than average. */
+  vs_avg: number | null;
+  /** 1 = allows the most. */
+  rank: number | null;
+}
+
+interface UsageShare {
+  name: string;
+  position: string;
+  injury: string;
+  share_l3: number;
+  share_l8: number | null;
+}
+
+interface LeagueContext {
+  yards_per_play: number | null;
+  points: number | null;
+  tempo_secs: number | null;
+  plays: number | null;
+  pass_rate: number | null;
+}
+
+/** /api/breakdown/game/{id}: everything the website's Weekly Breakdown shows for one game. */
+interface GameDetail {
+  breakdown: GameBreakdown;
+  league: LeagueContext;
+  /** What the AWAY defense allows (the home offense attacks it). */
+  away_def_vs_pos: PositionMatchup[];
+  home_def_vs_pos: PositionMatchup[];
+  away_usage: UsageShare[];
+  home_usage: UsageShare[];
+  /** Section -> 1-2 sentence takeaway: vegas, weather, away_offense, home_offense, tempo, tendency, positions, usage, trenches. */
+  insights: Record<string, string>;
 }
 
 // --------------------------------------------------------- contest entries

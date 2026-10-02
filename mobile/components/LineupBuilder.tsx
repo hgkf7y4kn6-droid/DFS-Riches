@@ -9,7 +9,7 @@ import { PLAYABLE_STATUSES, POSITION_FILTERS } from '@/constants/data';
 import icons from '@/constants/icons';
 import { useThemeColors } from '@/constants/theme';
 import { addPlayer, fitChecker, indexOfPlayer, removeAt, summarize, template } from '@/lib/lineups';
-import { formatCurrency, formatPoints } from '@/lib/utils';
+import { formatCurrency, formatEt, formatPoints } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
 
 const PAGE = 40;
@@ -22,7 +22,8 @@ const PAGE = 40;
  * dimmed with the reason.
  */
 export default function LineupBuilder() {
-  const { selectedSlate, players, lineups, activeLineup, setActiveLineup, setLineup, addLineup, deleteLineup } = useWeek();
+  const { selectedSlate, players, lineups, activeLineup, setActiveLineup, setLineup, addLineup, deleteLineup, saveLineups, savedAt, unsaved } =
+    useWeek();
   const colors = useThemeColors();
   const [position, setPosition] = useState('All');
   const [query, setQuery] = useState('');
@@ -73,6 +74,23 @@ export default function LineupBuilder() {
 
   return (
     <View>
+      {/* Save: keeps this slate's lineups on the device */}
+      <View className="save-row">
+        <Text className="save-status">
+          {savedAt ? (unsaved ? `Unsaved changes · last saved ${formatEt(savedAt)}` : `Saved ${formatEt(savedAt)}`) : 'Not saved yet'}
+        </Text>
+        <Pressable
+          className={`save-btn ${unsaved ? '' : 'save-btn-idle'}`}
+          onPress={() => {
+            saveLineups();
+            setMessage({ text: `Saved ${lineups.length} lineup${lineups.length === 1 ? '' : 's'} for ${selectedSlate.label}.` });
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Save lineups">
+          <Text className={`save-btn-text ${unsaved ? '' : 'save-btn-text-idle'}`}>{unsaved ? 'Save lineups' : 'Saved'}</Text>
+        </Pressable>
+      </View>
+
       {/* Lineup switcher */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row" contentContainerClassName="chip-row-content">
         {lineups.map((lu, i) => {

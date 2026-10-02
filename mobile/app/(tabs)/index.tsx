@@ -5,13 +5,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import BalanceStats from '@/components/BalanceStats';
 import ExpandableCard from '@/components/ExpandableCard';
-import LineupBuilder from '@/components/LineupBuilder';
 import LinesList from '@/components/LinesList';
 import ListHeading from '@/components/ListHeading';
-import OptimalLineups from '@/components/OptimalLineups';
 import ProfitLossTracker from '@/components/ProfitLossTracker';
 import SafeAreaView from '@/components/SafeAreaView';
-import SlateList from '@/components/SlateList';
+import SlateCard from '@/components/SlateCard';
 import StatusView from '@/components/StatusView';
 import SubmissionForm from '@/components/SubmissionForm';
 import UpcomingGamesCard from '@/components/UpcomingGamesCard';
@@ -25,9 +23,6 @@ import { useSubmissions } from '@/lib/submissions-context';
 import { formatCurrency } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
 
-// How many games the All Games section shows before "View all".
-const ALL_GAMES_PREVIEW = 5;
-
 export default function Home() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
@@ -36,6 +31,7 @@ export default function Home() {
   const data = weekData.data;
   const [profitOpen, setProfitOpen] = useState(HOME_SECTIONS.profit.defaultExpanded);
   const [logging, setLogging] = useState(false);
+  const [expandedSlate, setExpandedSlate] = useState<string | null>(null);
   const [now] = useState(() => Date.now());
 
   // Games that haven't kicked off, soonest first.
@@ -139,16 +135,33 @@ export default function Home() {
               />
             </View>
 
-            {/* All Games: every game this week, scores once they start */}
+            {/* Slates: every DraftKings slate this week; tap one to open its lineups */}
             <View>
               <ListHeading
-                title={HOME_SECTIONS.allGames.title}
-                subtitle={`Showing ${Math.min(ALL_GAMES_PREVIEW, data.schedule.games.length)} of ${data.schedule.games.length}`}
-                onPress={() => router.push('/lines')}
+                title={HOME_SECTIONS.slates.title}
+                subtitle={`${data.slates.length} slates this week · tap one for lineups`}
+                onPress={() => router.push('/lineups')}
               />
-              {data.schedule.games.slice(0, ALL_GAMES_PREVIEW).map((g) => (
-                <UpcomingGamesCard key={g.game_id} {...toUpcomingGame(g, now)} fullWidth />
-              ))}
+              {data.slates.length ? (
+                data.slates.map((slate) => (
+                  <SlateCard
+                    key={slate.slate_id}
+                    slate={slate}
+                    now={now}
+                    expanded={expandedSlate === slate.slate_id}
+                    onToggle={() => {
+                      if (expandedSlate === slate.slate_id) {
+                        setExpandedSlate(null);
+                      } else {
+                        selectSlate(slate.slate_id);
+                        setExpandedSlate(slate.slate_id);
+                      }
+                    }}
+                  />
+                ))
+              ) : (
+                <Text className="home-empty-state">{"DraftKings hasn't posted this week's slates yet."}</Text>
+              )}
             </View>
           </>
         ) : null}
@@ -179,27 +192,6 @@ export default function Home() {
 
         {data ? (
           <>
-            {/* Slates: horizontal list; the selected one drives Lineups below */}
-            <ExpandableCard
-              title={HOME_SECTIONS.slates.title}
-              subtitle={HOME_SECTIONS.slates.subtitle}
-              aside={`${data.slates.length} slates`}
-              defaultExpanded={HOME_SECTIONS.slates.defaultExpanded}>
-              <SlateList slates={data.slates} selectedId={selectedSlate?.slate_id ?? null} onSelect={selectSlate} />
-            </ExpandableCard>
-
-            {/* Lineups for the selected slate */}
-            <ExpandableCard
-              title={HOME_SECTIONS.lineups.title}
-              subtitle={selectedSlate ? selectedSlate.label : HOME_SECTIONS.lineups.subtitle}
-              defaultExpanded={HOME_SECTIONS.lineups.defaultExpanded}>
-              <OptimalLineups />
-            </ExpandableCard>
-
-            <ExpandableCard title="Build lineups" subtitle={selectedSlate ? selectedSlate.label : undefined}>
-              <LineupBuilder />
-            </ExpandableCard>
-
             {/* Lines & Performance */}
             <ExpandableCard
               title={HOME_SECTIONS.lines.title}

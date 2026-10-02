@@ -239,6 +239,92 @@
     @apply mt-1.5 text-sm font-sans-bold text-foreground;
   }
 
+  .upcoming-expand-hint {
+    @apply mt-2 text-[11px] font-sans-semibold text-accent;
+  }
+
+  /* --------------------------- game detail (weekly breakdown in a card) */
+  .detail-panel {
+    @apply mt-3 border-t border-border pt-1;
+  }
+  .detail-section {
+    @apply mt-3;
+  }
+  .detail-title {
+    @apply mb-1.5 text-sm font-sans-bold text-foreground;
+  }
+  .detail-subhead {
+    @apply mb-1 mt-1 text-xs font-sans-bold uppercase text-accent;
+  }
+  .detail-headline {
+    @apply text-sm font-sans-semibold text-foreground;
+  }
+  .detail-text {
+    @apply text-xs font-sans-medium text-foreground;
+  }
+  .detail-insight {
+    @apply mt-1.5 text-xs font-sans-regular text-muted-foreground;
+  }
+  .detail-bullet {
+    @apply text-xs font-sans-regular text-foreground;
+  }
+  .detail-tiles {
+    @apply flex-row flex-wrap gap-2;
+  }
+  .detail-tile {
+    @apply min-w-[46%] flex-1 rounded-xl bg-muted px-3 py-2;
+  }
+  .detail-tile-label {
+    @apply text-[10px] font-sans-semibold uppercase text-muted-foreground;
+  }
+  .detail-tile-value {
+    @apply text-base font-sans-bold text-foreground;
+  }
+  .detail-tile-sub {
+    @apply text-[10px] font-sans-medium text-muted-foreground;
+  }
+  .detail-row {
+    @apply flex-row items-center border-b border-border py-1.5;
+  }
+  .detail-row-label {
+    @apply flex-1 pr-2 text-xs font-sans-medium text-muted-foreground;
+  }
+  .detail-row-value {
+    @apply w-24 text-right text-xs font-sans-semibold text-foreground;
+  }
+  .detail-target {
+    @apply border-b border-border py-2;
+  }
+  .detail-target-name {
+    @apply flex-1 pr-2 text-sm font-sans-semibold text-foreground;
+  }
+  .detail-target-meta {
+    @apply text-[11px] font-sans-medium text-muted-foreground;
+  }
+
+  /* ------------------------------------------------ slate card (Home) */
+  .slate-card {
+    @apply mb-3 rounded-2xl border border-border bg-card p-4;
+  }
+  .slate-card-active {
+    @apply border-primary;
+  }
+  .slate-card-header {
+    @apply flex-row items-center justify-between;
+  }
+  .slate-card-title {
+    @apply text-base font-sans-bold text-foreground;
+  }
+  .slate-card-meta {
+    @apply mt-0.5 text-xs font-sans-medium text-muted-foreground;
+  }
+  .slate-card-status {
+    @apply text-[11px] font-sans-bold uppercase text-accent;
+  }
+  .slate-card-body {
+    @apply mt-4 border-t border-border pt-4;
+  }
+
   /* ----------------------------------------------- sections and cards */
   .section {
     @apply mt-5;
@@ -420,6 +506,26 @@
   /* DraftKings status next to a name: Q / D / OUT / IR */
   .injury-tag {
     @apply text-xs font-sans-bold text-warning;
+  }
+
+  /* Lineup builder save bar */
+  .save-row {
+    @apply mb-3 flex-row items-center justify-between gap-3;
+  }
+  .save-status {
+    @apply flex-1 text-xs font-sans-medium text-muted-foreground;
+  }
+  .save-btn {
+    @apply rounded-full bg-primary px-4 py-2;
+  }
+  .save-btn-idle {
+    @apply border border-border bg-card;
+  }
+  .save-btn-text {
+    @apply text-xs font-sans-bold text-primary-foreground;
+  }
+  .save-btn-text-idle {
+    @apply text-muted-foreground;
   }
 
   /* ------------------------------------------------- buttons and chips */

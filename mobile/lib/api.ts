@@ -34,3 +34,8 @@ export function getSlatePlayers(season: number, week: number, slateId: string) {
 export function getOptimal(season: number, week: number, slateId: string) {
   return getJson<OptimalResponse>(`/api/slates/${encodeURIComponent(slateId)}/optimal?${q(season, week)}`);
 }
+
+/** One game's Weekly Breakdown: lines, team profiles, matchups, usage, DFS targets, postgame. */
+export function getGameDetail(season: number, week: number, gameId: string) {
+  return getJson<GameDetail>(`/api/breakdown/game/${encodeURIComponent(gameId)}?${q(season, week)}`);
+}

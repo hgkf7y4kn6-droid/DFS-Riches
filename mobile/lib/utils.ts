@@ -67,3 +67,33 @@ export function formatSignedCurrency(value: number, currency: string = 'USD'): s
 export function formatPercent(value: number | null | undefined, decimals = 1): string {
   return value == null ? '-' : `${(value * 100).toFixed(decimals)}%`;
 }
+
+// ------------------------------------------------------------ games & slates
+
+/**
+ * Status label for a game or slate: "Final", "Live", "Today", "Tomorrow",
+ * or "In N days". daysLeft is whole calendar days until kickoff.
+ */
+export function formatStatusLabel(status: 'upcoming' | 'live' | 'final', daysLeft: number): string {
+  if (status === 'final') return 'Final';
+  if (status === 'live') return 'Live';
+  if (daysLeft <= 0) return 'Today';
+  return daysLeft === 1 ? 'Tomorrow' : `In ${daysLeft} days`;
+}
+
+const ET_ZONE = 'America/New_York';
+
+/** Kickoff date in Eastern time: "Sun, Oct 4". */
+export function formatGameDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-US', { timeZone: ET_ZONE, weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+/** Kickoff time in Eastern time: "9:30 AM ET". */
+export function formatGameTime(iso: string): string {
+  return `${new Date(iso).toLocaleTimeString('en-US', { timeZone: ET_ZONE, hour: 'numeric', minute: '2-digit' })} ET`;
+}
+
+/** One line of game details, skipping what's missing: "Sun, Oct 4 · 9:30 AM ET · NFLN · Tottenham Hotspur Stadium". */
+export function formatGameDetails(parts: { time?: string | null; network?: string | null; location?: string | null }): string {
+  return [parts.time, parts.network, parts.location].filter(Boolean).join(' · ');
+}
