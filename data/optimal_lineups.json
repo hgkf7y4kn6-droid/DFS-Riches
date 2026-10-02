@@ -2274,7 +2274,7 @@
     },
     "4": {
       "classic_sunday": {
-        "saved_at": "2026-10-02T01:03:10+00:00",
+        "saved_at": "2026-10-02T01:34:04+00:00",
         "draft_group_id": 154078,
         "lineups": [
           {
@@ -2321,9 +2321,9 @@
                 "opponent": "NYG",
                 "roster_slot": "",
                 "salary": 5800,
-                "proj_points": 15.82,
+                "proj_points": 15.78,
                 "ceiling": 22.9,
-                "sleeper_proj": 16.03,
+                "sleeper_proj": 15.99,
                 "game_info": "ARI @ NYG",
                 "injury": "Healthy",
                 "dk_draftable_id": 44312310,
@@ -2401,9 +2401,9 @@
                 "opponent": "NYG",
                 "roster_slot": "",
                 "salary": 5500,
-                "proj_points": 15.04,
+                "proj_points": 14.96,
                 "ceiling": 30.0,
-                "sleeper_proj": 14.53,
+                "sleeper_proj": 14.46,
                 "game_info": "ARI @ NYG",
                 "injury": "Healthy",
                 "dk_draftable_id": 44312606,
@@ -2427,7 +2427,7 @@
               }
             ],
             "salary": 49900,
-            "proj_points": 141.36,
+            "proj_points": 141.24,
             "ceiling": 246.4
           },
           {
@@ -2452,22 +2452,6 @@
               },
               {
                 "slot": "RB",
-                "name": "Derrick Henry",
-                "position": "RB",
-                "team": "BAL",
-                "opponent": "TEN",
-                "roster_slot": "",
-                "salary": 8400,
-                "proj_points": 18.87,
-                "ceiling": 40.8,
-                "sleeper_proj": 19.55,
-                "game_info": "TEN @ BAL",
-                "injury": "Healthy",
-                "dk_draftable_id": 44312276,
-                "dk_fppg": 26.0
-              },
-              {
-                "slot": "RB",
                 "name": "Kenneth Walker III",
                 "position": "RB",
                 "team": "KC",
@@ -2481,6 +2465,22 @@
                 "injury": "Healthy",
                 "dk_draftable_id": 44312278,
                 "dk_fppg": 28.4
+              },
+              {
+                "slot": "RB",
+                "name": "David Montgomery",
+                "position": "RB",
+                "team": "HOU",
+                "opponent": "DAL",
+                "roster_slot": "",
+                "salary": 5700,
+                "proj_points": 14.63,
+                "ceiling": 33.2,
+                "sleeper_proj": 15.05,
+                "game_info": "DAL @ HOU",
+                "injury": "Healthy",
+                "dk_draftable_id": 44312312,
+                "dk_fppg": 13.4
               },
               {
                 "slot": "WR",
@@ -2506,9 +2506,9 @@
                 "opponent": "NYG",
                 "roster_slot": "",
                 "salary": 5500,
-                "proj_points": 15.04,
+                "proj_points": 14.96,
                 "ceiling": 30.0,
-                "sleeper_proj": 14.53,
+                "sleeper_proj": 14.46,
                 "game_info": "ARI @ NYG",
                 "injury": "Healthy",
                 "dk_draftable_id": 44312606,
@@ -2548,40 +2548,40 @@
               },
               {
                 "slot": "FLEX",
-                "name": "Tory Horton",
-                "position": "WR",
-                "team": "SEA",
-                "opponent": "LAC",
+                "name": "Tucker Kraft",
+                "position": "TE",
+                "team": "GB",
+                "opponent": "TB",
                 "roster_slot": "",
-                "salary": 3000,
-                "proj_points": 3.42,
-                "ceiling": 18.1,
-                "sleeper_proj": 3.47,
-                "game_info": "LAC @ SEA",
+                "salary": 4400,
+                "proj_points": 10.73,
+                "ceiling": 24.1,
+                "sleeper_proj": 10.48,
+                "game_info": "GB @ TB",
                 "injury": "Healthy",
-                "dk_draftable_id": 44312754,
-                "dk_fppg": 3.9
+                "dk_draftable_id": 44313036,
+                "dk_fppg": 6.5
               },
               {
                 "slot": "DST",
-                "name": "Raiders",
+                "name": "Seahawks",
                 "position": "DST",
-                "team": "LV",
-                "opponent": "KC",
+                "team": "SEA",
+                "opponent": "LAC",
                 "roster_slot": "",
-                "salary": 2400,
-                "proj_points": 4.9,
-                "ceiling": 16.2,
-                "sleeper_proj": 4.9,
-                "game_info": "KC @ LV",
+                "salary": 3500,
+                "proj_points": 7.99,
+                "ceiling": 22.1,
+                "sleeper_proj": 7.99,
+                "game_info": "LAC @ SEA",
                 "injury": "Healthy",
-                "dk_draftable_id": 44313327,
-                "dk_fppg": 12.3
+                "dk_draftable_id": 44313310,
+                "dk_fppg": 7.7
               }
             ],
-            "salary": 49900,
-            "proj_points": 118.04,
-            "ceiling": 290.9
+            "salary": 49700,
+            "proj_points": 124.12,
+            "ceiling": 295.2
           }
         ]
       },

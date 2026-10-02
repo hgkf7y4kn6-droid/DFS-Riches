@@ -155,6 +155,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
             team=row["team"],
             opponent=row["opponent"],
             fallback_mean=row["dk_fppg"],
+            projection=base_proj,
         )
         if player_ceiling is not None and not projections.has_projected_role(projection_ctx, sleeper_id, row["position"]):
             player_ceiling = round(player_ceiling * 0.5, 1)

@@ -18,6 +18,11 @@ breakdown The same flags the Week Breakdown page raises: pass/rush funnel
           defense, both offenses top-10 neutral tempo, yards/play efficiency mismatch.
 usage     The player's share of team targets + carries over the last 3 games
           vs the last 8 -- a growing role raises the ceiling (RB/WR/TE).
+expanded  When this week's projection (Proj) is at least ROLE_JUMP x the
+role      player's recent average -- a backup stepping in for an injured
+          starter -- his history is scaled up to the projection, keeping its
+          spread relative to the mean, since past backup games understate
+          this week's role.
 role      Halved for a player with past-season games but none this season
           (from Week 2 on): a backup, inactive, or returning from injury.
 
@@ -47,6 +52,7 @@ TOP_RANK = 10
 BOTTOM_RANK = 23  # bottom 10 of 32
 DEFAULT_CV = 0.6
 NO_GAMES_THIS_SEASON = 0.5
+ROLE_JUMP, ROLE_MIN_PROJ = 1.5, 8.0
 
 _RANK_METRICS = {
     "opp_pass_pct_allowed": True,
@@ -155,15 +161,22 @@ def _weighted_stats(vals: list[float]) -> tuple[float, float, float]:
     return mean, math.sqrt(var), total**2 / sum(w * w for w in weights)
 
 
-def _history(ctx: CeilingContext, entries: list, position: str, fallback_mean: float | None):
+def _history(ctx: CeilingContext, entries: list, position: str, fallback_mean: float | None,
+             projection: float | None = None):
     vals = nc.recent_values(entries, ctx.season, ctx.week, HISTORY_GAMES)
     cv = ctx.cv_by_pos.get(position, DEFAULT_CV)
+    role_note = None
     if vals:
         mean, own_sd, n_eff = _weighted_stats(vals)
+        if projection and projection >= ROLE_MIN_PROJ and mean > 0 and projection >= ROLE_JUMP * mean:
+            scale = projection / mean
+            role_note = (f"Expanded role: projected {projection:.1f} vs {mean:.1f} recent avg -- "
+                         f"history scaled x{scale:.2f}")
+            mean, own_sd = projection, own_sd * scale
     elif fallback_mean:
         mean, own_sd, n_eff = fallback_mean, 0.0, 0.0
     else:
-        return None, None
+        return None, None, False
     sd = math.sqrt((n_eff * own_sd**2 + PRIOR_GAMES * (cv * mean) ** 2) / (n_eff + PRIOR_GAMES))
     base = max(0.0, mean + Z_85 * sd)
     n = len(vals)
@@ -171,7 +184,9 @@ def _history(ctx: CeilingContext, entries: list, position: str, fallback_mean: f
         note = f"History: {base:.1f} (85th pct of last {n} game{'s' if n != 1 else ''}, recency-weighted avg {mean:.1f})"
     else:
         note = f"History: {base:.1f} (no box-score games; from DK FPPG {mean:.1f})"
-    return base, note
+    if role_note:
+        note = f"{note}. {role_note}"
+    return base, note, role_note is not None
 
 
 @dataclass
@@ -193,11 +208,12 @@ class CeilingDetail:
 
 
 def player_ceiling_detail(
-    ctx: CeilingContext, *, name: str, position: str, team: str, opponent: str, fallback_mean: float | None
+    ctx: CeilingContext, *, name: str, position: str, team: str, opponent: str, fallback_mean: float | None,
+    projection: float | None = None,
 ) -> CeilingDetail | None:
     is_dst = position == "DST"
     entries = ctx.dst_index.get(team, []) if is_dst else ctx.players.get(nc.player_key(name, position), [])
-    base, history_note = _history(ctx, entries, position, fallback_mean)
+    base, history_note, expanded = _history(ctx, entries, position, fallback_mean, None if is_dst else projection)
     if base is None:
         return None
     d = CeilingDetail(value=0.0, base=base, notes=[history_note])
@@ -264,7 +280,8 @@ def player_ceiling_detail(
         d.notes.append(f"Breakdown x{m:.2f}: " + "; ".join(d.flags))
 
     # Team utilization
-    if position in ("RB", "WR", "TE"):
+    # (skipped for an expanded role: past shares predate it)
+    if position in ("RB", "WR", "TE") and not expanded:
         base_shares = nc.recent_values(entries, ctx.season, ctx.week, USAGE_BASE, col=3)
         recent_shares = nc.recent_values(entries, ctx.season, ctx.week, USAGE_RECENT, col=3)
         if len(base_shares) >= USAGE_MIN_GAMES and statistics.fmean(base_shares) > 0:
@@ -293,7 +310,9 @@ def player_ceiling_detail(
 
 
 def player_ceiling(
-    ctx: CeilingContext, *, name: str, position: str, team: str, opponent: str, fallback_mean: float | None
+    ctx: CeilingContext, *, name: str, position: str, team: str, opponent: str, fallback_mean: float | None,
+    projection: float | None = None,
 ) -> tuple[float | None, list[str]]:
-    d = player_ceiling_detail(ctx, name=name, position=position, team=team, opponent=opponent, fallback_mean=fallback_mean)
+    d = player_ceiling_detail(ctx, name=name, position=position, team=team, opponent=opponent,
+                              fallback_mean=fallback_mean, projection=projection)
     return (d.value, d.notes) if d else (None, [])

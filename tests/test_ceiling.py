@@ -123,3 +123,15 @@ def test_recency_weighting_favors_recent_games():
     mean, _sd, n_eff = _weighted_stats([10.0] * 10 + [30.0, 30.0])
     assert mean > 10.0 + (20.0 * 2 / 12)  # above the unweighted mean
     assert n_eff < 12
+
+
+def test_expanded_role_scales_history_up_to_this_weeks_projection():
+    # A backup averaging 6 pts projected for 13 with the starter out.
+    backup = {RB_KEY: [[2026, w, 6.0, 0.15] for w in (1, 2)] + [[2025, w, 6.0, 0.15] for w in range(10, 18)]}
+    plain, _ = _ceil(_ctx(players=backup))
+    value, notes = _ceil(_ctx(players=backup), projection=13.0)
+    assert value == pytest.approx(plain * 13.0 / 6.0, rel=0.02)
+    assert "Expanded role: projected 13.0 vs 6.0 recent avg" in notes[0]
+    # A normal week (projection near his average) and tiny projections are left alone.
+    assert _ceil(_ctx(players=backup), projection=8.5)[0] == plain
+    assert _ceil(_ctx(players=backup), projection=7.9)[0] == plain
