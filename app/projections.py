@@ -25,8 +25,11 @@ adjusted for how this week's opponent has fared against expectations.
    extent projections don't already price weather in
    (scripts/weather_effects.py). DSTs use the fitted DST-points effect.
 
-Players without a Sleeper line (kickers, deep backups) fall back to
-DraftKings' season FPPG.
+A QB/RB/WR/TE matched to Sleeper whose line this week is empty is projected
+0: Sleeper doesn't expect him to play (a benched starter or backup), so
+his season FPPG -- maybe from earlier starts -- would overstate him. Kickers,
+players Sleeper can't be matched to, and weeks with no Sleeper lines at all
+fall back to DraftKings' season FPPG.
 """
 from __future__ import annotations
 
@@ -147,6 +150,8 @@ def project(ctx: ProjectionContext, *, sleeper_id: str | None, position: str, op
     """(DK points, one line of explanation per step) for one player."""
     line = ctx.lines.get(sleeper_id) if sleeper_id else None
     base = dk_points_from_line(line["stats"], position) if line and line.get("stats") else 0.0
+    if base <= 0 and position in SKILL and sleeper_id and ctx.lines:
+        return 0.0, ["Sleeper projects no stats this week (backup or not starting); DK season FPPG ignored"]
     if base <= 0:
         value = round(fallback or 0.0, 2)
         return value, [f"No projected stat line this week; DK season FPPG {value:.1f}"]
