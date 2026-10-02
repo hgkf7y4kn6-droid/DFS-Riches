@@ -2,6 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Color tokens as "R G B" so Tailwind opacity modifiers work (bg-accent/15).
+   tailwind.config.js maps each to a color name; constants/theme.ts mirrors
+   these values for the few places that need a JS color. Keep all three in
+   sync. Dark mode follows the device setting. */
+:root {
+  --background: 255 249 227;
+  --foreground: 8 17 38;
+  --card: 255 255 255;
+  --primary: 8 17 38;
+  --primary-foreground: 255 249 227;
+  --accent: 234 122 83;
+  --accent-foreground: 255 249 227;
+  --muted: 244 236 214;
+  --muted-foreground: 107 114 128;
+  --border: 232 223 196;
+  --success: 21 128 61;
+  --danger: 185 28 28;
+  --warning: 180 83 9;
+  --info: 29 78 216;
+  --hero: 8 17 38;
+  --hero-foreground: 255 249 227;
+  --hero-border: 8 17 38;
+  --hero-positive: 74 222 128;
+  --hero-negative: 248 113 113;
+}
+
+/* Dark: rich black matte background, dark slate structure (cards, borders,
+   the balance card), cool off-white type, metallic gold (#D4AF37) for
+   buttons and active states, emerald (#50C878) gains and electric red
+   (#E60000) losses. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 12 12 13;
+    --foreground: 230 234 240;
+    --card: 28 35 45;
+    --primary: 212 175 55;
+    --primary-foreground: 12 12 13;
+    --accent: 212 175 55;
+    --accent-foreground: 12 12 13;
+    --muted: 37 46 58;
+    --muted-foreground: 148 163 184;
+    --border: 46 57 71;
+    --success: 80 200 120;
+    --danger: 230 0 0;
+    --warning: 240 180 41;
+    --info: 96 165 250;
+    --hero: 22 28 36;
+    --hero-foreground: 230 234 240;
+    --hero-border: 46 57 71;
+    --hero-positive: 80 200 120;
+    --hero-negative: 230 0 0;
+  }
+}
+
 /* Reusable component classes: each bundles the Tailwind utilities for one
    piece of the UI so screens stay short and every screen shares one look.
    Type scale: font-sans-* families (Plus Jakarta Sans) -- extrabold for
@@ -31,13 +85,13 @@
     @apply relative size-14 items-center justify-center rounded-2xl bg-accent;
   }
   .auth-logo-mark-text {
-    @apply text-2xl font-sans-extrabold text-background;
+    @apply text-2xl font-sans-extrabold text-accent-foreground;
   }
   .auth-wordmark-sub {
     @apply mt-1 text-xs font-sans-semibold text-muted-foreground;
   }
   .auth-title {
-    @apply text-3xl font-sans-bold text-primary;
+    @apply text-3xl font-sans-bold text-foreground;
   }
   .auth-subtitle {
     @apply mt-2 max-w-[320px] text-center text-base font-sans-medium;
@@ -63,7 +117,7 @@
     @apply px-5 pt-5;
   }
   .screen-title {
-    @apply text-2xl font-sans-bold text-primary;
+    @apply text-2xl font-sans-bold text-foreground;
   }
   .screen-subtitle {
     @apply mb-4 text-xs font-sans-medium text-muted-foreground;
@@ -83,54 +137,54 @@
     @apply ml-4 text-sm font-sans-medium text-muted-foreground;
   }
   .home-user-name {
-    @apply ml-4 text-2xl font-sans-bold text-primary;
+    @apply ml-4 text-2xl font-sans-bold text-foreground;
   }
   .home-add-icon {
     @apply size-12;
   }
   .home-empty-state {
-    @apply py-4 text-sm font-sans-medium text-black/60;
+    @apply py-4 text-sm font-sans-medium text-black/60 dark:text-foreground/60;
   }
 
   /* Balance card: money spent on lineup submissions */
   .home-balance-card {
-    @apply my-4 rounded-3xl bg-primary p-5;
+    @apply my-4 rounded-3xl border border-hero-border bg-hero p-5;
   }
   .home-balance-label {
-    @apply text-sm font-sans-medium text-background/70;
+    @apply text-sm font-sans-medium text-hero-foreground/70;
   }
   .home-balance-row {
     @apply mt-1 flex-row items-end justify-between;
   }
   .home-balance-amount {
-    @apply text-3xl font-sans-extrabold text-background;
+    @apply text-3xl font-sans-extrabold text-hero-foreground;
   }
   .home-balance-date-block {
     @apply items-end;
   }
   .home-balance-date-label {
-    @apply text-[11px] font-sans-medium text-background/60;
+    @apply text-[11px] font-sans-medium text-hero-foreground/60;
   }
   .home-balance-date {
     @apply text-base font-sans-bold text-accent;
   }
   .home-balance-stats {
-    @apply mt-4 flex-row justify-between border-t border-background/15 pt-4;
+    @apply mt-4 flex-row justify-between border-t border-hero-foreground/15 pt-4;
   }
   .home-balance-stat {
     @apply items-start;
   }
   .home-balance-stat-value {
-    @apply text-base font-sans-bold text-background;
+    @apply text-base font-sans-bold text-hero-foreground;
   }
   .home-balance-stat-label {
-    @apply mt-0.5 text-[11px] font-sans-medium text-background/60;
+    @apply mt-0.5 text-[11px] font-sans-medium text-hero-foreground/60;
   }
   .home-balance-positive {
-    @apply text-[#4ADE80];
+    @apply text-hero-positive;
   }
   .home-balance-negative {
-    @apply text-[#F87171];
+    @apply text-hero-negative;
   }
 
   /* ------------------------------------- list heading (reusable) */
@@ -138,7 +192,7 @@
     @apply mb-3 mt-6 flex-row items-center justify-between;
   }
   .list-title {
-    @apply text-lg font-sans-bold text-primary;
+    @apply text-lg font-sans-bold text-foreground;
   }
   .list-subtitle {
     @apply text-xs font-sans-medium text-muted-foreground;
@@ -161,10 +215,10 @@
     @apply text-[11px] font-sans-bold uppercase text-accent;
   }
   .upcoming-matchup {
-    @apply mt-2 text-xl font-sans-extrabold text-primary;
+    @apply mt-2 text-xl font-sans-extrabold text-foreground;
   }
   .upcoming-time {
-    @apply mt-0.5 text-sm font-sans-semibold text-primary;
+    @apply mt-0.5 text-sm font-sans-semibold text-foreground;
   }
   .upcoming-meta {
     @apply mt-0.5 text-xs font-sans-medium text-muted-foreground;
@@ -173,7 +227,7 @@
     @apply mt-3 flex-row justify-between border-t border-border pt-3;
   }
   .upcoming-line-value {
-    @apply text-sm font-sans-bold text-primary;
+    @apply text-sm font-sans-bold text-foreground;
   }
   .upcoming-line-label {
     @apply text-[10px] font-sans-medium uppercase text-muted-foreground;
@@ -187,7 +241,7 @@
     @apply mb-3 flex-row items-center justify-between;
   }
   .section-title {
-    @apply text-lg font-sans-bold text-primary;
+    @apply text-lg font-sans-bold text-foreground;
   }
   .section-subtitle {
     @apply mt-0.5 text-xs font-sans-medium text-muted-foreground;
@@ -199,7 +253,7 @@
     @apply rounded-2xl border border-border bg-card p-4;
   }
   .card-title {
-    @apply text-base font-sans-bold text-primary;
+    @apply text-base font-sans-bold text-foreground;
   }
   .expand-header {
     @apply flex-row items-center justify-between;
@@ -231,7 +285,7 @@
     @apply border-b border-border;
   }
   .game-matchup {
-    @apply text-base font-sans-bold text-primary;
+    @apply text-base font-sans-bold text-foreground;
   }
   .game-meta {
     @apply text-xs font-sans-medium text-muted-foreground;
@@ -243,7 +297,7 @@
     @apply items-end gap-1;
   }
   .game-score {
-    @apply text-sm font-sans-bold text-primary;
+    @apply text-sm font-sans-bold text-foreground;
   }
   .game-line {
     @apply text-xs font-sans-semibold text-muted-foreground;
@@ -266,16 +320,16 @@
     @apply text-[10px] font-sans-bold uppercase text-accent;
   }
   .slate-chip-title {
-    @apply mt-0.5 text-sm font-sans-bold text-primary;
+    @apply mt-0.5 text-sm font-sans-bold text-foreground;
   }
   .slate-chip-title-active {
-    @apply text-background;
+    @apply text-primary-foreground;
   }
   .slate-chip-meta {
     @apply mt-1 text-xs font-sans-medium text-muted-foreground;
   }
   .slate-chip-meta-active {
-    @apply text-background/70;
+    @apply text-primary-foreground/70;
   }
 
   /* ----------------------------------------- players and lineup rows */
@@ -286,7 +340,7 @@
     @apply flex-row items-center justify-between;
   }
   .lineup-title {
-    @apply text-base font-sans-bold text-primary;
+    @apply text-base font-sans-bold text-foreground;
   }
   .lineup-status {
     @apply mb-3 text-xs font-sans-medium text-muted-foreground;
@@ -304,7 +358,7 @@
     @apply flex-1 pr-2;
   }
   .lineup-player-name {
-    @apply text-sm font-sans-semibold text-primary;
+    @apply text-sm font-sans-semibold text-foreground;
   }
   .lineup-player-meta {
     @apply text-xs font-sans-medium text-muted-foreground;
@@ -316,7 +370,7 @@
     @apply items-end;
   }
   .lineup-salary {
-    @apply text-sm font-sans-semibold text-primary;
+    @apply text-sm font-sans-semibold text-foreground;
   }
   .lineup-proj {
     @apply text-xs font-sans-medium text-success;
@@ -331,7 +385,7 @@
     @apply text-[11px] font-sans-medium text-muted-foreground;
   }
   .lineup-total-value {
-    @apply text-sm font-sans-bold text-primary;
+    @apply text-sm font-sans-bold text-foreground;
   }
   .lineup-errors {
     @apply mt-2 text-xs font-sans-medium text-danger;
@@ -364,7 +418,7 @@
     @apply items-center rounded-xl bg-primary px-4 py-3;
   }
   .btn-text {
-    @apply text-sm font-sans-bold text-background;
+    @apply text-sm font-sans-bold text-primary-foreground;
   }
   .btn-accent {
     @apply items-center rounded-xl bg-accent px-4 py-3;
@@ -389,18 +443,18 @@
     @apply border-primary bg-primary;
   }
   .filter-chip-text {
-    @apply text-xs font-sans-semibold text-primary;
+    @apply text-xs font-sans-semibold text-foreground;
   }
   .filter-chip-text-active {
-    @apply text-background;
+    @apply text-primary-foreground;
   }
 
   /* -------------------------------------------------------------- forms */
   .input {
-    @apply rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-sans-medium text-primary;
+    @apply rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-sans-medium text-foreground;
   }
   .input-label {
-    @apply mb-1.5 text-xs font-sans-semibold text-primary;
+    @apply mb-1.5 text-xs font-sans-semibold text-foreground;
   }
   .input-row {
     @apply flex-row gap-3;
@@ -423,7 +477,7 @@
     @apply flex-row items-center justify-between;
   }
   .pl-type {
-    @apply text-sm font-sans-bold text-primary;
+    @apply text-sm font-sans-bold text-foreground;
   }
   .pl-net {
     @apply text-sm font-sans-bold;
@@ -432,7 +486,7 @@
     @apply mt-1.5 flex-row justify-between;
   }
   .pl-stat-value {
-    @apply text-xs font-sans-semibold text-primary;
+    @apply text-xs font-sans-semibold text-foreground;
   }
   .pl-stat-label {
     @apply text-[10px] font-sans-medium text-muted-foreground;
@@ -447,7 +501,7 @@
     @apply border-b border-border py-3;
   }
   .entry-title {
-    @apply text-sm font-sans-semibold text-primary;
+    @apply text-sm font-sans-semibold text-foreground;
   }
   .entry-meta {
     @apply text-xs font-sans-medium text-muted-foreground;
@@ -476,7 +530,7 @@
     @apply text-[11px] font-sans-semibold uppercase text-muted-foreground;
   }
   .lines-value {
-    @apply text-sm font-sans-bold text-primary;
+    @apply text-sm font-sans-bold text-foreground;
   }
   .lines-sub {
     @apply text-[11px] font-sans-regular text-muted-foreground;

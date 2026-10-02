@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 
 import icons from '@/constants/icons';
-import { colors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 
 interface Props {
   title: string;
@@ -29,6 +29,7 @@ export default function ExpandableCard({
   preview,
   children,
 }: Props) {
+  const colors = useThemeColors();
   const [uncontrolled, setUncontrolled] = useState(defaultExpanded);
   const expanded = controlled ?? uncontrolled;
   const toggle = () => (onExpandedChange ? onExpandedChange(!expanded) : setUncontrolled(!expanded));
@@ -48,7 +49,7 @@ export default function ExpandableCard({
         <Image
           source={icons.chevron}
           className="expand-icon"
-          style={{ width: 16, height: 16, tintColor: colors.primary, transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}
+          style={{ width: 16, height: 16, tintColor: colors.foreground, transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}
         />
       </Pressable>
       {expanded ? <View className="mt-3">{children}</View> : preview ? <View className="mt-3">{preview}</View> : null}

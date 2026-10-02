@@ -7,7 +7,7 @@ import SubmissionForm from '@/components/SubmissionForm';
 import { MAX_LINEUPS } from '@/constants/config';
 import { PLAYABLE_STATUSES, POSITION_FILTERS } from '@/constants/data';
 import icons from '@/constants/icons';
-import { colors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { addPlayer, fitChecker, indexOfPlayer, removeAt, summarize, template } from '@/lib/lineups';
 import { formatCurrency, formatPoints } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
@@ -23,6 +23,7 @@ const PAGE = 40;
  */
 export default function LineupBuilder() {
   const { selectedSlate, players, lineups, activeLineup, setActiveLineup, setLineup, addLineup, deleteLineup } = useWeek();
+  const colors = useThemeColors();
   const [position, setPosition] = useState('All');
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
@@ -92,7 +93,7 @@ export default function LineupBuilder() {
         })}
         {lineups.length < MAX_LINEUPS ? (
           <Pressable className="filter-chip flex-row items-center" onPress={addLineup} accessibilityRole="button" accessibilityLabel="Add a lineup">
-            <Image source={icons.plus} className="mr-1" style={{ width: 12, height: 12, tintColor: colors.primary }} />
+            <Image source={icons.plus} className="mr-1" style={{ width: 12, height: 12, tintColor: colors.foreground }} />
             <Text className="filter-chip-text">New</Text>
           </Pressable>
         ) : null}
@@ -228,7 +229,7 @@ export default function LineupBuilder() {
                     onPress={() => toggle(p)}
                     accessibilityRole="button"
                     accessibilityLabel={`${inLineup ? 'Remove' : 'Add'} ${p.name}`}>
-                    <Image source={inLineup ? icons.close : icons.plus} style={{ width: 12, height: 12, tintColor: colors.background }} />
+                    <Image source={inLineup ? icons.close : icons.plus} style={{ width: 12, height: 12, tintColor: inLineup ? colors.accentForeground : colors.primaryForeground }} />
                   </Pressable>
                 }
               />

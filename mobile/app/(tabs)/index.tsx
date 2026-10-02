@@ -17,7 +17,7 @@ import SubmissionForm from '@/components/SubmissionForm';
 import UpcomingGameCard from '@/components/UpcomingGameCard';
 import { HOME_BALANCE, HOME_SECTIONS, HOME_USER } from '@/constants/data';
 import icons from '@/constants/icons';
-import { colors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import dayjs from '@/lib/dayjs';
 import { stats } from '@/lib/submissions';
 import { useSubmissions } from '@/lib/submissions-context';
@@ -26,6 +26,7 @@ import { useWeek } from '@/lib/week-context';
 
 export default function Home() {
   const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
   const { week, weekData, refresh, selectedSlate, selectSlate } = useWeek();
   const { submissions } = useSubmissions();
   const data = weekData.data;

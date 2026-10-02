@@ -8,18 +8,32 @@ import {
   PlusJakartaSans_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/plus-jakarta-sans';
-import { Stack } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { darkColors, lightColors } from '@/constants/theme';
 import { SubmissionsProvider } from '@/lib/submissions-context';
 import { WeekProvider } from '@/lib/week-context';
 
 SplashScreen.preventAutoHideAsync();
 
+// Navigation chrome (screen backgrounds behind content, headers) in the
+// app's palette, so nothing flashes white in dark mode.
+const navTheme = (dark: boolean) => {
+  const base = dark ? DarkTheme : DefaultTheme;
+  const c = dark ? darkColors : lightColors;
+  return {
+    ...base,
+    colors: { ...base.colors, background: c.background, card: c.card, text: c.foreground, border: c.border, primary: c.primary },
+  };
+};
+
 export default function RootLayout() {
+  const dark = useColorScheme() === 'dark';
   // The font-sans-* classes (tailwind.config.js) name these families.
   const [fontsLoaded, fontError] = useFonts({
     PlusJakartaSans_400Regular,
@@ -37,14 +51,16 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <SubmissionsProvider>
-        <WeekProvider>
-          <StatusBar style="dark" />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-          </Stack>
-        </WeekProvider>
-      </SubmissionsProvider>
+      <ThemeProvider value={navTheme(dark)}>
+        <SubmissionsProvider>
+          <WeekProvider>
+            <StatusBar style={dark ? 'light' : 'dark'} />
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(tabs)" />
+            </Stack>
+          </WeekProvider>
+        </SubmissionsProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

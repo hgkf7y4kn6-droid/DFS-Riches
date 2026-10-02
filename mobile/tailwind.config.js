@@ -2,21 +2,30 @@
 module.exports = {
   content: ['./app/**/*.{js,jsx,ts,tsx}', './components/**/*.{js,jsx,ts,tsx}'],
   presets: [require('nativewind/preset')],
+  darkMode: 'media',
   theme: {
     extend: {
+      // Values live in global.css as CSS variables (light + dark).
       colors: {
-        background: '#FFF9E3',
-        foreground: '#081126',
-        card: '#FFFFFF',
-        primary: '#081126',
-        accent: '#EA7A53',
-        muted: '#F4ECD6',
-        'muted-foreground': '#6B7280',
-        border: '#E8DFC4',
-        success: '#15803D',
-        danger: '#B91C1C',
-        warning: '#B45309',
-        info: '#1D4ED8',
+        background: 'rgb(var(--background) / <alpha-value>)',
+        foreground: 'rgb(var(--foreground) / <alpha-value>)',
+        card: 'rgb(var(--card) / <alpha-value>)',
+        primary: 'rgb(var(--primary) / <alpha-value>)',
+        'primary-foreground': 'rgb(var(--primary-foreground) / <alpha-value>)',
+        accent: 'rgb(var(--accent) / <alpha-value>)',
+        'accent-foreground': 'rgb(var(--accent-foreground) / <alpha-value>)',
+        muted: 'rgb(var(--muted) / <alpha-value>)',
+        'muted-foreground': 'rgb(var(--muted-foreground) / <alpha-value>)',
+        border: 'rgb(var(--border) / <alpha-value>)',
+        success: 'rgb(var(--success) / <alpha-value>)',
+        danger: 'rgb(var(--danger) / <alpha-value>)',
+        warning: 'rgb(var(--warning) / <alpha-value>)',
+        info: 'rgb(var(--info) / <alpha-value>)',
+        hero: 'rgb(var(--hero) / <alpha-value>)',
+        'hero-foreground': 'rgb(var(--hero-foreground) / <alpha-value>)',
+        'hero-border': 'rgb(var(--hero-border) / <alpha-value>)',
+        'hero-positive': 'rgb(var(--hero-positive) / <alpha-value>)',
+        'hero-negative': 'rgb(var(--hero-negative) / <alpha-value>)',
       },
       // Plus Jakarta Sans, loaded in app/_layout.tsx. Each weight is its own
       // family (font-sans-bold etc.) because Android ignores fontWeight on

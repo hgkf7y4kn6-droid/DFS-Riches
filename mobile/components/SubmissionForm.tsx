@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import { CONTEST_TYPES } from '@/constants/data';
-import { colors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { parseMoney } from '@/lib/submissions';
 import { useSubmissions } from '@/lib/submissions-context';
 import { formatCurrency } from '@/lib/utils';
@@ -14,6 +14,7 @@ import { useWeek } from '@/lib/week-context';
  * contest is pending; results can be added later in the tracker).
  */
 export default function SubmissionForm({ slateId, onDone }: { slateId?: string; onDone?: () => void }) {
+  const colors = useThemeColors();
   const { add } = useSubmissions();
   const { season, week, weekData, selectedSlate } = useWeek();
   const slates = weekData.data?.slates ?? [];

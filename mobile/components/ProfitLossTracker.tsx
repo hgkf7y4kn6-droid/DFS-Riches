@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 
 import { CONTEST_TYPE_BY_ID } from '@/constants/data';
-import { colors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { cost, parseMoney, profit, stats, statsByType } from '@/lib/submissions';
 import { useSubmissions } from '@/lib/submissions-context';
 import { formatCurrency, formatPercent, formatSignedCurrency } from '@/lib/utils';
@@ -10,7 +10,7 @@ import { formatCurrency, formatPercent, formatSignedCurrency } from '@/lib/utils
 const RECENT = 10;
 
 function netClass(n: number) {
-  return n > 0 ? 'text-positive' : n < 0 ? 'text-negative' : 'text-primary';
+  return n > 0 ? 'text-positive' : n < 0 ? 'text-negative' : 'text-foreground';
 }
 
 function StatsRow({ title, s }: { title: string; s: ProfitLossStats }) {
@@ -42,6 +42,7 @@ function StatsRow({ title, s }: { title: string; s: ProfitLossStats }) {
 }
 
 function EntryRow({ entry }: { entry: LineupSubmission }) {
+  const colors = useThemeColors();
   const { settle, remove } = useSubmissions();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState('');
