@@ -8,3 +8,7 @@ data/cache/*.json
 README.md
 .venv/
 venv/
+mobile/node_modules/
+mobile/.expo/
+mobile/dist/
+web/

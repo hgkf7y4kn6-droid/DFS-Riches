@@ -25,7 +25,7 @@ from typing import Annotated
 from fastapi import Body, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -76,6 +76,10 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET"], a
 app.mount("/static", _CachedStaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
+# The website is the mobile app's web build (mobile/, `expo export --platform web`,
+# built into web/ by the Dockerfile). The original pages live under /classic.
+WEB_DIR = BASE_DIR / "web"
+
 
 @app.get("/healthz")
 async def healthz():
@@ -119,9 +123,9 @@ async def _page(request: Request, template: str, active: str, season_q: str | No
                                                           "asset_version": ASSET_VERSION})
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/classic", response_class=HTMLResponse)
 async def index(request: Request, season: str | None = None, week: str | None = None):
-    return await _page(request, "index.html", "/", season, week)
+    return await _page(request, "index.html", "/classic", season, week)
 
 
 @app.get("/api/state")
@@ -188,14 +192,19 @@ async def api_slate_optimal(slate_id: str, season: Season = DEFAULT_SEASON, week
         raise HTTPException(status_code=502, detail=f"Could not build optimal lineups: {exc}") from exc
 
 
-@app.get("/breakdown", response_class=HTMLResponse)
+@app.get("/classic/breakdown", response_class=HTMLResponse)
 async def breakdown_page(request: Request, season: str | None = None, week: str | None = None):
-    return await _page(request, "breakdown.html", "/breakdown", season, week)
+    return await _page(request, "breakdown.html", "/classic/breakdown", season, week)
 
 
-@app.get("/dfs-model", response_class=HTMLResponse)
+@app.get("/classic/dfs-model", response_class=HTMLResponse)
 async def dfs_model_page(request: Request, season: str | None = None, week: str | None = None):
-    return await _page(request, "dfs_model.html", "/dfs-model", season, week)
+    return await _page(request, "dfs_model.html", "/classic/dfs-model", season, week)
+
+
+@app.get("/breakdown", include_in_schema=False)
+async def old_breakdown_page():
+    return RedirectResponse("/classic/breakdown")
 
 
 @app.get("/api/breakdown/game/{game_id}", response_model=GameDetail)
@@ -437,6 +446,33 @@ async def api_ownership_duplication(body: dict = Body(...)):
                                   model_lineups={f"Your lineup {i + 1}": lu for i, lu in enumerate(lineups)},
                                   exposure_lineups=lineups)
     return {"duplication": rep["duplication"], "leverage": rep["leverage"], "contest_size": size}
+
+
+def _web_file(path: str):
+    """The web build's file for a URL path: the file itself, its pre-rendered
+    .html route (expo-router static output), or the app shell for anything else."""
+    root = WEB_DIR.resolve()
+    clean = path.strip("/")
+    for candidate in (clean, f"{clean}.html", f"{clean}/index.html" if clean else "index.html"):
+        if not candidate:
+            continue
+        f = (root / candidate).resolve()
+        if f.is_file() and f.is_relative_to(root):
+            return f
+    return root / "index.html"
+
+
+@app.get("/{path:path}", include_in_schema=False)
+async def web_app(path: str):
+    """Serve the app (registered last, so every API and /classic route wins)."""
+    if path.startswith(("api/", "static/")):
+        raise HTTPException(status_code=404)
+    if not (WEB_DIR / "index.html").is_file():
+        return RedirectResponse("/classic")
+    f = _web_file(path)
+    hashed = path.startswith("_expo/")       # content-hashed bundles
+    headers = {"Cache-Control": "public, max-age=31536000, immutable" if hashed else "no-cache"}
+    return FileResponse(f, headers=headers)
 
 
 if __name__ == "__main__":

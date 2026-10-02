@@ -4,6 +4,16 @@
 # run inside a Cloudflare Worker -- that's a different execution model
 # (V8 isolates/Pyodide) that can't run Uvicorn or httpx's socket transport.
 
+# Stage 1: the website -- the mobile app's web build (mobile/, Expo).
+FROM node:22-slim AS web
+WORKDIR /mobile
+COPY mobile/package.json mobile/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY mobile/ ./
+# No EXPO_PUBLIC_API_URL: the web build calls the server it's served from.
+RUN npx expo export --platform web --output-dir /web
+
+# Stage 2: the API server, which also serves the web build.
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -18,6 +28,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ app/
 COPY static/ static/
 COPY templates/ templates/
+COPY --from=web /web web/
 COPY data/dk_overrides.json data/name_aliases.json data/optimal_lineups.json data/source_accuracy.json data/weather_effects.json data/
 
 # Run as non-root. app/config.py creates data/cache/ on import; give the

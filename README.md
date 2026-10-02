@@ -902,7 +902,14 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Then open http://127.0.0.1:8000/. Every page shares one season/week
+The website is the mobile app's web build (`mobile/`): Home, DFS Model,
+Cash, GPP and Settings. The Dockerfile builds it (`npx expo export
+--platform web`) into `web/`, and the server serves it at `/`. Locally,
+build it the same way (`cd mobile && npx expo export --platform web
+--output-dir ../web`); without a build, `/` redirects to the original
+pages, which live under `/classic`.
+
+Then open http://127.0.0.1:8000/classic for the original pages. They share one season/week
 selector in the header. It opens on the current NFL week (from Sleeper's
 NFL state; week 1 in the preseason, week 18 after the season) and falls
 back to `app/config.py`'s default if Sleeper is unreachable. Change either

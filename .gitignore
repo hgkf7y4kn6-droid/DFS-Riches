@@ -6,3 +6,4 @@ data/cache/*.json
 !data/cache/.gitkeep
 .env
 data/ownership/
+web/

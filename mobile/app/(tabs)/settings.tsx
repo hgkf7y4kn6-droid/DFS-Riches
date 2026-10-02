@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { Alert, Platform, Pressable, ScrollView, Text, useColorScheme, View } from 'react-native';
+import { Alert, Linking, Platform, Pressable, ScrollView, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import SafeAreaView from '@/components/SafeAreaView';
@@ -45,6 +45,12 @@ function Row({ label, value, onPress, danger, last }: { label: string; value?: s
   );
 }
 
+/** The original website pages, now under /classic on the same server. */
+function openClassic() {
+  if (Platform.OS === 'web') window.location.assign('/classic');
+  else Linking.openURL(`${API_BASE_URL}/classic`);
+}
+
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
@@ -71,7 +77,7 @@ export default function SettingsScreen() {
         <Text className="settings-group-title">Data</Text>
         <View className="settings-group mt-0">
           <Row label="Season / week" value={season && week ? `${season} · Week ${week}` : 'Loading'} />
-          <Row label="Server" value={API_BASE_URL.replace(/^https?:\/\//, '')} />
+          <Row label="Server" value={API_BASE_URL ? API_BASE_URL.replace(/^https?:\/\//, '') : 'This website'} />
           <Row
             label="Refresh everything"
             value="Schedule, slates, model"
@@ -86,7 +92,8 @@ export default function SettingsScreen() {
         <Text className="settings-group-title">More</Text>
         <View className="settings-group mt-0">
           <Row label="Lineup builder" value="All slates ›" onPress={() => router.push('/lineups')} />
-          <Row label="Lines & Performance" value="Every game ›" onPress={() => router.push('/lines')} last />
+          <Row label="Lines & Performance" value="Every game ›" onPress={() => router.push('/lines')} />
+          <Row label="Classic website" value="Original pages ›" onPress={openClassic} last />
         </View>
 
         <Text className="settings-group-title">Saved on this device</Text>

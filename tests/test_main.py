@@ -41,12 +41,33 @@ def test_pages_render_requested_week_and_fall_back_on_bad_params(client, monkeyp
     async def fixed():
         return 2026, 4
     monkeypatch.setattr(main, "current_season_week", fixed)
-    html = client.get("/breakdown?season=2025&week=7").text
+    html = client.get("/classic/breakdown?season=2025&week=7").text
     assert 'id="season-input"' in html and 'value="2025"' in html and 'value="7"' in html
-    assert 'href="/dfs-model?season=2025&amp;week=7"' in html
-    bad = client.get("/dfs-model?season=abc&week=99")
+    assert 'href="/classic/dfs-model?season=2025&amp;week=7"' in html
+    bad = client.get("/classic/dfs-model?season=abc&week=99")
     assert bad.status_code == 200 and 'value="2026"' in bad.text and 'value="4"' in bad.text
     assert 'aria-current="page"' in bad.text
+
+
+def test_web_app_serves_routes_files_and_shell(client, monkeypatch, tmp_path):
+    (tmp_path / "_expo").mkdir()
+    (tmp_path / "index.html").write_text("home")
+    (tmp_path / "cash.html").write_text("cash")
+    (tmp_path / "_expo" / "app.js").write_text("js")
+    monkeypatch.setattr(main, "WEB_DIR", tmp_path)
+    assert client.get("/").text == "home"
+    assert client.get("/cash").text == "cash"
+    r = client.get("/_expo/app.js")
+    assert r.text == "js" and "immutable" in r.headers["cache-control"]
+    assert client.get("/no/such/route").text == "home"            # client-side routes get the app shell
+    assert client.get("/../app/main.py").text == "home"           # never outside the build
+    assert client.get("/api/nope").status_code == 404
+    assert client.get("/breakdown", follow_redirects=False).headers["location"] == "/classic/breakdown"
+
+
+def test_root_falls_back_to_classic_without_a_web_build(client, monkeypatch, tmp_path):
+    monkeypatch.setattr(main, "WEB_DIR", tmp_path)
+    assert client.get("/", follow_redirects=False).headers["location"] == "/classic"
 
 
 def test_api_rejects_out_of_range_weeks(client):

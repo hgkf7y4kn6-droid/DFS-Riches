@@ -12,11 +12,11 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="brand" href="/?season={{ season }}&amp;week={{ week }}" aria-label="DFSRiches home">
+    <a class="brand" href="/classic?season={{ season }}&amp;week={{ week }}" aria-label="DFSRiches classic home">
       <span class="brand-dollar">$</span>DFS<span class="brand-accent">Riches</span>
     </a>
     <nav class="page-nav" aria-label="Pages">
-      {%- for href, label in [("/", "Slates"), ("/breakdown", "Week Breakdown"), ("/dfs-model", "DFS Model")] %}
+      {%- for href, label in [("/classic", "Slates"), ("/classic/breakdown", "Week Breakdown"), ("/classic/dfs-model", "DFS Model"), ("/", "New app")] %}
       <a href="{{ href }}?season={{ season }}&amp;week={{ week }}"{% if href == active %} class="active" aria-current="page"{% endif %}>{{ label }}</a>
       {%- endfor %}
     </nav>
