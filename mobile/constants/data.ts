@@ -18,6 +18,12 @@ export const HOME_USER: HomeUser = {
 // Home sections, top to bottom after the header and balance card. Each one
 // maps to a live data piece from the DFSRiches API (lib/week-context.tsx).
 export const HOME_SECTIONS: Record<HomeSection['id'], HomeSection> = {
+  profit: {
+    id: 'profit',
+    title: 'Profit / Loss',
+    subtitle: 'Results by contest type: win rate, ROI and net dollars',
+    defaultExpanded: false,
+  },
   schedule: {
     id: 'schedule',
     title: 'This week',
@@ -60,3 +66,14 @@ export const OPTIMAL_STATUS_TEXT: Record<OptimalStatus, string> = {
   final: 'Final: scored with actual points',
   none: 'No lineups were saved for this slate',
 };
+
+// Contest formats for logging entries and the profit/loss tracker.
+export const CONTEST_TYPES: ContestTypeInfo[] = [
+  { id: 'gpp', title: 'Tournament (GPP)', short: 'GPP', description: 'Large-field, top-heavy payouts' },
+  { id: 'cash', title: 'Cash (50/50, Double Up)', short: 'Cash', description: 'About half the field gets paid' },
+  { id: 'h2h', title: 'Head-to-Head', short: 'H2H', description: 'One opponent, winner takes it' },
+  { id: 'single_entry', title: 'Single Entry', short: 'Single', description: 'One lineup per user' },
+  { id: 'satellite', title: 'Satellite / Qualifier', short: 'Satellite', description: 'Wins tickets to bigger contests' },
+];
+
+export const CONTEST_TYPE_BY_ID = Object.fromEntries(CONTEST_TYPES.map((c) => [c.id, c])) as Record<ContestType, ContestTypeInfo>;

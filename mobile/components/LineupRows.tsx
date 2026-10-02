@@ -36,13 +36,13 @@ export function LineupRow({ slot, player, right, note }: { slot: string; player:
           <View className="lineup-player">
             <Text className="lineup-player-name" numberOfLines={1}>
               {player.name}
-              {player.injury && player.injury !== 'Healthy' ? <Text className="text-xs text-warning"> {player.injury}</Text> : null}
+              {player.injury && player.injury !== 'Healthy' ? <Text className="injury-tag"> {player.injury}</Text> : null}
             </Text>
             <Text className="lineup-player-meta">
               {player.position} · {player.team}
               {player.opponent ? ` vs ${player.opponent}` : ''}
             </Text>
-            {note ? <Text className="text-[11px] text-muted">{note}</Text> : null}
+            {note ? <Text className="lineup-player-note">{note}</Text> : null}
           </View>
           <View className="lineup-numbers">
             <Text className="lineup-salary">{formatCurrency(player.salary)}</Text>
@@ -50,7 +50,7 @@ export function LineupRow({ slot, player, right, note }: { slot: string; player:
           </View>
         </>
       ) : (
-        <Text className="flex-1 text-sm text-muted">Open</Text>
+        <Text className="lineup-open">Open</Text>
       )}
       {right}
     </View>

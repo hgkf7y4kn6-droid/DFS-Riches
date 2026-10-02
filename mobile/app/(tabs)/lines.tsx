@@ -14,10 +14,10 @@ export default function Lines() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="px-5 pt-5"
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
-        <Text className="text-2xl font-bold text-primary">{HOME_SECTIONS.lines.title}</Text>
-        <Text className="mb-4 text-xs text-muted">
+        <Text className="screen-title">{HOME_SECTIONS.lines.title}</Text>
+        <Text className="screen-subtitle">
           {week ? `Week ${week} · ` : ''}
           {HOME_SECTIONS.lines.subtitle}
         </Text>

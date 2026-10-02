@@ -44,7 +44,7 @@ export default function SlateList({ slates, selectedId, onSelect }: Props) {
             onPress={() => onSelect(item.slate_id)}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}>
-            <Text className="text-[10px] font-bold uppercase text-accent">
+            <Text className="slate-chip-kicker">
               {item.slate_type === 'showdown' ? 'Showdown' : 'Classic'}
             </Text>
             <Text className={`slate-chip-title ${active ? 'slate-chip-title-active' : ''}`} numberOfLines={1}>

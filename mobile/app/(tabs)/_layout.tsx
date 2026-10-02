@@ -3,7 +3,7 @@ import { Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { tabs } from '@/constants/data';
-import { colors } from '@/constants/theme';
+import { colors, fonts } from '@/constants/theme';
 
 export default function TabLayout() {
   // Pads the tab bar by the device's bottom inset (home indicator / gesture
@@ -15,7 +15,7 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.muted,
+        tabBarInactiveTintColor: colors.mutedForeground,
         tabBarStyle: {
           backgroundColor: colors.card,
           borderTopColor: colors.border,
@@ -23,7 +23,7 @@ export default function TabLayout() {
           paddingBottom: insets.bottom + 10,
           paddingTop: 8,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        tabBarLabelStyle: { fontSize: 11, fontFamily: fonts.semibold },
       }}>
       {tabs.map((tab) => (
         <Tabs.Screen

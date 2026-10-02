@@ -18,11 +18,11 @@ function OptimalCard({ lineup, onEdit }: { lineup: OptimalLineup; onEdit?: () =>
   const hindsight = lineup.metric === 'actual';
   return (
     <View className="lineup-card">
-      <View className="flex-row items-center justify-between">
+      <View className="lineup-card-header">
         <Text className="lineup-title">{lineup.label}</Text>
         {onEdit ? (
           <Pressable onPress={onEdit} accessibilityRole="button" accessibilityLabel={`Edit ${lineup.label} in the builder`}>
-            <Text className="text-xs font-semibold text-accent">Edit in builder</Text>
+            <Text className="link-text">Edit in builder</Text>
           </Pressable>
         ) : null}
       </View>
@@ -57,7 +57,7 @@ export default function OptimalLineups() {
       />
       {opt && opt.lineups.length > 0 ? (
         <>
-          <Text className="mb-3 text-xs text-muted">{statusLine(opt)}</Text>
+          <Text className="lineup-status">{statusLine(opt)}</Text>
           {opt.lineups.map((lu) => (
             <OptimalCard
               key={lu.label}

@@ -26,7 +26,7 @@ interface HomeUser {
 
 /** One Home section: what it's called and how it's laid out. */
 interface HomeSection {
-  id: 'schedule' | 'slates' | 'lineups' | 'lines';
+  id: 'profit' | 'schedule' | 'slates' | 'lineups' | 'lines';
   title: string;
   subtitle: string;
   /** Whether the section starts expanded. */
@@ -250,6 +250,63 @@ interface LineupSummary {
   total: number;
   valid: boolean;
   errors: string[];
+}
+
+// --------------------------------------------------------- contest entries
+
+/** DraftKings contest formats tracked separately in the profit/loss tracker. */
+type ContestType = 'gpp' | 'cash' | 'h2h' | 'single_entry' | 'satellite';
+
+interface ContestTypeInfo {
+  id: ContestType;
+  /** e.g. "Tournament (GPP)". */
+  title: string;
+  /** Chip label, e.g. "GPP". */
+  short: string;
+  description: string;
+}
+
+/**
+ * One contest entry the user logged: what they paid and, once the contest
+ * settles, what they won. Stored on the device (lib/submissions-context.tsx).
+ */
+interface LineupSubmission {
+  id: string;
+  /** ISO timestamp the entry was logged. */
+  createdAt: string;
+  season: number;
+  week: number;
+  slateId: string;
+  slateLabel: string;
+  contestType: ContestType;
+  /** Optional contest name, e.g. "NFL $5 Millionaire Maker". */
+  contestName: string;
+  /** Fee per entry, in dollars. */
+  entryFee: number;
+  /** How many entries at that fee. */
+  entries: number;
+  /** Total winnings across those entries; null while the contest is pending. */
+  winnings: number | null;
+}
+
+/** Money and results for a set of submissions (all, or one contest type). */
+interface ProfitLossStats {
+  submissions: number;
+  entries: number;
+  settled: number;
+  pending: number;
+  /** Entry fees paid, pending entries included. */
+  spent: number;
+  /** Winnings from settled entries. */
+  won: number;
+  /** won - fees of settled entries (pending entries aren't a loss yet). */
+  net: number;
+  /** Settled submissions that won more than they cost. */
+  wins: number;
+  /** wins / settled, 0-1; null with nothing settled. */
+  winPct: number | null;
+  /** net / settled fees, e.g. 0.25 = +25%; null with nothing settled. */
+  roi: number | null;
 }
 
 // ------------------------------------------------------------------- assets

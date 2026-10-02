@@ -15,9 +15,9 @@ export default function Lineups() {
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="px-5 pt-5"
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} keyboardShouldPersistTaps="handled">
-        <Text className="mb-3 text-2xl font-bold text-primary">Lineups</Text>
+        <Text className="screen-title mb-3">Lineups</Text>
         <StatusView loading={weekData.loading && !data} error={weekData.error} />
         {data ? (
           <>

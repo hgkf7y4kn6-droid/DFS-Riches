@@ -1,31 +1,34 @@
-import { Image, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import BalanceCard from '@/components/BalanceCard';
 import ExpandableCard from '@/components/ExpandableCard';
 import LineupBuilder from '@/components/LineupBuilder';
 import LinesList from '@/components/LinesList';
 import OptimalLineups from '@/components/OptimalLineups';
+import ProfitLossTracker from '@/components/ProfitLossTracker';
 import SafeAreaView from '@/components/SafeAreaView';
 import ScheduleCard from '@/components/ScheduleCard';
 import SlateList from '@/components/SlateList';
 import StatusView from '@/components/StatusView';
-import { SALARY_CAP } from '@/constants/config';
+import SubmissionForm from '@/components/SubmissionForm';
 import { HOME_SECTIONS, HOME_USER } from '@/constants/data';
 import { colors } from '@/constants/theme';
-import { formatCurrency, formatPoints } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
 
 export default function Home() {
   const insets = useSafeAreaInsets();
-  const { week, weekData, refresh, selectedSlate, selectSlate, optimal } = useWeek();
+  const { week, weekData, refresh, selectedSlate, selectSlate } = useWeek();
   const data = weekData.data;
-  const topProj = optimal.data?.lineups.find((l) => l.metric === 'proj_points')?.proj_points;
+  const [profitOpen, setProfitOpen] = useState(HOME_SECTIONS.profit.defaultExpanded);
+  const [logging, setLogging] = useState(false);
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="px-5 pt-5"
+        contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         refreshControl={<RefreshControl refreshing={weekData.loading && !!data} onRefresh={refresh} tintColor={colors.accent} />}>
         {/* Header: user info */}
@@ -44,25 +47,37 @@ export default function Home() {
           ) : null}
         </View>
 
-        {/* Balance card */}
-        <View className="home-balance-card">
-          <Text className="home-balance-label">DraftKings salary cap</Text>
-          <Text className="home-balance-amount">{formatCurrency(SALARY_CAP)}</Text>
-          <View className="home-balance-row">
-            <View className="home-balance-stat">
-              <Text className="home-balance-stat-value">{data ? data.schedule.games.length : '-'}</Text>
-              <Text className="home-balance-stat-label">Games</Text>
+        {/* Balance card: money spent on lineup submissions */}
+        <BalanceCard
+          onLogEntry={() => {
+            setProfitOpen(true);
+            setLogging(true);
+          }}
+        />
+
+        {/* Profit / loss by contest type */}
+        <ExpandableCard
+          title={HOME_SECTIONS.profit.title}
+          subtitle={HOME_SECTIONS.profit.subtitle}
+          expanded={profitOpen}
+          onExpandedChange={setProfitOpen}>
+          {logging ? (
+            <View className="mb-4">
+              <View className="section-header">
+                <Text className="card-title">Log a contest entry</Text>
+                <Pressable onPress={() => setLogging(false)} accessibilityRole="button">
+                  <Text className="caption">Cancel</Text>
+                </Pressable>
+              </View>
+              {data ? <SubmissionForm onDone={() => setLogging(false)} /> : <StatusView loading={weekData.loading} error={weekData.error} />}
             </View>
-            <View className="home-balance-stat">
-              <Text className="home-balance-stat-value">{data ? data.slates.length : '-'}</Text>
-              <Text className="home-balance-stat-label">Slates</Text>
-            </View>
-            <View className="home-balance-stat">
-              <Text className="home-balance-stat-value">{formatPoints(topProj)}</Text>
-              <Text className="home-balance-stat-label">Top optimal proj</Text>
-            </View>
-          </View>
-        </View>
+          ) : (
+            <Pressable className="btn-outline mb-2" onPress={() => setLogging(true)} accessibilityRole="button">
+              <Text className="btn-outline-text">+ Log a contest entry</Text>
+            </Pressable>
+          )}
+          <ProfitLossTracker />
+        </ExpandableCard>
 
         <StatusView loading={weekData.loading && !data} error={weekData.error} />
 

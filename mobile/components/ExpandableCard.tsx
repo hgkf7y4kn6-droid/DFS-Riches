@@ -10,19 +10,33 @@ interface Props {
   /** Short summary shown on the right of the header (e.g. "16 games"). */
   aside?: string;
   defaultExpanded?: boolean;
+  /** Controlled mode: pass both to open/close the card from outside. */
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
   /** Shown only while collapsed, under the header. */
   preview?: ReactNode;
   children: ReactNode;
 }
 
 /** A section card whose body opens and closes when its header is tapped. */
-export default function ExpandableCard({ title, subtitle, aside, defaultExpanded = false, preview, children }: Props) {
-  const [expanded, setExpanded] = useState(defaultExpanded);
+export default function ExpandableCard({
+  title,
+  subtitle,
+  aside,
+  defaultExpanded = false,
+  expanded: controlled,
+  onExpandedChange,
+  preview,
+  children,
+}: Props) {
+  const [uncontrolled, setUncontrolled] = useState(defaultExpanded);
+  const expanded = controlled ?? uncontrolled;
+  const toggle = () => (onExpandedChange ? onExpandedChange(!expanded) : setUncontrolled(!expanded));
   return (
     <View className="section card">
       <Pressable
         className="expand-header"
-        onPress={() => setExpanded((e) => !e)}
+        onPress={toggle}
         accessibilityRole="button"
         accessibilityState={{ expanded }}
         accessibilityLabel={`${title}, ${expanded ? 'collapse' : 'expand'}`}>
@@ -30,7 +44,7 @@ export default function ExpandableCard({ title, subtitle, aside, defaultExpanded
           <Text className="section-title">{title}</Text>
           {subtitle ? <Text className="section-subtitle">{subtitle}</Text> : null}
         </View>
-        {aside ? <Text className="mr-2 text-xs font-semibold text-muted">{aside}</Text> : null}
+        {aside ? <Text className="section-aside">{aside}</Text> : null}
         <Image
           source={icons.chevron}
           className="expand-icon"

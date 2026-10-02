@@ -5,13 +5,13 @@ import { atsCell, finalCell, impliedCell, paceCell, spreadCell, totalCell, total
 const TONE_CLASS: Record<string, string> = {
   positive: 'text-positive',
   negative: 'text-negative',
-  pending: 'text-muted',
+  pending: 'text-pending',
   neutral: '',
 };
 
 function LinesCell({ label, cell, wide }: { label: string; cell: Cell; wide?: boolean }) {
   return (
-    <View className={wide ? 'w-full' : 'lines-cell'}>
+    <View className={wide ? 'lines-cell-wide' : 'lines-cell'}>
       <Text className="lines-label">{label}</Text>
       <Text className={`lines-value ${TONE_CLASS[cell.tone ?? 'neutral']}`}>{cell.text}</Text>
       {cell.sub ? <Text className="lines-sub">{cell.sub}</Text> : null}
@@ -32,7 +32,7 @@ function GameLines({ game }: { game: Game }) {
             {game.weather ? ` · ${weatherText(game.weather)}` : ''}
           </Text>
         </View>
-        <Text className="text-sm font-semibold text-primary">{finalCell(game).text}</Text>
+        <Text className="game-score">{finalCell(game).text}</Text>
       </View>
       <View className="lines-grid">
         <LinesCell label="Spread" cell={spreadCell(game)} wide />

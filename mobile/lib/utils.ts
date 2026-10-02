@@ -56,3 +56,14 @@ export function formatEt(iso: string | null): string {
     }) + ' ET'
   );
 }
+
+/** Money with a sign for profit/loss: 12.5 -> "+$12.50", -3 -> "-$3.00". */
+export function formatSignedCurrency(value: number, currency: string = 'USD'): string {
+  if (value === 0) return formatCurrency(0, currency);
+  return `${value > 0 ? '+' : '-'}${formatCurrency(Math.abs(value), currency)}`;
+}
+
+/** A 0-1 ratio as a percent: 0.4567 -> "45.7%"; missing -> "-". */
+export function formatPercent(value: number | null | undefined, decimals = 1): string {
+  return value == null ? '-' : `${(value * 100).toFixed(decimals)}%`;
+}

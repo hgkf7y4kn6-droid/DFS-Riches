@@ -3,6 +3,7 @@ import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-nativ
 
 import { LineupRow, Totals } from '@/components/LineupRows';
 import StatusView from '@/components/StatusView';
+import SubmissionForm from '@/components/SubmissionForm';
 import { MAX_LINEUPS } from '@/constants/config';
 import { PLAYABLE_STATUSES, POSITION_FILTERS } from '@/constants/data';
 import icons from '@/constants/icons';
@@ -27,6 +28,7 @@ export default function LineupBuilder() {
   const [showAll, setShowAll] = useState(false);
   const [limit, setLimit] = useState(PAGE);
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
+  const [logging, setLogging] = useState(false);
 
   const slateType: SlateType = selectedSlate?.slate_type ?? 'classic';
   const pool = useMemo(() => players.data?.players ?? [], [players.data]);
@@ -71,7 +73,7 @@ export default function LineupBuilder() {
   return (
     <View>
       {/* Lineup switcher */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-3">
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row" contentContainerClassName="chip-row-content">
         {lineups.map((lu, i) => {
           const s = summarize(lu, slateType);
           const active = i === activeLineup;
@@ -98,14 +100,14 @@ export default function LineupBuilder() {
 
       {/* Active lineup: stacked vertical slots */}
       <View className="lineup-card">
-        <View className="flex-row items-center justify-between">
+        <View className="lineup-card-header">
           <Text className="lineup-title">Lineup {activeLineup + 1}</Text>
           <View className="flex-row gap-4">
             <Pressable onPress={() => setLineup(activeLineup, defs.map(() => null))} accessibilityRole="button">
-              <Text className="text-xs font-semibold text-muted">Clear</Text>
+              <Text className="caption">Clear</Text>
             </Pressable>
             <Pressable onPress={() => deleteLineup(activeLineup)} accessibilityRole="button">
-              <Text className="text-xs font-semibold text-danger">Delete</Text>
+              <Text className="danger-link">Delete</Text>
             </Pressable>
           </View>
         </View>
@@ -119,11 +121,11 @@ export default function LineupBuilder() {
               right={
                 p ? (
                   <Pressable
-                    className="ml-2 p-1.5"
+                    className="player-remove"
                     onPress={() => setLineup(activeLineup, removeAt(lineup, i))}
                     accessibilityRole="button"
                     accessibilityLabel={`Remove ${p.name}`}>
-                    <Image source={icons.close} style={{ width: 12, height: 12, tintColor: colors.muted }} />
+                    <Image source={icons.close} style={{ width: 12, height: 12, tintColor: colors.mutedForeground }} />
                   </Pressable>
                 ) : null
               }
@@ -141,15 +143,37 @@ export default function LineupBuilder() {
           ]}
         />
         {summary.errors.length > 0 && summary.filled > 0 ? (
-          <Text className="mt-2 text-xs text-danger">{summary.errors.join(' · ')}</Text>
+          <Text className="lineup-errors">{summary.errors.join(' · ')}</Text>
+        ) : null}
+        {summary.valid && !logging ? (
+          <Pressable className="btn-accent mt-3" onPress={() => setLogging(true)} accessibilityRole="button">
+            <Text className="btn-text">Log a contest entry for this lineup</Text>
+          </Pressable>
+        ) : null}
+        {logging ? (
+          <View className="mt-4">
+            <View className="section-header">
+              <Text className="card-title">Log a contest entry</Text>
+              <Pressable onPress={() => setLogging(false)} accessibilityRole="button">
+                <Text className="caption">Cancel</Text>
+              </Pressable>
+            </View>
+            <SubmissionForm
+              slateId={selectedSlate.slate_id}
+              onDone={() => {
+                setLogging(false);
+                setMessage({ text: 'Entry logged -- see Profit / Loss on Home.' });
+              }}
+            />
+          </View>
         ) : null}
       </View>
 
-      {message ? <Text className={`mb-3 text-xs ${message.error ? 'text-danger' : 'text-muted'}`}>{message.text}</Text> : null}
+      {message ? <Text className={`lineup-message ${message.error ? 'text-negative' : ''}`}>{message.text}</Text> : null}
 
       {/* Player pool */}
       <Text className="section-title mb-2">Player pool</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-2">
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
         {POSITION_FILTERS[slateType].map((pos) => {
           const active = pos === position;
           return (
@@ -175,9 +199,9 @@ export default function LineupBuilder() {
         </Pressable>
       </ScrollView>
       <TextInput
-        className="mb-2 rounded-xl border border-border bg-card px-3 py-2.5 text-sm text-primary"
+        className="input mb-2"
         placeholder="Search player or team (e.g. BUF)"
-        placeholderTextColor={colors.muted}
+        placeholderTextColor={colors.mutedForeground}
         value={query}
         onChangeText={(t) => {
           setQuery(t);
@@ -188,19 +212,19 @@ export default function LineupBuilder() {
       />
 
       <StatusView loading={players.loading} error={players.error} empty={!players.loading && filtered.length === 0 ? 'No players match' : null} />
-      <View className="rounded-2xl border border-border bg-card px-3">
+      <View className="player-pool">
         {filtered.slice(0, limit).map((p) => {
           const fit = fits(p);
           const inLineup = indexOfPlayer(lineup, p) !== -1;
           return (
-            <View key={p.dk_draftable_id ?? `${p.name}-${p.roster_slot}`} className={fit.ok ? '' : 'opacity-40'}>
+            <View key={p.dk_draftable_id ?? `${p.name}-${p.roster_slot}`} className={fit.ok ? '' : 'player-unfit'}>
               <LineupRow
                 slot={p.roster_slot || p.position}
                 player={p}
                 note={fit.ok ? null : fit.reason}
                 right={
                   <Pressable
-                    className={`ml-2 h-8 w-8 items-center justify-center rounded-full ${inLineup ? 'bg-accent' : 'bg-primary'}`}
+                    className={`player-action ${inLineup ? 'player-action-remove' : ''}`}
                     onPress={() => toggle(p)}
                     accessibilityRole="button"
                     accessibilityLabel={`${inLineup ? 'Remove' : 'Add'} ${p.name}`}>

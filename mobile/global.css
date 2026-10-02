@@ -3,17 +3,61 @@
 @tailwind utilities;
 
 /* Reusable component classes: each bundles the Tailwind utilities for one
-   piece of the UI so screens stay short and consistent. */
+   piece of the UI so screens stay short and every screen shares one look.
+   Type scale: font-sans-* families (Plus Jakarta Sans) -- extrabold for
+   brand marks, bold for titles and key numbers, semibold for names and
+   labels, medium for supporting text, regular for long copy. */
 @layer components {
-  /* Screen shell */
+  /* ------------------------------------------------------------- auth */
+  .auth-safe-area {
+    @apply flex-1 bg-background;
+  }
+  .auth-screen {
+    @apply flex-1 bg-background;
+  }
+  .auth-scroll {
+    @apply flex-1;
+  }
+  .auth-content {
+    @apply grow px-5 pb-10 pt-8;
+  }
+  .auth-brand-block {
+    @apply mt-2 items-center;
+  }
+  .auth-logo-wrap {
+    @apply mb-7 flex-row items-center gap-3;
+  }
+  .auth-logo-mark {
+    @apply relative size-14 items-center justify-center rounded-2xl bg-accent;
+  }
+  .auth-logo-mark-text {
+    @apply text-2xl font-sans-extrabold text-background;
+  }
+  .auth-wordmark-sub {
+    @apply mt-1 text-xs font-sans-semibold text-muted-foreground;
+  }
+  .auth-title {
+    @apply text-3xl font-sans-bold text-primary;
+  }
+  .auth-subtitle {
+    @apply mt-2 max-w-[320px] text-center text-base font-sans-medium;
+  }
+
+  /* ----------------------------------------------------------- screens */
   .screen {
     @apply flex-1 bg-background;
   }
   .screen-content {
-    @apply px-5 pb-8;
+    @apply px-5 pt-5;
+  }
+  .screen-title {
+    @apply text-2xl font-sans-bold text-primary;
+  }
+  .screen-subtitle {
+    @apply mb-4 text-xs font-sans-medium text-muted-foreground;
   }
 
-  /* Home header */
+  /* -------------------------------------------------------------- home */
   .home-header {
     @apply mb-2.5 flex-row items-center justify-between;
   }
@@ -21,45 +65,66 @@
     @apply flex-row items-center gap-3;
   }
   .home-avatar {
-    @apply h-12 w-12 rounded-full;
+    @apply size-12 rounded-full;
   }
   .home-user-greeting {
-    @apply text-sm text-muted;
+    @apply text-sm font-sans-medium text-muted-foreground;
   }
   .home-user-name {
-    @apply text-xl font-bold text-primary;
+    @apply text-xl font-sans-bold text-primary;
   }
   .home-week-pill {
     @apply rounded-full bg-primary px-3 py-1.5;
   }
   .home-week-pill-text {
-    @apply text-xs font-semibold text-background;
+    @apply text-xs font-sans-semibold text-background;
+  }
+  .home-empty-state {
+    @apply py-4 text-sm font-sans-medium text-black/60;
   }
 
-  /* Balance card */
+  /* Balance card: money spent on lineup submissions */
   .home-balance-card {
     @apply my-4 rounded-3xl bg-primary p-5;
   }
+  .home-balance-header {
+    @apply flex-row items-start justify-between;
+  }
   .home-balance-label {
-    @apply text-sm text-background/70;
+    @apply text-sm font-sans-medium text-background/70;
   }
   .home-balance-amount {
-    @apply mt-1 text-3xl font-bold text-background;
+    @apply mt-1 text-3xl font-sans-extrabold text-background;
+  }
+  .home-balance-caption {
+    @apply mt-1 text-xs font-sans-medium text-background/60;
   }
   .home-balance-row {
-    @apply mt-4 flex-row justify-between;
+    @apply mt-4 flex-row justify-between border-t border-background/15 pt-4;
   }
   .home-balance-stat {
     @apply items-start;
   }
   .home-balance-stat-value {
-    @apply text-base font-semibold text-accent;
+    @apply text-base font-sans-bold text-background;
   }
   .home-balance-stat-label {
-    @apply text-xs text-background/70;
+    @apply mt-0.5 text-[11px] font-sans-medium text-background/60;
+  }
+  .home-balance-positive {
+    @apply text-[#4ADE80];
+  }
+  .home-balance-negative {
+    @apply text-[#F87171];
+  }
+  .home-balance-action {
+    @apply rounded-full bg-accent px-3 py-1.5;
+  }
+  .home-balance-action-text {
+    @apply text-xs font-sans-bold text-background;
   }
 
-  /* Sections and expandable cards */
+  /* ----------------------------------------------- sections and cards */
   .section {
     @apply mt-5;
   }
@@ -67,91 +132,139 @@
     @apply mb-3 flex-row items-center justify-between;
   }
   .section-title {
-    @apply text-lg font-bold text-primary;
+    @apply text-lg font-sans-bold text-primary;
   }
   .section-subtitle {
-    @apply text-xs text-muted;
+    @apply mt-0.5 text-xs font-sans-medium text-muted-foreground;
+  }
+  .section-aside {
+    @apply mr-2 text-xs font-sans-semibold text-muted-foreground;
   }
   .card {
     @apply rounded-2xl border border-border bg-card p-4;
+  }
+  .card-title {
+    @apply text-base font-sans-bold text-primary;
   }
   .expand-header {
     @apply flex-row items-center justify-between;
   }
   .expand-icon {
-    @apply h-4 w-4;
+    @apply size-4;
   }
   .divider {
     @apply my-3 h-px bg-border;
   }
+  .label {
+    @apply text-[11px] font-sans-semibold uppercase tracking-wide text-muted-foreground;
+  }
+  .caption {
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .link-text {
+    @apply text-xs font-sans-bold text-accent;
+  }
+  .danger-link {
+    @apply text-xs font-sans-bold text-danger;
+  }
 
-  /* Weekly schedule */
+  /* ------------------------------------------------------------- games */
   .game-row {
     @apply flex-row items-center justify-between py-2.5;
   }
+  .game-row-divider {
+    @apply border-b border-border;
+  }
   .game-matchup {
-    @apply text-base font-semibold text-primary;
+    @apply text-base font-sans-bold text-primary;
   }
   .game-meta {
-    @apply text-xs text-muted;
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .game-weather {
+    @apply text-xs font-sans-regular text-muted-foreground;
+  }
+  .game-side {
+    @apply items-end gap-1;
+  }
+  .game-score {
+    @apply text-sm font-sans-bold text-primary;
+  }
+  .game-line {
+    @apply text-xs font-sans-semibold text-muted-foreground;
   }
   .badge {
     @apply self-start rounded-full bg-accent/15 px-2 py-0.5;
   }
   .badge-text {
-    @apply text-[10px] font-bold uppercase text-accent;
+    @apply text-[10px] font-sans-bold uppercase text-accent;
   }
 
-  /* Slates (horizontal list) */
+  /* ------------------------------------------------------------ slates */
   .slate-chip {
     @apply mr-3 w-44 rounded-2xl border border-border bg-card p-3.5;
   }
   .slate-chip-active {
     @apply border-primary bg-primary;
   }
+  .slate-chip-kicker {
+    @apply text-[10px] font-sans-bold uppercase text-accent;
+  }
   .slate-chip-title {
-    @apply text-sm font-bold text-primary;
+    @apply mt-0.5 text-sm font-sans-bold text-primary;
   }
   .slate-chip-title-active {
     @apply text-background;
   }
   .slate-chip-meta {
-    @apply mt-1 text-xs text-muted;
+    @apply mt-1 text-xs font-sans-medium text-muted-foreground;
   }
   .slate-chip-meta-active {
     @apply text-background/70;
   }
 
-  /* Lineups: stacked vertical rows */
+  /* ----------------------------------------- players and lineup rows */
   .lineup-card {
     @apply mb-3 rounded-2xl border border-border bg-card p-4;
   }
+  .lineup-card-header {
+    @apply flex-row items-center justify-between;
+  }
   .lineup-title {
-    @apply text-base font-bold text-primary;
+    @apply text-base font-sans-bold text-primary;
+  }
+  .lineup-status {
+    @apply mb-3 text-xs font-sans-medium text-muted-foreground;
   }
   .lineup-row {
     @apply flex-row items-center border-b border-border py-2.5;
   }
   .lineup-slot {
-    @apply w-12 text-xs font-bold text-accent;
+    @apply w-12 text-xs font-sans-bold text-accent;
+  }
+  .lineup-open {
+    @apply flex-1 text-sm font-sans-medium text-muted-foreground;
   }
   .lineup-player {
     @apply flex-1 pr-2;
   }
   .lineup-player-name {
-    @apply text-sm font-semibold text-primary;
+    @apply text-sm font-sans-semibold text-primary;
   }
   .lineup-player-meta {
-    @apply text-xs text-muted;
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .lineup-player-note {
+    @apply text-[11px] font-sans-regular text-muted-foreground;
   }
   .lineup-numbers {
     @apply items-end;
   }
   .lineup-salary {
-    @apply text-sm font-semibold text-primary;
+    @apply text-sm font-sans-semibold text-primary;
   }
   .lineup-proj {
-    @apply text-xs text-success;
+    @apply text-xs font-sans-medium text-success;
   }
   .lineup-totals {
     @apply mt-3 flex-row flex-wrap justify-between gap-y-2;
@@ -160,24 +273,59 @@
     @apply w-1/3;
   }
   .lineup-total-label {
-    @apply text-[11px] text-muted;
+    @apply text-[11px] font-sans-medium text-muted-foreground;
   }
   .lineup-total-value {
-    @apply text-sm font-bold text-primary;
+    @apply text-sm font-sans-bold text-primary;
+  }
+  .lineup-errors {
+    @apply mt-2 text-xs font-sans-medium text-danger;
+  }
+  .lineup-message {
+    @apply mb-3 text-xs font-sans-medium text-muted-foreground;
+  }
+  .player-pool {
+    @apply rounded-2xl border border-border bg-card px-3;
+  }
+  .player-unfit {
+    @apply opacity-40;
+  }
+  .player-action {
+    @apply ml-2 size-8 items-center justify-center rounded-full bg-primary;
+  }
+  .player-action-remove {
+    @apply bg-accent;
+  }
+  .player-remove {
+    @apply ml-2 p-1.5;
+  }
+  /* DraftKings status next to a name: Q / D / OUT / IR */
+  .injury-tag {
+    @apply text-xs font-sans-bold text-warning;
   }
 
-  /* Buttons and chips */
+  /* ------------------------------------------------- buttons and chips */
   .btn {
-    @apply items-center rounded-xl bg-primary px-4 py-2.5;
+    @apply items-center rounded-xl bg-primary px-4 py-3;
   }
   .btn-text {
-    @apply text-sm font-semibold text-background;
+    @apply text-sm font-sans-bold text-background;
+  }
+  .btn-accent {
+    @apply items-center rounded-xl bg-accent px-4 py-3;
   }
   .btn-outline {
     @apply items-center rounded-xl border border-primary px-4 py-2.5;
   }
   .btn-outline-text {
-    @apply text-sm font-semibold text-primary;
+    @apply text-sm font-sans-semibold text-primary;
+  }
+  /* Horizontal row of chips: doesn't stretch vertically */
+  .chip-row {
+    @apply mb-3 grow-0;
+  }
+  .chip-row-content {
+    @apply items-center;
   }
   .filter-chip {
     @apply mr-2 rounded-full border border-border bg-card px-3 py-1.5;
@@ -186,13 +334,77 @@
     @apply border-primary bg-primary;
   }
   .filter-chip-text {
-    @apply text-xs font-semibold text-primary;
+    @apply text-xs font-sans-semibold text-primary;
   }
   .filter-chip-text-active {
     @apply text-background;
   }
 
-  /* Lines & Performance */
+  /* -------------------------------------------------------------- forms */
+  .input {
+    @apply rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-sans-medium text-primary;
+  }
+  .input-label {
+    @apply mb-1.5 text-xs font-sans-semibold text-primary;
+  }
+  .input-row {
+    @apply flex-row gap-3;
+  }
+  .input-field {
+    @apply mb-3;
+  }
+  .input-field-half {
+    @apply mb-3 flex-1;
+  }
+  .form-error {
+    @apply mb-2 text-xs font-sans-medium text-danger;
+  }
+
+  /* ---------------------------------------------- profit/loss tracker */
+  .pl-row {
+    @apply border-b border-border py-3;
+  }
+  .pl-row-header {
+    @apply flex-row items-center justify-between;
+  }
+  .pl-type {
+    @apply text-sm font-sans-bold text-primary;
+  }
+  .pl-net {
+    @apply text-sm font-sans-bold;
+  }
+  .pl-stats {
+    @apply mt-1.5 flex-row justify-between;
+  }
+  .pl-stat-value {
+    @apply text-xs font-sans-semibold text-primary;
+  }
+  .pl-stat-label {
+    @apply text-[10px] font-sans-medium text-muted-foreground;
+  }
+  .pl-bar-track {
+    @apply mt-2 h-1.5 overflow-hidden rounded-full bg-muted;
+  }
+  .pl-bar-fill {
+    @apply h-1.5 rounded-full bg-success;
+  }
+  .entry-row {
+    @apply border-b border-border py-3;
+  }
+  .entry-title {
+    @apply text-sm font-sans-semibold text-primary;
+  }
+  .entry-meta {
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .entry-result {
+    @apply text-sm font-sans-bold;
+  }
+  .entry-pending {
+    @apply text-xs font-sans-semibold text-warning;
+  }
+
+  /* ------------------------------------------------ lines & performance */
   .lines-card {
     @apply mb-3 rounded-2xl border border-border bg-card p-4;
   }
@@ -202,27 +414,33 @@
   .lines-cell {
     @apply w-1/2 pr-2;
   }
+  .lines-cell-wide {
+    @apply w-full;
+  }
   .lines-label {
-    @apply text-[11px] uppercase text-muted;
+    @apply text-[11px] font-sans-semibold uppercase text-muted-foreground;
   }
   .lines-value {
-    @apply text-sm font-semibold text-primary;
+    @apply text-sm font-sans-bold text-primary;
   }
   .lines-sub {
-    @apply text-[11px] text-muted;
+    @apply text-[11px] font-sans-regular text-muted-foreground;
   }
 
-  /* Status text */
+  /* ------------------------------------------------------ status text */
   .text-positive {
     @apply text-success;
   }
   .text-negative {
     @apply text-danger;
   }
+  .text-pending {
+    @apply text-muted-foreground;
+  }
   .empty-text {
-    @apply py-3 text-center text-sm text-muted;
+    @apply py-3 text-center text-sm font-sans-medium text-muted-foreground;
   }
   .error-text {
-    @apply py-3 text-center text-sm text-danger;
+    @apply py-3 text-center text-sm font-sans-medium text-danger;
   }
 }

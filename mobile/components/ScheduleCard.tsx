@@ -10,7 +10,7 @@ function GameRow({ game, last }: { game: Game; last: boolean }) {
   const c = game.context;
   const final = c?.is_final;
   return (
-    <View className={`game-row ${last ? '' : 'border-b border-border'}`}>
+    <View className={`game-row ${last ? '' : 'game-row-divider'}`}>
       <View className="flex-1 pr-2">
         <Text className="game-matchup">
           {game.away} @ {game.home}
@@ -19,15 +19,15 @@ function GameRow({ game, last }: { game: Game; last: boolean }) {
           {game.kickoff_et}
           {game.network ? ` · ${game.network}` : ''}
         </Text>
-        {game.weather ? <Text className="game-meta">{weatherText(game.weather)}</Text> : null}
+        {game.weather ? <Text className="game-weather">{weatherText(game.weather)}</Text> : null}
       </View>
-      <View className="items-end gap-1">
+      <View className="game-side">
         {final ? (
-          <Text className="text-sm font-semibold text-primary">
+          <Text className="game-score">
             {c?.away_score}-{c?.home_score}
           </Text>
         ) : c?.total_line != null ? (
-          <Text className="game-meta">O/U {c.total_line.toFixed(1)}</Text>
+          <Text className="game-line">O/U {c.total_line.toFixed(1)}</Text>
         ) : null}
         {game.isolated ? (
           <View className="badge">
