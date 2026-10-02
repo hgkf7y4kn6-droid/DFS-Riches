@@ -85,6 +85,7 @@ TE_FLEX_PENALTY = 4.0
 # rest are long shots the field almost never plays (they still get a
 # Bradley-Terry share).
 SIM_POOL = {"QB": 24, "RB": 40, "WR": 60, "TE": 24, "DST": 20}
+SIM_CHUNK = 2_000
 EPS = 1e-4
 
 
@@ -233,7 +234,21 @@ def simulate_field(rows: list[dict], contest: str, n_sims: int = N_SIMS, seed: i
     keep.sort()
     pool = _pool([rows[i] for i in keep])
     rng = np.random.default_rng(seed)
-    S, n = n_sims, len(keep)
+    counts = np.zeros(len(keep))
+    prices = []
+    # Simulated in chunks so peak memory stays small on a 512 MB host.
+    for start in range(0, n_sims, SIM_CHUNK):
+        c, hi = _simulate_chunk(pool, cfg, rng, min(SIM_CHUNK, n_sims - start))
+        counts += c
+        prices.append(hi)
+    own = np.zeros(len(rows))
+    own[keep] = counts / n_sims
+    return own, float(np.median(np.concatenate(prices)))
+
+
+def _simulate_chunk(pool: Pool, cfg: dict, rng: np.random.Generator, S: int) -> tuple[np.ndarray, np.ndarray]:
+    """S simulated entrants: per-player pick counts and each entrant's shadow price of $1k."""
+    n = len(pool.final)
     base = pool.final + cfg["ceiling_w"] * (pool.ceiling - pool.final) - cfg["floor_w"] * (pool.final - pool.floor)
     # Player noise from his own spread (upside skew above the projection), plus a
     # team shock shared by teammates so the field stacks.
@@ -242,9 +257,9 @@ def simulate_field(rows: list[dict], contest: str, n_sims: int = N_SIMS, seed: i
     team_z = rng.standard_normal((S, len(pool.teams)))[:, pool.team_idx]
     shock = cfg["team_shock"] * team_z * (pool.sd_high + pool.sd_low) / 2
     scores = base[None, :] + cfg["noise"] * (np.sqrt(1 - cfg["team_shock"] ** 2) * z * sd) + cfg["noise"] * shock
+    del z, sd, team_z, shock
     sal_k = pool.salary / 1000
 
-    n = len(keep)
     lo = np.zeros(S)
     hi = np.full(S, 12.0)          # points per $1k: high enough that any lineup fits
     for _ in range(15):
@@ -254,9 +269,7 @@ def simulate_field(rows: list[dict], contest: str, n_sims: int = N_SIMS, seed: i
         hi = np.where(fits, mid, hi)
         lo = np.where(fits, lo, mid)
     picks = _pick(scores - hi[:, None] * sal_k[None, :], pool)
-    own = np.zeros(len(rows))
-    own[keep] = picks.mean(axis=0)
-    return own, float(np.median(hi))
+    return picks.sum(axis=0), hi
 
 
 # --------------------------------------------------------- Bradley-Terry
