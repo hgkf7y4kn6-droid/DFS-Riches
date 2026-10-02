@@ -10,6 +10,8 @@ interface SubmissionsContextValue {
   /** Records a pending entry's winnings (or clears them back to pending with null). */
   settle: (id: string, winnings: number | null) => void;
   remove: (id: string) => void;
+  /** Deletes every logged entry. */
+  clear: () => void;
 }
 
 const SubmissionsContext = createContext<SubmissionsContextValue | null>(null);
@@ -53,6 +55,7 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
         ]),
       settle: (id, winnings) => persist((cur) => cur.map((s) => (s.id === id ? { ...s, winnings } : s))),
       remove: (id) => persist((cur) => cur.filter((s) => s.id !== id)),
+      clear: () => persist(() => []),
     }),
     [submissions, loaded, persist],
   );

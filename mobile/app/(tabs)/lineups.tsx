@@ -1,6 +1,7 @@
 import { FlatList, ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import BackLink from '@/components/BackLink';
 import LineupBuilder from '@/components/LineupBuilder';
 import ListHeading from '@/components/ListHeading';
 import OptimalLineups from '@/components/OptimalLineups';
@@ -9,6 +10,7 @@ import SlateList from '@/components/SlateList';
 import StatusView from '@/components/StatusView';
 import UpcomingGamesCard from '@/components/UpcomingGamesCard';
 import { toUpcomingGame } from '@/lib/games';
+import { FLOATING_TAB_BAR } from '@/constants/theme';
 import { useWeek } from '@/lib/week-context';
 
 export default function Lineups() {
@@ -21,8 +23,9 @@ export default function Lineups() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerClassName="screen-content"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}
         keyboardShouldPersistTaps="handled">
+        <BackLink />
         <Text className="screen-title mb-3">Lineups</Text>
         <StatusView loading={weekData.loading && !data} error={weekData.error} />
         {data ? (

@@ -4,9 +4,14 @@ import images from '@/constants/images';
 // Bottom tabs: app/(tabs)/_layout.tsx maps over these, one Tabs.Screen each.
 export const tabs: AppTab[] = [
   { id: 'home', name: 'index', title: 'Home', icon: icons.home },
-  { id: 'lineups', name: 'lineups', title: 'Lineups', icon: icons.lineups },
-  { id: 'lines', name: 'lines', title: 'Lines', icon: icons.lines },
+  { id: 'dfs-model', name: 'dfs-model', title: 'DFS Model', icon: icons.dfs },
+  { id: 'cash', name: 'cash', title: 'Cash', icon: icons.cash },
+  { id: 'gpp', name: 'gpp', title: 'GPP', icon: icons.gpp },
+  { id: 'settings', name: 'settings', title: 'Settings', icon: icons.settings },
 ];
+
+// Screens in app/(tabs) that aren't in the tab bar (opened from Home's "View all" and Settings).
+export const HIDDEN_TAB_ROUTES = ['lineups', 'lines'] as const;
 
 // Home header.
 export const HOME_USER: HomeUser = {

@@ -1,13 +1,8 @@
-import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 
 import StatusView from '@/components/StatusView';
-import { getGameDetail } from '@/lib/api';
+import { useGameDetail } from '@/lib/game-detail';
 import { formatCurrency, formatPercent, formatSigned } from '@/lib/utils';
-import { useWeek } from '@/lib/week-context';
-
-// Game details are fetched once per game per session.
-const cache = new Map<string, GameDetail>();
 
 const ordinal = (n: number) => {
   const s = ['th', 'st', 'nd', 'rd'];
@@ -97,23 +92,7 @@ function Targets({ team, players }: { team: string; players: TopPlayer[] }) {
  * DFS targets.
  */
 export default function GameDetailPanel({ gameId }: { gameId: string }) {
-  const { season, week } = useWeek();
-  const [detail, setDetail] = useState<GameDetail | null>(() => cache.get(gameId) ?? null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (detail || !season || !week) return;
-    let cancelled = false;
-    getGameDetail(season, week, gameId)
-      .then((d) => {
-        cache.set(gameId, d);
-        if (!cancelled) setDetail(d);
-      })
-      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : String(e)));
-    return () => {
-      cancelled = true;
-    };
-  }, [detail, season, week, gameId]);
+  const { detail, error } = useGameDetail(gameId);
 
   if (!detail) return <StatusView loading={!error} error={error} />;
 

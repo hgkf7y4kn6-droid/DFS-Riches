@@ -1,10 +1,12 @@
 import { ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import BackLink from '@/components/BackLink';
 import LinesList from '@/components/LinesList';
 import SafeAreaView from '@/components/SafeAreaView';
 import StatusView from '@/components/StatusView';
 import { HOME_SECTIONS } from '@/constants/data';
+import { FLOATING_TAB_BAR } from '@/constants/theme';
 import { useWeek } from '@/lib/week-context';
 
 export default function Lines() {
@@ -15,7 +17,8 @@ export default function Lines() {
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="screen-content"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
+        contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}>
+        <BackLink />
         <Text className="screen-title">{HOME_SECTIONS.lines.title}</Text>
         <Text className="screen-subtitle">
           {week ? `Week ${week} · ` : ''}

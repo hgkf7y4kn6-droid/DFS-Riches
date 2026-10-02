@@ -54,3 +54,12 @@ export const fonts = {
   bold: 'PlusJakartaSans_700Bold',
   extrabold: 'PlusJakartaSans_800ExtraBold',
 } as const;
+
+/** The floating tab bar's geometry; screens pad their bottom by FLOATING_TAB_BAR.space so content clears it. */
+export const FLOATING_TAB_BAR = {
+  height: 80,
+  margin: 14,
+  gap: 10,
+  /** Height + gap + breathing room, added to the bottom safe-area inset. */
+  space: 80 + 10 + 24,
+} as const;

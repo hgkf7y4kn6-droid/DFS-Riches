@@ -10,7 +10,7 @@ interface AppTab {
   /** Stable id, used as the React key. */
   id: string;
   /** Route file name inside app/(tabs) (e.g. "index" for app/(tabs)/index.tsx). */
-  name: 'index' | 'lineups' | 'lines';
+  name: 'index' | 'dfs-model' | 'cash' | 'gpp' | 'settings';
   /** Label under the icon and the screen title. */
   title: string;
   /** Icon from constants/icons.ts, tinted with the active/inactive color. */
@@ -394,6 +394,138 @@ interface GameDetail {
   home_usage: UsageShare[];
   /** Section -> 1-2 sentence takeaway: vegas, weather, away_offense, home_offense, tempo, tendency, positions, usage, trenches. */
   insights: Record<string, string>;
+}
+
+// ------------------------------------------------------- DFS model (/api/dfs-model)
+
+/** A player as the DFS model reports him (table rows, pools, stacks and lineups share these fields). */
+interface DfsPlayer {
+  id: number;
+  name: string;
+  position: string;
+  team: string;
+  opponent: string;
+  salary: number;
+  /** Final projection: source consensus with matchup/weather adjustments. */
+  final: number;
+  floor: number | null;
+  ceiling: number | null;
+  /** Points per $1k of salary. */
+  value: number | null;
+  /** Expected roster %, 0-100. */
+  ownership: number | null;
+  popularity?: string;
+  injury: InjuryStatus | null;
+  uncertainty_label?: string;
+  reasons?: string[];
+  reason?: string;
+  why_popular?: string;
+  risk?: string;
+  classification?: string;
+  slot?: string;
+}
+
+/** One game's environment for DFS, ranked across the slate (1 = best). */
+interface DfsGameEnv {
+  /** "JAX@CIN". */
+  game: string;
+  away: string;
+  home: string;
+  kickoff: string;
+  total: number | null;
+  spread_home: number | null;
+  away_implied: number | null;
+  home_implied: number | null;
+  env_score: number;
+  env_rank: number;
+  pop_rank: number;
+  /** Share of the field expected in this game, 0-1. */
+  pop_share: number;
+  shootout: boolean;
+  negative_script: boolean;
+  favorite: string | null;
+  underdog: string | null;
+  live_dog: boolean;
+  script: string;
+  trench_notes: string[];
+  weather: GameWeather | null;
+  ownership_vs_quality?: string;
+  tempo_ranks: Record<string, number>;
+  pass_rate_ranks: Record<string, number>;
+}
+
+interface DfsStack {
+  game: string;
+  team: string;
+  /** e.g. "Basic stack + bring-back". */
+  type: string;
+  qb: string;
+  players: DfsPlayer[];
+  salary: number;
+  final: number;
+  ceiling: number;
+  env_rank: number;
+  pop_rank: number;
+  score: number;
+  bring_back_note: string | null;
+  script: string;
+  reason: string;
+}
+
+interface DfsLineupEval {
+  ownership_total: number;
+  quality: number;
+  checklist: { item: string; ok: boolean }[];
+  audit: Record<string, string>;
+  win_scenario?: string;
+}
+
+interface DfsLineup {
+  label: string;
+  type: 'cash' | 'gpp' | 'contrarian' | string;
+  construction: string;
+  idea: string;
+  players: DfsPlayer[];
+  salary: number;
+  final: number;
+  floor: number;
+  ceiling: number;
+  eval: DfsLineupEval;
+  strengths?: string[];
+  risks?: string[];
+}
+
+interface DfsPositionPool {
+  cash: DfsPlayer[];
+  gpp: DfsPlayer[];
+}
+
+/** The DFS model for one Classic slate. */
+interface DfsModel {
+  available: boolean;
+  reason?: string;
+  season: number;
+  week: number;
+  slate: { slate_id: string; label: string; games: number };
+  /** Classic slates the model can run on. */
+  slates: { slate_id: string; label: string }[];
+  generated_at: string;
+  table: DfsPlayer[];
+  strategy: {
+    games: DfsGameEnv[];
+    stacks: DfsStack[];
+    pools: {
+      QB: DfsPositionPool;
+      RB: DfsPositionPool;
+      WR: DfsPositionPool;
+      TE: { pay_up: DfsPlayer[]; punt: DfsPlayer[]; cash_ids: number[]; recommendation: { strategy: string; why: string } };
+      DST: DfsPlayer[];
+      salary_savers: DfsPlayer[];
+    };
+    gpp_pool: Record<'core' | 'chalk' | 'leverage' | 'low_owned_ceiling' | 'salary_savers', DfsPlayer[]>;
+    fades: Record<'cash' | 'gpp' | 'over_owned' | 'fragile_chalk' | 'poor_fit', DfsPlayer[]>;
+  };
+  lineups: { cash: DfsLineup[]; gpp: DfsLineup[]; contrarian: DfsLineup[] };
 }
 
 // --------------------------------------------------------- contest entries

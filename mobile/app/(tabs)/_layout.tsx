@@ -2,12 +2,12 @@ import { Tabs } from 'expo-router';
 import { Image, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { tabs } from '@/constants/data';
-import { fonts, useThemeColors } from '@/constants/theme';
+import { HIDDEN_TAB_ROUTES, tabs } from '@/constants/data';
+import { FLOATING_TAB_BAR, fonts, useThemeColors } from '@/constants/theme';
 
 export default function TabLayout() {
-  // Pads the tab bar by the device's bottom inset (home indicator / gesture
-  // bar) so it sits above it on every phone.
+  // The tab bar floats above the device's bottom inset (home indicator /
+  // gesture bar) on every phone.
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
 
@@ -19,14 +19,29 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.mutedForeground,
         tabBarStyle: {
-          backgroundColor: colors.card,
+          // Floating: inset from the edges and the bottom, rounded, with a shadow.
+          position: 'absolute',
+          left: FLOATING_TAB_BAR.margin,
+          right: FLOATING_TAB_BAR.margin,
+          bottom: insets.bottom + FLOATING_TAB_BAR.gap,
+          height: FLOATING_TAB_BAR.height,
+          paddingTop: 10,
+          paddingBottom: 16,
+          borderRadius: FLOATING_TAB_BAR.height / 2,
+          borderTopWidth: 1,
+          borderWidth: 1,
+          borderColor: colors.border,
           borderTopColor: colors.border,
-          height: 78 + insets.bottom,
-          paddingBottom: insets.bottom + 10,
-          paddingTop: 8,
+          backgroundColor: colors.card,
+          shadowColor: '#000',
+          shadowOpacity: 0.18,
+          shadowRadius: 16,
+          shadowOffset: { width: 0, height: 6 },
+          elevation: 10,
         },
-        tabBarLabelStyle: { fontSize: 11, fontFamily: fonts.semibold, marginTop: 4 },
-        tabBarIconStyle: { height: 32 },
+        tabBarLabelStyle: { fontSize: 10, lineHeight: 13, fontFamily: fonts.semibold, marginTop: 3 },
+        tabBarIconStyle: { height: 28 },
+        tabBarItemStyle: { justifyContent: 'center', paddingVertical: 0 },
       }}>
       {tabs.map((tab) => (
         <Tabs.Screen
@@ -40,13 +55,16 @@ export default function TabLayout() {
                   source={tab.icon}
                   className="tabs-icon"
                   // size-6 is 24px; set here too because react-native-web ignores className sizes on Image
-                  style={{ width: 24, height: 24, tintColor: focused ? colors.accentForeground : colors.mutedForeground }}
+                  style={{ width: 22, height: 22, tintColor: focused ? colors.accentForeground : colors.mutedForeground }}
                   resizeMode="contain"
                 />
               </View>
             ),
           }}
         />
+      ))}
+      {HIDDEN_TAB_ROUTES.map((name) => (
+        <Tabs.Screen key={name} name={name} options={{ href: null }} />
       ))}
     </Tabs>
   );

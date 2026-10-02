@@ -15,7 +15,7 @@ import SubmissionForm from '@/components/SubmissionForm';
 import UpcomingGamesCard from '@/components/UpcomingGamesCard';
 import { HOME_BALANCE, HOME_SECTIONS, HOME_USER } from '@/constants/data';
 import icons from '@/constants/icons';
-import { useThemeColors } from '@/constants/theme';
+import { FLOATING_TAB_BAR, useThemeColors } from '@/constants/theme';
 import dayjs from '@/lib/dayjs';
 import { toUpcomingGame } from '@/lib/games';
 import { stats } from '@/lib/submissions';
@@ -67,7 +67,7 @@ export default function Home() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerClassName="screen-content"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}
         refreshControl={<RefreshControl refreshing={weekData.loading && !!data} onRefresh={refresh} tintColor={colors.accent} />}>
         {/* Header: user info */}
         <View className="home-header">

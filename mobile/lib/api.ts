@@ -39,3 +39,9 @@ export function getOptimal(season: number, week: number, slateId: string) {
 export function getGameDetail(season: number, week: number, gameId: string) {
   return getJson<GameDetail>(`/api/breakdown/game/${encodeURIComponent(gameId)}?${q(season, week)}`);
 }
+
+/** The DFS model for a Classic slate (the server picks the main slate when slateId is omitted). */
+export function getDfsModel(season: number, week: number, slateId?: string | null) {
+  const slate = slateId ? `&slate_id=${encodeURIComponent(slateId)}` : '';
+  return getJson<DfsModel>(`/api/dfs-model?${q(season, week)}${slate}`);
+}

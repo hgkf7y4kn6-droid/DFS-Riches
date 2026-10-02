@@ -34,6 +34,8 @@ interface WeekContextValue {
   savedAt: string | null;
   /** True when the lineups differ from what was last saved. */
   unsaved: boolean;
+  /** Deletes every saved lineup on the device and resets the builders. */
+  clearSavedLineups: () => void;
 }
 
 const SAVED_KEY = 'dfsriches:saved-lineups:v1';
@@ -184,6 +186,11 @@ export function WeekProvider({ children }: { children: ReactNode }) {
       });
     },
     savedAt: savedEntry?.savedAt ?? null,
+    clearSavedLineups: () => {
+      setSaved({});
+      setBuilder({});
+      AsyncStorage.removeItem(SAVED_KEY).catch(() => {});
+    },
     unsaved: JSON.stringify(toIds(current.lineups)) !== JSON.stringify(savedEntry?.lineups ?? toIds([emptyLineup(slateType)])),
   };
 

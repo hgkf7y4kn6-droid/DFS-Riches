@@ -16,6 +16,7 @@ import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { darkColors, lightColors } from '@/constants/theme';
+import { DfsModelProvider } from '@/lib/dfs-model-context';
 import { SubmissionsProvider } from '@/lib/submissions-context';
 import { WeekProvider } from '@/lib/week-context';
 
@@ -54,10 +55,12 @@ export default function RootLayout() {
       <ThemeProvider value={navTheme(dark)}>
         <SubmissionsProvider>
           <WeekProvider>
-            <StatusBar style={dark ? 'light' : 'dark'} />
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
-            </Stack>
+            <DfsModelProvider>
+              <StatusBar style={dark ? 'light' : 'dark'} />
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+              </Stack>
+            </DfsModelProvider>
           </WeekProvider>
         </SubmissionsProvider>
       </ThemeProvider>

@@ -100,7 +100,7 @@
   /* -------------------------------------------------------------- tabs */
   /* Tab bar icon: a pill behind the icon, filled accent on the active tab */
   .tabs-pill {
-    @apply items-center justify-center rounded-full px-4 py-1;
+    @apply items-center justify-center rounded-full px-3 py-0.5;
   }
   .tabs-active {
     @apply bg-accent;
@@ -300,6 +300,91 @@
   }
   .detail-target-meta {
     @apply text-[11px] font-sans-medium text-muted-foreground;
+  }
+
+  /* ------------------------------------------- DFS model / Cash / GPP */
+  .dfs-card {
+    @apply mr-3 w-72 rounded-2xl border border-border bg-card p-4;
+  }
+  .dfs-card-kicker {
+    @apply text-[11px] font-sans-bold uppercase text-accent;
+  }
+  .dfs-card-title {
+    @apply mt-0.5 text-lg font-sans-extrabold text-foreground;
+  }
+  .dfs-card-subtitle {
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .dfs-preview {
+    @apply mt-1 text-sm font-sans-semibold text-foreground;
+  }
+  .dfs-row {
+    @apply border-b border-border py-2.5;
+  }
+  .dfs-row-main {
+    @apply flex-row items-center;
+  }
+  .dfs-rank {
+    @apply w-7 text-sm font-sans-extrabold text-accent;
+  }
+  .dfs-name {
+    @apply text-sm font-sans-semibold text-foreground;
+  }
+  .dfs-meta {
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .dfs-salary {
+    @apply text-sm font-sans-semibold text-foreground;
+  }
+  .dfs-lead {
+    @apply text-xs font-sans-bold text-success;
+  }
+  .dfs-stats {
+    @apply mt-1 text-[11px] font-sans-medium text-muted-foreground;
+  }
+  .dfs-reason {
+    @apply mt-0.5 text-[11px] font-sans-regular text-foreground/80;
+  }
+  .env-card {
+    @apply mb-3 rounded-2xl border border-border bg-card p-4;
+  }
+  .env-rank {
+    @apply h-9 w-9 items-center justify-center rounded-full bg-primary;
+  }
+  .env-rank-text {
+    @apply text-xs font-sans-extrabold text-primary-foreground;
+  }
+  .env-matchup {
+    @apply flex-row items-center border-b border-border py-2;
+  }
+  .env-edge {
+    @apply ml-2 text-sm font-sans-bold;
+  }
+  .env-stack {
+    @apply mb-2 rounded-xl bg-muted p-3;
+  }
+
+  /* ---------------------------------------------------------- settings */
+  .settings-group {
+    @apply mt-5 overflow-hidden rounded-2xl border border-border bg-card;
+  }
+  .settings-group-title {
+    @apply mb-2 mt-6 text-xs font-sans-bold uppercase text-muted-foreground;
+  }
+  .settings-row {
+    @apply flex-row items-center justify-between border-b border-border px-4 py-3.5;
+  }
+  .settings-row-last {
+    @apply border-b-0;
+  }
+  .settings-label {
+    @apply text-sm font-sans-semibold text-foreground;
+  }
+  .settings-value {
+    @apply ml-3 flex-1 text-right text-xs font-sans-medium text-muted-foreground;
+  }
+  .settings-danger {
+    @apply text-sm font-sans-semibold text-danger;
   }
 
   /* ------------------------------------------------ slate card (Home) */
