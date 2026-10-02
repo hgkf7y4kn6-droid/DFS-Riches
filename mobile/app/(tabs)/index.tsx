@@ -34,7 +34,7 @@ export default function Home() {
         {/* Header: user info */}
         <View className="home-header">
           <View className="home-user">
-            <Image source={HOME_USER.avatar} className="home-avatar" style={{ width: 48, height: 48 }} />
+            <Image source={HOME_USER.avatar} className="home-avatar" style={{ width: 64, height: 64 }} />
             <View>
               <Text className="home-user-greeting">{HOME_USER.greeting}</Text>
               <Text className="home-user-name">{HOME_USER.name}</Text>

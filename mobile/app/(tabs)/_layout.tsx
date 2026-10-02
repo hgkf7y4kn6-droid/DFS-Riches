@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Image } from 'react-native';
+import { Image, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { tabs } from '@/constants/data';
@@ -19,11 +19,12 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.card,
           borderTopColor: colors.border,
-          height: 68 + insets.bottom,
+          height: 78 + insets.bottom,
           paddingBottom: insets.bottom + 10,
           paddingTop: 8,
         },
-        tabBarLabelStyle: { fontSize: 11, fontFamily: fonts.semibold },
+        tabBarLabelStyle: { fontSize: 11, fontFamily: fonts.semibold, marginTop: 4 },
+        tabBarIconStyle: { height: 32 },
       }}>
       {tabs.map((tab) => (
         <Tabs.Screen
@@ -31,8 +32,16 @@ export default function TabLayout() {
           name={tab.name}
           options={{
             title: tab.title,
-            tabBarIcon: ({ color, size }) => (
-              <Image source={tab.icon} style={{ width: size, height: size, tintColor: color }} resizeMode="contain" />
+            tabBarIcon: ({ focused }) => (
+              <View className={`tabs-pill ${focused ? 'tabs-active' : ''}`}>
+                <Image
+                  source={tab.icon}
+                  className="tabs-icon"
+                  // size-6 is 24px; set here too because react-native-web ignores className sizes on Image
+                  style={{ width: 24, height: 24, tintColor: focused ? colors.background : colors.mutedForeground }}
+                  resizeMode="contain"
+                />
+              </View>
             ),
           }}
         />

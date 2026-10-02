@@ -43,6 +43,18 @@
     @apply mt-2 max-w-[320px] text-center text-base font-sans-medium;
   }
 
+  /* -------------------------------------------------------------- tabs */
+  /* Tab bar icon: a pill behind the icon, filled accent on the active tab */
+  .tabs-pill {
+    @apply items-center justify-center rounded-full px-4 py-1;
+  }
+  .tabs-active {
+    @apply bg-accent;
+  }
+  .tabs-icon {
+    @apply size-6;
+  }
+
   /* ----------------------------------------------------------- screens */
   .screen {
     @apply flex-1 bg-background;
@@ -62,16 +74,16 @@
     @apply mb-2.5 flex-row items-center justify-between;
   }
   .home-user {
-    @apply flex-row items-center gap-3;
+    @apply flex-row items-center;
   }
   .home-avatar {
-    @apply size-12 rounded-full;
+    @apply size-16 rounded-full;
   }
   .home-user-greeting {
-    @apply text-sm font-sans-medium text-muted-foreground;
+    @apply ml-4 text-sm font-sans-medium text-muted-foreground;
   }
   .home-user-name {
-    @apply text-xl font-sans-bold text-primary;
+    @apply ml-4 text-2xl font-sans-bold text-primary;
   }
   .home-week-pill {
     @apply rounded-full bg-primary px-3 py-1.5;
