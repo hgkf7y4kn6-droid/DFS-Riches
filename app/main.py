@@ -31,7 +31,7 @@ from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
 from app import dfs_model
-from app import ownership_learning, ownership_report, ownership_store, play_rankings
+from app import ownership_learning, ownership_report, ownership_store, play_rankings, player_games
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
@@ -258,6 +258,17 @@ async def api_plays(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, 
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not build {contest} plays: {exc}") from exc
     return Response(body, media_type="application/json")
+
+
+@app.get("/api/player-games")
+async def api_player_games(name: str, position: str, team: str, season: Season = DEFAULT_SEASON,
+                           week: Week = DEFAULT_WEEK, games: Annotated[int, Query(ge=1, le=17)] = player_games.DEFAULT_GAMES):
+    """A player's last few games before this week: snap share, DK points, and the passing / rushing /
+    receiving (or team defense) lines relevant to the position (app.player_games)."""
+    try:
+        return await player_games.player_games(season, week, name=name, position=position, team=team, n=games)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not load game logs: {exc}") from exc
 
 
 def _check_contest(contest: str) -> str:

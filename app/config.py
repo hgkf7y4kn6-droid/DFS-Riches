@@ -31,6 +31,10 @@ NFLVERSE_TEAM_STATS_URL_TMPL = (
 NFLVERSE_PLAYER_STATS_URL_TMPL = (
     "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{season}.csv"
 )
+# Per-game offensive snap counts and snap share (app.player_games).
+NFLVERSE_SNAP_COUNTS_URL_TMPL = (
+    "https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_{season}.csv"
+)
 # Play-by-play, for neutral-situation tempo and pass rate (app.nflverse_client.neutral_stats_from_pbp).
 NFLVERSE_PBP_URL_TMPL = "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_{season}.csv.gz"
 # nflverse spells the Rams "LA"; every other team code matches ours exactly.

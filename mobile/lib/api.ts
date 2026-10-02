@@ -51,3 +51,9 @@ export function getPlays(season: number, week: number, contest: PlayContest, sla
   const slate = slateId ? `&slate_id=${encodeURIComponent(slateId)}` : '';
   return getJson<PlaysResponse>(`/api/plays?${q(season, week)}&contest=${contest}${slate}`);
 }
+
+/** A player's last few games before this week: snap share, DK points and position-relevant stats. */
+export function getPlayerGames(season: number, week: number, player: { name: string; position: string; team: string }) {
+  const params = `name=${encodeURIComponent(player.name)}&position=${player.position}&team=${player.team}`;
+  return getJson<PlayerGamesResponse>(`/api/player-games?${q(season, week)}&${params}`);
+}

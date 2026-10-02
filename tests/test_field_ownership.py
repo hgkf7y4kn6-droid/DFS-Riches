@@ -114,6 +114,12 @@ def test_play_rankings_counts_tags_and_ownership(monkeypatch):
     top_rb = gpp["rankings"]["RB"][0]
     assert top_rb["score"] >= gpp["rankings"]["RB"][-1]["score"]
     assert "leverage" in top_rb["parts"]
+    assert "chalk" not in cash and len(gpp["chalk"]) == len(gpp["leverage"]) == pr.CROSS_N
+    chalk_own = [p["ownership"]["large_gpp"] for p in gpp["chalk"]]
+    assert chalk_own == sorted(chalk_own, reverse=True)
+    ratios = [p["leverage_ratio"] for p in gpp["leverage"]]
+    assert ratios == sorted(ratios, reverse=True)
+    assert all(p["p_hit"] >= pr.LEVERAGE_MIN_CEILING for p in gpp["leverage"])
 
 
 def test_models_train_on_stored_features_and_actual_ownership(tmp_path, monkeypatch):

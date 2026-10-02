@@ -557,6 +557,8 @@ interface PlayPlayer {
   score: number;
   /** Each component's z-score: p_hit, floor or leverage, salary, env. */
   parts: Record<string, number>;
+  /** GPP: P(ceiling) / large-field ownership (1.0 = owned in line with the ceiling odds); null for cash. */
+  leverage_ratio: number | null;
   /** Blended expected ownership, percent, per contest type. */
   ownership: Partial<Record<OwnershipContest, number>>;
   /** Each model's estimate (percent) before the blend: sim, bt, frac_logit, gbm. */
@@ -594,6 +596,42 @@ interface PlaysResponse {
   /** Every playable player, most owned first. */
   players: PlayPlayer[];
   ownership_models: Partial<Record<OwnershipContest, OwnershipModelInfo>>;
+  /** GPP only: the 10 highest large-field ownerships across positions. */
+  chalk?: PlayPlayer[];
+  /** GPP only: the 10 best ceiling-odds-per-ownership pivots across positions. */
+  leverage?: PlayPlayer[];
+}
+
+/** The user's own Prioritize / Neutral / Fade calls for one pool, by player id. */
+type PoolTags = Record<number, PlayTag>;
+
+interface PlayerGameStats {
+  passing?: { cmp: number; att: number; yds: number; td: number; int: number; sacks: number };
+  rushing?: { att: number; yds: number; td: number };
+  receiving?: { tgt: number; rec: number; yds: number; td: number; target_share?: number };
+  defense?: { sacks: number; int: number; fum_rec: number; td: number; pts_allowed: number | null };
+}
+
+/** One past game: snap share, DK points and the position's relevant box-score lines. */
+interface PlayerGame {
+  season: number;
+  week: number;
+  team: string;
+  opponent: string;
+  dk_points: number;
+  /** Percent of the offense's snaps; null for DSTs or a missing snap row. */
+  snap_pct: number | null;
+  offense_snaps: number | null;
+  stats: PlayerGameStats;
+}
+
+interface PlayerGamesResponse {
+  name: string;
+  position: string;
+  team: string;
+  /** Newest first. */
+  games: PlayerGame[];
+  summary: { games: number; avg_dk_points: number | null; avg_snap_pct: number | null };
 }
 
 // --------------------------------------------------------- contest entries

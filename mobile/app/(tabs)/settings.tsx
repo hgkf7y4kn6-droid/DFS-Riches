@@ -9,6 +9,7 @@ import { HOME_USER } from '@/constants/data';
 import { FLOATING_TAB_BAR } from '@/constants/theme';
 import { useDfsModel } from '@/lib/dfs-model-context';
 import { useSubmissions } from '@/lib/submissions-context';
+import { usePoolTags } from '@/lib/pool-tags-context';
 import { useWeek } from '@/lib/week-context';
 
 /** Asks before destructive actions (Alert on phones; confirm() on web, where Alert is a no-op). */
@@ -50,6 +51,8 @@ export default function SettingsScreen() {
   const { season, week, refresh, clearSavedLineups } = useWeek();
   const { refresh: refreshModel } = useDfsModel();
   const { submissions, clear } = useSubmissions();
+  const { pools, clearAll: clearPoolTags } = usePoolTags();
+  const poolChanges = Object.values(pools).reduce((n, tags) => n + Object.keys(tags).length, 0);
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
@@ -92,6 +95,12 @@ export default function SettingsScreen() {
             label="Clear saved lineups"
             danger
             onPress={() => confirm('Clear saved lineups?', 'Every lineup you saved in the builder will be deleted.', clearSavedLineups)}
+          />
+          <Row
+            label="Reset my pool tags"
+            value={`${poolChanges} set`}
+            danger
+            onPress={() => confirm('Reset pool tags?', 'Your Prioritize / Neutral / Fade calls go back to the model\'s tags.', clearPoolTags)}
           />
           <Row
             label="Clear contest entries"

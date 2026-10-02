@@ -419,6 +419,63 @@
   .own-detail {
     @apply mt-2 rounded-lg bg-muted p-2;
   }
+  .tag-pill-mine {
+    @apply border border-primary;
+  }
+  .tag-choices {
+    @apply mt-2 rounded-lg border border-border bg-card p-2;
+  }
+  .tag-choice-row {
+    @apply mt-1.5 flex-row gap-1.5;
+  }
+  .tag-choice {
+    @apply flex-1 items-center rounded-lg border border-border py-1.5;
+  }
+  .tag-choice-text {
+    @apply text-[11px] font-sans-bold uppercase text-muted-foreground;
+  }
+  .tag-choice-label {
+    @apply text-[11px] font-sans-semibold text-muted-foreground;
+  }
+  .tag-choice-reset {
+    @apply mt-1.5 text-[11px] font-sans-semibold text-accent;
+  }
+  .pool-summary {
+    @apply mb-2 flex-row items-center justify-between rounded-xl bg-muted px-3 py-2;
+  }
+  .pool-summary-text {
+    @apply flex-1 pr-2 text-xs font-sans-medium text-foreground;
+  }
+  .game-log {
+    @apply mt-2 rounded-lg border border-border bg-card p-2;
+  }
+  .game-log-title {
+    @apply text-[11px] font-sans-bold uppercase text-muted-foreground;
+  }
+  .game-log-summary {
+    @apply mt-0.5 text-xs font-sans-semibold text-foreground;
+  }
+  .game-log-game {
+    @apply mt-2 border-t border-border pt-2;
+  }
+  .game-log-head {
+    @apply flex-row items-center justify-between;
+  }
+  .game-log-week {
+    @apply text-xs font-sans-bold text-foreground;
+  }
+  .game-log-pts {
+    @apply text-sm font-sans-extrabold text-foreground;
+  }
+  .game-log-snaps {
+    @apply text-[11px] font-sans-semibold text-muted-foreground;
+  }
+  .game-log-line {
+    @apply mt-0.5 text-[11px] font-sans-medium text-foreground/80;
+  }
+  .game-log-group {
+    @apply font-sans-bold text-muted-foreground;
+  }
 
   /* ---------------------------------------------------------- settings */
   .settings-group {

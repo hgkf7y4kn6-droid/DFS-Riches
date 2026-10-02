@@ -33,6 +33,12 @@ Tags (per player, per contest), among the position's relevant players
                     the position's average (owned like a top play
                     without the ceiling odds)
   everything else is Neutral.
+
+GPP also returns two cross-position lists for the tab's horizontal cards:
+  chalk     the 10 highest large-field ownerships among relevant players
+  leverage  the 10 best ceiling-odds-per-ownership ratios (P(ceiling) /
+            large-field ownership) among relevant players with real ceiling
+            odds (P(ceiling) >= 12%) -- the pivots off the chalk
 """
 from __future__ import annotations
 
@@ -45,6 +51,8 @@ CASH_TARGET_X = 2.5
 GPP_CEILING_SCORE = {"QB": 28.0, "RB": 24.0, "WR": 24.0, "TE": 18.0, "DST": 14.0}
 TAG_TOP = {**TOP_N, "DST": 3}
 RELEVANT_PROJ = {"QB": 5.0, "RB": 5.0, "WR": 5.0, "TE": 5.0, "DST": 3.0}
+CROSS_N = 10
+LEVERAGE_MIN_CEILING = 0.12
 
 
 def _z(vals: list[float]) -> list[float]:
@@ -118,6 +126,14 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
         out_players += [_player(r, contest, own_contests) for r in ranked]
 
     out_players.sort(key=lambda p: -(p["ownership"][own_contests[-1]] or 0))
+    extra = {}
+    if contest == "gpp":
+        relevant = [r for r in rows if r["final"] >= RELEVANT_PROJ[r["position"]]]
+        chalk = sorted(relevant, key=lambda r: -r["lead_own"])[:CROSS_N]
+        pivots = sorted((r for r in relevant if r["p_ceiling"] >= LEVERAGE_MIN_CEILING),
+                        key=lambda r: -_leverage_ratio(r))[:CROSS_N]
+        extra = {"chalk": [_player(r, contest, own_contests, k) for k, r in enumerate(chalk, 1)],
+                 "leverage": [_player(r, contest, own_contests, k) for k, r in enumerate(pivots, 1)]}
     return {
         "contest": contest,
         "season": season,
@@ -128,7 +144,13 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
         "ownership_models": {c: {"label": fo.CONTESTS[c]["label"], "weights": owns[c]["weights"],
                                  "price_per_k": owns[c]["price_per_k"], "training": owns[c]["training"],
                                  "simulated_lineups": fo.N_SIMS} for c in own_contests},
+        **extra,
     }
+
+
+def _leverage_ratio(r: dict) -> float:
+    """Ceiling odds per unit of large-field ownership (1.0 = owned in line with the ceiling odds)."""
+    return r["p_ceiling"] / max(r["lead_own"], 0.005)
 
 
 def _tag(contest: str, r: dict, top: bool, score_pct: float | None) -> tuple[str, str]:
@@ -168,6 +190,7 @@ def _player(r: dict, contest: str, own_contests: list[str], rank: int | None = N
         "p_hit": _round(r["p_cash"] if contest == "cash" else r["p_ceiling"], 3),
         "score": _round(r["score"], 3),
         "parts": r["parts"],
+        "leverage_ratio": _round(_leverage_ratio(r)) if contest == "gpp" else None,
         "ownership": {c: _round(r[f"own_{c}"] * 100, 1) for c in own_contests},
         # each model's own estimate (percent) before the blend
         "ownership_models": {c: r[f"models_{c}"] for c in own_contests},

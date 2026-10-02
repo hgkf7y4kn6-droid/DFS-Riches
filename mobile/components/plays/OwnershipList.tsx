@@ -1,12 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
-import TagPill from '@/components/plays/TagPill';
+import GameLog from '@/components/plays/GameLog';
+import TagChoices from '@/components/plays/TagChoices';
+import TagPill, { TAG_STYLE } from '@/components/plays/TagPill';
+import type { Pool } from '@/lib/pool-tags-context';
 import { formatCurrency, formatSigned } from '@/lib/utils';
 
 const POSITIONS = ['All', 'QB', 'RB', 'WR', 'TE', 'DST'];
-const TAGS: ('all' | PlayTag)[] = ['all', 'prioritize', 'neutral', 'fade'];
-const TAG_LABEL = { all: 'All tags', prioritize: 'Prioritize', neutral: 'Neutral', fade: 'Fade' };
+type TagFilter = 'all' | 'mine' | PlayTag;
+const TAGS: TagFilter[] = ['all', 'prioritize', 'neutral', 'fade', 'mine'];
+const TAG_LABEL: Record<TagFilter, string> = { all: 'All tags', prioritize: 'Prioritize', neutral: 'Neutral', fade: 'Fade', mine: 'My changes' };
 const MODEL_LABEL: Record<string, string> = {
   sim: 'Field sim',
   bt: 'Bradley-Terry',
@@ -36,9 +40,18 @@ function Chips<T extends string>({ items, value, label, onChange }: { items: T[]
   );
 }
 
-function OwnershipRow({ player, columns, expanded, onToggle }: { player: PlayPlayer; columns: OwnershipContest[]; expanded: boolean; onToggle: () => void }) {
+interface RowProps {
+  player: PlayPlayer;
+  columns: OwnershipContest[];
+  expanded: boolean;
+  onToggle: () => void;
+  pool: Pool;
+}
+
+function OwnershipRow({ player, columns, expanded, onToggle, pool }: RowProps) {
   const p = player;
   const f = p.features;
+  const [picking, setPicking] = useState(false);
   return (
     <Pressable className="own-row" onPress={onToggle} accessibilityRole="button" accessibilityState={{ expanded }}>
       <View className="dfs-row-main">
@@ -59,11 +72,13 @@ function OwnershipRow({ player, columns, expanded, onToggle }: { player: PlayPla
         ))}
       </View>
       <View className="mt-1.5 flex-row items-center gap-2">
-        <TagPill tag={p.tag} />
+        <TagPill tag={pool.tagOf(p)} mine={pool.isMine(p)} onPress={() => setPicking((v) => !v)} />
         <Text className="dfs-reason flex-1" numberOfLines={expanded ? undefined : 1}>
+          {pool.isMine(p) ? `Your call (model: ${TAG_STYLE[p.tag].label}) · ` : ''}
           {p.tag_reason}
         </Text>
       </View>
+      {picking ? <TagChoices player={p} pool={pool} onDone={() => setPicking(false)} /> : null}
       {expanded ? (
         <View className="own-detail">
           {columns.map((c) => (
@@ -80,34 +95,66 @@ function OwnershipRow({ player, columns, expanded, onToggle }: { player: PlayPla
             {f.position_scarcity_index.toFixed(2)}
             {f.is_backup_injury_start ? ' · backup starting for an injured starter' : ''}
           </Text>
+          <GameLog player={p} />
         </View>
       ) : null}
     </Pressable>
   );
 }
 
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+/** How the user's pool differs from the model's tags, with a reset. */
+function PoolSummary({ players, pool }: { players: PlayPlayer[]; pool: Pool }) {
+  const mine = players.filter((p) => pool.isMine(p));
+  const count = (t: PlayTag) => players.filter((p) => pool.tagOf(p) === t).length;
+  return (
+    <View className="pool-summary">
+      <Text className="pool-summary-text">
+        Your pool: {count('prioritize')} prioritized · {count('fade')} faded
+        {mine.length ? ` · ${plural(mine.length, 'change')} from the model` : ' · tap any tag to change it'}
+      </Text>
+      {mine.length ? (
+        <Pressable onPress={pool.reset} hitSlop={8} accessibilityRole="button">
+          <Text className="tag-choice-reset mt-0">Reset</Text>
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
 /**
  * Every playable player with expected field ownership for the contest
- * type(s), most owned first, with Prioritize / Neutral / Fade tags. Filter by
- * position and tag; tap a row for each model's estimate and the engineered
- * features behind it.
+ * type(s), most owned first, with Prioritize / Neutral / Fade tags. Tap a
+ * tag to set your own call for your pool (saved on the device). Filter by
+ * position and tag; tap a row for each model's estimate, the engineered
+ * features behind it, and the player's recent game log.
  */
-export default function OwnershipList({ players, columns }: { players: PlayPlayer[]; columns: OwnershipContest[] }) {
+export default function OwnershipList({ players, columns, pool }: { players: PlayPlayer[]; columns: OwnershipContest[]; pool: Pool }) {
   const [position, setPosition] = useState('All');
-  const [tag, setTag] = useState<'all' | PlayTag>('all');
+  const [tag, setTag] = useState<TagFilter>('all');
   const [limit, setLimit] = useState(PAGE);
   const [open, setOpen] = useState<number | null>(null);
-  const filtered = useMemo(
-    () => players.filter((p) => (position === 'All' || p.position === position) && (tag === 'all' || p.tag === tag)),
-    [players, position, tag],
+  const filtered = players.filter(
+    (p) =>
+      (position === 'All' || p.position === position) &&
+      (tag === 'all' || (tag === 'mine' ? pool.isMine(p) : pool.tagOf(p) === tag)),
   );
   return (
     <View>
+      <PoolSummary players={players} pool={pool} />
       <Chips items={POSITIONS} value={position} label={(t) => t} onChange={(t) => (setPosition(t), setLimit(PAGE))} />
       <Chips items={TAGS} value={tag} label={(t) => TAG_LABEL[t]} onChange={(t) => (setTag(t), setLimit(PAGE))} />
       <View className="player-pool">
         {filtered.slice(0, limit).map((p) => (
-          <OwnershipRow key={p.id} player={p} columns={columns} expanded={open === p.id} onToggle={() => setOpen((o) => (o === p.id ? null : p.id))} />
+          <OwnershipRow
+            key={p.id}
+            player={p}
+            columns={columns}
+            pool={pool}
+            expanded={open === p.id}
+            onToggle={() => setOpen((o) => (o === p.id ? null : p.id))}
+          />
         ))}
         {!filtered.length ? <Text className="home-empty-state">No players match.</Text> : null}
       </View>
