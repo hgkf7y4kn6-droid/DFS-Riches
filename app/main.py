@@ -31,7 +31,7 @@ from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
 from app import dfs_model
-from app import ownership_learning, ownership_report, ownership_store
+from app import ownership_learning, ownership_report, ownership_store, play_rankings
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
@@ -230,6 +230,34 @@ async def _dfs_model(season: int, week: int, slate_id: str | None, contest: str,
     """The model, serialized once: repeat requests reuse the bytes."""
     result = await dfs_model.build(season, week, slate_id, contest, contest_size)
     return json.dumps(result, separators=(",", ":"), default=_json_default).encode()
+
+
+@memoize_async(ttl_seconds=120)
+async def _plays(season: int, week: int, slate_id: str | None, contest: str, version: tuple) -> bytes:
+    model = json.loads(await _dfs_model(season, week, slate_id, "gpp", None, version))
+    if not model.get("available"):
+        return json.dumps({"available": False, "reason": model.get("reason") or "The DFS model isn't available for this slate."}).encode()
+    result = await asyncio.to_thread(play_rankings.build, model["table"], model["strategy"]["games"], contest,
+                                     season, week, model["slate"]["slate_id"])
+    result["available"] = True
+    result["slate"] = model["slate"]
+    result["slates"] = model["slates"]
+    return json.dumps(result, separators=(",", ":"), default=_json_default).encode()
+
+
+@app.get("/api/plays")
+async def api_plays(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, slate_id: str | None = None,
+                    contest: str = "cash"):
+    """Cash or GPP play rankings (top QB/RB/WR/TE by strength of play) and every player's expected field
+    ownership for that contest type -- cash, or small- and large-field GPP (app.play_rankings,
+    app.field_ownership) -- with prioritize / neutral / fade tags."""
+    if contest not in ("cash", "gpp"):
+        raise HTTPException(status_code=400, detail="contest must be cash or gpp")
+    try:
+        body = await _plays(season, week, slate_id, contest, ownership_store.data_version())
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not build {contest} plays: {exc}") from exc
+    return Response(body, media_type="application/json")
 
 
 def _check_contest(contest: str) -> str:

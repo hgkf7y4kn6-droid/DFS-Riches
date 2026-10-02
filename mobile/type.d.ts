@@ -528,6 +528,74 @@ interface DfsModel {
   lineups: { cash: DfsLineup[]; gpp: DfsLineup[]; contrarian: DfsLineup[] };
 }
 
+// --------------------------------------------- cash / GPP plays (/api/plays)
+
+type PlayContest = 'cash' | 'gpp';
+/** Ownership contest types: cash, small-field GPP, large-field GPP. */
+type OwnershipContest = 'cash' | 'small_gpp' | 'large_gpp';
+type PlayTag = 'prioritize' | 'neutral' | 'fade';
+
+/** One player's play strength and expected field ownership for a contest type. */
+interface PlayPlayer {
+  /** 1-based strength-of-play rank in a ranking list; null in the full player list. */
+  rank: number | null;
+  id: number;
+  name: string;
+  position: string;
+  team: string;
+  opponent: string;
+  salary: number;
+  injury: InjuryStatus | null;
+  final: number;
+  floor: number;
+  ceiling: number;
+  value: number;
+  implied: number;
+  /** Cash: P(2.5x salary). GPP: P(the position's tournament-winning score). 0-1. */
+  p_hit: number;
+  /** Strength of play (weighted z-scores within the position). */
+  score: number;
+  /** Each component's z-score: p_hit, floor or leverage, salary, env. */
+  parts: Record<string, number>;
+  /** Blended expected ownership, percent, per contest type. */
+  ownership: Partial<Record<OwnershipContest, number>>;
+  /** Each model's estimate (percent) before the blend: sim, bt, frac_logit, gbm. */
+  ownership_models: Partial<Record<OwnershipContest, Record<string, number>>>;
+  tag: PlayTag;
+  tag_reason: string;
+  features: {
+    value_ratio: number;
+    position_value_rank: number;
+    salary_delta_vs_average: number;
+    team_implied_total: number;
+    position_scarcity_index: number;
+    is_backup_injury_start: boolean;
+  };
+}
+
+interface OwnershipModelInfo {
+  label: string;
+  /** Blend weights of the models in use (untrained ones drop out). */
+  weights: Record<string, number>;
+  /** The simulated field's price of $1k of salary, in points. */
+  price_per_k: number;
+  training: { slates: number; rows: number; frac_logit: boolean; gbm: boolean };
+  simulated_lineups: number;
+}
+
+interface PlaysResponse {
+  available: boolean;
+  reason?: string;
+  contest: PlayContest;
+  slate: { slate_id: string; label: string; games: number };
+  slates: { slate_id: string; label: string }[];
+  /** Top 5 QB, 10 RB, 10 WR, 5 TE by strength of play. */
+  rankings: Record<'QB' | 'RB' | 'WR' | 'TE', PlayPlayer[]>;
+  /** Every playable player, most owned first. */
+  players: PlayPlayer[];
+  ownership_models: Partial<Record<OwnershipContest, OwnershipModelInfo>>;
+}
+
 // --------------------------------------------------------- contest entries
 
 /** DraftKings contest formats tracked separately in the profit/loss tracker. */

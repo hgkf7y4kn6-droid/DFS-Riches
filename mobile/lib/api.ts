@@ -45,3 +45,9 @@ export function getDfsModel(season: number, week: number, slateId?: string | nul
   const slate = slateId ? `&slate_id=${encodeURIComponent(slateId)}` : '';
   return getJson<DfsModel>(`/api/dfs-model?${q(season, week)}${slate}`);
 }
+
+/** Cash or GPP play rankings plus every player's expected field ownership and tags. */
+export function getPlays(season: number, week: number, contest: PlayContest, slateId?: string | null) {
+  const slate = slateId ? `&slate_id=${encodeURIComponent(slateId)}` : '';
+  return getJson<PlaysResponse>(`/api/plays?${q(season, week)}&contest=${contest}${slate}`);
+}

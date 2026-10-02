@@ -364,6 +364,62 @@
     @apply mb-2 rounded-xl bg-muted p-3;
   }
 
+  /* ------------------------------------------------- cash / GPP plays */
+  .tag-pill {
+    @apply mt-1 rounded-full px-2 py-0.5;
+  }
+  .tag-pill-text {
+    @apply text-[10px] font-sans-bold uppercase;
+  }
+  .tag-prioritize {
+    @apply bg-success/15;
+  }
+  .tag-prioritize-text {
+    @apply text-success;
+  }
+  .tag-neutral {
+    @apply bg-muted;
+  }
+  .tag-neutral-text {
+    @apply text-muted-foreground;
+  }
+  .tag-fade {
+    @apply bg-danger/15;
+  }
+  .tag-fade-text {
+    @apply text-danger;
+  }
+  .part-row {
+    @apply mt-1.5 flex-row flex-wrap gap-1.5;
+  }
+  .part-chip {
+    @apply rounded-md bg-muted px-1.5 py-0.5;
+  }
+  .part-chip-good {
+    @apply bg-success/15;
+  }
+  .part-chip-bad {
+    @apply bg-danger/15;
+  }
+  .part-chip-text {
+    @apply text-[10px] font-sans-semibold text-foreground;
+  }
+  .own-row {
+    @apply border-b border-border py-3;
+  }
+  .own-col {
+    @apply ml-2 min-w-[64px] items-end;
+  }
+  .own-value {
+    @apply text-base font-sans-extrabold text-foreground;
+  }
+  .own-label {
+    @apply text-[10px] font-sans-medium text-muted-foreground;
+  }
+  .own-detail {
+    @apply mt-2 rounded-lg bg-muted p-2;
+  }
+
   /* ---------------------------------------------------------- settings */
   .settings-group {
     @apply mt-5 overflow-hidden rounded-2xl border border-border bg-card;

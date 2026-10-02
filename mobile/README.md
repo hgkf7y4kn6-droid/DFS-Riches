@@ -27,7 +27,7 @@ EXPO_PUBLIC_API_URL=http://<your-computer's-LAN-IP>:8000 npx expo start
 | `app/_layout.tsx` | Root stack: safe-area provider, week data provider, `global.css` |
 | `app/(tabs)/_layout.tsx` | Floating bottom tab bar (Home, DFS Model, Cash, GPP, Settings), mapped from `tabs` in `constants/data.ts`; positioned with `useSafeAreaInsets()` |
 | `app/(tabs)/dfs-model.tsx` | Top 10 projections / values / ceilings by position, and game environments ranked best to worst (stacks, matchups, targets) |
-| `app/(tabs)/cash.tsx`, `app/(tabs)/gpp.tsx` | The model's cash and GPP player pools and lineups |
+| `app/(tabs)/cash.tsx`, `app/(tabs)/gpp.tsx` | Top QB/RB/WR/TE plays by strength of play, and every player's expected cash (or small/large-field GPP) ownership with Prioritize / Neutral / Fade tags (`components/plays/`, `/api/plays`) |
 | `app/(tabs)/settings.tsx` | Account, data, links to the lineup builder and Lines & Performance, clearing saved data |
 | `app/(tabs)/index.tsx` | Home: header with add-entry button, balance card (money spent on entries, next lineup lock), upcoming games (tap a card for its weekly breakdown), slate cards (tap to open projected optimal lineups and build/save lineups), profit/loss tracker, Lines & Performance |
 | `app/(tabs)/lineups.tsx` | Slates, projected optimal lineups and the lineup builder (from Home/Settings; not in the tab bar) |

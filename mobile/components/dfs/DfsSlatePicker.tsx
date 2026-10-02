@@ -2,14 +2,16 @@ import { Pressable, ScrollView, Text } from 'react-native';
 
 import { useDfsModel } from '@/lib/dfs-model-context';
 
-/** Chips for the Classic slates the DFS model can run on. */
-export default function DfsSlatePicker() {
+/** Chips for the Classic slates the DFS model can run on (from the model, or from a plays response). */
+export default function DfsSlatePicker({ slates, current }: { slates?: { slate_id: string; label: string }[]; current?: string } = {}) {
   const { model, slateId, selectSlate } = useDfsModel();
-  if (!model?.slates?.length) return null;
+  const list = slates ?? model?.slates ?? [];
+  const selected = slateId ?? current ?? model?.slate.slate_id;
+  if (!list.length) return null;
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row" contentContainerClassName="chip-row-content">
-      {model.slates.map((s) => {
-        const active = s.slate_id === (slateId ?? model.slate.slate_id);
+      {list.map((s) => {
+        const active = s.slate_id === selected;
         return (
           <Pressable
             key={s.slate_id}
