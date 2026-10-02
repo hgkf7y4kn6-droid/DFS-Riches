@@ -44,7 +44,7 @@ interface ListHeadingProps {
 
 type UpcomingGameStatus = 'upcoming' | 'live' | 'final';
 
-/** One game as components/UpcomingGamesCard.tsx shows it (lib/games.ts builds these from a Game). */
+/** One game as components/UpcomingGamesCard.tsx shows it (lib/games.ts builds these from a Game); spread straight into the card as props. */
 interface UpcomingGame {
   id: string;
   /** Matchup, e.g. "IND @ WAS". */

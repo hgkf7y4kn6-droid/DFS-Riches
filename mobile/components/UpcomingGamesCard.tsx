@@ -7,8 +7,7 @@ function countdown(status: UpcomingGameStatus, daysLeft: number): string {
   return daysLeft === 1 ? 'Tomorrow' : `In ${daysLeft} days`;
 }
 
-interface Props {
-  data: UpcomingGame;
+interface Props extends UpcomingGame {
   /** Stretch to the screen width (vertical lists) instead of a fixed-width card (horizontal lists). */
   fullWidth?: boolean;
 }
@@ -17,8 +16,21 @@ interface Props {
  * One game: both teams' logos, the matchup and countdown, then game time,
  * venue, weather, and the spread / over-under (or the score once it starts).
  */
-export default function UpcomingGamesCard({ data, fullWidth = false }: Props) {
-  const { name, location, kickoff, network, daysLeft, status, score, lines, weather, icon, opponentIcon, islandLabel } = data;
+export default function UpcomingGamesCard({
+  name,
+  location,
+  kickoff,
+  network,
+  daysLeft,
+  status,
+  score,
+  lines,
+  weather,
+  icon,
+  opponentIcon,
+  islandLabel,
+  fullWidth = false,
+}: Props) {
   return (
     <View className={`upcoming-card ${fullWidth ? 'upcoming-card-full' : ''}`}>
       <View className="upcoming-row">

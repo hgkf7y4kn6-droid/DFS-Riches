@@ -38,7 +38,7 @@ export default function Lineups() {
                   horizontal
                   data={selectedSlate.games}
                   keyExtractor={(g) => g.game_id}
-                  renderItem={({ item }) => <UpcomingGamesCard data={toUpcomingGame(item)} />}
+                  renderItem={({ item }) => <UpcomingGamesCard {...toUpcomingGame(item)} />}
                   showsHorizontalScrollIndicator={false}
                 />
               </>

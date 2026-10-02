@@ -44,6 +44,13 @@ export default function Home() {
     [data, now],
   );
 
+  // Cards for the Upcoming list, and this week's finished games for when nothing is left.
+  const upcomingGames = useMemo(() => upcoming.map((g) => toUpcomingGame(g, now)), [upcoming, now]);
+  const playedGames = useMemo(
+    () => (data?.schedule.games ?? []).filter((g) => g.context?.is_final).map((g) => toUpcomingGame(g, now)),
+    [data, now],
+  );
+
   // Balance card: HOME_BALANCE's hard-coded values until live numbers exist --
   // money spent on logged entries, and the next lineup lock (the selected
   // slate's next kickoff, else the week's next game).
@@ -104,20 +111,32 @@ export default function Home() {
             <View>
               <ListHeading
                 title={HOME_SECTIONS.upcoming.title}
-                subtitle={`${upcoming.length} of ${data.schedule.games.length} games this week`}
+                subtitle={
+                  upcomingGames.length
+                    ? `${upcomingGames.length} of ${data.schedule.games.length} games this week`
+                    : `All games played · this week's results`
+                }
                 onPress={() => router.push('/lines')}
               />
-              {upcoming.length ? (
-                <FlatList
-                  horizontal
-                  data={upcoming}
-                  keyExtractor={(g) => g.game_id}
-                  renderItem={({ item }) => <UpcomingGamesCard data={toUpcomingGame(item, now)} />}
-                  showsHorizontalScrollIndicator={false}
-                />
-              ) : (
-                <Text className="home-empty-state">Every game this week has kicked off.</Text>
-              )}
+              <FlatList
+                data={upcomingGames}
+                renderItem={({ item }) => <UpcomingGamesCard {...item} />}
+                keyExtractor={(item) => item.id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                // Nothing left to play: show this week's results instead.
+                ListEmptyComponent={
+                  playedGames.length ? (
+                    <View className="flex-row">
+                      {playedGames.map((game) => (
+                        <UpcomingGamesCard key={game.id} {...game} />
+                      ))}
+                    </View>
+                  ) : (
+                    <Text className="home-empty-state">No games scheduled this week.</Text>
+                  )
+                }
+              />
             </View>
 
             {/* All Games: every game this week, scores once they start */}
@@ -128,7 +147,7 @@ export default function Home() {
                 onPress={() => router.push('/lines')}
               />
               {data.schedule.games.slice(0, ALL_GAMES_PREVIEW).map((g) => (
-                <UpcomingGamesCard key={g.game_id} data={toUpcomingGame(g, now)} fullWidth />
+                <UpcomingGamesCard key={g.game_id} {...toUpcomingGame(g, now)} fullWidth />
               ))}
             </View>
           </>
