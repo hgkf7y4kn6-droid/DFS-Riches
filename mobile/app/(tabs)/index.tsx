@@ -1,28 +1,58 @@
-import { useState } from 'react';
-import { Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { useMemo, useState } from 'react';
+import { FlatList, Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import BalanceCard from '@/components/BalanceCard';
+import BalanceStats from '@/components/BalanceStats';
 import ExpandableCard from '@/components/ExpandableCard';
 import LineupBuilder from '@/components/LineupBuilder';
 import LinesList from '@/components/LinesList';
+import ListHeading from '@/components/ListHeading';
 import OptimalLineups from '@/components/OptimalLineups';
 import ProfitLossTracker from '@/components/ProfitLossTracker';
 import SafeAreaView from '@/components/SafeAreaView';
-import ScheduleCard from '@/components/ScheduleCard';
 import SlateList from '@/components/SlateList';
 import StatusView from '@/components/StatusView';
 import SubmissionForm from '@/components/SubmissionForm';
-import { HOME_SECTIONS, HOME_USER } from '@/constants/data';
+import UpcomingGameCard from '@/components/UpcomingGameCard';
+import { HOME_BALANCE, HOME_SECTIONS, HOME_USER } from '@/constants/data';
+import icons from '@/constants/icons';
 import { colors } from '@/constants/theme';
+import dayjs from '@/lib/dayjs';
+import { stats } from '@/lib/submissions';
+import { useSubmissions } from '@/lib/submissions-context';
+import { formatCurrency } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
 
 export default function Home() {
   const insets = useSafeAreaInsets();
   const { week, weekData, refresh, selectedSlate, selectSlate } = useWeek();
+  const { submissions } = useSubmissions();
   const data = weekData.data;
   const [profitOpen, setProfitOpen] = useState(HOME_SECTIONS.profit.defaultExpanded);
   const [logging, setLogging] = useState(false);
+  const [now] = useState(() => Date.now());
+
+  // Games that haven't kicked off, soonest first.
+  const upcoming = useMemo(
+    () => (data?.schedule.games ?? []).filter((g) => new Date(g.kickoff_utc).getTime() > now),
+    [data, now],
+  );
+
+  // Balance card: HOME_BALANCE's hard-coded values until live numbers exist --
+  // money spent on logged entries, and the next lineup lock (the selected
+  // slate's next kickoff, else the week's next game).
+  const nextLock =
+    selectedSlate?.games.map((g) => g.kickoff_utc).find((k) => new Date(k).getTime() > now) ?? upcoming[0]?.kickoff_utc;
+  const homeBalance: HomeBalance = {
+    amount: submissions.length ? stats(submissions).spent : HOME_BALANCE.amount,
+    lineupContestDate: nextLock ?? HOME_BALANCE.lineupContestDate,
+  };
+
+  const openLogEntry = () => {
+    setProfitOpen(true);
+    setLogging(true);
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
@@ -36,24 +66,30 @@ export default function Home() {
           <View className="home-user">
             <Image source={HOME_USER.avatar} className="home-avatar" style={{ width: 64, height: 64 }} />
             <View>
-              <Text className="home-user-greeting">{HOME_USER.greeting}</Text>
+              <Text className="home-user-greeting">
+                {HOME_USER.greeting}
+                {week ? ` · Week ${week}` : ''}
+              </Text>
               <Text className="home-user-name">{HOME_USER.name}</Text>
             </View>
           </View>
-          {week ? (
-            <View className="home-week-pill">
-              <Text className="home-week-pill-text">Week {week}</Text>
-            </View>
-          ) : null}
+          <Pressable onPress={openLogEntry} accessibilityRole="button" accessibilityLabel="Log a contest entry">
+            <Image source={icons.add} className="home-add-icon" style={{ width: 48, height: 48, tintColor: colors.primary }} />
+          </Pressable>
         </View>
 
         {/* Balance card: money spent on lineup submissions */}
-        <BalanceCard
-          onLogEntry={() => {
-            setProfitOpen(true);
-            setLogging(true);
-          }}
-        />
+        <View className="home-balance-card">
+          <Text className="home-balance-label">Spent on lineup submissions</Text>
+          <View className="home-balance-row">
+            <Text className="home-balance-amount">{formatCurrency(homeBalance.amount)}</Text>
+            <View className="home-balance-date-block">
+              <Text className="home-balance-date-label">Next lineup lock</Text>
+              <Text className="home-balance-date">{dayjs(homeBalance.lineupContestDate).format('MM/DD')}</Text>
+            </View>
+          </View>
+          <BalanceStats />
+        </View>
 
         {/* Profit / loss by contest type */}
         <ExpandableCard
@@ -83,8 +119,24 @@ export default function Home() {
 
         {data ? (
           <>
-            {/* Weekly schedule */}
-            <ScheduleCard schedule={data.schedule} />
+            {/* Upcoming games: horizontal list */}
+            <ListHeading
+              title={HOME_SECTIONS.upcoming.title}
+              subtitle={`${upcoming.length} of ${data.schedule.games.length} games this week`}
+              buttonText="View all"
+              onPress={() => router.push('/lines')}
+            />
+            {upcoming.length ? (
+              <FlatList
+                horizontal
+                data={upcoming}
+                keyExtractor={(g) => g.game_id}
+                renderItem={({ item }) => <UpcomingGameCard game={item} />}
+                showsHorizontalScrollIndicator={false}
+              />
+            ) : (
+              <Text className="home-empty-state">Every game this week has kicked off.</Text>
+            )}
 
             {/* Slates: horizontal list; the selected one drives Lineups below */}
             <ExpandableCard

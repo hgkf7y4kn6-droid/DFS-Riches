@@ -24,9 +24,17 @@ interface HomeUser {
   avatar: import('react-native').ImageSourcePropType;
 }
 
+/** The Home balance card: money spent on lineup submissions and the next contest lock. */
+interface HomeBalance {
+  /** Dollars spent on contest entries. */
+  amount: number;
+  /** ISO timestamp of the next lineup lock (first kickoff of the upcoming slate). */
+  lineupContestDate: string;
+}
+
 /** One Home section: what it's called and how it's laid out. */
 interface HomeSection {
-  id: 'profit' | 'schedule' | 'slates' | 'lineups' | 'lines';
+  id: 'profit' | 'upcoming' | 'slates' | 'lineups' | 'lines';
   title: string;
   subtitle: string;
   /** Whether the section starts expanded. */

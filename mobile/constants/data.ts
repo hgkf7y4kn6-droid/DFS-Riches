@@ -15,6 +15,14 @@ export const HOME_USER: HomeUser = {
   avatar: images.avatar,
 };
 
+// Home balance card. Hard-coded starting values: app/(tabs)/index.tsx
+// replaces them with live numbers (logged entry fees, next slate lock) once
+// those load, and with real API responses when accounts exist.
+export const HOME_BALANCE: HomeBalance = {
+  amount: 0,
+  lineupContestDate: '2026-10-04T17:00:00Z',
+};
+
 // Home sections, top to bottom after the header and balance card. Each one
 // maps to a live data piece from the DFSRiches API (lib/week-context.tsx).
 export const HOME_SECTIONS: Record<HomeSection['id'], HomeSection> = {
@@ -24,11 +32,11 @@ export const HOME_SECTIONS: Record<HomeSection['id'], HomeSection> = {
     subtitle: 'Results by contest type: win rate, ROI and net dollars',
     defaultExpanded: false,
   },
-  schedule: {
-    id: 'schedule',
-    title: 'This week',
-    subtitle: 'Every game, kickoff, network and weather',
-    defaultExpanded: false,
+  upcoming: {
+    id: 'upcoming',
+    title: 'Upcoming games',
+    subtitle: "This week's games that haven't kicked off",
+    defaultExpanded: true,
   },
   slates: {
     id: 'slates',

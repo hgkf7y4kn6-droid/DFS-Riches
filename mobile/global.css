@@ -85,11 +85,8 @@
   .home-user-name {
     @apply ml-4 text-2xl font-sans-bold text-primary;
   }
-  .home-week-pill {
-    @apply rounded-full bg-primary px-3 py-1.5;
-  }
-  .home-week-pill-text {
-    @apply text-xs font-sans-semibold text-background;
+  .home-add-icon {
+    @apply size-12;
   }
   .home-empty-state {
     @apply py-4 text-sm font-sans-medium text-black/60;
@@ -99,19 +96,25 @@
   .home-balance-card {
     @apply my-4 rounded-3xl bg-primary p-5;
   }
-  .home-balance-header {
-    @apply flex-row items-start justify-between;
-  }
   .home-balance-label {
     @apply text-sm font-sans-medium text-background/70;
   }
-  .home-balance-amount {
-    @apply mt-1 text-3xl font-sans-extrabold text-background;
-  }
-  .home-balance-caption {
-    @apply mt-1 text-xs font-sans-medium text-background/60;
-  }
   .home-balance-row {
+    @apply mt-1 flex-row items-end justify-between;
+  }
+  .home-balance-amount {
+    @apply text-3xl font-sans-extrabold text-background;
+  }
+  .home-balance-date-block {
+    @apply items-end;
+  }
+  .home-balance-date-label {
+    @apply text-[11px] font-sans-medium text-background/60;
+  }
+  .home-balance-date {
+    @apply text-base font-sans-bold text-accent;
+  }
+  .home-balance-stats {
     @apply mt-4 flex-row justify-between border-t border-background/15 pt-4;
   }
   .home-balance-stat {
@@ -129,11 +132,51 @@
   .home-balance-negative {
     @apply text-[#F87171];
   }
-  .home-balance-action {
-    @apply rounded-full bg-accent px-3 py-1.5;
+
+  /* ------------------------------------- list heading (reusable) */
+  .list-head {
+    @apply mb-3 mt-6 flex-row items-center justify-between;
   }
-  .home-balance-action-text {
-    @apply text-xs font-sans-bold text-background;
+  .list-title {
+    @apply text-lg font-sans-bold text-primary;
+  }
+  .list-subtitle {
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .list-action {
+    @apply rounded-full border border-primary px-3.5 py-1.5;
+  }
+  .list-action-text {
+    @apply text-xs font-sans-semibold text-primary;
+  }
+
+  /* ------------------------------------- upcoming game card (reusable) */
+  .upcoming-card {
+    @apply mr-3 w-64 rounded-2xl border border-border bg-card p-4;
+  }
+  .upcoming-header {
+    @apply flex-row items-center justify-between;
+  }
+  .upcoming-countdown {
+    @apply text-[11px] font-sans-bold uppercase text-accent;
+  }
+  .upcoming-matchup {
+    @apply mt-2 text-xl font-sans-extrabold text-primary;
+  }
+  .upcoming-time {
+    @apply mt-0.5 text-sm font-sans-semibold text-primary;
+  }
+  .upcoming-meta {
+    @apply mt-0.5 text-xs font-sans-medium text-muted-foreground;
+  }
+  .upcoming-lines {
+    @apply mt-3 flex-row justify-between border-t border-border pt-3;
+  }
+  .upcoming-line-value {
+    @apply text-sm font-sans-bold text-primary;
+  }
+  .upcoming-line-label {
+    @apply text-[10px] font-sans-medium uppercase text-muted-foreground;
   }
 
   /* ----------------------------------------------- sections and cards */

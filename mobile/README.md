@@ -26,7 +26,7 @@ EXPO_PUBLIC_API_URL=http://<your-computer's-LAN-IP>:8000 npx expo start
 | --- | --- |
 | `app/_layout.tsx` | Root stack: safe-area provider, week data provider, `global.css` |
 | `app/(tabs)/_layout.tsx` | Bottom tabs, mapped from `tabs` in `constants/data.ts`; padded with `useSafeAreaInsets()` |
-| `app/(tabs)/index.tsx` | Home: header, balance card (money spent on entries), profit/loss tracker, weekly schedule, slates, lineups, builder, Lines & Performance |
+| `app/(tabs)/index.tsx` | Home: header with add-entry button, balance card (money spent on entries, next lineup lock), profit/loss tracker, upcoming games, slates, lineups, builder, Lines & Performance |
 | `app/(tabs)/lineups.tsx` | Slates, projected optimal lineups and the lineup builder |
 | `app/(tabs)/lines.tsx` | Lines & Performance for every game |
 | `components/` | The pieces those screens are built from |
