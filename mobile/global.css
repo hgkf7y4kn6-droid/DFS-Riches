@@ -204,33 +204,39 @@
     @apply text-xs font-sans-semibold text-primary;
   }
 
-  /* ------------------------------------- upcoming game card (reusable) */
+  /* ------------------------------------ upcoming games card (reusable) */
   .upcoming-card {
-    @apply mr-3 w-64 rounded-2xl border border-border bg-card p-4;
+    @apply mr-3 w-72 rounded-2xl border border-border bg-card p-4;
   }
-  .upcoming-header {
-    @apply flex-row items-center justify-between;
+  .upcoming-card-full {
+    @apply mb-3 mr-0 w-full;
+  }
+  .upcoming-row {
+    @apply flex-row items-center gap-3;
+  }
+  .upcoming-logos {
+    @apply flex-row items-center;
+  }
+  .upcoming-icon {
+    @apply size-10 rounded-full bg-muted;
+  }
+  .upcoming-icon-overlap {
+    @apply -ml-2.5 border-2 border-card;
+  }
+  .upcoming-name {
+    @apply text-lg font-sans-extrabold text-foreground;
   }
   .upcoming-countdown {
     @apply text-[11px] font-sans-bold uppercase text-accent;
   }
-  .upcoming-matchup {
-    @apply mt-2 text-xl font-sans-extrabold text-foreground;
+  .upcoming-info {
+    @apply mt-3 gap-0.5 border-t border-border pt-3;
   }
-  .upcoming-time {
-    @apply mt-0.5 text-sm font-sans-semibold text-foreground;
+  .upcoming-game-info {
+    @apply text-xs font-sans-medium text-muted-foreground;
   }
-  .upcoming-meta {
-    @apply mt-0.5 text-xs font-sans-medium text-muted-foreground;
-  }
-  .upcoming-lines {
-    @apply mt-3 flex-row justify-between border-t border-border pt-3;
-  }
-  .upcoming-line-value {
-    @apply text-sm font-sans-bold text-foreground;
-  }
-  .upcoming-line-label {
-    @apply text-[10px] font-sans-medium uppercase text-muted-foreground;
+  .upcoming-game-lines {
+    @apply mt-1.5 text-sm font-sans-bold text-foreground;
   }
 
   /* ----------------------------------------------- sections and cards */
@@ -318,6 +324,9 @@
   }
   .slate-chip-kicker {
     @apply text-[10px] font-sans-bold uppercase text-accent;
+  }
+  .slate-chip-kicker-active {
+    @apply text-primary-foreground/70;
   }
   .slate-chip-title {
     @apply mt-0.5 text-sm font-sans-bold text-foreground;

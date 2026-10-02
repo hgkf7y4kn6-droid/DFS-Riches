@@ -14,15 +14,19 @@ import SafeAreaView from '@/components/SafeAreaView';
 import SlateList from '@/components/SlateList';
 import StatusView from '@/components/StatusView';
 import SubmissionForm from '@/components/SubmissionForm';
-import UpcomingGameCard from '@/components/UpcomingGameCard';
+import UpcomingGamesCard from '@/components/UpcomingGamesCard';
 import { HOME_BALANCE, HOME_SECTIONS, HOME_USER } from '@/constants/data';
 import icons from '@/constants/icons';
 import { useThemeColors } from '@/constants/theme';
 import dayjs from '@/lib/dayjs';
+import { toUpcomingGame } from '@/lib/games';
 import { stats } from '@/lib/submissions';
 import { useSubmissions } from '@/lib/submissions-context';
 import { formatCurrency } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
+
+// How many games the All Games section shows before "View all".
+const ALL_GAMES_PREVIEW = 5;
 
 export default function Home() {
   const insets = useSafeAreaInsets();
@@ -92,6 +96,44 @@ export default function Home() {
           <BalanceStats />
         </View>
 
+        <StatusView loading={weekData.loading && !data} error={weekData.error} />
+
+        {data ? (
+          <>
+            {/* Upcoming: games that haven't kicked off, as a horizontal list */}
+            <View>
+              <ListHeading
+                title={HOME_SECTIONS.upcoming.title}
+                subtitle={`${upcoming.length} of ${data.schedule.games.length} games this week`}
+                onPress={() => router.push('/lines')}
+              />
+              {upcoming.length ? (
+                <FlatList
+                  horizontal
+                  data={upcoming}
+                  keyExtractor={(g) => g.game_id}
+                  renderItem={({ item }) => <UpcomingGamesCard data={toUpcomingGame(item, now)} />}
+                  showsHorizontalScrollIndicator={false}
+                />
+              ) : (
+                <Text className="home-empty-state">Every game this week has kicked off.</Text>
+              )}
+            </View>
+
+            {/* All Games: every game this week, scores once they start */}
+            <View>
+              <ListHeading
+                title={HOME_SECTIONS.allGames.title}
+                subtitle={`Showing ${Math.min(ALL_GAMES_PREVIEW, data.schedule.games.length)} of ${data.schedule.games.length}`}
+                onPress={() => router.push('/lines')}
+              />
+              {data.schedule.games.slice(0, ALL_GAMES_PREVIEW).map((g) => (
+                <UpcomingGamesCard key={g.game_id} data={toUpcomingGame(g, now)} fullWidth />
+              ))}
+            </View>
+          </>
+        ) : null}
+
         {/* Profit / loss by contest type */}
         <ExpandableCard
           title={HOME_SECTIONS.profit.title}
@@ -116,29 +158,8 @@ export default function Home() {
           <ProfitLossTracker />
         </ExpandableCard>
 
-        <StatusView loading={weekData.loading && !data} error={weekData.error} />
-
         {data ? (
           <>
-            {/* Upcoming games: horizontal list */}
-            <ListHeading
-              title={HOME_SECTIONS.upcoming.title}
-              subtitle={`${upcoming.length} of ${data.schedule.games.length} games this week`}
-              buttonText="View all"
-              onPress={() => router.push('/lines')}
-            />
-            {upcoming.length ? (
-              <FlatList
-                horizontal
-                data={upcoming}
-                keyExtractor={(g) => g.game_id}
-                renderItem={({ item }) => <UpcomingGameCard game={item} />}
-                showsHorizontalScrollIndicator={false}
-              />
-            ) : (
-              <Text className="home-empty-state">Every game this week has kicked off.</Text>
-            )}
-
             {/* Slates: horizontal list; the selected one drives Lineups below */}
             <ExpandableCard
               title={HOME_SECTIONS.slates.title}

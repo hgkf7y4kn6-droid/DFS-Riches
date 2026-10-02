@@ -32,9 +32,48 @@ interface HomeBalance {
   lineupContestDate: string;
 }
 
+/** Props for components/ListHeading.tsx: a section title with a "View all" button. */
+interface ListHeadingProps {
+  title: string;
+  subtitle?: string;
+  /** Button label; defaults to "View all". */
+  buttonText?: string;
+  /** Where the button goes; the button is hidden without it. */
+  onPress?: () => void;
+}
+
+type UpcomingGameStatus = 'upcoming' | 'live' | 'final';
+
+/** One game as components/UpcomingGamesCard.tsx shows it (lib/games.ts builds these from a Game). */
+interface UpcomingGame {
+  id: string;
+  /** Matchup, e.g. "IND @ WAS". */
+  name: string;
+  /** Venue, e.g. "Tottenham Hotspur Stadium" (falls back to the home team). */
+  location: string;
+  /** Kickoff, e.g. "Sun 10/4 9:30 AM ET". */
+  kickoff: string;
+  network: string | null;
+  /** Whole days until kickoff (0 = today); negative once it has started. */
+  daysLeft: number;
+  status: UpcomingGameStatus;
+  /** Final or in-progress score, e.g. "PIT 24 - CLE 27". */
+  score: string | null;
+  /** Spread and over/under, e.g. "IND -4.5 · O/U 47.5". */
+  lines: string;
+  /** Kickoff-window forecast, "Dome" or "Retractable roof". */
+  weather: string;
+  /** Away team logo. */
+  icon: import('react-native').ImageSourcePropType;
+  /** Home team logo. */
+  opponentIcon: import('react-native').ImageSourcePropType;
+  /** Island-game window label (e.g. "Sun Morning"); null for Sunday main-slate games. */
+  islandLabel: string | null;
+}
+
 /** One Home section: what it's called and how it's laid out. */
 interface HomeSection {
-  id: 'profit' | 'upcoming' | 'slates' | 'lineups' | 'lines';
+  id: 'profit' | 'upcoming' | 'allGames' | 'slates' | 'lineups' | 'lines';
   title: string;
   subtitle: string;
   /** Whether the section starts expanded. */

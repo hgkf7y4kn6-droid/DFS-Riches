@@ -7,7 +7,8 @@ import OptimalLineups from '@/components/OptimalLineups';
 import SafeAreaView from '@/components/SafeAreaView';
 import SlateList from '@/components/SlateList';
 import StatusView from '@/components/StatusView';
-import UpcomingGameCard from '@/components/UpcomingGameCard';
+import UpcomingGamesCard from '@/components/UpcomingGamesCard';
+import { toUpcomingGame } from '@/lib/games';
 import { useWeek } from '@/lib/week-context';
 
 export default function Lineups() {
@@ -37,7 +38,7 @@ export default function Lineups() {
                   horizontal
                   data={selectedSlate.games}
                   keyExtractor={(g) => g.game_id}
-                  renderItem={({ item }) => <UpcomingGameCard game={item} />}
+                  renderItem={({ item }) => <UpcomingGamesCard data={toUpcomingGame(item)} />}
                   showsHorizontalScrollIndicator={false}
                 />
               </>
