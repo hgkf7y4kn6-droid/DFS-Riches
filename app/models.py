@@ -62,8 +62,8 @@ class Game(BaseModel):
     kickoff_utc: datetime
     kickoff_et: str        # pre-formatted for display, e.g. "Wed 9/9 8:20 PM ET"
     network: str | None = None
-    day_part: str          # WED_NIGHT, THU_NIGHT, SUN_EARLY, SUN_LATE, SUN_NIGHT, MON_NIGHT, ...
-    isolated: bool = False # True => the lone game in an isolated (Wed/Thu/Sun/Mon night) window
+    day_part: str          # SUN_MORNING/EARLY/LATE/NIGHT, or <DAY>_EARLY/LATE/NIGHT (THU_NIGHT, MON_NIGHT, ...)
+    isolated: bool = False # True => an island game: the lone game in a window outside the Sunday main slate
     context: GameContext | None = None  # real spread/total/pace + performance-vs-line, once available
     weather: dict | None = None         # app.weather: venue, roof, kickoff-window forecast, projection multipliers
 

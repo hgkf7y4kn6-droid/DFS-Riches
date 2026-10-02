@@ -97,10 +97,14 @@ def _parse_dk_timestamp(value: str) -> datetime | None:
 def _team_pair_from_suffix(suffix: str | None) -> tuple[str, str] | None:
     if not suffix:
         return None
+    # "(DET @ CAR)", or "(IND vs WAS)" for neutral-site international games
     text = suffix.strip(" ()")
-    if "@" not in text:
+    sep = "@" if "@" in text else " vs " if " vs " in text else None
+    if sep is None:
         return None
-    away, _, home = text.partition("@")
+    away, _, home = text.partition(sep)
+    if not away.strip() or " " in home.strip() or " " in away.strip():
+        return None
     return away.strip().upper(), home.strip().upper()
 
 

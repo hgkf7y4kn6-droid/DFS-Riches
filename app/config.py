@@ -49,10 +49,12 @@ TTL_NFLVERSE_GAMES = 60 * 20     # closing lines + scores, updates through/after
 TTL_NFLVERSE_TEAM_STATS = 60 * 30  # per-game team box-score stats, used for pace baselines
 TTL_NFLVERSE_PBP_PAST = 60 * 60 * 24 * 7  # a finished season's play-by-play aggregates barely change
 
-# Day-part windows used to bucket a game's ET kickoff into a broadcast window.
-# "Isolated" windows are the ones DraftKings builds single-game Showdown
-# contests around: Wednesday Night, Thursday Night, Sunday Night, Monday Night.
-ISOLATED_DAY_PARTS = {"WED_NIGHT", "THU_NIGHT", "SUN_NIGHT", "MON_NIGHT"}
+# Day-part windows used to bucket a game's ET kickoff into a broadcast window
+# (app.schedule.classify_day_part). Every window outside the Sunday 1:00/4:00
+# main slate is an "island" window when it holds a single game -- weeknight,
+# Sunday night, Sunday-morning international, holiday and Saturday games --
+# which DraftKings builds single-game Showdown contests around.
+MAIN_SLATE_DAY_PARTS = {"SUN_EARLY", "SUN_LATE"}
 
 # DraftKings contestTypeId for the standard "Showdown Captain Mode" slate
 # (single game, CPT slot at 1.5x salary/points + 5 FLEX slots). Verified

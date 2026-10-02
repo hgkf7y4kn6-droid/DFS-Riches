@@ -50,3 +50,10 @@ async def test_classic_ignores_same_size_groups_that_are_not_classic_salary_cap(
 
     assert result["classic"]["draft_group_id"] == 153768
     assert result["classic"]["source"] == "live"
+
+
+def test_team_pair_from_suffix_handles_neutral_site_vs():
+    from app.dk_client import _team_pair_from_suffix
+    assert _team_pair_from_suffix(" (DET @ CAR)") == ("DET", "CAR")
+    assert _team_pair_from_suffix(" (IND vs WAS)") == ("IND", "WAS")   # international game
+    assert _team_pair_from_suffix(" (IND vs WAS Snake)") is None

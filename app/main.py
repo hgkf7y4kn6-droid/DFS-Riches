@@ -1,7 +1,7 @@
 """DFSRiches -- a DraftKings DFS explorer for the NFL.
 
 Merges real DraftKings salaries (Classic full-slate + Showdown Captain Mode
-for every isolated Wednesday/Thursday/Sunday/Monday night game) with real
+for every island game -- weeknight, Sunday night, international, holiday) with real
 Sleeper weekly fantasy projections, keyed on the real Week N schedule pulled
 live from Sleeper.
 
@@ -23,6 +23,7 @@ import re
 from typing import Annotated
 
 from fastapi import Body, FastAPI, HTTPException, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -68,6 +69,9 @@ Week = Annotated[int, Query(ge=1, le=22)]
 
 app = FastAPI(title="DFSRiches", description="DraftKings DFS explorer")
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+# The mobile app (mobile/) reads the public JSON API; its web build runs on
+# another origin, so allow cross-origin GETs. Writes stay same-origin.
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET"], allow_headers=["*"])
 
 app.mount("/static", _CachedStaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))

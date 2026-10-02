@@ -5,7 +5,8 @@ frontend renders.
 
 A Classic Sunday Main slate covers the Sunday 1:00 + afternoon games; a Full
 Week slate covers every game (Thu-Mon). One Showdown slate is built for each
-isolated Wednesday/Thursday/Sunday/Monday night game.
+island game: the lone game in a window outside the Sunday main slate
+(weeknight/Sunday night, Sunday-morning international, holiday, Saturday).
 """
 from __future__ import annotations
 
@@ -17,7 +18,6 @@ from app.config import TTL_PLAYERS
 from app.models import Player, Slate, SlatePlayers, WeekSchedule
 from app.schedule import get_week_schedule
 
-_ISOLATED_ORDER = ["WED_NIGHT", "THU_NIGHT", "SUN_NIGHT", "MON_NIGHT"]
 
 
 @memoize_async(TTL_PLAYERS)
@@ -68,11 +68,10 @@ async def list_slates(season: int, week: int) -> tuple[WeekSchedule, list[Slate]
         )
     )
 
-    games_by_day_part = {g.day_part: g for g in schedule.isolated_games}
-    for day_part in _ISOLATED_ORDER:
-        game = games_by_day_part.get(day_part)
+    for game in sorted(schedule.isolated_games, key=lambda g: g.kickoff_utc):
+        day_part = game.day_part
         sd = discovery["showdown"].get(day_part)
-        if game is None or sd is None:
+        if sd is None:
             continue
         slates.append(
             Slate(

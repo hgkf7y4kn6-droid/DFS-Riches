@@ -1,7 +1,9 @@
 """Builds the real Week N schedule from Sleeper's per-game score/schedule feed
-and classifies each game into a broadcast day-part, flagging the ones that
-are the lone game in a Wednesday/Thursday/Sunday/Monday night window -- the
-windows DraftKings builds single-game Showdown contests around.
+and classifies each game into a broadcast day-part, flagging the "island"
+games -- the lone game in any window outside the Sunday 1:00/4:00 main slate
+(weeknight and Sunday night games, Sunday-morning international games,
+Thanksgiving/Black Friday/Christmas and Saturday games) -- the games
+DraftKings builds single-game Showdown contests around.
 """
 from __future__ import annotations
 
@@ -10,32 +12,35 @@ from datetime import datetime, timezone
 
 from app import nflverse_client, sleeper_client, weather
 from app.cache import memoize_async
-from app.config import ET, ISOLATED_DAY_PARTS
+from app.config import ET, MAIN_SLATE_DAY_PARTS
 from app.game_context import attach_game_context
 from app.models import Game, WeekSchedule
 
 
+_DAYS = ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
+
+
 def classify_day_part(kickoff_et: datetime) -> str:
-    weekday = kickoff_et.weekday()  # Monday=0 ... Sunday=6
+    """SUN_MORNING (international, before noon), SUN_EARLY, SUN_LATE,
+    SUN_NIGHT; any other day splits into <DAY>_EARLY (before 3 PM),
+    <DAY>_LATE (before 7 PM) and <DAY>_NIGHT -- so each Thanksgiving,
+    Christmas or Saturday game lands in its own window."""
+    day = _DAYS[kickoff_et.weekday()]
     hour = kickoff_et.hour
 
-    if weekday == 2:
-        return "WED_NIGHT"
-    if weekday == 3:
-        return "THU_NIGHT"
-    if weekday == 4:
-        return "FRI_NIGHT"
-    if weekday == 5:
-        return "SAT"
-    if weekday == 6:  # Sunday
+    if day == "SUN":
+        if hour < 12:
+            return "SUN_MORNING"
         if hour < 16:
             return "SUN_EARLY"
         if hour < 20:
             return "SUN_LATE"
         return "SUN_NIGHT"
-    if weekday == 0:
-        return "MON_NIGHT"
-    return "OTHER"
+    if hour < 15:
+        return f"{day}_EARLY"
+    if hour < 19:
+        return f"{day}_LATE"
+    return f"{day}_NIGHT"
 
 
 def _format_et(dt_et: datetime) -> str:
@@ -48,13 +53,12 @@ def _format_et(dt_et: datetime) -> str:
 
 
 def mark_isolated_games(games: list[Game]) -> list[Game]:
-    """Flags each game that is the lone game in an isolated (Wed/Thu/Sun/Mon
-    night) day-part window -- i.e. the ones DraftKings builds single-game
-    Showdown contests around. Pure function so it's testable without a
-    network call."""
+    """Flags each island game: the lone game in a day-part window outside the
+    Sunday main slate -- i.e. the ones DraftKings builds single-game Showdown
+    contests around. Pure function so it's testable without a network call."""
     day_part_counts = Counter(g.day_part for g in games)
     for g in games:
-        g.isolated = g.day_part in ISOLATED_DAY_PARTS and day_part_counts[g.day_part] == 1
+        g.isolated = g.day_part not in MAIN_SLATE_DAY_PARTS and day_part_counts[g.day_part] == 1
     return games
 
 

@@ -6,7 +6,7 @@ Endpoints used:
   - api.sleeper.com/projections/nfl/{season}/{week}   weekly fantasy projections
   - /scores/nfl/{season_type}/{season}/{week}
         per-game data including real kickoff time (epoch ms) and broadcaster,
-        used to build the schedule and detect isolated Wed/Thu/Sun/Mon games.
+        used to build the schedule and detect island (single-game window) games.
 """
 from __future__ import annotations
 
