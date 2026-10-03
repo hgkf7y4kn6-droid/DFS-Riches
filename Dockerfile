@@ -11,6 +11,10 @@ COPY mobile/package.json mobile/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY mobile/ ./
 # No EXPO_PUBLIC_API_URL: the web build calls the server it's served from.
+# Clerk's publishable key (public) can come from the host's build settings,
+# e.g. a production pk_live_ key; the app's built-in development key otherwise.
+ARG EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=${EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
 RUN npx expo export --platform web --output-dir /web
 
 # Stage 2: the API server, which also serves the web build.

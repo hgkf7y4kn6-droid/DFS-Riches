@@ -12,10 +12,10 @@ KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 ISS = f"https://{accounts.frontend_api()}"
 
 
-def _token(sub="user_abc", exp_in=300, iss=ISS, key=KEY, kid="kid1"):
+def _token(sub="user_abc", exp_in=300, iss=ISS, key=KEY, kid="kid1", azp=None):
     now = int(time.time())
-    return jwt.encode({"sub": sub, "iss": iss, "iat": now, "exp": now + exp_in}, key, algorithm="RS256",
-                      headers={"kid": kid})
+    claims = {"sub": sub, "iss": iss, "iat": now, "exp": now + exp_in, **({"azp": azp} if azp else {})}
+    return jwt.encode(claims, key, algorithm="RS256", headers={"kid": kid})
 
 
 @pytest.fixture(autouse=True)
@@ -25,7 +25,7 @@ def _jwks(monkeypatch):
             raise accounts.AuthError("unknown signing key")
         return KEY.public_key()
     monkeypatch.setattr(accounts, "_signing_key", signing_key)
-    for var in ("DATABASE_URL", "CLERK_SECRET_KEY", "MASTER_USER_IDS", "MASTER_EMAILS"):
+    for var in ("DATABASE_URL", "CLERK_SECRET_KEY", "MASTER_USER_IDS", "MASTER_EMAILS", "CLERK_AUTHORIZED_PARTIES"):
         monkeypatch.delenv(var, raising=False)
     accounts._USERS.clear()
 
@@ -147,9 +147,19 @@ def test_clerk_metadata_store_compacts_to_fit(monkeypatch):
     assert store["u"]["submissions"]["value"][0]["id"] == "0"                         # newest kept
 
 
+def test_authorized_parties_limit_which_sites_sessions_come_from(monkeypatch):
+    assert asyncio.run(accounts.verify(f"Bearer {_token(azp='https://anywhere.example')}")) == "user_abc"   # unset: open
+    monkeypatch.setenv("CLERK_AUTHORIZED_PARTIES", "https://dfsriches.com, https://www.dfsriches.com/")
+    assert asyncio.run(accounts.verify(f"Bearer {_token(azp='https://www.dfsriches.com')}")) == "user_abc"
+    assert asyncio.run(accounts.verify(f"Bearer {_token()}")) == "user_abc"            # native app: no azp
+    with pytest.raises(accounts.AuthError):
+        asyncio.run(accounts.verify(f"Bearer {_token(azp='https://evil.example')}"))
+
+
 def test_config_status_reports_presence_never_values(monkeypatch):
-    assert accounts.config_status() == {"clerk_secret_key": False, "database_url": False, "master_emails": False,
-                                        "storage": "none"}
+    status = accounts.config_status()
+    assert {k: status[k] for k in ("clerk_secret_key", "database_url", "master_emails", "storage")} == \
+        {"clerk_secret_key": False, "database_url": False, "master_emails": False, "storage": "none"}
     monkeypatch.setenv("CLERK_SECRET_KEY", "sk_test_secret_value")
     monkeypatch.setenv("DATABASE_URL", "postgresql://user:pw@host/db")
     status = accounts.config_status()

@@ -81,6 +81,8 @@ def config_status() -> dict:
         "clerk_secret_key": _secret() is not None,
         "database_url": _database_url() is not None,
         "master_emails": bool(os.environ.get("MASTER_EMAILS", "").strip()),
+        "authorized_parties": sorted(authorized_parties()),
+        "clerk_instance": frontend_api(),
         "storage": storage_mode(),
     }
 
@@ -123,7 +125,18 @@ async def verify(authorization: str | None) -> str:
         raise AuthError(f"invalid session: {exc}") from exc
     if claims.get("iss") and frontend_api() not in claims["iss"]:
         raise AuthError("session from another Clerk instance")
+    allowed = authorized_parties()
+    if allowed and claims.get("azp") and claims["azp"].rstrip("/") not in allowed:
+        raise AuthError("session issued for another site")
     return claims["sub"]
+
+
+def authorized_parties() -> set[str]:
+    """Origins (e.g. https://dfsriches.com) whose Clerk sessions this server
+    accepts, from CLERK_AUTHORIZED_PARTIES -- Clerk's production guard against
+    tokens minted on other sites. Unset: any origin of this Clerk instance.
+    Native app sessions carry no origin (azp) and are always accepted."""
+    return {o.strip().rstrip("/") for o in os.environ.get("CLERK_AUTHORIZED_PARTIES", "").split(",") if o.strip()}
 
 
 # ------------------------------------------------------------- clerk API
