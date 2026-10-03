@@ -46,6 +46,41 @@ def test_recent_usage_prefers_this_season():
     index = {"players": {"bijan robinson|RB": [
         _g(2025, 17, 90.0, 20, 5), _g(2026, 1, 60.0, 10, 2), _g(2026, 2, 70.0, 14, 4), _g(2026, 3, None, 12, 3),
     ]}}
-    assert roles.recent_usage(index, 2026, 4, "Bijan Robinson", "RB") == (65.0, 15.0)
+    # weighted 2:3 over the two snap readings, 1:2:3 over the three games' usage
+    assert roles.recent_usage(index, 2026, 4, "Bijan Robinson", "RB") == (66.0, 15.5)
     assert roles.recent_usage(index, 2026, 1, "Bijan Robinson", "RB") == (90.0, 25.0)
     assert roles.recent_usage(index, 2026, 4, "Bills", "DST") == (None, None)
+
+
+def _ari():
+    """Arizona's backfield: Love 43/40% then 64% (21 carries + 5 targets), Allgeier 59/64% then 36%."""
+    return {"players": {
+        "jeremiyah love|RB": [_g(2026, 1, 43.0, 11, 4), _g(2026, 2, 40.0, 9, 3), _g(2026, 3, 64.0, 21, 5)],
+        "tyler allgeier|RB": [_g(2026, 1, 59.0, 17, 2), _g(2026, 2, 64.0, 5, 2), _g(2026, 3, 36.0, 2, 4)],
+        "steady eddie|RB": [_g(2026, 1, 60.0, 15, 3), _g(2026, 2, 62.0, 16, 3), _g(2026, 3, 61.0, 15, 4)],
+    }}
+
+
+def test_usage_trend_flags_a_shifting_backfield():
+    idx = _ari()
+    up = roles.usage_trend(idx, 2026, 4, "Jeremiyah Love", "RB")
+    down = roles.usage_trend(idx, 2026, 4, "Tyler Allgeier", "RB")
+    assert up["direction"] == "up" and "64% of snaps in Week 3 vs 42% in Weeks 1-2" in up["text"]
+    assert down["direction"] == "down" and "36% of snaps in Week 3" in down["text"]
+    assert roles.usage_trend(idx, 2026, 4, "Steady Eddie", "RB") is None
+    trends = roles.link_shifts({("Jeremiyah Love", "ARI", "RB"): up, ("Tyler Allgeier", "ARI", "RB"): down})
+    assert trends[("Jeremiyah Love", "ARI", "RB")]["text"].endswith("taking work from Tyler Allgeier.")
+    assert trends[("Tyler Allgeier", "ARI", "RB")]["text"].endswith("losing work to Jeremiyah Love.")
+
+
+def test_lone_receiver_swing_is_dropped_unless_large():
+    small = {"direction": "up", "text": "Role growing: x.", "snap_delta": 13.0}
+    big = {"direction": "down", "text": "Role shrinking: y.", "snap_delta": -31.0}
+    kept = roles.link_shifts({("A", "SF", "WR"): small, ("B", "DET", "WR"): big, ("C", "PHI", "RB"): small})
+    assert set(kept) == {("B", "DET", "WR"), ("C", "PHI", "RB")}
+
+
+def test_usage_trend_needs_two_games_this_season_and_skips_qbs():
+    idx = _ari()
+    assert roles.usage_trend(idx, 2026, 2, "Jeremiyah Love", "RB") is None
+    assert roles.usage_trend(idx, 2026, 4, "Jeremiyah Love", "QB") is None

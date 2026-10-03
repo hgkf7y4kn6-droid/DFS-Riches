@@ -238,7 +238,7 @@ export default function LineupBuilder() {
         </Pressable>
       </ScrollView>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
-        <Text className="matchup-toggle-label self-center">Sort</Text>
+        <Text className="matchup-toggle-label mr-1 self-center">Sort</Text>
         {SORTS.map((o) => {
           const active = o.key === sortBy;
           return (

@@ -435,6 +435,15 @@
   .own-detail {
     @apply mt-2 rounded-lg bg-muted p-2;
   }
+  .trend-arrow {
+    @apply ml-1 px-0.5;
+  }
+  .trend-arrow-text {
+    @apply text-xs font-sans-bold;
+  }
+  .trend-note {
+    @apply mt-1 text-[11px] font-sans-medium;
+  }
   .matchup-badge {
     @apply mt-1 self-start rounded-md px-1.5 py-0.5;
   }

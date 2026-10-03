@@ -18,8 +18,20 @@ Per team and position, among players who can play (not OUT / Doubtful / IR):
   backup    everyone else.
   out       can't play this week.
 
-Snap share is the average offensive snap % over the player's last 3 games
-(app.player_games), this season first.
+Snap share and usage are weighted averages over the player's last 3 games
+(app.player_games), this season first, with the latest game counting most
+(3:2:1), so roles move with the depth chart week to week.
+
+Usage trend (RB/WR/TE): the latest game against the up-to-3 games before it
+this season. "up" when his snap share rose 12+ points, or rose 5+ points
+alongside 8+ more carries + targets; "down" for the mirror image. Only for
+players with a real role (30%+ of snaps in either span) -- target swings on
+steady snaps are game script, not a role change. A single game's snaps
+swing with blowouts, so receivers and tight ends keep a trend only when a
+teammate at the position moved the other way (a real rotation change) or
+the swing is 20+ points; running backs keep theirs. When
+a teammate at the position moved the other way, the note names him -- a
+backfield shifting from one back to another.
 """
 from __future__ import annotations
 
@@ -31,21 +43,93 @@ ROTATION_PROJ_SHARE = {"RB": 0.55, "WR": 0.60, "TE": 0.60}
 ROTATION_OPPS = {"RB": 6.0, "WR": 4.0, "TE": 3.0}       # carries + targets per game
 PLAYABLE = {None, "", "Healthy", "Q"}
 RECENT_GAMES = 3
+WEIGHTS = (1, 2, 3)               # oldest .. latest of the recent games
+TREND_SNAP_PTS = 12.0
+TREND_SNAP_WITH_OPPS = 5.0
+TREND_OPPS = 8.0
+TREND_MIN_SNAPS = 30.0
+TREND_SOLO_SNAP_PTS = 20.0        # WR/TE trend without a teammate moving the other way
+
+
+def _opps(g: dict) -> float:
+    return (g["stats"].get("rushing") or {}).get("att", 0) + (g["stats"].get("receiving") or {}).get("tgt", 0)
+
+
+def _weighted(values: list[float]) -> float:
+    w = WEIGHTS[-len(values):]
+    return sum(v * k for v, k in zip(values, w)) / sum(w)
+
+
+def _games(index: dict, season: int, week: int, name: str, position: str) -> list[dict]:
+    return [g for g in index["players"].get(nc.player_key(name, position), []) if (g["season"], g["week"]) < (season, week)]
 
 
 def recent_usage(index: dict, season: int, week: int, name: str, position: str) -> tuple[float | None, float | None]:
-    """(average offensive snap %, average carries + targets per game) over the
-    player's last 3 games before the week -- this season's games when he has any."""
+    """(snap %, carries + targets per game) over the player's last 3 games
+    before the week, weighted toward the latest -- this season's games when
+    he has any."""
     if position not in STARTERS:
         return None, None
-    games = [g for g in index["players"].get(nc.player_key(name, position), []) if (g["season"], g["week"]) < (season, week)]
+    games = _games(index, season, week, name, position)
     this = [g for g in games if g["season"] == season]
     use = (this or games)[-RECENT_GAMES:]
     if not use:
         return None, None
     snaps = [g["snap_pct"] for g in use if g.get("snap_pct") is not None]
-    opps = [(g["stats"].get("rushing") or {}).get("att", 0) + (g["stats"].get("receiving") or {}).get("tgt", 0) for g in use]
-    return (round(sum(snaps) / len(snaps), 1) if snaps else None), round(sum(opps) / len(opps), 1)
+    return (round(_weighted(snaps), 1) if snaps else None), round(_weighted([_opps(g) for g in use]), 1)
+
+
+def _weeks(games: list[dict]) -> str:
+    ws = [g["week"] for g in games]
+    return f"Week {ws[0]}" if len(ws) == 1 else f"Weeks {ws[0]}-{ws[-1]}"
+
+
+def usage_trend(index: dict, season: int, week: int, name: str, position: str) -> dict | None:
+    """{"direction": "up" | "down", "text": ...} when the latest game this
+    season broke from the games before it; None otherwise."""
+    if position not in ROTATION_SNAP_PCT:
+        return None
+    this = [g for g in _games(index, season, week, name, position) if g["season"] == season]
+    if len(this) < 2 or week - this[-1]["week"] > 2:     # no recent game: nothing current to report
+        return None
+    last, prior = this[-1], this[-4:-1]
+    prior_snaps = [g["snap_pct"] for g in prior if g.get("snap_pct") is not None]
+    if last.get("snap_pct") is None or not prior_snaps:
+        return None
+    before = sum(prior_snaps) / len(prior_snaps)
+    if max(before, last["snap_pct"]) < TREND_MIN_SNAPS:
+        return None
+    snap_delta = last["snap_pct"] - before
+    prior_opps = sum(_opps(g) for g in prior) / len(prior)
+    opp_delta = _opps(last) - prior_opps
+    if snap_delta >= TREND_SNAP_PTS or (snap_delta >= TREND_SNAP_WITH_OPPS and opp_delta >= TREND_OPPS):
+        direction = "up"
+    elif snap_delta <= -TREND_SNAP_PTS or (snap_delta <= -TREND_SNAP_WITH_OPPS and opp_delta <= -TREND_OPPS):
+        direction = "down"
+    else:
+        return None
+    unit = "carries + targets" if position == "RB" else ("target" if round(_opps(last)) == 1 else "targets")
+    parts = [f"{last['snap_pct']:.0f}% of snaps in Week {last['week']} vs {before:.0f}% in {_weeks(prior)}"]
+    parts.append(f"{_opps(last):.0f} {unit} vs {prior_opps:.0f} a game before")
+    lead = "Role growing" if direction == "up" else "Role shrinking"
+    return {"direction": direction, "text": f"{lead}: " + "; ".join(parts) + ".", "snap_delta": round(snap_delta, 1)}
+
+
+def link_shifts(trends: dict[tuple[str, str, str], dict]) -> dict[tuple[str, str, str], dict]:
+    """Name the teammate on the other side of a shift (a back trending up
+    "taking work from" one trending down at the same team and position) and
+    drop receiver/tight-end trends that are likely just one game's script."""
+    kept = {}
+    for (name, team, pos), t in trends.items():
+        others = [n2 for (n2, t2, p2), o in trends.items()
+                  if t2 == team and p2 == pos and n2 != name and o["direction"] != t["direction"]]
+        if pos != "RB" and not others and abs(t["snap_delta"]) < TREND_SOLO_SNAP_PTS:
+            continue
+        if others:
+            verb = "taking work from" if t["direction"] == "up" else "losing work to"
+            t = {**t, "text": t["text"][:-1] + f", {verb} {' and '.join(others)}."}
+        kept[(name, team, pos)] = t
+    return kept
 
 
 def assign(players: list[dict]) -> dict[tuple[str, str, str], str]:

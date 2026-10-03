@@ -184,6 +184,7 @@ def _player(r: dict, contest: str, own_contests: list[str], rank: int | None = N
         "injury": r.get("injury"),
         "role": r.get("role"),
         "snap_pct": r.get("snap_pct"),
+        "usage_trend": r.get("usage_trend"),
         "final": _round(r["final"]),
         "floor": _round(r["floor"]),
         "ceiling": _round(r["ceiling"]),

@@ -178,6 +178,7 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
             "app_ceiling": p.ceiling, "value": round(final / (p.salary / 1000), 2) if final and p.salary else None,
             "ownership": None, "uncertainty": unc, "uncertainty_reasons": unc_reasons, "line": c.line,
             "role": getattr(p, "role", None), "snap_pct": getattr(p, "snap_pct", None),
+            "usage_trend": getattr(p, "usage_trend", None),
         })
     return rows
 
@@ -215,7 +216,7 @@ def _popularity(pool: list[dict]) -> None:
 def _card(r: dict, reason: str) -> dict:
     keys = ("id", "name", "position", "team", "opponent", "salary", "final", "consensus", "floor", "ceiling",
             "value", "ownership", "popularity", "popularity_source", "uncertainty_label", "injury", "n_sources",
-            "role", "snap_pct")
+            "role", "snap_pct", "usage_trend")
     return {**{k: r.get(k) for k in keys}, "reason": reason}
 
 
@@ -439,7 +440,8 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
         "table": [{k: r.get(k) for k in (
             "id", "name", "position", "team", "opponent", "salary", "injury", "consensus", "median_src", "low", "high", "sd",
             "n_sources", "by_source", "missing", "final", "adjustments", "floor", "median", "ceiling", "app_ceiling", "value",
-            "ownership", "popularity", "uncertainty", "uncertainty_label", "uncertainty_reasons", "role", "snap_pct")}
+            "ownership", "popularity", "uncertainty", "uncertainty_label", "uncertainty_reasons", "role", "snap_pct",
+            "usage_trend")}
             for r in table],
         "no_source_players": no_source,
         "lineups": strategy["lineups"],

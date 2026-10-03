@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
+import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
 import GameLog from '@/components/plays/GameLog';
 import TagChoices from '@/components/plays/TagChoices';
@@ -58,19 +59,24 @@ function OwnershipRow({ player, columns, expanded, onToggle, pool }: RowProps) {
   const p = player;
   const f = p.features;
   const [picking, setPicking] = useState(false);
+  const [trendOpen, setTrendOpen] = useState(false);
   return (
     <Pressable className="own-row" onPress={onToggle} accessibilityRole="button" accessibilityState={{ expanded }}>
       <View className="dfs-row-main">
         <View className="flex-1 pr-2">
-          <Text className="dfs-name" numberOfLines={1}>
-            {p.name}
-            {p.injury && p.injury !== 'Healthy' ? <Text className="injury-tag"> {p.injury}</Text> : null}
-          </Text>
+          <View className="flex-row items-center">
+            <Text className="dfs-name flex-shrink" numberOfLines={1}>
+              {p.name}
+              {p.injury && p.injury !== 'Healthy' ? <Text className="injury-tag"> {p.injury}</Text> : null}
+            </Text>
+            <UsageTrendArrow trend={p.usage_trend} open={trendOpen} onToggle={() => setTrendOpen((o) => !o)} />
+          </View>
           <Text className="dfs-meta">
             {p.position} · {p.team} vs {p.opponent} · {formatCurrency(p.salary)} · {p.final.toFixed(1)} proj
             {roleText(p) ? ` · ${roleText(p)}` : ''}
           </Text>
           <MatchupBadge opponent={p.opponent} position={p.position} />
+          <UsageTrendNote trend={p.usage_trend} open={trendOpen} />
         </View>
         {columns.map((c) => (
           <View key={c} className="own-col">

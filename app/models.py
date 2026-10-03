@@ -98,7 +98,8 @@ class Player(BaseModel):
     sleeper_player_id: str | None = None
     dk_draftable_id: int | None = None
     role: str | None = None           # starter / rotation / backup / out on his team this week (app.roles)
-    snap_pct: float | None = None     # average offensive snap % over his last 3 games
+    snap_pct: float | None = None     # offensive snap % over his last 3 games, weighted toward the latest
+    usage_trend: dict | None = None   # {"direction": "up" | "down", "text": ...} when his role just shifted
 
 
 class Slate(BaseModel):

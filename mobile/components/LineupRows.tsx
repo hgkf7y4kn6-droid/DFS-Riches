@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Text, View } from 'react-native';
 
+import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
 import { roleText } from '@/lib/matchup-sort';
 import { formatCurrency, formatPoints } from '@/lib/utils';
@@ -16,6 +18,7 @@ export interface RowPlayer {
   actual?: number;
   role?: PlayerRole | null;
   snap_pct?: number | null;
+  usage_trend?: UsageTrend | null;
 }
 
 function pointsLine(p: RowPlayer): string {
@@ -32,22 +35,27 @@ function pointsLine(p: RowPlayer): string {
  * readable on a phone without a wide table.
  */
 export function LineupRow({ slot, player, right, note }: { slot: string; player: RowPlayer | null; right?: React.ReactNode; note?: string | null }) {
+  const [trendOpen, setTrendOpen] = useState(false);
   return (
     <View className="lineup-row">
       <Text className="lineup-slot">{slot}</Text>
       {player ? (
         <>
           <View className="lineup-player">
-            <Text className="lineup-player-name" numberOfLines={1}>
-              {player.name}
-              {player.injury && player.injury !== 'Healthy' ? <Text className="injury-tag"> {player.injury}</Text> : null}
-            </Text>
+            <View className="flex-row items-center">
+              <Text className="lineup-player-name flex-shrink" numberOfLines={1}>
+                {player.name}
+                {player.injury && player.injury !== 'Healthy' ? <Text className="injury-tag"> {player.injury}</Text> : null}
+              </Text>
+              <UsageTrendArrow trend={player.usage_trend} open={trendOpen} onToggle={() => setTrendOpen((o) => !o)} />
+            </View>
             <Text className="lineup-player-meta">
               {player.position} · {player.team}
               {player.opponent ? ` vs ${player.opponent}` : ''}
               {roleText(player) ? ` · ${roleText(player)}` : ''}
             </Text>
             {player.opponent ? <MatchupBadge opponent={player.opponent} position={player.position} /> : null}
+            <UsageTrendNote trend={player.usage_trend} open={trendOpen} />
             {note ? <Text className="lineup-player-note">{note}</Text> : null}
           </View>
           <View className="lineup-numbers">

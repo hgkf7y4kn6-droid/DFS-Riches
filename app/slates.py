@@ -28,7 +28,8 @@ async def _get_sleeper_index() -> matching.SleeperNameIndex:
 
 async def _assign_roles(players: list[Player], season: int, week: int) -> None:
     """Starter / rotation / backup / out per player (app.roles), from projections
-    and recent snap share. Showdown CPT rows share their FLEX row's role."""
+    and recent snap share, plus any usage trend (role growing or shrinking).
+    Showdown CPT rows share their FLEX row's role."""
     index = await player_games.get_index(season)
     base = {}
     for p in players:
@@ -39,10 +40,16 @@ async def _assign_roles(players: list[Player], season: int, week: int) -> None:
             base[key] = {"name": p.name, "team": p.team, "position": p.position, "proj": proj, "injury": p.injury,
                          "snap_pct": snap_pct, "opps": opps}
     assigned = roles.assign(list(base.values()))
+    trends = {}
+    for key in base:
+        if assigned.get(key) != "out" and (t := roles.usage_trend(index, season, week, key[0], key[2])):
+            trends[key] = t
+    trends = roles.link_shifts(trends)
     for p in players:
         key = (p.name, p.team, p.position)
         p.role = assigned.get(key)
         p.snap_pct = base[key]["snap_pct"]
+        p.usage_trend = trends.get(key)
 
 
 @memoize_async(30)  # just long enough to cover one page load's schedule+slates+players calls

@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Text, View } from 'react-native';
 
+import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
 import { formatCurrency, formatPercent } from '@/lib/utils';
 
@@ -25,6 +27,7 @@ export default function DfsPlayerRow({
   showReasons?: number;
 }) {
   const p = player;
+  const [trendOpen, setTrendOpen] = useState(false);
   const stats: [DfsMetric | 'own', string][] = [
     ['final', `${p.final.toFixed(1)} proj`],
     ['ceiling', p.ceiling != null ? `${p.ceiling.toFixed(1)} ceil` : ''],
@@ -40,15 +43,19 @@ export default function DfsPlayerRow({
       <View className="dfs-row-main">
         {rank != null ? <Text className="dfs-rank">{rank}</Text> : null}
         <View className="flex-1 pr-2">
-          <Text className="dfs-name" numberOfLines={1}>
-            {p.name}
-            {p.injury && p.injury !== 'Healthy' ? <Text className="injury-tag"> {p.injury}</Text> : null}
-          </Text>
+          <View className="flex-row items-center">
+            <Text className="dfs-name flex-shrink" numberOfLines={1}>
+              {p.name}
+              {p.injury && p.injury !== 'Healthy' ? <Text className="injury-tag"> {p.injury}</Text> : null}
+            </Text>
+            <UsageTrendArrow trend={p.usage_trend} open={trendOpen} onToggle={() => setTrendOpen((o) => !o)} />
+          </View>
           <Text className="dfs-meta">
             {p.slot && p.slot !== p.position ? `${p.slot} · ` : ''}
             {p.position} · {p.team} vs {p.opponent}
           </Text>
           <MatchupBadge opponent={p.opponent} position={p.position} />
+          <UsageTrendNote trend={p.usage_trend} open={trendOpen} />
         </View>
         <View className="items-end">
           <Text className="dfs-salary">{formatCurrency(p.salary)}</Text>

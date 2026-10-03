@@ -225,6 +225,14 @@ interface Player {
   role?: PlayerRole | null;
   /** Average offensive snap % over his last 3 games. */
   snap_pct?: number | null;
+  usage_trend?: UsageTrend | null;
+}
+
+/** A role that just shifted: the latest game's snaps/usage against the games before it. */
+interface UsageTrend {
+  direction: 'up' | 'down';
+  /** e.g. "Role growing: 64% of snaps in Week 3 vs 42% in Weeks 1-2; ..., taking work from Tyler Allgeier." */
+  text: string;
 }
 
 /** starter: top of the depth chart; rotation: real share of the work (committee backs, WR4s on the field). */
@@ -432,6 +440,7 @@ interface DfsPlayer {
   slot?: string;
   role?: PlayerRole | null;
   snap_pct?: number | null;
+  usage_trend?: UsageTrend | null;
 }
 
 /** One game's environment for DFS, ranked across the slate (1 = best). */
@@ -576,6 +585,7 @@ interface PlayPlayer {
   tag_reason: string;
   role?: PlayerRole | null;
   snap_pct?: number | null;
+  usage_trend?: UsageTrend | null;
   features: {
     value_ratio: number;
     position_value_rank: number;

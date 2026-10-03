@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
 import GameLog from '@/components/plays/GameLog';
 import TagChoices from '@/components/plays/TagChoices';
@@ -28,21 +29,26 @@ export default function PlayRow({ player, contest, pool }: { player: PlayPlayer;
   const p = player;
   const [expanded, setExpanded] = useState(false);
   const [picking, setPicking] = useState(false);
+  const [trendOpen, setTrendOpen] = useState(false);
   const hitLabel = contest === 'cash' ? 'P(2.5x)' : 'P(ceiling)';
   return (
     <Pressable className="dfs-row" onPress={() => setExpanded((e) => !e)} accessibilityRole="button" accessibilityState={{ expanded }}>
       <View className="dfs-row-main">
         {p.rank != null ? <Text className="dfs-rank">{p.rank}</Text> : null}
         <View className="flex-1 pr-2">
-          <Text className="dfs-name" numberOfLines={1}>
-            {p.name}
-            {p.injury && p.injury !== 'Healthy' ? <Text className="injury-tag"> {p.injury}</Text> : null}
-          </Text>
+          <View className="flex-row items-center">
+            <Text className="dfs-name flex-shrink" numberOfLines={1}>
+              {p.name}
+              {p.injury && p.injury !== 'Healthy' ? <Text className="injury-tag"> {p.injury}</Text> : null}
+            </Text>
+            <UsageTrendArrow trend={p.usage_trend} open={trendOpen} onToggle={() => setTrendOpen((o) => !o)} />
+          </View>
           <Text className="dfs-meta">
             {p.position} · {p.team} vs {p.opponent} · implied {p.implied}
             {roleText(p) ? ` · ${roleText(p)}` : ''}
           </Text>
           <MatchupBadge opponent={p.opponent} position={p.position} />
+          <UsageTrendNote trend={p.usage_trend} open={trendOpen} />
         </View>
         <View className="items-end">
           <Text className="dfs-salary">{formatCurrency(p.salary)}</Text>
