@@ -26,6 +26,7 @@ module.exports = {
         'hero-border': 'rgb(var(--hero-border) / <alpha-value>)',
         'hero-positive': 'rgb(var(--hero-positive) / <alpha-value>)',
         'hero-negative': 'rgb(var(--hero-negative) / <alpha-value>)',
+        gold: 'rgb(var(--gold) / <alpha-value>)',
       },
       // Plus Jakarta Sans, loaded in app/_layout.tsx. Each weight is its own
       // family (font-sans-bold etc.) because Android ignores fontWeight on

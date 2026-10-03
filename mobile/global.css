@@ -26,6 +26,8 @@
   --hero-border: 8 17 38;
   --hero-positive: 74 222 128;
   --hero-negative: 248 113 113;
+  /* Brand gold: deeper in light mode so it reads on the cream background. */
+  --gold: 166 124 0;
 }
 
 /* Dark: rich black matte background, dark slate structure (cards, borders,
@@ -53,6 +55,7 @@
     --hero-border: 46 57 71;
     --hero-positive: 80 200 120;
     --hero-negative: 230 0 0;
+    --gold: 212 175 55;
   }
 }
 
@@ -123,8 +126,8 @@
     @apply text-3xl font-sans-extrabold text-foreground;
   }
   .brand-accent {
-    /* Metallic gold in both themes (light mode's accent is orange). */
-    @apply text-[#d4af37];
+    /* Gold in both themes (light mode's accent is orange). */
+    @apply text-gold;
   }
   .brand-subheading {
     @apply mt-0.5 text-lg font-sans-semibold text-muted-foreground;
