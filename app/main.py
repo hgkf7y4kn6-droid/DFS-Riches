@@ -86,8 +86,9 @@ WEB_DIR = BASE_DIR / "web"
 async def healthz():
     """Liveness/readiness check for a platform's or Cloudflare's origin
     health monitoring. Deliberately makes no outbound calls -- it only
-    confirms this process is up and serving requests."""
-    return {"status": "ok"}
+    confirms this process is up and serving requests. "accounts" says which
+    account settings the environment provides -- yes/no only, never values."""
+    return {"status": "ok", "accounts": accounts.config_status()}
 
 
 @memoize_async(ttl_seconds=1800)

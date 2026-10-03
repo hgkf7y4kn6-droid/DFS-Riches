@@ -145,3 +145,13 @@ def test_clerk_metadata_store_compacts_to_fit(monkeypatch):
     assert len(json.dumps(store["u"])) <= accounts.METADATA_BUDGET
     assert list(store["u"]["saved_lineups"]["value"]) == ["2026:4:classic"]          # latest week only
     assert store["u"]["submissions"]["value"][0]["id"] == "0"                         # newest kept
+
+
+def test_config_status_reports_presence_never_values(monkeypatch):
+    assert accounts.config_status() == {"clerk_secret_key": False, "database_url": False, "master_emails": False,
+                                        "storage": "none"}
+    monkeypatch.setenv("CLERK_SECRET_KEY", "sk_test_secret_value")
+    monkeypatch.setenv("DATABASE_URL", "postgresql://user:pw@host/db")
+    status = accounts.config_status()
+    assert status["clerk_secret_key"] and status["database_url"] and status["storage"] == "neon"
+    assert "sk_test_secret_value" not in str(status) and "pw@host" not in str(status)

@@ -74,6 +74,17 @@ def _database_url() -> str | None:
     return os.environ.get("DATABASE_URL") or None
 
 
+def config_status() -> dict:
+    """Which account settings this server's environment provides (Render's
+    Environment tab in production): booleans only, never the values."""
+    return {
+        "clerk_secret_key": _secret() is not None,
+        "database_url": _database_url() is not None,
+        "master_emails": bool(os.environ.get("MASTER_EMAILS", "").strip()),
+        "storage": storage_mode(),
+    }
+
+
 def storage_mode() -> str:
     if _database_url():
         return "neon"
