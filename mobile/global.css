@@ -100,6 +100,31 @@
     @apply mt-2 max-w-[320px] text-center text-base font-sans-medium;
   }
 
+  .account-card {
+    @apply mb-2 rounded-2xl border border-border bg-card p-4;
+  }
+  .account-title {
+    @apply text-base font-sans-bold text-foreground;
+  }
+  .account-text {
+    @apply mt-1 text-xs font-sans-medium text-muted-foreground;
+  }
+  .account-avatar {
+    @apply size-11 items-center justify-center rounded-full bg-accent;
+  }
+  .account-avatar-text {
+    @apply text-lg font-sans-extrabold text-accent-foreground;
+  }
+  .account-master {
+    @apply rounded-full border border-gold px-2 py-0.5;
+  }
+  .account-master-text {
+    @apply text-[10px] font-sans-bold uppercase text-gold;
+  }
+  .account-sync {
+    @apply mt-3 text-xs font-sans-semibold text-foreground;
+  }
+
   /* -------------------------------------------------------------- tabs */
   /* Tab bar icon: a pill behind the icon, filled accent on the active tab */
   .tabs-pill {

@@ -1,3 +1,4 @@
+import { useAuth, useUser } from '@clerk/expo';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
@@ -58,6 +59,12 @@ export default function Home() {
     lineupContestDate: nextLock ?? HOME_BALANCE.lineupContestDate,
   };
 
+  const { isSignedIn } = useAuth();
+  const { user } = useUser();
+  const displayName = isSignedIn
+    ? user?.firstName || user?.username || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || HOME_USER.name
+    : HOME_USER.name;
+
   const openLogEntry = () => {
     setProfitOpen(true);
     setLogging(true);
@@ -82,13 +89,26 @@ export default function Home() {
         {/* User info */}
         <View className="home-header">
           <View className="home-user">
-            <Image source={HOME_USER.avatar} className="home-avatar" style={{ width: 64, height: 64 }} />
-            <View>
+            {isSignedIn ? (
+              <View className="home-avatar account-avatar" style={{ width: 64, height: 64 }}>
+                <Text className="account-avatar-text text-2xl">{displayName[0]?.toUpperCase()}</Text>
+              </View>
+            ) : (
+              <Image source={HOME_USER.avatar} className="home-avatar" style={{ width: 64, height: 64 }} />
+            )}
+            <View className="flex-1">
               <Text className="home-user-greeting">
                 {HOME_USER.greeting}
                 {week ? ` · Week ${week}` : ''}
               </Text>
-              <Text className="home-user-name">{HOME_USER.name}</Text>
+              <Text className="home-user-name" numberOfLines={1}>
+                {displayName}
+              </Text>
+              {!isSignedIn ? (
+                <Pressable onPress={() => router.push('/sign-in')} accessibilityRole="button" className="ml-4 mt-0.5 self-start">
+                  <Text className="link-text text-xs">Sign in to sync across devices ›</Text>
+                </Pressable>
+              ) : null}
             </View>
           </View>
         </View>

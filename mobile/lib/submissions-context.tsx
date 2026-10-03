@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { useSyncedDoc } from '@/lib/account-sync';
+
 const STORAGE_KEY = 'dfsriches:submissions:v1';
 
 interface SubmissionsContextValue {
@@ -44,6 +46,9 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // Follows the signed-in account between devices; a device's first sync merges entries by id.
+  useSyncedDoc<LineupSubmission[]>('submissions', submissions, loaded, (v) => persist(() => v), mergeSubmissions);
+
   const value = useMemo<SubmissionsContextValue>(
     () => ({
       submissions,
@@ -61,6 +66,12 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
   );
 
   return <SubmissionsContext.Provider value={value}>{children}</SubmissionsContext.Provider>;
+}
+
+function mergeSubmissions(local: LineupSubmission[], remote: LineupSubmission[]): LineupSubmission[] {
+  const byId = new Map<string, LineupSubmission>();
+  for (const s of [...(Array.isArray(remote) ? remote : []), ...local]) byId.set(s.id, s);
+  return [...byId.values()].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export function useSubmissions(): SubmissionsContextValue {

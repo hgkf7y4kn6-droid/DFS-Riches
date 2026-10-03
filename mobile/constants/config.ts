@@ -12,3 +12,7 @@ export const API_BASE_URL = (
 export const SALARY_CAP = 50000;
 /** Lineups the builder can hold per slate (same as the website). */
 export const MAX_LINEUPS = 5;
+
+/** Clerk (sign-in). Public by design; override with EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY. */
+export const CLERK_PUBLISHABLE_KEY =
+  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? 'pk_test_cmVsYXRlZC1jb3VnYXItMjE5MC5jbGVyay5hY2NvdW50cy5kZXYk';

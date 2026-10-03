@@ -767,3 +767,23 @@ interface DefenseVsPosition {
   /** team -> position -> ranks. For DST the team is the opposing offense. */
   teams: Record<string, Record<string, PositionMatchupRank>>;
 }
+
+// ---------------------------------------------------------- account sync
+
+/** The saved data that follows a signed-in user between devices. */
+type SyncKey = 'saved_lineups' | 'submissions' | 'pool_tags' | 'settings';
+
+interface SyncedDoc {
+  value: unknown;
+  /** ISO time of the write the server kept. */
+  updated_at: string;
+}
+
+interface AccountData {
+  user_id: string;
+  /** Master accounts keep every week's data forever. */
+  master: boolean;
+  /** Where the data lives: Neon Postgres, Clerk metadata, or not configured on the server. */
+  storage: 'neon' | 'clerk' | 'none';
+  data: Partial<Record<SyncKey, SyncedDoc>>;
+}

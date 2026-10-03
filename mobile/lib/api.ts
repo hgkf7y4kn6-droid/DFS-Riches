@@ -62,3 +62,21 @@ export function getPlayerGames(season: number, week: number, player: { name: str
 export function getDefenseVsPosition(season: number, week: number) {
   return getJson<DefenseVsPosition>(`/api/defense-vs-position?${q(season, week)}`);
 }
+
+/** The signed-in user's synced data (needs Clerk's session token). */
+export async function getAccount(token: string): Promise<AccountData> {
+  const res = await fetch(`${API_BASE_URL}/api/me`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return (await res.json()) as AccountData;
+}
+
+/** Stores one synced document; the server keeps the newest by updated_at and returns what it kept. */
+export async function putAccountDoc(token: string, key: SyncKey, value: unknown, updatedAt: string): Promise<SyncedDoc> {
+  const res = await fetch(`${API_BASE_URL}/api/me/data/${key}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ value, updated_at: updatedAt }),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return (await res.json()) as SyncedDoc;
+}

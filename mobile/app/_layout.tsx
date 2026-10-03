@@ -8,14 +8,18 @@ import {
   PlusJakartaSans_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/plus-jakarta-sans';
+import { ClerkProvider } from '@clerk/expo';
+import { tokenCache } from '@clerk/expo/token-cache';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { Platform, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { CLERK_PUBLISHABLE_KEY } from '@/constants/config';
 import { darkColors, lightColors } from '@/constants/theme';
+import { AccountSyncProvider } from '@/lib/account-sync';
 import { DfsModelProvider } from '@/lib/dfs-model-context';
 import { MatchupsProvider } from '@/lib/matchups-context';
 import { PoolTagsProvider } from '@/lib/pool-tags-context';
@@ -53,23 +57,29 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <SafeAreaProvider>
-      <ThemeProvider value={navTheme(dark)}>
-        <SubmissionsProvider>
-          <WeekProvider>
-            <DfsModelProvider>
-              <PoolTagsProvider>
-                <MatchupsProvider>
-                  <StatusBar style={dark ? 'light' : 'dark'} />
-                  <Stack screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="(tabs)" />
-                  </Stack>
-                </MatchupsProvider>
-              </PoolTagsProvider>
-            </DfsModelProvider>
-          </WeekProvider>
-        </SubmissionsProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} tokenCache={Platform.OS === 'web' ? undefined : tokenCache}>
+      <SafeAreaProvider>
+        <ThemeProvider value={navTheme(dark)}>
+          <AccountSyncProvider>
+            <SubmissionsProvider>
+              <WeekProvider>
+                <DfsModelProvider>
+                  <PoolTagsProvider>
+                    <MatchupsProvider>
+                      <StatusBar style={dark ? 'light' : 'dark'} />
+                      <Stack screenOptions={{ headerShown: false }}>
+                        <Stack.Screen name="(tabs)" />
+                        <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
+                        <Stack.Screen name="sign-up" options={{ presentation: 'modal' }} />
+                      </Stack>
+                    </MatchupsProvider>
+                  </PoolTagsProvider>
+                </DfsModelProvider>
+              </WeekProvider>
+            </SubmissionsProvider>
+          </AccountSyncProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </ClerkProvider>
   );
 }

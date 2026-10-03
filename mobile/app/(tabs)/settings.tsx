@@ -3,11 +3,11 @@ import { router } from 'expo-router';
 import { Alert, Linking, Platform, Pressable, ScrollView, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import AccountCard from '@/components/AccountCard';
 import MatchupModeToggle from '@/components/MatchupModeToggle';
 import BrandHeader from '@/components/BrandHeader';
 import SafeAreaView from '@/components/SafeAreaView';
 import { API_BASE_URL } from '@/constants/config';
-import { HOME_USER } from '@/constants/data';
 import { FLOATING_TAB_BAR } from '@/constants/theme';
 import { useDfsModel } from '@/lib/dfs-model-context';
 import { useSubmissions } from '@/lib/submissions-context';
@@ -71,8 +71,8 @@ export default function SettingsScreen() {
         <BrandHeader title="Settings" />
 
         <Text className="settings-group-title">Account</Text>
-        <View className="settings-group mt-0">
-          <Row label="Name" value={HOME_USER.name} />
+        <AccountCard />
+        <View className="settings-group mt-2">
           <Row label="Appearance" value={`${scheme === 'dark' ? 'Dark' : 'Light'} (follows your device)`} last />
         </View>
 
@@ -103,7 +103,7 @@ export default function SettingsScreen() {
           <Row label="Classic website" value="Original pages ›" onPress={openClassic} last />
         </View>
 
-        <Text className="settings-group-title">Saved on this device</Text>
+        <Text className="settings-group-title">Saved data (synced to your account when signed in)</Text>
         <View className="settings-group mt-0">
           <Row
             label="Clear saved lineups"

@@ -40,6 +40,10 @@ NFLVERSE_PBP_URL_TMPL = "https://github.com/nflverse/nflverse-data/releases/down
 # nflverse spells the Rams "LA"; every other team code matches ours exactly.
 NFLVERSE_TO_APP_TEAM = {"LA": "LAR"}
 
+# Clerk (sign-in). The publishable key is public by design (it ships in the
+# app); CLERK_SECRET_KEY and DATABASE_URL are environment-only secrets.
+DEFAULT_CLERK_PUBLISHABLE_KEY = "pk_test_cmVsYXRlZC1jb3VnYXItMjE5MC5jbGVyay5hY2NvdW50cy5kZXYk"
+
 DEFAULT_SEASON = 2026
 DEFAULT_WEEK = 1
 

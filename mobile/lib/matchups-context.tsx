@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { useSyncedDoc } from '@/lib/account-sync';
 import { getDefenseVsPosition } from '@/lib/api';
 import { useWeek } from '@/lib/week-context';
 
@@ -33,13 +34,15 @@ const MatchupsContext = createContext<MatchupsValue | null>(null);
 export function MatchupsProvider({ children }: { children: ReactNode }) {
   const { season, week } = useWeek();
   const [mode, setModeState] = useState<MatchupMode>('raw');
+  const [modeLoaded, setModeLoaded] = useState(false);
   const [fetched, setFetched] = useState<{ key: string; data: DefenseVsPosition } | null>(null);
   const key = season && week ? `${season}:${week}` : '';
 
   useEffect(() => {
     AsyncStorage.getItem(MODE_KEY)
       .then((m) => (m === 'adj' || m === 'raw') && setModeState(m))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setModeLoaded(true));
   }, []);
 
   useEffect(() => {
@@ -52,6 +55,21 @@ export function MatchupsProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, [season, week, key, fetched?.key]);
+
+  // The account's settings document (synced between devices).
+  const settings = useMemo(() => ({ matchup_mode: mode }), [mode]);
+  useSyncedDoc<{ matchup_mode?: MatchupMode }>(
+    'settings',
+    settings,
+    modeLoaded,
+    (v) => {
+      if (v?.matchup_mode === 'adj' || v?.matchup_mode === 'raw') {
+        setModeState(v.matchup_mode);
+        AsyncStorage.setItem(MODE_KEY, v.matchup_mode).catch(() => {});
+      }
+    },
+    (local, remote) => ({ ...local, ...remote }),
+  );
 
   const data = fetched?.key === key ? fetched.data : null;
   const value = useMemo<MatchupsValue>(

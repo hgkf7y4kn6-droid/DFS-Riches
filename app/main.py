@@ -22,7 +22,7 @@ import re
 
 from typing import Annotated
 
-from fastapi import Body, FastAPI, HTTPException, Query, Request
+from fastapi import Body, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response
@@ -31,7 +31,7 @@ from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
 from app import dfs_model
-from app import matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
+from app import accounts, matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
@@ -71,7 +71,8 @@ app = FastAPI(title="DFSRiches", description="DraftKings DFS explorer")
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 # The mobile app (mobile/) reads the public JSON API; its web build runs on
 # another origin, so allow cross-origin GETs. Writes stay same-origin.
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET"], allow_headers=["*"])
+# Account sync adds authenticated PUTs (Bearer token, no cookies).
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "PUT"], allow_headers=["*"])
 
 app.mount("/static", _CachedStaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
@@ -267,6 +268,38 @@ async def api_plays(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, 
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not build {contest} plays: {exc}") from exc
     return Response(body, media_type="application/json")
+
+
+async def _user(authorization: str | None) -> str:
+    try:
+        return await accounts.verify(authorization)
+    except accounts.AuthError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+
+
+@app.get("/api/me")
+async def api_me(authorization: Annotated[str | None, Header()] = None):
+    """The signed-in user's synced data (app.accounts): saved lineups, contest entries, pool tags and settings,
+    plus whether the account is a master account and where data is stored."""
+    user_id = await _user(authorization)
+    try:
+        return await accounts.load(user_id)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not load account data: {exc}") from exc
+
+
+@app.put("/api/me/data/{key}")
+async def api_me_save(key: str, body: dict = Body(...), authorization: Annotated[str | None, Header()] = None):
+    """Store one of the user's synced documents ({"value": ..., "updated_at": ISO}); last write wins."""
+    user_id = await _user(authorization)
+    try:
+        return await accounts.save(user_id, key, body.get("value"), body.get("updated_at"))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not save: {exc}") from exc
 
 
 @app.get("/api/defense-vs-position")

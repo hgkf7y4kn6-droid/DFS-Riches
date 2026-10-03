@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { useSyncedDoc } from '@/lib/account-sync';
+
 const STORAGE_KEY = 'dfsriches:pool-tags:v1';
 
 interface PoolTagsValue {
@@ -23,11 +25,13 @@ export const poolKey = (season: number, week: number, slateId: string, contest: 
  */
 export function PoolTagsProvider({ children }: { children: ReactNode }) {
   const [pools, setPools] = useState<Record<string, PoolTags>>({});
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
       .then((raw) => raw && setPools(JSON.parse(raw)))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoaded(true));
   }, []);
 
   const update = useCallback((fn: (all: Record<string, PoolTags>) => Record<string, PoolTags>) => {
@@ -37,6 +41,12 @@ export function PoolTagsProvider({ children }: { children: ReactNode }) {
       return next;
     });
   }, []);
+
+  useSyncedDoc<Record<string, PoolTags>>('pool_tags', pools, loaded, (v) => update(() => v), (local, remote) => {
+    const out: Record<string, PoolTags> = { ...(remote ?? {}) };
+    for (const [pool, tags] of Object.entries(local)) out[pool] = { ...(out[pool] ?? {}), ...tags };
+    return out;
+  });
 
   const value = useMemo<PoolTagsValue>(
     () => ({

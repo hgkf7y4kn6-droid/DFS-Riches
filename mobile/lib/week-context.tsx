@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { useSyncedDoc } from '@/lib/account-sync';
 import { getNflState, getOptimal, getSlatePlayers, getWeek } from '@/lib/api';
 import { emptyLineup } from '@/lib/lineups';
 import { MAX_LINEUPS } from '@/constants/config';
@@ -68,12 +69,31 @@ export function WeekProvider({ children }: { children: ReactNode }) {
   const [players, setPlayers] = useState<Loadable<SlatePlayers>>(idle);
   const [builder, setBuilder] = useState<Record<string, { lineups: BuilderLineup[]; active: number }>>({});
   const [saved, setSaved] = useState<Record<string, SavedSlateLineups>>({});
+  const [savedLoaded, setSavedLoaded] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(SAVED_KEY)
       .then((raw) => raw && setSaved(JSON.parse(raw)))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setSavedLoaded(true));
   }, []);
+
+  // Saved lineups follow the signed-in account; a device's first sync keeps the newer save per slate.
+  useSyncedDoc<Record<string, SavedSlateLineups>>(
+    'saved_lineups',
+    saved,
+    savedLoaded,
+    (v) => {
+      setSaved(v ?? {});
+      setBuilder({});
+      AsyncStorage.setItem(SAVED_KEY, JSON.stringify(v ?? {})).catch(() => {});
+    },
+    (local, remote) => {
+      const out = { ...(remote ?? {}) };
+      for (const [k, entry] of Object.entries(local)) if (!out[k] || out[k].savedAt < entry.savedAt) out[k] = entry;
+      return out;
+    },
+  );
 
   const load = useCallback(async () => {
     setWeekData((s) => ({ ...s, loading: true, error: null }));
