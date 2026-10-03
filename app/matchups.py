@@ -2,8 +2,8 @@
 position, by DraftKings points allowed and by an efficiency metric, both raw
 and strength-of-schedule adjusted. Feeds the app's matchup badges.
 
-Window: each team's last 8 games before the requested week (this season,
-then the end of last season while the sample is short).
+Window: each team's last 8 games before the requested week, this season
+only -- it grows to 8 as the season goes (Week 4: 3 games).
 
 Metrics allowed to each position (higher = softer defense = better matchup):
   QB   DK points; passing yards per attempt
@@ -64,11 +64,11 @@ def _skill_numbers(row: dict, pos: str) -> tuple[float, float]:
 
 async def game_records(season: int) -> dict[str, list[dict]]:
     """pos -> [{season, week, producer, allower, fp, num, vol}, ...] for this
-    season and the prior one: one record per team-game at that position.
+    season: one record per team-game at that position.
     Skill positions: producer = offense, allower = defense. DST: producer =
     the defense scoring DST points, allower = the offense giving them up."""
     games: dict[str, dict[tuple, dict]] = {p: {} for p in POSITIONS}
-    for szn in (season - 1, season):
+    for szn in (season,):
         for row in await nc._fetch_player_week_rows(szn):
             pos, week = row.get("position"), nc._to_int(row.get("week"))
             if pos not in EFFICIENCY or pos == "DST" or week is None:
@@ -102,7 +102,7 @@ async def game_records(season: int) -> dict[str, list[dict]]:
 
 
 def _recent(records: list[dict], season: int, week: int) -> list[dict]:
-    return [r for r in records if (r["season"], r["week"]) < (season, week)][-WINDOW:]
+    return [r for r in records if r["season"] == season and r["week"] < week][-WINDOW:]
 
 
 def _ranks(values: dict[str, float]) -> dict[str, int]:
@@ -163,4 +163,4 @@ async def defense_vs_position(season: int, week: int) -> dict:
     async def fetch() -> dict:
         return table(await game_records(season), season, week)
 
-    return await cached_fetch(f"defense_vs_position_{season}_{week}", TTL_NFLVERSE_TEAM_STATS, fetch)
+    return await cached_fetch(f"defense_vs_position_v2_{season}_{week}", TTL_NFLVERSE_TEAM_STATS, fetch)

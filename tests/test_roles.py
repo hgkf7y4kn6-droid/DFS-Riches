@@ -38,8 +38,9 @@ def test_three_starting_receivers_qb_backups_and_dst():
     assert r[("Bengals", "CIN", "DST")] == "starter"
 
 
-def _g(season, week, snaps, car=0, tgt=0):
-    return {"season": season, "week": week, "snap_pct": snaps, "stats": {"rushing": {"att": car}, "receiving": {"tgt": tgt}}}
+def _g(season, week, snaps, car=0, tgt=0, team="ATL"):
+    return {"season": season, "week": week, "team": team, "snap_pct": snaps,
+            "stats": {"rushing": {"att": car}, "receiving": {"tgt": tgt}}}
 
 
 def test_recent_usage_prefers_this_season():
@@ -48,7 +49,9 @@ def test_recent_usage_prefers_this_season():
     ]}}
     # weighted 2:3 over the two snap readings, 1:2:3 over the three games' usage
     assert roles.recent_usage(index, 2026, 4, "Bijan Robinson", "RB") == (66.0, 15.5)
-    assert roles.recent_usage(index, 2026, 1, "Bijan Robinson", "RB") == (90.0, 25.0)
+    # Week 1: last season carries over for his current team only
+    assert roles.recent_usage(index, 2026, 1, "Bijan Robinson", "RB", "ATL") == (90.0, 25.0)
+    assert roles.recent_usage(index, 2026, 1, "Bijan Robinson", "RB", "NYJ") == (None, None)
     assert roles.recent_usage(index, 2026, 4, "Bills", "DST") == (None, None)
 
 

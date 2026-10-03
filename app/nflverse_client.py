@@ -323,15 +323,29 @@ async def _points_allowed_by_week_team(season: int) -> dict[tuple[int, str], flo
     return allowed
 
 
-def _trailing_avg(entries: list[list], season: int, week: int, n: int) -> float | None:
-    """entries: [[season, week, points], ...], any order. Averages the last
-    n entries strictly before (season, week), chronologically -- i.e. the
-    n most recent games, reaching back into a prior season if the current
-    one doesn't yet have n games played."""
-    prior = sorted(e for e in entries if (e[0], e[1]) < (season, week))
-    if not prior:
+def season_entries(entries: list[list], season: int, week: int, *, team: str | None = None) -> list[list]:
+    """The entries ([season, week, value, ..., team?]) a trailing window may
+    use entering (season, week): this season's games before the week only,
+    oldest first -- an "L8" is however many of the 8 have been played, so it
+    grows to its full size as the season goes.
+
+    Carryover: for a player (`team` = his current team, entries ending with
+    the team he played for) with no games yet this season -- Week 1, or a
+    returning player -- last season's games count, but only the ones he
+    played for the team he's on now. A player who changed teams starts
+    fresh. Team-level series (no `team`) never carry over."""
+    current = sorted(e for e in entries if e[0] == season and e[1] < week)
+    if current or not team:
+        return current
+    return sorted(e for e in entries if e[0] == season - 1 and len(e) > 3 and e[-1] == team)
+
+
+def _trailing_avg(entries: list[list], season: int, week: int, n: int, *, team: str | None = None) -> float | None:
+    """Average of the last n entries in season_entries (current season only,
+    or a same-team carryover for a player with none)."""
+    tail = season_entries(entries, season, week, team=team)[-n:]
+    if not tail:
         return None
-    tail = prior[-n:]
     return round(sum(e[2] for e in tail) / len(tail), 2)
 
 
@@ -347,7 +361,7 @@ def player_key(name: str, position: str) -> str:
 
 
 async def get_player_trailing_index(season: int) -> dict[str, list[list]]:
-    """player_key(name, position) -> [[season, week, dk_points], ...]
+    """player_key(name, position) -> [[season, week, dk_points, team], ...]
     combining this season and the prior one, for computing a trailing
     DK-FPPG at any (season, week) without re-fetching or re-scanning per
     player."""
@@ -366,10 +380,10 @@ async def get_player_trailing_index(season: int) -> dict[str, list[list]]:
                     continue
                 key = player_key(name, position)
                 points = dk_scoring.dk_offense_points(row)
-                index.setdefault(key, []).append([szn, week, points])
+                index.setdefault(key, []).append([szn, week, points, to_app_team(row.get("team", ""))])
         return index
 
-    return await cached_fetch(f"nflverse_player_trailing_index_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+    return await cached_fetch(f"nflverse_player_trailing_index_v2_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
 
 
 async def get_team_dst_trailing_index(season: int) -> dict[str, list[list]]:
@@ -399,17 +413,19 @@ async def get_team_dst_trailing_index(season: int) -> dict[str, list[list]]:
 _SKILL_POSITIONS = ("QB", "RB", "WR", "TE")
 
 
-def recent_values(entries: list[list], season: int, week: int, n: int, col: int = 2) -> list[float]:
-    """The col-th value of the last n entries strictly before (season, week),
-    oldest first, skipping entries whose value is None."""
-    prior = sorted(e for e in entries if (e[0], e[1]) < (season, week) and e[col] is not None)
+def recent_values(entries: list[list], season: int, week: int, n: int, col: int = 2, *,
+                  team: str | None = None) -> list[float]:
+    """The col-th value of the last n season_entries (this season only, or a
+    same-team carryover for a player with none), oldest first, skipping
+    entries whose value is None."""
+    prior = [e for e in season_entries(entries, season, week, team=team) if e[col] is not None]
     return [e[col] for e in prior[-n:]]
 
 
 async def get_player_game_log_index(season: int) -> dict:
     """Per-game data behind the Ceiling column, for this season and the prior:
 
-    players:    player_key -> [[season, week, dk_points, opportunity_share], ...]
+    players:    player_key -> [[season, week, dk_points, opportunity_share, team], ...]
                 opportunity_share = (targets + carries) / (team pass attempts +
                 team carries); None for QBs.
     def_vs_pos: defense team -> position -> [[season, week, dk_points_allowed], ...]
@@ -441,7 +457,8 @@ async def get_player_game_log_index(season: int) -> dict:
                     if denom:
                         touches = (_to_float(row.get("targets")) or 0.0) + (_to_float(row.get("carries")) or 0.0)
                         share = round(touches / denom, 4)
-                players.setdefault(player_key(name, position), []).append([szn, week, points, share])
+                players.setdefault(player_key(name, position), []).append(
+                    [szn, week, points, share, to_app_team(row.get("team", ""))])
 
                 opp = to_app_team(row.get("opponent_team", ""))
                 if opp:
@@ -456,7 +473,7 @@ async def get_player_game_log_index(season: int) -> dict:
             },
         }
 
-    return await cached_fetch(f"nflverse_player_game_log_index_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+    return await cached_fetch(f"nflverse_player_game_log_index_v2_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
 
 
 async def get_week_actuals(season: int, week: int) -> dict:
@@ -498,9 +515,12 @@ def actual_points(actuals: dict, *, name: str, position: str, team: str, roster_
     return round(points * (1.5 if roster_slot == "CPT" else 1.0), 2)
 
 
-def trailing_dk_fppg(season: int, week: int, n: int, *, player_index: dict, name: str, position: str) -> float | None:
+def trailing_dk_fppg(season: int, week: int, n: int, *, player_index: dict, name: str, position: str,
+                     team: str | None = None) -> float | None:
+    """DK points per game over his last n games this season (or, with none
+    yet, last season's games for his current `team`)."""
     key = player_key(name, position)
-    return _trailing_avg(player_index.get(key, []), season, week, n)
+    return _trailing_avg(player_index.get(key, []), season, week, n, team=team)
 
 
 def trailing_dst_points(season: int, week: int, n: int, *, team_index: dict, team: str) -> float | None:
@@ -645,25 +665,23 @@ def team_trend(index: dict, team: str, metric: str, season: int, week: int) -> d
     }
 
 
-# Scheme tendencies change with coordinators every offseason, so once a team
-# has this many games this season, these use season-to-date only (as Sharp
-# Football's pace page does) instead of reaching back into last season.
+# Scheme tendencies change with coordinators every offseason; these use the
+# whole season to date rather than the last n games (as Sharp Football's pace
+# page does). Every team window is this season only either way.
 TENDENCY_METRICS = frozenset({"neutral_secs", "pass_pct", "rush_pct", "opp_pass_pct_allowed", "opp_rush_pct_allowed"})
-MIN_CURRENT_SEASON_GAMES = 2
 
 
 def _window_avg(entries: list[list], metric: str, season: int, week: int, n: int) -> float | None:
     if metric in TENDENCY_METRICS:
-        current = [e[2] for e in entries if e[0] == season and e[1] < week]
-        if len(current) >= MIN_CURRENT_SEASON_GAMES:
-            return round(sum(current) / len(current), 4)
+        current = [e[2] for e in season_entries(entries, season, week)]
+        return round(sum(current) / len(current), 4) if current else None
     return _trailing_avg(entries, season, week, n)
 
 
 def team_trailing(index: dict, team: str, metric: str, season: int, week: int, n: int = 8) -> float | None:
     """One team/metric's value entering (season, week), from
-    get_team_context_trailing_index: the trailing n-game average, or for
-    TENDENCY_METRICS the season-to-date average once there are enough games."""
+    get_team_context_trailing_index: the average of this season's last n
+    games, or for TENDENCY_METRICS the season-to-date average."""
     return _window_avg(index.get(team, {}).get(metric, []), metric, season, week, n)
 
 

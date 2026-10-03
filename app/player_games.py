@@ -138,13 +138,18 @@ async def get_index(season: int) -> dict:
 
 def recent_games(index: dict, *, season: int, week: int, name: str, position: str, team: str,
                  n: int = DEFAULT_GAMES) -> list[dict]:
-    """The player's last n games strictly before (season, week), newest first."""
+    """The player's last n games this season before the week, newest first --
+    or, with none yet this season, last season's games for his current team
+    (a player who changed teams starts fresh)."""
     position = position.upper()
     if position == "DST":
         games = index["dst"].get(team.upper(), [])
     else:
         games = index["players"].get(nc.player_key(name, position), [])
-    prior = [g for g in games if (g["season"], g["week"]) < (season, week)]
+    prior = [g for g in games if g["season"] == season and g["week"] < week]
+    if not prior and position != "DST":
+        # No games yet this season: last season's, only those for his current team.
+        prior = [g for g in games if g["season"] == season - 1 and g["team"] == team.upper()]
     return list(reversed(prior[-n:]))
 
 

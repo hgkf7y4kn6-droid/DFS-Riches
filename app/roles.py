@@ -19,8 +19,9 @@ Per team and position, among players who can play (not OUT / Doubtful / IR):
   out       can't play this week.
 
 Snap share and usage are weighted averages over the player's last 3 games
-(app.player_games), this season first, with the latest game counting most
-(3:2:1), so roles move with the depth chart week to week.
+this season (app.player_games), the latest counting most (3:2:1), so roles
+move with the depth chart week to week. With no games yet this season, last
+season's games carry over only for a player still on the same team.
 
 Usage trend (RB/WR/TE): the latest game against the up-to-3 games before it
 this season. "up" when his snap share rose 12+ points, or rose 5+ points
@@ -76,15 +77,17 @@ def _games(index: dict, season: int, week: int, name: str, position: str) -> lis
     return [g for g in index["players"].get(nc.player_key(name, position), []) if (g["season"], g["week"]) < (season, week)]
 
 
-def recent_usage(index: dict, season: int, week: int, name: str, position: str) -> tuple[float | None, float | None]:
+def recent_usage(index: dict, season: int, week: int, name: str, position: str,
+                 team: str | None = None) -> tuple[float | None, float | None]:
     """(snap %, carries + targets per game) over the player's last 3 games
-    before the week, weighted toward the latest -- this season's games when
-    he has any."""
+    this season, weighted toward the latest. With no games yet this season,
+    last season's games for his current `team` only."""
     if position not in STARTERS:
         return None, None
     games = _games(index, season, week, name, position)
     this = [g for g in games if g["season"] == season]
-    use = (this or games)[-RECENT_GAMES:]
+    carry = [g for g in games if g["season"] == season - 1 and team and g["team"] == team]
+    use = (this or carry)[-RECENT_GAMES:]
     if not use:
         return None, None
     snaps = [g["snap_pct"] for g in use if g.get("snap_pct") is not None]

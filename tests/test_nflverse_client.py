@@ -7,11 +7,21 @@ def test_trailing_avg_takes_the_most_recent_n_games_before_the_target_week():
     assert _trailing_avg(entries, season=2026, week=5, n=3) == 30.0  # (20+30+40)/3
 
 
-def test_trailing_avg_reaches_back_into_prior_season_when_needed():
-    entries = [[2025, 17, 10.0], [2025, 18, 20.0], [2026, 1, 30.0]]
-    # Week 2 of 2026 with only one 2026 game played: average the last 3
-    # games regardless of season, i.e. all three of these.
-    assert _trailing_avg(entries, season=2026, week=2, n=3) == 20.0
+def test_trailing_avg_uses_this_season_only_and_grows_to_n():
+    entries = [[2025, 17, 10.0], [2025, 18, 20.0], [2026, 1, 30.0], [2026, 2, 40.0]]
+    assert _trailing_avg(entries, season=2026, week=2, n=3) == 30.0      # 1 game played: L3 = that game
+    assert _trailing_avg(entries, season=2026, week=3, n=3) == 35.0      # 2 games
+    assert _trailing_avg(entries, season=2026, week=1, n=3) is None      # team-level: no carryover
+
+
+def test_player_carryover_only_from_the_same_team():
+    entries = [[2025, 16, 10.0, "BUF"], [2025, 17, 20.0, "BUF"], [2025, 18, 30.0, "MIA"]]
+    # Week 1, nothing this season: last season's games for his current team only.
+    assert _trailing_avg(entries, season=2026, week=1, n=3, team="BUF") == 15.0
+    assert _trailing_avg(entries, season=2026, week=1, n=3, team="NYJ") is None   # changed teams: fresh start
+    # Once he has played this season, last season no longer counts.
+    entries.append([2026, 1, 5.0, "BUF"])
+    assert _trailing_avg(entries, season=2026, week=2, n=3, team="BUF") == 5.0
 
 
 def test_trailing_avg_excludes_games_from_the_target_week_onward():
@@ -134,7 +144,7 @@ def test_neutral_stats_skip_non_neutral_plays_and_stopped_clocks():
     assert off["neutral_secs"] == 35.0
 
 
-def test_tendency_metrics_use_season_to_date_once_there_are_two_games():
+def test_team_windows_are_this_season_only():
     from app.nflverse_client import rank_teams, team_trailing
 
     index = {
@@ -143,6 +153,7 @@ def test_tendency_metrics_use_season_to_date_once_there_are_two_games():
         "B": {"neutral_secs": [[2025, w, 36.0] for w in range(10, 18)] + [[2026, 1, 40.0], [2026, 2, 41.0]]},
     }
     assert team_trailing(index, "A", "neutral_secs", 2026, 3) == 35.5          # this season only
-    assert team_trailing(index, "A", "neutral_secs", 2026, 2) == 41.12         # 1 game this season: trailing 8
-    assert team_trailing(index, "A", "plays", 2026, 3) == 67.5                 # not a tendency: trailing 8
+    assert team_trailing(index, "A", "neutral_secs", 2026, 2) == 35.0          # 1 game this season: that game
+    assert team_trailing(index, "A", "neutral_secs", 2026, 1) is None          # Week 1: no current-season data
+    assert team_trailing(index, "A", "plays", 2026, 3) == 60.0                 # trailing 8 = the 2 played
     assert rank_teams(index, "neutral_secs", 2026, 3, descending=False) == {"A": 1, "B": 2}

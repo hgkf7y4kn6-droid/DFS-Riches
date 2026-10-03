@@ -36,7 +36,7 @@ async def _assign_roles(players: list[Player], season: int, week: int) -> None:
         key = (p.name, p.team, p.position)
         if key not in base or p.roster_slot != "CPT":
             proj = p.proj_points / 1.5 if p.roster_slot == "CPT" else p.proj_points
-            snap_pct, opps = roles.recent_usage(index, season, week, p.name, p.position)
+            snap_pct, opps = roles.recent_usage(index, season, week, p.name, p.position, p.team)
             base[key] = {"name": p.name, "team": p.team, "position": p.position, "proj": proj, "injury": p.injury,
                          "snap_pct": snap_pct, "opps": opps}
     assigned = roles.assign(list(base.values()))
@@ -167,7 +167,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
             trend_args = dict(team_index=team_dst_trailing_index, team=row["team"])
             trend_fn = nflverse_client.trailing_dst_points
         else:
-            trend_args = dict(player_index=player_trailing_index, name=row["name"], position=row["position"])
+            trend_args = dict(player_index=player_trailing_index, name=row["name"], position=row["position"], team=row["team"])
             trend_fn = nflverse_client.trailing_dk_fppg
         trend_l3 = trend_fn(season, week, 3, **trend_args)
         trend_l6 = trend_fn(season, week, 6, **trend_args)

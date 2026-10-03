@@ -3,21 +3,23 @@ week -- a score they'd reach or beat roughly one game in seven.
 
     ceiling = history x matchup x game environment x breakdown flags x usage
 
-history   The player's own last HISTORY_GAMES games (nflverse box scores run
-          through DK scoring), recency-weighted: mean + 1.04 x spread, the
+history   The player's own last HISTORY_GAMES games this season (nflverse box
+          scores run through DK scoring; with none yet, last season's games
+          for his current team only), recency-weighted: mean + 1.04 x spread, the
           normal 85th percentile. The spread is blended with PRIOR_GAMES
           pseudo-games of the position's typical game-to-game variability
           (measured from the same data), so a 2-game sample can't produce a
           wild ceiling.
 matchup   DK points the opponent allowed to this position over its last
-          MATCHUP_WINDOW games vs the league average (DST: the opponent
+          MATCHUP_WINDOW games this season vs the league average (DST: the opponent
           offense's points scored vs league average).
 game env  The team's implied total this week vs the slate average (DST: the
           opponent's implied total, inverted).
 breakdown The same flags the Week Breakdown page raises: pass/rush funnel
           defense, both offenses top-10 neutral tempo, yards/play efficiency mismatch.
 usage     The player's share of team targets + carries over the last 3 games
-          vs the last 8 -- a growing role raises the ceiling (RB/WR/TE).
+          vs the last 8 (this season) -- a growing role raises the ceiling
+          (RB/WR/TE).
 expanded  When this week's projection (Proj) is at least ROLE_JUMP x the
 role      player's recent average -- a backup stepping in for an injured
           starter -- his history is scaled up to the projection, keeping its
@@ -51,6 +53,7 @@ USAGE_RECENT, USAGE_BASE, USAGE_MIN_GAMES = 3, 8, 4
 TOP_RANK = 10
 BOTTOM_RANK = 23  # bottom 10 of 32
 DEFAULT_CV = 0.6
+CV_MIN_GAMES = 3      # games (this season) a player needs to count toward a position's typical variability
 NO_GAMES_THIS_SEASON = 0.5
 ROLE_JUMP, ROLE_MIN_PROJ = 1.5, 8.0
 
@@ -91,7 +94,7 @@ def _typical_cv(series_list, season: int, week: int) -> float | None:
     cvs = []
     for entries in series_list:
         vals = nc.recent_values(entries, season, week, 16)
-        if len(vals) >= 6:
+        if len(vals) >= CV_MIN_GAMES:
             mean = statistics.fmean(vals)
             if mean >= 3:
                 cvs.append(statistics.pstdev(vals) / mean)
@@ -162,8 +165,8 @@ def _weighted_stats(vals: list[float]) -> tuple[float, float, float]:
 
 
 def _history(ctx: CeilingContext, entries: list, position: str, fallback_mean: float | None,
-             projection: float | None = None):
-    vals = nc.recent_values(entries, ctx.season, ctx.week, HISTORY_GAMES)
+             projection: float | None = None, team: str | None = None):
+    vals = nc.recent_values(entries, ctx.season, ctx.week, HISTORY_GAMES, team=team)
     cv = ctx.cv_by_pos.get(position, DEFAULT_CV)
     role_note = None
     if vals:
@@ -213,7 +216,8 @@ def player_ceiling_detail(
 ) -> CeilingDetail | None:
     is_dst = position == "DST"
     entries = ctx.dst_index.get(team, []) if is_dst else ctx.players.get(nc.player_key(name, position), [])
-    base, history_note, expanded = _history(ctx, entries, position, fallback_mean, None if is_dst else projection)
+    base, history_note, expanded = _history(ctx, entries, position, fallback_mean, None if is_dst else projection,
+                                            team=None if is_dst else team)
     if base is None:
         return None
     d = CeilingDetail(value=0.0, base=base, notes=[history_note])
@@ -282,8 +286,8 @@ def player_ceiling_detail(
     # Team utilization
     # (skipped for an expanded role: past shares predate it)
     if position in ("RB", "WR", "TE") and not expanded:
-        base_shares = nc.recent_values(entries, ctx.season, ctx.week, USAGE_BASE, col=3)
-        recent_shares = nc.recent_values(entries, ctx.season, ctx.week, USAGE_RECENT, col=3)
+        base_shares = nc.recent_values(entries, ctx.season, ctx.week, USAGE_BASE, col=3, team=team)
+        recent_shares = nc.recent_values(entries, ctx.season, ctx.week, USAGE_RECENT, col=3, team=team)
         if len(base_shares) >= USAGE_MIN_GAMES and statistics.fmean(base_shares) > 0:
             s3, s8 = statistics.fmean(recent_shares), statistics.fmean(base_shares)
             m = _shrunk(s3 / s8, 0.5, 0.9, 1.15)

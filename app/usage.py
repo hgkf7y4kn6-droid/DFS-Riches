@@ -1,8 +1,11 @@
 """Recent usage profiles from nflverse box scores -- the opportunity side of
 the DFS framework (who actually gets the ball).
 
-Per player, averaged over this season's games before the week (last
-season's when he has fewer than MIN_GAMES this season):
+Per player, averaged over his last RECENT_GAMES games this season before
+the week (fewer early in the season). A player with no games yet this
+season carries over last season's games -- only those for the team he's on
+now (`last_season_by_team`, resolved by profile_for); one who changed teams
+starts with no profile:
 
   targets, target_share, air_yards_share, adot (receiving air yards per
   target), carries, carry_share (of team carries), receptions,
@@ -21,7 +24,6 @@ from app import nflverse_client as nc
 from app.cache import cached_fetch
 from app.config import TTL_NFLVERSE_TEAM_STATS
 
-MIN_GAMES = 2
 RECENT_GAMES = 4
 
 
@@ -85,10 +87,14 @@ async def usage_profiles(season: int, week: int) -> dict:
         for key, games in per_player.items():
             games.sort(key=lambda g: (g["season"], g["week"]))
             this = [g for g in games if g["season"] == season]
-            use = this[-RECENT_GAMES:] if len(this) >= MIN_GAMES else games[-RECENT_GAMES:]
-            prof = summarize(use)
-            prof["team"] = use[-1]["team"] if use else None
+            prof = summarize(this[-RECENT_GAMES:]) if this else {}
+            prof["team"] = this[-1]["team"] if this else None
             prof["this_season_games"] = len(this)
+            by_team: dict[str, list[dict]] = {}
+            for g in games:
+                if g["season"] == season - 1:
+                    by_team.setdefault(g["team"], []).append(g)
+            prof["last_season_by_team"] = {t: summarize(gs[-RECENT_GAMES:]) for t, gs in by_team.items()}
             players[key] = prof
         teams: dict[str, list[float]] = {}
         for prof in players.values():
@@ -98,6 +104,18 @@ async def usage_profiles(season: int, week: int) -> dict:
                 "teams": {t: {"concentration": round(sum(sorted(v, reverse=True)[:2]), 3)} for t, v in teams.items()}}
 
     try:
-        return await cached_fetch(f"usage_profiles_{season}_{week}", TTL_NFLVERSE_TEAM_STATS, fetch)
+        return await cached_fetch(f"usage_profiles_v2_{season}_{week}", TTL_NFLVERSE_TEAM_STATS, fetch)
     except Exception:
         return {"players": {}, "teams": {}}
+
+
+def profile_for(usage: dict, key: str, team: str) -> dict | None:
+    """A player's usage profile: this season's when he has played, otherwise
+    last season's games for his current team (none if he changed teams)."""
+    prof = (usage.get("players") or {}).get(key)
+    if not prof:
+        return None
+    if prof.get("this_season_games"):
+        return prof
+    carried = (prof.get("last_season_by_team") or {}).get(team)
+    return {**carried, "team": team, "this_season_games": 0, "carryover": True} if carried else None

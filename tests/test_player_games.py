@@ -107,3 +107,15 @@ def test_snap_rows_keep_offensive_players_only(monkeypatch):
     monkeypatch.setattr(pg, "cached_fetch", no_cache)
     rows = asyncio.run(pg._snap_rows(2026))
     assert rows == [{"week": "1", "team": "TB", "player": "Kenneth Gainwell", "offense_pct": "0.55", "offense_snaps": "33"}]
+
+
+def test_game_log_carries_over_last_season_only_for_the_same_team():
+    idx = {"players": {"wide out|WR": [
+        {"season": 2025, "week": 17, "team": "LAR", "dk_points": 20.0, "snap_pct": 90.0, "stats": {}},
+        {"season": 2025, "week": 18, "team": "LAR", "dk_points": 10.0, "snap_pct": 85.0, "stats": {}},
+    ]}, "dst": {}}
+    week1 = pg.recent_games(idx, season=2026, week=1, name="Wide Out", position="WR", team="LAR")
+    assert [g["week"] for g in week1] == [18, 17]
+    assert pg.recent_games(idx, season=2026, week=1, name="Wide Out", position="WR", team="KC") == []
+    idx["players"]["wide out|WR"].append({"season": 2026, "week": 1, "team": "LAR", "dk_points": 5.0, "snap_pct": 80.0, "stats": {}})
+    assert [g["season"] for g in pg.recent_games(idx, season=2026, week=2, name="Wide Out", position="WR", team="LAR")] == [2026]

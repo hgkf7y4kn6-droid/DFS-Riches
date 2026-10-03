@@ -178,7 +178,7 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
         </Section>
       ) : null}
 
-      <Section title="Where to attack (DK pts allowed, last 8)" insight={ins.positions}>
+      <Section title="Where to attack (DK pts allowed this season, up to last 8)" insight={ins.positions}>
         {[
           [g.home, g.away, detail.away_def_vs_pos],
           [g.away, g.home, detail.home_def_vs_pos],

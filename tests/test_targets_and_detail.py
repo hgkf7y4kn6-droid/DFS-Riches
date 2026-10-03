@@ -11,7 +11,7 @@ RANK_KEYS = ("opp_pass_pct_allowed", "opp_rush_pct_allowed", "neutral_secs", "ya
 
 def _ctx(players, def_vs_pos=None, ranks=None, implied=None):
     return CeilingContext(
-        season=2026, week=3, players=players,
+        season=2026, week=10, players=players,
         def_vs_pos=def_vs_pos or {}, dst_index={},
         league_allowed={"QB": 18.0, "RB": 22.0, "WR": 30.0, "TE": 13.0},
         cv_by_pos={"QB": 0.45, "RB": 0.65, "WR": 0.75, "TE": 0.7},
@@ -26,7 +26,7 @@ def _player(name, pos, salary, proj=15.0, injury="Healthy", team="TM"):
 
 
 def _history(points, share):
-    return [[2025, w, points, share] for w in range(12, 18)] + [[2026, 1, points, share], [2026, 2, points, share]]
+    return [[2026, w, points, share, "TM"] for w in range(1, 10)]
 
 
 def test_targets_follow_the_matchup_not_the_salary():
@@ -43,8 +43,8 @@ def test_targets_follow_the_matchup_not_the_salary():
         player_key("Hurt WR", "WR"): _history(25.0, 0.25),
     }
     # OPP gets shredded by RBs and TEs, stingy vs WRs.
-    def_vs_pos = {"OPP": {"RB": [[2025, w, 40.0] for w in range(10, 18)], "TE": [[2025, w, 22.0] for w in range(10, 18)],
-                          "WR": [[2025, w, 18.0] for w in range(10, 18)]}}
+    def_vs_pos = {"OPP": {"RB": [[2026, w, 40.0] for w in range(1, 10)], "TE": [[2026, w, 22.0] for w in range(1, 10)],
+                          "WR": [[2026, w, 18.0] for w in range(1, 10)]}}
     picks = targets.pick_targets(players, "TM", "OPP", _ctx(log, def_vs_pos), pass_rank=None, pass_rate=None)
 
     names = [p.name for p in picks]

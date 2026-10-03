@@ -9,9 +9,9 @@ RB_KEY = player_key("Test Back", "RB")
 def _ctx(**overrides) -> CeilingContext:
     base = dict(
         season=2026,
-        week=3,
-        players={RB_KEY: [[2025, w, 20.0, 0.30] for w in range(10, 18)] + [[2026, 1, 20.0, 0.30], [2026, 2, 20.0, 0.30]]},
-        def_vs_pos={"OPP": {"RB": [[2025, w, 22.0] for w in range(10, 18)]}},
+        week=10,
+        players={RB_KEY: [[2026, w, 20.0, 0.30, "TM"] for w in range(1, 10)]},
+        def_vs_pos={"OPP": {"RB": [[2026, w, 22.0] for w in range(1, 10)]}},
         dst_index={},
         league_allowed={"RB": 22.0},
         cv_by_pos={"RB": 0.5},
@@ -42,7 +42,7 @@ def test_neutral_context_gives_history_only_ceiling_from_positional_spread():
 
 def test_soft_matchup_raises_ceiling_and_is_clamped():
     neutral, _ = _ceil(_ctx())
-    soft = _ctx(def_vs_pos={"OPP": {"RB": [[2025, w, 44.0] for w in range(10, 18)]}})
+    soft = _ctx(def_vs_pos={"OPP": {"RB": [[2026, w, 44.0] for w in range(1, 10)]}})
     value, notes = _ceil(soft)
     matchup = next(n for n in notes if n.startswith("Matchup"))
     assert "x1.15" in matchup  # 2x league average, shrunk 0.5 -> 1.5, clamped to 1.15
@@ -65,8 +65,8 @@ def test_breakdown_rush_funnel_applies_to_rbs_only():
 
 
 def test_rising_usage_raises_ceiling_and_falling_usage_lowers_it():
-    rising = [[2025, w, 20.0, 0.20] for w in range(12, 18)] + [[2026, 1, 20.0, 0.40], [2026, 2, 20.0, 0.40]]
-    falling = [[2025, w, 20.0, 0.40] for w in range(12, 18)] + [[2026, 1, 20.0, 0.15], [2026, 2, 20.0, 0.15]]
+    rising = [[2026, w, 20.0, 0.20 if w <= 6 else 0.40, "TM"] for w in range(1, 10)]
+    falling = [[2026, w, 20.0, 0.40 if w <= 6 else 0.15, "TM"] for w in range(1, 10)]
     up, up_notes = _ceil(_ctx(players={RB_KEY: rising}))
     down, down_notes = _ceil(_ctx(players={RB_KEY: falling}))
     assert up > down
@@ -78,7 +78,7 @@ def test_combined_adjustments_are_capped():
     ranks = {m: {} for m in ("opp_pass_pct_allowed", "neutral_secs", "yards_per_play", "yards_allowed_per_play")}
     ranks["opp_rush_pct_allowed"] = {"OPP": 1}
     ctx = _ctx(
-        def_vs_pos={"OPP": {"RB": [[2025, w, 60.0] for w in range(10, 18)]}},
+        def_vs_pos={"OPP": {"RB": [[2026, w, 60.0] for w in range(1, 10)]}},
         implied={"TM": 35.0, "OPP": 10.0},
         ranks=ranks,
     )
@@ -108,9 +108,25 @@ def test_dst_matchup_and_game_env_are_inverted():
     assert any(n.startswith("Game env x1.") and "OPP implied 16" in n for n in notes)
 
 
+def test_last_season_matchup_data_never_counts():
+    # The opponent's games are all from last season: no current-season sample, no matchup factor.
+    _, notes = _ceil(_ctx(def_vs_pos={"OPP": {"RB": [[2025, w, 44.0] for w in range(10, 18)]}}))
+    assert not any(n.startswith("Matchup") for n in notes)
+
+
+def test_carryover_history_requires_the_same_team():
+    last_year = {RB_KEY: [[2025, w, 20.0, 0.30, "TM"] for w in range(10, 18)]}
+    same, notes = _ceil(_ctx(players=last_year, week=1))
+    assert same is not None and notes[0].startswith("History:")
+    moved = {RB_KEY: [[2025, w, 20.0, 0.30, "OLD"] for w in range(10, 18)]}
+    assert _ceil(_ctx(players=moved, week=1)) == (None, [])                   # changed teams: no carryover
+    value, notes = _ceil(_ctx(players=moved, week=1), fallback_mean=12.0)
+    assert "from DK FPPG 12.0" in notes[0]
+
+
 def test_player_with_only_past_season_games_is_discounted_after_week_1():
-    last_year_only = {RB_KEY: [[2025, w, 20.0, 0.30] for w in range(10, 18)]}
-    this_year = {RB_KEY: last_year_only[RB_KEY] + [[2026, 1, 20.0, 0.30]]}
+    last_year_only = {RB_KEY: [[2025, w, 20.0, 0.30, "TM"] for w in range(10, 18)]}
+    this_year = {RB_KEY: last_year_only[RB_KEY] + [[2026, 1, 20.0, 0.30, "TM"]]}
     discounted, notes = _ceil(_ctx(players=last_year_only))
     active, _ = _ceil(_ctx(players=this_year))
     assert discounted < active * 0.6

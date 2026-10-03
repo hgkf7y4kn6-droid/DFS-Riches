@@ -35,6 +35,7 @@ import statistics
 from app import lineup_builder
 from app import nflverse_client as nc
 from app import trenches
+from app import usage as usage_mod
 
 SALARY_CAP = 50000
 GPP_MIN_SALARY = 49000
@@ -179,7 +180,8 @@ def enrich(pool: list[dict], rows: list[dict], slate, usage: dict, trench_week: 
         r["td_share"] = round(td_pts / r["final"], 2) if r["final"] and r["position"] != "DST" else None
         r["rush_share"] = (round(((line.get("rush_yd") or 0) * 0.1 + 6 * (line.get("rush_td") or 0)) / r["final"], 2)
                            if r["position"] == "QB" and r["final"] else None)
-        r["usage"] = usage.get("players", {}).get(nc.player_key(r["name"], r["position"])) if r["position"] != "DST" else None
+        r["usage"] = (usage_mod.profile_for(usage, nc.player_key(r["name"], r["position"]), r["team"])
+                      if r["position"] != "DST" else None)
         r["concentration"] = (usage.get("teams", {}).get(r["team"]) or {}).get("concentration")
         r["floor_ratio"] = round(r["floor"] / r["final"], 2) if r["final"] else None
         r["ceiling_pct"] = _pct(ceil_by_pos[r["position"]], r["ceiling"])
