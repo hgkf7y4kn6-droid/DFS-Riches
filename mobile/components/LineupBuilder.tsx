@@ -11,19 +11,33 @@ import icons from '@/constants/icons';
 import { useThemeColors } from '@/constants/theme';
 import { addPlayer, fitChecker, indexOfPlayer, removeAt, summarize, template } from '@/lib/lineups';
 import { sortByMatchup } from '@/lib/matchup-sort';
+import { useSlateOwnership } from '@/lib/slate-ownership';
 import { useMatchups } from '@/lib/matchups-context';
 import { formatCurrency, formatEt, formatPoints } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
 
 const PAGE = 40;
 
-type SortKey = 'proj' | 'salary' | 'value' | 'matchup';
+type SortKey = 'proj' | 'ceiling' | 'value' | 'salary' | 'own' | 'trend' | 'matchup';
 const SORTS: { key: SortKey; label: string }[] = [
   { key: 'proj', label: 'Projection' },
-  { key: 'salary', label: 'Salary' },
+  { key: 'ceiling', label: 'Ceiling' },
   { key: 'value', label: 'Value' },
+  { key: 'salary', label: 'Salary' },
+  { key: 'own', label: 'Ownership' },
+  { key: 'trend', label: 'Last 3' },
   { key: 'matchup', label: 'Matchup' },
 ];
+const SORT_NOTE: Record<SortKey, string> = {
+  proj: 'Projected DK points',
+  ceiling: 'Ceiling: the 85th-percentile DK score (one game in seven)',
+  value: 'Projected points per $1k of salary',
+  salary: 'DraftKings salary',
+  own: 'Expected large-field ownership from the DFS model',
+  trend: 'Actual DK points per game over his last 3 games this season',
+  matchup:
+    'Softest matchups first (#32 = allows the most), starters and rotation players (committee backs, every-down WRs) ahead of backups.',
+};
 
 /**
  * Build up to MAX_LINEUPS lineups for the selected slate: the active lineup
@@ -40,6 +54,8 @@ export default function LineupBuilder() {
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [sortBy, setSortBy] = useState<SortKey>('proj');
+  // Tap the active sort again to flip it (e.g. lowest ownership first).
+  const [ascending, setAscending] = useState(false);
   const { lookup } = useMatchups();
   const [limit, setLimit] = useState(PAGE);
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
@@ -47,6 +63,7 @@ export default function LineupBuilder() {
 
   const slateType: SlateType = selectedSlate?.slate_type ?? 'classic';
   const pool = useMemo(() => players.data?.players ?? [], [players.data]);
+  const own = useSlateOwnership(selectedSlate, sortBy === 'own');
   const lineup = useMemo(() => lineups[activeLineup] ?? [], [lineups, activeLineup]);
   const defs = template(slateType);
   const summary = summarize(lineup, slateType);
@@ -62,13 +79,25 @@ export default function LineupBuilder() {
       })
       .filter((p) => !q || p.name.toLowerCase().includes(q) || p.team.toLowerCase() === q);
     if (sortBy === 'matchup') return sortByMatchup(list, lookup, (p) => p.proj_points);
-    const key: Record<Exclude<SortKey, 'matchup'>, (p: Player) => number> = {
+    const ownership = own.ownership;
+    const key: Record<Exclude<SortKey, 'matchup'>, (p: Player) => number | null> = {
       proj: (p) => p.proj_points,
-      salary: (p) => p.salary,
+      ceiling: (p) => p.ceiling,
       value: (p) => p.value_per_1k,
+      salary: (p) => p.salary,
+      own: (p) => (p.dk_draftable_id != null ? ownership?.get(p.dk_draftable_id) ?? null : null),
+      trend: (p) => p.trend_l3,
     };
-    return list.sort((a, b) => key[sortBy](b) - key[sortBy](a));
-  }, [pool, position, query, showAll, slateType, sortBy, lookup]);
+    const get = key[sortBy];
+    const dir = ascending ? 1 : -1;
+    // Players with no value for the sort (no ceiling, no ownership, no games) go last either way.
+    return list.sort((a, b) => {
+      const va = get(a);
+      const vb = get(b);
+      if (va == null || vb == null) return va == null && vb == null ? b.proj_points - a.proj_points : va == null ? 1 : -1;
+      return dir * (va - vb) || b.proj_points - a.proj_points;
+    });
+  }, [pool, position, query, showAll, slateType, sortBy, ascending, lookup, own.ownership]);
 
   if (!selectedSlate) return null;
   if (!selectedSlate.available) {
@@ -246,22 +275,30 @@ export default function LineupBuilder() {
               key={o.key}
               className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
               onPress={() => {
-                setSortBy(o.key);
+                if (o.key === sortBy && o.key !== 'matchup') setAscending((v) => !v);
+                else {
+                  setSortBy(o.key);
+                  setAscending(false);
+                }
                 setLimit(PAGE);
               }}
               accessibilityRole="button"
               accessibilityState={{ selected: active }}>
-              <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{o.label}</Text>
+              <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>
+                {o.label}
+                {active && o.key !== 'matchup' ? (ascending ? ' ▲' : ' ▼') : ''}
+              </Text>
             </Pressable>
           );
         })}
       </ScrollView>
-      {sortBy === 'matchup' ? (
-        <Text className="dfs-reason mb-2">
-          Softest matchups first (#32 = allows the most), starters and rotation players (committee backs, every-down WRs) ahead of
-          backups.
-        </Text>
-      ) : null}
+      <Text className="dfs-reason mb-2">
+        {SORT_NOTE[sortBy]}
+        {sortBy !== 'matchup' ? (ascending ? ' · lowest first (tap again to flip)' : ' · highest first (tap again to flip)') : ''}
+        {sortBy === 'own' && !own.available ? ' · not available for Showdown slates (no DFS model)' : ''}
+        {sortBy === 'own' && own.loading ? ' · loading the DFS model…' : ''}
+        {sortBy === 'own' && own.error ? ` · couldn't load ownership: ${own.error}` : ''}
+      </Text>
       <TextInput
         className="input mb-2"
         placeholder="Search player or team (e.g. BUF)"
@@ -284,7 +321,13 @@ export default function LineupBuilder() {
             <View key={p.dk_draftable_id ?? `${p.name}-${p.roster_slot}`} className={fit.ok ? '' : 'player-unfit'}>
               <LineupRow
                 slot={p.roster_slot || p.position}
-                player={p}
+                player={
+                  sortBy === 'own' && p.dk_draftable_id != null
+                    ? { ...p, ownership: own.ownership?.get(p.dk_draftable_id) ?? null }
+                    : sortBy === 'trend'
+                      ? { ...p, trend: p.trend_l3 }
+                      : p
+                }
                 note={fit.ok ? null : fit.reason}
                 right={
                   <Pressable

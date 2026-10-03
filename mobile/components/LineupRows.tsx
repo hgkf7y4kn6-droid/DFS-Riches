@@ -19,6 +19,9 @@ export interface RowPlayer {
   role?: PlayerRole | null;
   snap_pct?: number | null;
   usage_trend?: UsageTrend | null;
+  /** Shown when the builder sorts by them: expected ownership (%), DK pts/game over the last 3. */
+  ownership?: number | null;
+  trend?: number | null;
 }
 
 function pointsLine(p: RowPlayer): string {
@@ -26,6 +29,8 @@ function pointsLine(p: RowPlayer): string {
   if (p.proj_points != null) parts.push(`${formatPoints(p.proj_points)} proj`);
   if (p.ceiling != null && p.actual == null) parts.push(`${formatPoints(p.ceiling)} ceil`);
   if (p.actual != null) parts.push(`${formatPoints(p.actual)} actual`);
+  if (p.ownership !== undefined) parts.push(p.ownership != null ? `${p.ownership.toFixed(1)}% own` : 'own n/a');
+  if (p.trend !== undefined) parts.push(p.trend != null ? `${formatPoints(p.trend)} L3` : 'no games');
   return parts.join(' · ');
 }
 
