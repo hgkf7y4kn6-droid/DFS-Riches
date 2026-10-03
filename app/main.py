@@ -85,12 +85,15 @@ WEB_DIR = BASE_DIR / "web"
 
 
 @app.get("/healthz")
-async def healthz():
+async def healthz(request: Request):
     """Liveness/readiness check for a platform's or Cloudflare's origin
     health monitoring. Deliberately makes no outbound calls -- it only
     confirms this process is up and serving requests. "accounts" says which
     account settings the environment provides -- yes/no only, never values."""
-    return {"status": "ok", "accounts": accounts.config_status()}
+    headers = {k.lower(): v for k, v in request.headers.items()}
+    client = guard.client_ip(headers, request.client.host if request.client else None)
+    # "client": the caller's own address as the rate limiter sees it.
+    return {"status": "ok", "accounts": accounts.config_status(), "client": client}
 
 
 @memoize_async(ttl_seconds=1800)
