@@ -8,6 +8,7 @@ import ListHeading from '@/components/ListHeading';
 import OwnershipList from '@/components/plays/OwnershipList';
 import OwnershipModelNote from '@/components/plays/OwnershipModelNote';
 import PlayRankingCard from '@/components/plays/PlayRankingCard';
+import RoleShiftsCard from '@/components/plays/RoleShiftsCard';
 import SafeAreaView from '@/components/SafeAreaView';
 import StatusView from '@/components/StatusView';
 import { FLOATING_TAB_BAR, useThemeColors } from '@/constants/theme';
@@ -41,6 +42,8 @@ const POSITION_CARDS: { pos: 'QB' | 'RB' | 'WR' | 'TE'; label: string }[] = [
 
 interface Card {
   key: string;
+  /** Rendered as the role-shifts card instead of a ranked-plays card. */
+  kind?: 'shifts';
   kicker?: string;
   title: string;
   subtitle: string;
@@ -57,6 +60,9 @@ function cards(data: PlaysResponse, contest: PlayContest): Card[] {
     subtitle: `${pos} ranked by strength of play`,
     players: data.rankings[pos] ?? [],
   }));
+  if (data.role_shifts?.length) {
+    list.push({ key: 'shifts', kind: 'shifts', title: '', subtitle: '', players: data.role_shifts });
+  }
   if (contest === 'gpp' && data.chalk?.length) {
     list.push({
       key: 'chalk',
@@ -114,18 +120,22 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
             <FlatList
               data={cards(ready, contest)}
               keyExtractor={(item) => item.key}
-              renderItem={({ item }) => (
-                <PlayRankingCard
-                  kicker={item.kicker}
-                  title={item.title}
-                  subtitle={item.subtitle}
-                  players={item.players}
-                  contest={contest}
-                  pool={pool}
-                  preview={item.preview}
-                  note={item.note}
-                />
-              )}
+              renderItem={({ item }) =>
+                item.kind === 'shifts' ? (
+                  <RoleShiftsCard players={item.players} pool={pool} />
+                ) : (
+                  <PlayRankingCard
+                    kicker={item.kicker}
+                    title={item.title}
+                    subtitle={item.subtitle}
+                    players={item.players}
+                    contest={contest}
+                    pool={pool}
+                    preview={item.preview}
+                    note={item.note}
+                  />
+                )
+              }
               horizontal
               showsHorizontalScrollIndicator={false}
             />

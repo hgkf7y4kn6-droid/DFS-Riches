@@ -233,6 +233,16 @@ interface UsageTrend {
   direction: 'up' | 'down';
   /** e.g. "Role growing: 64% of snaps in Week 3 vs 42% in Weeks 1-2; ..., taking work from Tyler Allgeier." */
   text: string;
+  snap_delta?: number;
+  /** This season's last (up to 4) games, oldest first. */
+  series?: { week: number; snap_pct: number | null; opps: number }[];
+  /** "carries + targets" (RB) or "targets". */
+  unit?: string;
+  /** Teammates at the position who moved the other way. */
+  partners?: string[];
+  sustained?: boolean;
+  /** Passed the genuine-shift bar (see app.roles). */
+  genuine?: boolean;
 }
 
 /** starter: top of the depth chart; rotation: real share of the work (committee backs, WR4s on the field). */
@@ -617,6 +627,8 @@ interface PlaysResponse {
   /** Every playable player, most owned first. */
   players: PlayPlayer[];
   ownership_models: Partial<Record<OwnershipContest, OwnershipModelInfo>>;
+  /** Players whose roles are genuinely shifting, biggest snap moves first. */
+  role_shifts?: PlayPlayer[];
   /** GPP only: the 10 highest large-field ownerships across positions. */
   chalk?: PlayPlayer[];
   /** GPP only: the 10 best ceiling-odds-per-ownership pivots across positions. */

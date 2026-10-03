@@ -29,7 +29,17 @@ players with a real role (30%+ of snaps in either span) -- target swings on
 steady snaps are game script, not a role change. A single game's snaps
 swing with blowouts, so receivers and tight ends keep a trend only when a
 teammate at the position moved the other way (a real rotation change) or
-the swing is 20+ points; running backs keep theirs. When
+the swing is 20+ points; running backs keep theirs.
+
+Genuine role shifts (the Cash/GPP "Role shifts" card) are the trends whose
+latest game is a new high (or low) for the season by 8+ snap points -- not
+a bounce back from one odd game -- with more than one game's evidence:
+  linked     a teammate at the position moved the other way -- work moved
+             from one player to another, not just a blowout
+  sustained  the last two games both broke from the games before them
+             (8+ snap points, same direction)
+  big        a 20+ point snap swing with usage (carries + targets) moving
+             the same way by 3+ When
 a teammate at the position moved the other way, the note names him -- a
 backfield shifting from one back to another.
 """
@@ -49,6 +59,8 @@ TREND_SNAP_WITH_OPPS = 5.0
 TREND_OPPS = 8.0
 TREND_MIN_SNAPS = 30.0
 TREND_SOLO_SNAP_PTS = 20.0        # WR/TE trend without a teammate moving the other way
+SUSTAINED_SNAP_PTS = 8.0
+BIG_OPPS = 3.0
 
 
 def _opps(g: dict) -> float:
@@ -112,7 +124,26 @@ def usage_trend(index: dict, season: int, week: int, name: str, position: str) -
     parts = [f"{last['snap_pct']:.0f}% of snaps in Week {last['week']} vs {before:.0f}% in {_weeks(prior)}"]
     parts.append(f"{_opps(last):.0f} {unit} vs {prior_opps:.0f} a game before")
     lead = "Role growing" if direction == "up" else "Role shrinking"
-    return {"direction": direction, "text": f"{lead}: " + "; ".join(parts) + ".", "snap_delta": round(snap_delta, 1)}
+    sign = 1 if direction == "up" else -1
+    sustained = False
+    if len(this) >= 3:
+        base = [g["snap_pct"] for g in this[:-2][-3:] if g.get("snap_pct") is not None]
+        prev = this[-2].get("snap_pct")
+        if base and prev is not None:
+            b = sum(base) / len(base)
+            sustained = sign * (prev - b) >= SUSTAINED_SNAP_PTS and sign * (last["snap_pct"] - b) >= SUSTAINED_SNAP_PTS
+    return {
+        "direction": direction,
+        "text": f"{lead}: " + "; ".join(parts) + ".",
+        "snap_delta": round(snap_delta, 1),
+        "opp_delta": round(opp_delta, 1),
+        "sustained": sustained,
+        "big": abs(snap_delta) >= TREND_SOLO_SNAP_PTS and sign * opp_delta >= BIG_OPPS,
+        # a new season high (up) / low (down), not a return from one odd game
+        "new_level": sign * (last["snap_pct"] - (max(prior_snaps) if sign > 0 else min(prior_snaps))) >= SUSTAINED_SNAP_PTS,
+        "series": [{"week": g["week"], "snap_pct": g.get("snap_pct"), "opps": _opps(g)} for g in this[-4:]],
+        "unit": "carries + targets" if position == "RB" else "targets",
+    }
 
 
 def link_shifts(trends: dict[tuple[str, str, str], dict]) -> dict[tuple[str, str, str], dict]:
@@ -125,9 +156,11 @@ def link_shifts(trends: dict[tuple[str, str, str], dict]) -> dict[tuple[str, str
                   if t2 == team and p2 == pos and n2 != name and o["direction"] != t["direction"]]
         if pos != "RB" and not others and abs(t["snap_delta"]) < TREND_SOLO_SNAP_PTS:
             continue
+        t = {**t, "partners": others}
         if others:
             verb = "taking work from" if t["direction"] == "up" else "losing work to"
-            t = {**t, "text": t["text"][:-1] + f", {verb} {' and '.join(others)}."}
+            t["text"] = t["text"][:-1] + f", {verb} {' and '.join(others)}."
+        t["genuine"] = bool(t.get("new_level")) and (bool(others) or bool(t.get("sustained")) or bool(t.get("big")))
         kept[(name, team, pos)] = t
     return kept
 

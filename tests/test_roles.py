@@ -84,3 +84,21 @@ def test_usage_trend_needs_two_games_this_season_and_skips_qbs():
     idx = _ari()
     assert roles.usage_trend(idx, 2026, 2, "Jeremiyah Love", "RB") is None
     assert roles.usage_trend(idx, 2026, 4, "Jeremiyah Love", "QB") is None
+
+
+def test_genuine_shifts_need_a_new_level_and_more_than_one_game():
+    idx = {"players": {
+        "jeremiyah love|RB": [_g(2026, 1, 43.0, 11, 4), _g(2026, 2, 40.0, 9, 3), _g(2026, 3, 64.0, 21, 5)],
+        "tyler allgeier|RB": [_g(2026, 1, 59.0, 17, 2), _g(2026, 2, 64.0, 5, 2), _g(2026, 3, 36.0, 2, 4)],
+        # back from a one-game dip (injured early in Week 2): not a new role
+        "saquon barkley|RB": [_g(2026, 1, 71.0, 15, 2), _g(2026, 2, 16.0, 5, 1), _g(2026, 3, 72.0, 15, 2)],
+        "lone spike|WR": [_g(2026, 1, 40.0, 0, 4), _g(2026, 2, 41.0, 0, 4), _g(2026, 3, 56.0, 0, 4)],
+    }}
+    t = {(n, "ARI", "RB"): roles.usage_trend(idx, 2026, 4, n, "RB") for n in ("Jeremiyah Love", "Tyler Allgeier")}
+    t[("Saquon Barkley", "PHI", "RB")] = roles.usage_trend(idx, 2026, 4, "Saquon Barkley", "RB")
+    t[("Lone Spike", "XYZ", "WR")] = roles.usage_trend(idx, 2026, 4, "Lone Spike", "WR")
+    kept = roles.link_shifts(t)
+    assert kept[("Jeremiyah Love", "ARI", "RB")]["genuine"] and kept[("Tyler Allgeier", "ARI", "RB")]["genuine"]
+    assert not kept[("Saquon Barkley", "PHI", "RB")]["genuine"]     # 72% after 71% / 16%: no new high
+    assert ("Lone Spike", "XYZ", "WR") not in kept                   # one-game WR swing under 20 points, no partner
+    assert [g["snap_pct"] for g in kept[("Jeremiyah Love", "ARI", "RB")]["series"]] == [43.0, 40.0, 64.0]

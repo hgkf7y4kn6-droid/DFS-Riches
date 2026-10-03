@@ -52,6 +52,7 @@ GPP_CEILING_SCORE = {"QB": 28.0, "RB": 24.0, "WR": 24.0, "TE": 18.0, "DST": 14.0
 TAG_TOP = {**TOP_N, "DST": 3}
 RELEVANT_PROJ = {"QB": 5.0, "RB": 5.0, "WR": 5.0, "TE": 5.0, "DST": 3.0}
 CROSS_N = 10
+ROLE_SHIFTS_N = 40
 LEVERAGE_MIN_CEILING = 0.12
 
 
@@ -126,13 +127,16 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
         out_players += [_player(r, contest, own_contests) for r in ranked]
 
     out_players.sort(key=lambda p: -(p["ownership"][own_contests[-1]] or 0))
-    extra = {}
+    # Players whose roles are genuinely shifting (app.roles), biggest moves first.
+    shifting = [r for r in rows if (r.get("usage_trend") or {}).get("genuine")]
+    shifting.sort(key=lambda r: -abs(r["usage_trend"]["snap_delta"]))
+    extra = {"role_shifts": [_player(r, contest, own_contests) for r in shifting[:ROLE_SHIFTS_N]]}
     if contest == "gpp":
         relevant = [r for r in rows if r["final"] >= RELEVANT_PROJ[r["position"]]]
         chalk = sorted(relevant, key=lambda r: -r["lead_own"])[:CROSS_N]
         pivots = sorted((r for r in relevant if r["p_ceiling"] >= LEVERAGE_MIN_CEILING),
                         key=lambda r: -_leverage_ratio(r))[:CROSS_N]
-        extra = {"chalk": [_player(r, contest, own_contests, k) for k, r in enumerate(chalk, 1)],
+        extra |= {"chalk": [_player(r, contest, own_contests, k) for k, r in enumerate(chalk, 1)],
                  "leverage": [_player(r, contest, own_contests, k) for k, r in enumerate(pivots, 1)]}
     return {
         "contest": contest,

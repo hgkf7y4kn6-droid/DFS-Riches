@@ -435,6 +435,30 @@
   .own-detail {
     @apply mt-2 rounded-lg bg-muted p-2;
   }
+  .shift-arrow {
+    @apply mr-2 text-base font-sans-bold;
+  }
+  .shift-bars {
+    @apply mt-2 flex-row items-end gap-3;
+  }
+  .shift-bar-col {
+    @apply items-center;
+  }
+  .shift-bar {
+    @apply w-6 rounded-sm;
+  }
+  .shift-bar-value {
+    @apply mb-0.5 text-[10px] font-sans-semibold text-foreground;
+  }
+  .shift-bar-week {
+    @apply mt-0.5 text-[10px] font-sans-medium text-muted-foreground;
+  }
+  .shift-bar-opps {
+    @apply text-[10px] font-sans-bold text-foreground;
+  }
+  .shift-legend {
+    @apply mt-1 text-[10px] font-sans-medium text-muted-foreground;
+  }
   .trend-arrow {
     @apply ml-1 px-0.5;
   }
