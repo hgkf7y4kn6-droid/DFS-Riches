@@ -38,6 +38,9 @@ RUN useradd --create-home --uid 1000 appuser \
 USER appuser
 
 ENV PYTHONUNBUFFERED=1
+# Fewer glibc malloc arenas: the worker threads (asyncio.to_thread) otherwise
+# each grow their own arena, adding tens of MB of fragmentation on a 512 MB host.
+ENV MALLOC_ARENA_MAX=2
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \

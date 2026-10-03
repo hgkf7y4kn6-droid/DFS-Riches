@@ -33,15 +33,22 @@ async def get_nfl_state() -> dict:
         return await _get_json(client, f"{SLEEPER_BASE}/v1/state/nfl")
 
 
+# The player fields the app reads (app.matching.SleeperNameIndex). Sleeper's
+# full dict carries ~40 fields for ~11k players (~90 MB as Python objects);
+# keeping only these keeps a 512 MB host well under its limit.
+PLAYER_FIELDS = ("first_name", "last_name", "position", "team")
+
+
 async def get_players() -> dict[str, dict]:
-    """Full Sleeper player_id -> metadata dict. Large and slow-changing, so
-    cached aggressively."""
+    """Sleeper player_id -> {first_name, last_name, position, team}. Large and
+    slow-changing, so cached aggressively."""
 
     async def fetch() -> dict:
         async with httpx.AsyncClient() as client:
-            return await _get_json(client, f"{SLEEPER_BASE}/v1/players/nfl")
+            full = await _get_json(client, f"{SLEEPER_BASE}/v1/players/nfl")
+        return {pid: {f: p.get(f) for f in PLAYER_FIELDS} for pid, p in full.items()}
 
-    return await cached_fetch("sleeper_players_nfl", TTL_PLAYERS, fetch)
+    return await cached_fetch("sleeper_players_nfl_slim", TTL_PLAYERS, fetch)
 
 
 async def _raw_projections(season: int, week: int, season_type: str = "regular") -> Any:

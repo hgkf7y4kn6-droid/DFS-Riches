@@ -259,9 +259,37 @@ async def _fetch_team_week_rows(season: int) -> list[dict]:
     return await _fetch_csv_rows(url, f"nflverse_team_stats_{season}")
 
 
+# The stats_player_week columns the app reads. The file has ~115 (kicking
+# distance lists, EPA, headshot URLs...); keeping only these cuts the cached
+# rows to a fraction of the memory -- the full rows for two seasons pushed a
+# 512 MB host over its limit.
+PLAYER_COLUMNS = (
+    "player_display_name", "position", "season", "week", "season_type", "game_id", "team", "opponent_team",
+    "completions", "attempts", "passing_yards", "passing_tds", "passing_interceptions", "sacks_suffered",
+    "passing_2pt_conversions", "carries", "rushing_yards", "rushing_tds", "rushing_2pt_conversions",
+    "receptions", "targets", "receiving_yards", "receiving_tds", "receiving_2pt_conversions",
+    "receiving_air_yards", "target_share", "air_yards_share", "fumbles_lost_total", "special_teams_tds",
+    "fumble_recovery_tds", "pat_made", "fg_made_0_19", "fg_made_20_29", "fg_made_30_39", "fg_made_40_49",
+    "fg_made_50_59", "fg_made_60_",
+)
+
+
+def slim_rows(rows: Iterable[dict], columns: tuple[str, ...]) -> list[dict]:
+    """Only the given columns of each row; empty values are dropped (every
+    reader treats a missing column like an empty one)."""
+    return [{c: v for c in columns if (v := r.get(c))} for r in rows]
+
+
 async def _fetch_player_week_rows(season: int) -> list[dict]:
     url = NFLVERSE_PLAYER_STATS_URL_TMPL.format(season=season)
-    return await _fetch_csv_rows(url, f"nflverse_player_stats_{season}")
+
+    async def fetch() -> list[dict]:
+        return slim_rows(csv.DictReader(io.StringIO(await _fetch_csv_text(url))), PLAYER_COLUMNS)
+
+    try:
+        return await cached_fetch(f"nflverse_player_stats_slim_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+    except Exception:
+        return []
 
 
 async def get_team_week_plays(season: int) -> dict[tuple[int, str], float]:

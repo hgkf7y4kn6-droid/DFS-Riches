@@ -29,8 +29,8 @@ def _patch(monkeypatch):
     async def player_rows(season):
         return PLAYER_ROWS if season == 2026 else []
 
-    async def csv_rows(url, key):
-        return SNAP_ROWS if "2026" in key else []
+    async def snap_rows(season):
+        return SNAP_ROWS if season == 2026 else []
 
     async def team_rows(season):
         return TEAM_ROWS if season == 2026 else []
@@ -42,7 +42,7 @@ def _patch(monkeypatch):
         return await fetch()
 
     monkeypatch.setattr(nc, "_fetch_player_week_rows", player_rows)
-    monkeypatch.setattr(nc, "_fetch_csv_rows", csv_rows)
+    monkeypatch.setattr(pg, "_snap_rows", snap_rows)
     monkeypatch.setattr(nc, "_fetch_team_week_rows", team_rows)
     monkeypatch.setattr(nc, "_points_allowed_by_week_team", allowed)
     monkeypatch.setattr(pg, "cached_fetch", no_cache)
@@ -83,3 +83,27 @@ def test_dst_game_log(monkeypatch):
     assert g["stats"]["defense"] == {"sacks": 3.0, "int": 1, "fum_rec": 1, "td": 1, "pts_allowed": 17}
     assert g["dk_points"] == 3 + 2 + 2 + 6 + 1                      # 14-20 allowed -> +1
     assert g["snap_pct"] is None
+
+
+def test_slim_rows_keep_what_scoring_and_stat_lines_read():
+    full = {**PLAYER_ROWS[3], "headshot_url": "https://x", "passing_epa": "1.2", "fg_made_list": ""}
+    slim = nc.slim_rows([full], nc.PLAYER_COLUMNS)[0]
+    assert "headshot_url" not in slim and "fg_made_list" not in slim
+    assert nc.dk_scoring.dk_offense_points(slim) == nc.dk_scoring.dk_offense_points(full)
+    assert pg.stat_line(slim, "QB") == pg.stat_line(full, "QB")
+
+
+def test_snap_rows_keep_offensive_players_only(monkeypatch):
+    csv_text = ("week,team,player,position,offense_snaps,offense_pct,defense_snaps\n"
+                "1,TB,Kenneth Gainwell,RB,33,0.55,0\n1,TB,Some Linebacker,LB,0,0,60\n")
+
+    async def text(url):
+        return csv_text
+
+    async def no_cache(key, ttl, fetch):
+        return await fetch()
+
+    monkeypatch.setattr(nc, "_fetch_csv_text", text)
+    monkeypatch.setattr(pg, "cached_fetch", no_cache)
+    rows = asyncio.run(pg._snap_rows(2026))
+    assert rows == [{"week": "1", "team": "TB", "player": "Kenneth Gainwell", "offense_pct": "0.55", "offense_snaps": "33"}]

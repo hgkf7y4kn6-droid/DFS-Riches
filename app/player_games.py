@@ -12,6 +12,9 @@ Sources (nflverse, no API key):
 """
 from __future__ import annotations
 
+import csv
+import io
+
 from app import dk_scoring
 from app import nflverse_client as nc
 from app.cache import cached_fetch
@@ -59,8 +62,21 @@ def stat_line(row: dict, position: str) -> dict:
     return out
 
 
+SNAP_COLUMNS = ("week", "team", "player", "offense_pct", "offense_snaps")
+
+
 async def _snap_rows(season: int) -> list[dict]:
-    return await nc._fetch_csv_rows(NFLVERSE_SNAP_COUNTS_URL_TMPL.format(season=season), f"nflverse_snap_counts_{season}")
+    """Offensive snap counts; defensive and special-teams-only rows are skipped."""
+    url = NFLVERSE_SNAP_COUNTS_URL_TMPL.format(season=season)
+
+    async def fetch() -> list[dict]:
+        rows = csv.DictReader(io.StringIO(await nc._fetch_csv_text(url)))
+        return nc.slim_rows((r for r in rows if nc._to_float(r.get("offense_snaps"))), SNAP_COLUMNS)
+
+    try:
+        return await cached_fetch(f"nflverse_snap_counts_slim_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+    except Exception:
+        return []
 
 
 async def get_index(season: int) -> dict:
