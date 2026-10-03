@@ -7,3 +7,6 @@ data/cache/*.json
 .env
 data/ownership/
 web/
+.neon
+.env.local
+node_modules/

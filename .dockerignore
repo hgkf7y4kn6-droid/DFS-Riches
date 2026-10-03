@@ -12,3 +12,7 @@ mobile/node_modules/
 mobile/.expo/
 mobile/dist/
 web/
+node_modules/
+.neon
+.env.local
+.claude/
