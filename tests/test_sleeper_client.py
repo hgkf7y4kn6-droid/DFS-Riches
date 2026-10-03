@@ -8,7 +8,7 @@ pytestmark = pytest.mark.anyio
 async def test_get_projections_parses_list_shaped_response_from_api_sleeper_com(monkeypatch):
     captured = {}
 
-    async def fake_cached_fetch(key, ttl, fetch_fn):
+    async def fake_cached_fetch(key, ttl, fetch_fn, **kw):
         captured["key"] = key
         return [
             {"player_id": "4881", "stats": {"pts_ppr": 24.09, "pts_std": 20.0}},

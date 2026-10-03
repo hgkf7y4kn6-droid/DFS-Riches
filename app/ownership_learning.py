@@ -29,7 +29,8 @@ import math
 import statistics
 
 import numpy as np
-from scipy import optimize, stats
+# scipy.special, not scipy.stats: the same beta quantiles at ~30 MB less memory.
+from scipy import optimize, special
 
 from app import ownership_model as om
 from app import ownership_store as store
@@ -226,10 +227,10 @@ def relearn() -> dict:
                     continue
                 mean = a / (a + b)
                 y = actual[key]
-                lo, hi = stats.beta(a, b).ppf([0.10, 0.90])
+                lo, hi = special.betaincinv(a, b, [0.10, 0.90])
                 pos = (roster.get(key) or ["?"])[0]
                 model_rows.append({"contest": c, "position": pos, "err": mean - y, "covered": lo <= y <= hi,
-                                   "brier": {t: (float(stats.beta(a, b).sf(t)) - (1.0 if y > t else 0.0)) ** 2
+                                   "brier": {t: (float(1 - special.betainc(a, b, t)) - (1.0 if y > t else 0.0)) ** 2
                                              for t in om.THRESHOLDS}})
                 cal_x.append(mean)
                 cal_y.append(y)

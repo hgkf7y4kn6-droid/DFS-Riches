@@ -20,7 +20,11 @@ from typing import Any, Awaitable, Callable
 
 from app.config import CACHE_DIR
 
+# In-memory layer, least recently used first; capped at MAX_MEMORY_ENTRIES
+# (evicted entries are re-read from disk) so browsing many weeks and slates
+# can't grow a 512 MB host's memory without bound.
 _memory: dict[str, tuple[float, Any]] = {}
+MAX_MEMORY_ENTRIES = 48
 _in_flight: dict[str, asyncio.Task] = {}
 
 
@@ -43,6 +47,15 @@ def _read_disk(key: str, ttl_seconds: float | None) -> Any | None:
         return None
 
 
+def _remember(key: str, value: Any, memory: bool) -> None:
+    if not memory:
+        return
+    _memory.pop(key, None)
+    _memory[key] = (time.time(), value)
+    while len(_memory) > MAX_MEMORY_ENTRIES:
+        del _memory[next(iter(_memory))]
+
+
 def _write_disk(key: str, value: Any) -> None:
     try:
         with _cache_path(key).open("w") as f:
@@ -51,17 +64,17 @@ def _write_disk(key: str, value: Any) -> None:
         pass
 
 
-async def _fetch_and_store(key: str, fetch_fn: Callable[[], Awaitable[Any]]) -> Any:
+async def _fetch_and_store(key: str, fetch_fn: Callable[[], Awaitable[Any]], memory: bool = True) -> Any:
     try:
         value = await fetch_fn()
     except Exception:
         stale = _read_disk(key, ttl_seconds=None)
         if stale is not None:
-            _memory[key] = (time.time(), stale)
+            _remember(key, stale, memory)
             return stale
         raise
     _write_disk(key, value)
-    _memory[key] = (time.time(), value)
+    _remember(key, value, memory)
     return value
 
 
@@ -69,26 +82,33 @@ async def cached_fetch(
     key: str,
     ttl_seconds: float,
     fetch_fn: Callable[[], Awaitable[Any]],
+    *,
+    memory: bool = True,
 ) -> Any:
     """Return fresh-enough cached data (memory, then disk), otherwise call
     fetch_fn, cache the result at both layers, and return it. If fetch_fn
     raises, fall back to stale disk cache (if any) rather than propagating
     the error. Concurrent calls for the same key that isn't already cached
-    share one underlying fetch."""
+    share one underlying fetch.
+
+    memory=False keeps the value on disk only, re-read on each call: for big
+    raw datasets that are only read to build smaller derived indexes (which
+    are cached in memory themselves), so they don't sit in RAM."""
     now = time.time()
 
     hit = _memory.get(key)
     if hit is not None and now - hit[0] < ttl_seconds:
+        _memory[key] = _memory.pop(key)          # most recently used
         return hit[1]
 
     disk = _read_disk(key, ttl_seconds)
     if disk is not None:
-        _memory[key] = (now, disk)
+        _remember(key, disk, memory)
         return disk
 
     task = _in_flight.get(key)
     if task is None:
-        task = asyncio.ensure_future(_fetch_and_store(key, fetch_fn))
+        task = asyncio.ensure_future(_fetch_and_store(key, fetch_fn, memory))
         _in_flight[key] = task
     try:
         return await task

@@ -38,7 +38,7 @@ def _patch(monkeypatch):
     async def allowed(season):
         return {(1, "TB"): 17.0}
 
-    async def no_cache(key, ttl, fetch):
+    async def no_cache(key, ttl, fetch, **kw):
         return await fetch()
 
     monkeypatch.setattr(nc, "_fetch_player_week_rows", player_rows)
@@ -100,7 +100,7 @@ def test_snap_rows_keep_offensive_players_only(monkeypatch):
     async def text(url):
         return csv_text
 
-    async def no_cache(key, ttl, fetch):
+    async def no_cache(key, ttl, fetch, **kw):
         return await fetch()
 
     monkeypatch.setattr(nc, "_fetch_csv_text", text)

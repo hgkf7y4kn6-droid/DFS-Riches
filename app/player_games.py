@@ -74,7 +74,7 @@ async def _snap_rows(season: int) -> list[dict]:
         return nc.slim_rows((r for r in rows if nc._to_float(r.get("offense_snaps"))), SNAP_COLUMNS)
 
     try:
-        return await cached_fetch(f"nflverse_snap_counts_slim_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+        return await cached_fetch(f"nflverse_snap_counts_slim_{season}", TTL_NFLVERSE_TEAM_STATS, fetch, memory=False)
     except Exception:
         return []
 

@@ -287,7 +287,8 @@ async def _fetch_player_week_rows(season: int) -> list[dict]:
         return slim_rows(csv.DictReader(io.StringIO(await _fetch_csv_text(url))), PLAYER_COLUMNS)
 
     try:
-        return await cached_fetch(f"nflverse_player_stats_slim_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+        # Disk only: read just to build the cached indexes (trailing, game log, usage, matchups).
+        return await cached_fetch(f"nflverse_player_stats_slim_{season}", TTL_NFLVERSE_TEAM_STATS, fetch, memory=False)
     except Exception:
         return []
 

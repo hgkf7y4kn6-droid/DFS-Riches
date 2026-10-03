@@ -59,7 +59,8 @@ async def _raw_projections(season: int, week: int, season_type: str = "regular")
             return await _get_json(client, url)
 
     key = f"sleeper_projections_v2_{season}_{season_type}_{week}"
-    return await cached_fetch(key, TTL_PROJECTIONS, fetch)
+    # Disk only: every week's raw feed (7 MB in memory each) is read to build smaller per-player lines.
+    return await cached_fetch(key, TTL_PROJECTIONS, fetch, memory=False)
 
 
 def _entries(raw: Any):
