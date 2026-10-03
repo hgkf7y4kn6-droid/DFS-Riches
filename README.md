@@ -940,11 +940,21 @@ docker run -p 8000:8000 dfsriches
 
 ### Cloudflare Pages URL (dfs-riches.pages.dev)
 
-Cloudflare Pages only serves static files, so it can't run this app (every
-path returns 404). The app runs on Render at https://dfs-riches.onrender.com.
-To make the Pages URL forward there, set the Pages project's build command
-to empty and its build output directory to `pages-redirect`. That folder
-holds a single `_redirects` rule that sends every path to Render.
+Cloudflare Pages only serves static files, so it can't run the API server --
+but the website itself (the Expo web build) is static. Two ways to use the
+Pages URL:
+
+- **Host the website on Pages** (it calls the API on Render for data and
+  account sync; the server allows cross-origin GET/PUT):
+  - Build command: `bash scripts/build_pages.sh`
+  - Build output directory: `pages-dist`
+  - Environment variables: none required. Optional `API_URL` (default
+    `https://dfs-riches.onrender.com`) and `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY`
+    (the public `pk_...` key; the current one is built in). Never put
+    `CLERK_SECRET_KEY` or `DATABASE_URL` on Pages -- they live on Render.
+- **Redirect to Render**: leave the build command empty and set the build
+  output directory to `pages-redirect`, whose `_redirects` rule sends every
+  path to https://dfs-riches.onrender.com.
 Alternatively, put your own domain on Cloudflare DNS as a proxied CNAME to
 `dfs-riches.onrender.com` and add it as a custom domain in Render.
 

@@ -10,3 +10,4 @@ web/
 .neon
 .env.local
 node_modules/
+pages-dist/
