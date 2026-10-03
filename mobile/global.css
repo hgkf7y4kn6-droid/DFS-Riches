@@ -116,6 +116,18 @@
   .screen-content {
     @apply px-5 pt-5;
   }
+  .brand-header {
+    @apply mb-3 flex-row items-center justify-between;
+  }
+  .brand-title {
+    @apply text-3xl font-sans-extrabold text-foreground;
+  }
+  .brand-accent {
+    @apply text-accent;
+  }
+  .brand-subheading {
+    @apply mt-0.5 text-lg font-sans-semibold text-muted-foreground;
+  }
   .screen-title {
     @apply text-2xl font-sans-bold text-foreground;
   }

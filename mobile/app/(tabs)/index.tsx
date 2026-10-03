@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import BrandHeader from '@/components/BrandHeader';
 import BalanceStats from '@/components/BalanceStats';
 import ExpandableCard from '@/components/ExpandableCard';
 import LinesList from '@/components/LinesList';
@@ -69,7 +70,16 @@ export default function Home() {
         contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}
         refreshControl={<RefreshControl refreshing={weekData.loading && !!data} onRefresh={refresh} tintColor={colors.accent} />}>
-        {/* Header: user info */}
+        <BrandHeader
+          title="Home"
+          right={
+            <Pressable onPress={openLogEntry} accessibilityRole="button" accessibilityLabel="Log a contest entry">
+              <Image source={icons.add} className="home-add-icon" style={{ width: 48, height: 48, tintColor: colors.primary }} />
+            </Pressable>
+          }
+        />
+
+        {/* User info */}
         <View className="home-header">
           <View className="home-user">
             <Image source={HOME_USER.avatar} className="home-avatar" style={{ width: 64, height: 64 }} />
@@ -81,9 +91,6 @@ export default function Home() {
               <Text className="home-user-name">{HOME_USER.name}</Text>
             </View>
           </View>
-          <Pressable onPress={openLogEntry} accessibilityRole="button" accessibilityLabel="Log a contest entry">
-            <Image source={icons.add} className="home-add-icon" style={{ width: 48, height: 48, tintColor: colors.primary }} />
-          </Pressable>
         </View>
 
         {/* Balance card: money spent on lineup submissions */}

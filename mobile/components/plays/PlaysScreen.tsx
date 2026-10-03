@@ -1,6 +1,7 @@
 import { FlatList, RefreshControl, ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import BrandHeader from '@/components/BrandHeader';
 import DfsSlatePicker from '@/components/dfs/DfsSlatePicker';
 import ListHeading from '@/components/ListHeading';
 import OwnershipList from '@/components/plays/OwnershipList';
@@ -98,7 +99,7 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
         contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.accent} />}>
-        <Text className="screen-title">{copy.title}</Text>
+        <BrandHeader title={copy.title} />
         <Text className="screen-subtitle">{ready ? `${ready.slate.label} · ${copy.subtitle}` : copy.subtitle}</Text>
         <DfsSlatePicker slates={ready?.slates} current={ready?.slate.slate_id} />
         <StatusView loading={loading} error={error} />

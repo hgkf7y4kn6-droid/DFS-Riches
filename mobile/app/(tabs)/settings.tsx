@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Alert, Linking, Platform, Pressable, ScrollView, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import BrandHeader from '@/components/BrandHeader';
 import SafeAreaView from '@/components/SafeAreaView';
 import { API_BASE_URL } from '@/constants/config';
 import { HOME_USER } from '@/constants/data';
@@ -66,7 +67,7 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}>
-        <Text className="screen-title">Settings</Text>
+        <BrandHeader title="Settings" />
 
         <Text className="settings-group-title">Account</Text>
         <View className="settings-group mt-0">

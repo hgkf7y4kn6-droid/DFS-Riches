@@ -1,6 +1,7 @@
-import { FlatList, ScrollView, Text } from 'react-native';
+import { FlatList, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import BrandHeader from '@/components/BrandHeader';
 import BackLink from '@/components/BackLink';
 import LineupBuilder from '@/components/LineupBuilder';
 import ListHeading from '@/components/ListHeading';
@@ -25,8 +26,8 @@ export default function Lineups() {
         contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}
         keyboardShouldPersistTaps="handled">
+        <BrandHeader title="Lineups" />
         <BackLink />
-        <Text className="screen-title mb-3">Lineups</Text>
         <StatusView loading={weekData.loading && !data} error={weekData.error} />
         {data ? (
           <>

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import BrandHeader from '@/components/BrandHeader';
 import DfsSlatePicker from '@/components/dfs/DfsSlatePicker';
 import GameEnvironmentCard from '@/components/dfs/GameEnvironmentCard';
 import ModelStatus from '@/components/dfs/ModelStatus';
@@ -39,7 +40,7 @@ export default function DfsModelScreen() {
         contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}
         refreshControl={<RefreshControl refreshing={loading && !!model} onRefresh={refresh} tintColor={colors.accent} />}>
-        <Text className="screen-title">DFS Model</Text>
+        <BrandHeader title="DFS Model" />
         <Text className="screen-subtitle">
           {ready ? `${ready.slate.label} · updated ${formatEt(ready.generated_at)}` : 'Projections, values, ceilings and game environments'}
         </Text>

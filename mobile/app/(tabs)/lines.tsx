@@ -1,6 +1,7 @@
 import { ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import BrandHeader from '@/components/BrandHeader';
 import BackLink from '@/components/BackLink';
 import LinesList from '@/components/LinesList';
 import SafeAreaView from '@/components/SafeAreaView';
@@ -18,8 +19,8 @@ export default function Lines() {
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}>
+        <BrandHeader title={HOME_SECTIONS.lines.title} />
         <BackLink />
-        <Text className="screen-title">{HOME_SECTIONS.lines.title}</Text>
         <Text className="screen-subtitle">
           {week ? `Week ${week} · ` : ''}
           {HOME_SECTIONS.lines.subtitle}
