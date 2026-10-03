@@ -20,6 +20,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CLERK_PUBLISHABLE_KEY } from '@/constants/config';
 import { darkColors, lightColors } from '@/constants/theme';
 import { AccountSyncProvider } from '@/lib/account-sync';
+import { AnalyticsProvider } from '@/lib/analytics';
 import { DfsModelProvider } from '@/lib/dfs-model-context';
 import { MatchupsProvider } from '@/lib/matchups-context';
 import { PoolTagsProvider } from '@/lib/pool-tags-context';
@@ -58,28 +59,30 @@ export default function RootLayout() {
 
   return (
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} tokenCache={Platform.OS === 'web' ? undefined : tokenCache}>
-      <SafeAreaProvider>
-        <ThemeProvider value={navTheme(dark)}>
-          <AccountSyncProvider>
-            <SubmissionsProvider>
-              <WeekProvider>
-                <DfsModelProvider>
-                  <PoolTagsProvider>
-                    <MatchupsProvider>
-                      <StatusBar style={dark ? 'light' : 'dark'} />
-                      <Stack screenOptions={{ headerShown: false }}>
-                        <Stack.Screen name="(tabs)" />
-                        <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
-                        <Stack.Screen name="sign-up" options={{ presentation: 'modal' }} />
-                      </Stack>
-                    </MatchupsProvider>
-                  </PoolTagsProvider>
-                </DfsModelProvider>
-              </WeekProvider>
-            </SubmissionsProvider>
-          </AccountSyncProvider>
-        </ThemeProvider>
-      </SafeAreaProvider>
+      <AnalyticsProvider>
+        <SafeAreaProvider>
+          <ThemeProvider value={navTheme(dark)}>
+            <AccountSyncProvider>
+              <SubmissionsProvider>
+                <WeekProvider>
+                  <DfsModelProvider>
+                    <PoolTagsProvider>
+                      <MatchupsProvider>
+                        <StatusBar style={dark ? 'light' : 'dark'} />
+                        <Stack screenOptions={{ headerShown: false }}>
+                          <Stack.Screen name="(tabs)" />
+                          <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
+                          <Stack.Screen name="sign-up" options={{ presentation: 'modal' }} />
+                        </Stack>
+                      </MatchupsProvider>
+                    </PoolTagsProvider>
+                  </DfsModelProvider>
+                </WeekProvider>
+              </SubmissionsProvider>
+            </AccountSyncProvider>
+          </ThemeProvider>
+        </SafeAreaProvider>
+      </AnalyticsProvider>
     </ClerkProvider>
   );
 }
