@@ -70,7 +70,10 @@ def test_root_falls_back_to_classic_without_a_web_build(client, monkeypatch, tmp
     assert client.get("/", follow_redirects=False).headers["location"] == "/classic"
 
 
-def test_api_rejects_out_of_range_weeks(client):
+def test_api_rejects_out_of_range_weeks(client, monkeypatch):
+    async def master(authorization):
+        return "user_master"
+    monkeypatch.setattr(main, "_require_master", master)
     assert client.get("/api/week?season=2026&week=0").status_code == 422
     assert client.get("/api/breakdown?season=1800&week=3").status_code == 422
     assert client.post("/api/ownership/source", json={"season": 2026, "week": 3, "slate_id": "../etc",

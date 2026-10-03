@@ -46,6 +46,7 @@ RETAIN_WEEKS = 6
 METADATA_BUDGET = 7000              # bytes of Clerk private metadata we allow ourselves
 CLERK_API = "https://api.clerk.com/v1"
 USER_CACHE_SECONDS = 120
+JWKS_MIN_REFRESH_SECONDS = 60
 
 
 class AuthError(Exception):
@@ -98,7 +99,10 @@ _JWKS: dict[str, Any] = {"at": 0.0, "keys": {}}
 
 
 async def _signing_key(kid: str):
-    if kid not in _JWKS["keys"] or time.time() - _JWKS["at"] > 3600:
+    # Refresh hourly, or for a key id we haven't seen (Clerk rotated keys) --
+    # but at most once a minute, so forged tokens can't make us hammer Clerk.
+    age = time.time() - _JWKS["at"]
+    if age > 3600 or (kid not in _JWKS["keys"] and age > JWKS_MIN_REFRESH_SECONDS):
         async with httpx.AsyncClient(timeout=10) as client:
             resp = await client.get(f"https://{frontend_api()}/.well-known/jwks.json")
             resp.raise_for_status()

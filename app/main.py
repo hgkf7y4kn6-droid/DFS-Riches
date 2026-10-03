@@ -31,7 +31,7 @@ from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
 from app import dfs_model
-from app import accounts, matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
+from app import accounts, guard, matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
@@ -73,6 +73,8 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # another origin, so allow cross-origin GETs. Writes stay same-origin.
 # Account sync adds authenticated PUTs (Bearer token, no cookies).
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "PUT"], allow_headers=["*"])
+# Outermost: per-client rate limits and body-size caps on /api/ (app.guard).
+app.add_middleware(guard.GuardMiddleware)
 
 app.mount("/static", _CachedStaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
@@ -278,6 +280,14 @@ async def _user(authorization: str | None) -> str:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
 
 
+async def _require_master(authorization: str | None) -> str:
+    """Shared ownership data (projections, actuals) is written by master accounts only."""
+    user_id = await _user(authorization)
+    if not await accounts.is_master(user_id):
+        raise HTTPException(status_code=403, detail="Master account required")
+    return user_id
+
+
 @app.get("/api/me")
 async def api_me(authorization: Annotated[str | None, Header()] = None):
     """The signed-in user's synced data (app.accounts): saved lineups, contest entries, pool tags and settings,
@@ -400,8 +410,9 @@ async def _resolver_players(season: int, week: int, slate_id: str) -> list[dict]
 
 
 @app.post("/api/ownership/source")
-async def api_ownership_source(body: dict = Body(...)):
+async def api_ownership_source(body: dict = Body(...), authorization: Annotated[str | None, Header()] = None):
     """Ownership projections pasted from a named source: {season, week, slate_id, contest, source, text}."""
+    await _require_master(authorization)
     try:
         season, week, slate_id = _slate_args(body)
         source = str(body.get("source") or "").strip()
@@ -416,8 +427,9 @@ async def api_ownership_source(body: dict = Body(...)):
 
 
 @app.post("/api/ownership/crowd")
-async def api_ownership_crowd(body: dict = Body(...)):
+async def api_ownership_crowd(body: dict = Body(...), authorization: Annotated[str | None, Header()] = None):
     """A crowdsourced submission: {season, week, slate_id, contest, user_id, display_name, confidence (1-5), text}."""
+    await _require_master(authorization)
     try:
         season, week, slate_id = _slate_args(body)
         user_id = str(body.get("user_id") or "").strip()
@@ -435,9 +447,10 @@ async def api_ownership_crowd(body: dict = Body(...)):
 
 
 @app.post("/api/ownership/actual")
-async def api_ownership_actual(body: dict = Body(...)):
+async def api_ownership_actual(body: dict = Body(...), authorization: Annotated[str | None, Header()] = None):
     """Actual contest ownership: a DraftKings contest-standings CSV (preferred: also carries every
     field lineup) or "Name, pct" lines. {season, week, slate_id, contest, text}. Triggers relearning."""
+    await _require_master(authorization)
     try:
         season, week, slate_id = _slate_args(body)
         contest = str(body.get("contest") or "gpp")
