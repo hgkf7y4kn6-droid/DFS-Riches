@@ -1,0 +1,16 @@
+// Cloudflare Workers deploy of the website: the app's web build as static
+// assets (scripts/build_pages.sh), calling the API server on Render.
+// Never put CLERK_SECRET_KEY or DATABASE_URL here: they belong to Render only.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dfs-riches",
+  "compatibility_date": "2026-10-01",
+  "build": {
+    "command": "CF_WORKERS=1 bash scripts/build_pages.sh"
+  },
+  "assets": {
+    "directory": "./pages-dist",
+    // Client-side routes Expo didn't pre-render fall back to the app shell.
+    "not_found_handling": "single-page-application"
+  }
+}

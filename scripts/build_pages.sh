@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cloudflare Pages build: the app's website as static files, calling the API
+# Cloudflare Pages / Workers build (wrangler.jsonc runs it on deploy): the app's website as static files, calling the API
 # server on Render for data and account sync.
 #
 # Pages project settings:
@@ -23,6 +23,7 @@ cat > ../pages-dist/_headers <<'HEADERS'
 /_expo/*
   Cache-Control: public, max-age=31536000, immutable
 HEADERS
-# Client-side routes Expo didn't pre-render fall back to the app shell.
-echo '/* /index.html 200' > ../pages-dist/_redirects
+# Client-side routes Expo didn't pre-render fall back to the app shell
+# (Workers does this with not_found_handling in wrangler.jsonc).
+[ -n "${CF_WORKERS:-}" ] || echo '/* /index.html 200' > ../pages-dist/_redirects
 echo "Built pages-dist (API: $EXPO_PUBLIC_API_URL)"
