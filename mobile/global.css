@@ -123,7 +123,8 @@
     @apply text-3xl font-sans-extrabold text-foreground;
   }
   .brand-accent {
-    @apply text-accent;
+    /* Metallic gold in both themes (light mode's accent is orange). */
+    @apply text-[#d4af37];
   }
   .brand-subheading {
     @apply mt-0.5 text-lg font-sans-semibold text-muted-foreground;
