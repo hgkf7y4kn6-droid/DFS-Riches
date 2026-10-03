@@ -701,3 +701,36 @@ declare module '*.png' {
 
 /** Side-effect import of global.css in app/_layout.tsx (compiled by NativeWind). */
 declare module '*.css';
+
+// ------------------------------------------------------ defense vs position
+
+/** Raw ranks, or strength-of-schedule adjusted (vs what each opponent usually produces). */
+type MatchupMode = 'raw' | 'adj';
+
+interface MatchupMetrics {
+  /** Raw: DK points allowed per game. Adjusted: points allowed above the opponents' usual output. */
+  fp: number;
+  /** 1 = allows the most (softest matchup). */
+  fp_rank: number;
+  /** Raw: the position's efficiency metric allowed. Adjusted: above the opponents' usual. */
+  eff: number;
+  eff_rank: number;
+}
+
+interface PositionMatchupRank {
+  games: number;
+  raw: MatchupMetrics;
+  adj: MatchupMetrics;
+}
+
+interface DefenseVsPosition {
+  season: number;
+  week: number;
+  /** Games per team in the window. */
+  window: number;
+  /** Efficiency metric label per position, e.g. RB "yds/touch". */
+  efficiency: Record<string, string>;
+  league: Record<string, { fp: number; eff: number; teams: number }>;
+  /** team -> position -> ranks. For DST the team is the opposing offense. */
+  teams: Record<string, Record<string, PositionMatchupRank>>;
+}

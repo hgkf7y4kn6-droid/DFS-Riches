@@ -1,6 +1,7 @@
 import { ActivityIndicator, Text, View } from 'react-native';
 
 import { useThemeColors } from '@/constants/theme';
+import { matchupTone, useMatchups, type MatchupTone } from '@/lib/matchups-context';
 import { usePlayerGames } from '@/lib/player-games';
 import { useWeek } from '@/lib/week-context';
 
@@ -31,6 +32,25 @@ function line(group: keyof PlayerGameStats, s: PlayerGameStats): string | null {
   }
 }
 
+const RANK_TEXT: Record<MatchupTone, string> = {
+  soft: 'game-log-rank text-success',
+  neutral: 'game-log-rank',
+  tough: 'game-log-rank text-danger',
+};
+
+/** "Soft schedule: ..." from the average rank (vs this position) of the defenses faced. */
+function scheduleNote(ranks: number[], teams: number, position: string, mode: MatchupMode): { tone: MatchupTone; text: string } | null {
+  if (!ranks.length) return null;
+  const avg = ranks.reduce((a, b) => a + b, 0) / ranks.length;
+  const tone = matchupTone(avg, teams);
+  const who = position === 'DST' ? 'offenses' : `defenses vs ${position}`;
+  const basis = `${mode === 'adj' ? 'schedule-adjusted' : 'raw'} FP rank, #1 = allows the most`;
+  const head = `Faced ${who} averaging #${avg.toFixed(0)} (${basis}).`;
+  if (tone === 'soft') return { tone, text: `Soft schedule: ${head} These numbers may be inflated by easy matchups.` };
+  if (tone === 'tough') return { tone, text: `Tough schedule: ${head} The numbers may undersell this player.` };
+  return { tone, text: `Neutral schedule: ${head}` };
+}
+
 const GROUP_LABEL: Record<keyof PlayerGameStats, string> = {
   passing: 'Pass',
   rushing: 'Rush',
@@ -46,6 +66,7 @@ const GROUP_LABEL: Record<keyof PlayerGameStats, string> = {
 export default function GameLog({ player }: { player: PlayPlayer }) {
   const colors = useThemeColors();
   const { season } = useWeek();
+  const { lookup, mode } = useMatchups();
   const { data, loading, error } = usePlayerGames(player);
 
   if (loading) {
@@ -60,17 +81,24 @@ export default function GameLog({ player }: { player: PlayPlayer }) {
   if (!data.games.length) return <Text className="dfs-reason">No games played yet this season or last.</Text>;
 
   const s = data.summary;
+  const ranked = data.games.map((g) => lookup(g.opponent, player.position));
+  const known = ranked.filter((m): m is NonNullable<typeof m> => m != null);
+  const schedule = scheduleNote(known.map((m) => m.fp_rank), known[0]?.teams ?? 32, player.position, mode);
   return (
     <View className="game-log">
       <Text className="game-log-title">Last {s.games} games</Text>
       <Text className="game-log-summary">
         {s.avg_dk_points?.toFixed(1)} DK pts / game{s.avg_snap_pct != null ? ` · ${Math.round(s.avg_snap_pct)}% snaps` : ''}
       </Text>
-      {data.games.map((g) => (
+      {schedule ? <Text className={`game-log-schedule ${RANK_TEXT[schedule.tone]}`}>{schedule.text}</Text> : null}
+      {data.games.map((g, i) => (
         <View key={`${g.season}-${g.week}`} className="game-log-game">
           <View className="game-log-head">
             <Text className="game-log-week">
               {g.season !== season ? `${g.season} ` : ''}Wk {g.week} vs {g.opponent}
+              {ranked[i] ? (
+                <Text className={RANK_TEXT[matchupTone(ranked[i].fp_rank, ranked[i].teams)]}> #{ranked[i].fp_rank}</Text>
+              ) : null}
               {g.snap_pct != null ? (
                 <Text className="game-log-snaps">
                   {'  '}

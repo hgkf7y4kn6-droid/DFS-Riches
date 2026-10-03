@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import MatchupBadge from '@/components/MatchupBadge';
 import GameLog from '@/components/plays/GameLog';
 import TagChoices from '@/components/plays/TagChoices';
 import TagPill from '@/components/plays/TagPill';
@@ -39,6 +40,7 @@ export default function PlayRow({ player, contest, pool }: { player: PlayPlayer;
           <Text className="dfs-meta">
             {p.position} · {p.team} vs {p.opponent} · implied {p.implied}
           </Text>
+          <MatchupBadge opponent={p.opponent} position={p.position} />
         </View>
         <View className="items-end">
           <Text className="dfs-salary">{formatCurrency(p.salary)}</Text>

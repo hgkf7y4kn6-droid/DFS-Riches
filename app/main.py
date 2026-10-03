@@ -31,7 +31,7 @@ from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
 from app import dfs_model
-from app import ownership_learning, ownership_report, ownership_store, play_rankings, player_games
+from app import matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
@@ -267,6 +267,16 @@ async def api_plays(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, 
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not build {contest} plays: {exc}") from exc
     return Response(body, media_type="application/json")
+
+
+@app.get("/api/defense-vs-position")
+async def api_defense_vs_position(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
+    """Every defense's rank against each position (DK points and efficiency allowed, last 8 games), raw and
+    strength-of-schedule adjusted (app.matchups). Rank 1 = allows the most."""
+    try:
+        return await matchups.defense_vs_position(season, week)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not build matchup ranks: {exc}") from exc
 
 
 @app.get("/api/player-games")

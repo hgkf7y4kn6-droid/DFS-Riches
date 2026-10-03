@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import MatchupBadge from '@/components/MatchupBadge';
 import { formatCurrency, formatPercent } from '@/lib/utils';
 
 export type DfsMetric = 'final' | 'value' | 'ceiling';
@@ -47,6 +48,7 @@ export default function DfsPlayerRow({
             {p.slot && p.slot !== p.position ? `${p.slot} · ` : ''}
             {p.position} · {p.team} vs {p.opponent}
           </Text>
+          <MatchupBadge opponent={p.opponent} position={p.position} />
         </View>
         <View className="items-end">
           <Text className="dfs-salary">{formatCurrency(p.salary)}</Text>

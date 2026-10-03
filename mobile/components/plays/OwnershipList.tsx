@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
+import MatchupBadge from '@/components/MatchupBadge';
 import GameLog from '@/components/plays/GameLog';
 import TagChoices from '@/components/plays/TagChoices';
 import TagPill, { TAG_STYLE } from '@/components/plays/TagPill';
@@ -63,6 +64,7 @@ function OwnershipRow({ player, columns, expanded, onToggle, pool }: RowProps) {
           <Text className="dfs-meta">
             {p.position} · {p.team} vs {p.opponent} · {formatCurrency(p.salary)} · {p.final.toFixed(1)} proj
           </Text>
+          <MatchupBadge opponent={p.opponent} position={p.position} />
         </View>
         {columns.map((c) => (
           <View key={c} className="own-col">

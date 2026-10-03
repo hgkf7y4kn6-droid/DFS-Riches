@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import MatchupBadge from '@/components/MatchupBadge';
 import { formatCurrency, formatPoints } from '@/lib/utils';
 
 export interface RowPlayer {
@@ -42,6 +43,7 @@ export function LineupRow({ slot, player, right, note }: { slot: string; player:
               {player.position} · {player.team}
               {player.opponent ? ` vs ${player.opponent}` : ''}
             </Text>
+            {player.opponent ? <MatchupBadge opponent={player.opponent} position={player.position} /> : null}
             {note ? <Text className="lineup-player-note">{note}</Text> : null}
           </View>
           <View className="lineup-numbers">

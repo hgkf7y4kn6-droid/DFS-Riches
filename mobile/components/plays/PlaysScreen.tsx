@@ -1,6 +1,7 @@
 import { FlatList, RefreshControl, ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import MatchupModeToggle from '@/components/MatchupModeToggle';
 import BrandHeader from '@/components/BrandHeader';
 import DfsSlatePicker from '@/components/dfs/DfsSlatePicker';
 import ListHeading from '@/components/ListHeading';
@@ -102,6 +103,7 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
         <BrandHeader title={copy.title} />
         <Text className="screen-subtitle">{ready ? `${ready.slate.label} · ${copy.subtitle}` : copy.subtitle}</Text>
         <DfsSlatePicker slates={ready?.slates} current={ready?.slate.slate_id} />
+        <MatchupModeToggle />
         <StatusView loading={loading} error={error} />
         {loading ? <Text className="empty-text">Simulating the field -- this can take a few seconds.</Text> : null}
         {data && !data.available ? <Text className="home-empty-state">{data.reason}</Text> : null}

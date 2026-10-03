@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
+import MatchupModeToggle from '@/components/MatchupModeToggle';
 import { LineupRow, Totals } from '@/components/LineupRows';
 import StatusView from '@/components/StatusView';
 import SubmissionForm from '@/components/SubmissionForm';
@@ -192,6 +193,7 @@ export default function LineupBuilder() {
 
       {/* Player pool */}
       <Text className="section-title mb-2">Player pool</Text>
+      <MatchupModeToggle />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
         {POSITION_FILTERS[slateType].map((pos) => {
           const active = pos === position;

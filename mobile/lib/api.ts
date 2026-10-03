@@ -57,3 +57,8 @@ export function getPlayerGames(season: number, week: number, player: { name: str
   const params = `name=${encodeURIComponent(player.name)}&position=${player.position}&team=${player.team}`;
   return getJson<PlayerGamesResponse>(`/api/player-games?${q(season, week)}&${params}`);
 }
+
+/** Every defense's rank vs each position (DK points and efficiency allowed), raw and schedule-adjusted. */
+export function getDefenseVsPosition(season: number, week: number) {
+  return getJson<DefenseVsPosition>(`/api/defense-vs-position?${q(season, week)}`);
+}

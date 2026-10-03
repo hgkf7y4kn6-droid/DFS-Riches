@@ -17,6 +17,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { darkColors, lightColors } from '@/constants/theme';
 import { DfsModelProvider } from '@/lib/dfs-model-context';
+import { MatchupsProvider } from '@/lib/matchups-context';
 import { PoolTagsProvider } from '@/lib/pool-tags-context';
 import { SubmissionsProvider } from '@/lib/submissions-context';
 import { WeekProvider } from '@/lib/week-context';
@@ -58,10 +59,12 @@ export default function RootLayout() {
           <WeekProvider>
             <DfsModelProvider>
               <PoolTagsProvider>
-                <StatusBar style={dark ? 'light' : 'dark'} />
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="(tabs)" />
-                </Stack>
+                <MatchupsProvider>
+                  <StatusBar style={dark ? 'light' : 'dark'} />
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="(tabs)" />
+                  </Stack>
+                </MatchupsProvider>
               </PoolTagsProvider>
             </DfsModelProvider>
           </WeekProvider>

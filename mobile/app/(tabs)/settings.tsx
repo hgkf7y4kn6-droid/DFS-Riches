@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Alert, Linking, Platform, Pressable, ScrollView, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import MatchupModeToggle from '@/components/MatchupModeToggle';
 import BrandHeader from '@/components/BrandHeader';
 import SafeAreaView from '@/components/SafeAreaView';
 import { API_BASE_URL } from '@/constants/config';
@@ -73,6 +74,11 @@ export default function SettingsScreen() {
         <View className="settings-group mt-0">
           <Row label="Name" value={HOME_USER.name} />
           <Row label="Appearance" value={`${scheme === 'dark' ? 'Dark' : 'Light'} (follows your device)`} last />
+        </View>
+
+        <Text className="settings-group-title">Matchups</Text>
+        <View className="settings-group mt-0 p-4">
+          <MatchupModeToggle />
         </View>
 
         <Text className="settings-group-title">Data</Text>

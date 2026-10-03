@@ -435,6 +435,33 @@
   .own-detail {
     @apply mt-2 rounded-lg bg-muted p-2;
   }
+  .matchup-badge {
+    @apply mt-1 self-start rounded-md px-1.5 py-0.5;
+  }
+  .matchup-text {
+    @apply text-[10px] font-sans-semibold;
+  }
+  .matchup-soft {
+    @apply bg-success/15;
+  }
+  .matchup-soft-text {
+    @apply text-success;
+  }
+  .matchup-neutral {
+    @apply bg-muted;
+  }
+  .matchup-neutral-text {
+    @apply text-muted-foreground;
+  }
+  .matchup-tough {
+    @apply bg-danger/15;
+  }
+  .matchup-tough-text {
+    @apply text-danger;
+  }
+  .matchup-toggle-label {
+    @apply text-xs font-sans-semibold text-muted-foreground;
+  }
   .tag-pill-mine {
     @apply border border-primary;
   }
@@ -470,6 +497,12 @@
   }
   .game-log-summary {
     @apply mt-0.5 text-xs font-sans-semibold text-foreground;
+  }
+  .game-log-rank {
+    @apply text-[11px] font-sans-bold text-muted-foreground;
+  }
+  .game-log-schedule {
+    @apply mt-1 font-sans-medium;
   }
   .game-log-game {
     @apply mt-2 border-t border-border pt-2;

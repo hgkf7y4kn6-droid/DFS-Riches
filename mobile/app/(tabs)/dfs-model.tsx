@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import MatchupModeToggle from '@/components/MatchupModeToggle';
 import BrandHeader from '@/components/BrandHeader';
 import DfsSlatePicker from '@/components/dfs/DfsSlatePicker';
 import GameEnvironmentCard from '@/components/dfs/GameEnvironmentCard';
@@ -45,6 +46,7 @@ export default function DfsModelScreen() {
           {ready ? `${ready.slate.label} · updated ${formatEt(ready.generated_at)}` : 'Projections, values, ceilings and game environments'}
         </Text>
         <DfsSlatePicker />
+        <MatchupModeToggle />
         <ModelStatus />
 
         {ready ? (
