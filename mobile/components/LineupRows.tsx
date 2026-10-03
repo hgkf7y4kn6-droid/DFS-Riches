@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native';
 
 import MatchupBadge from '@/components/MatchupBadge';
+import { roleText } from '@/lib/matchup-sort';
 import { formatCurrency, formatPoints } from '@/lib/utils';
 
 export interface RowPlayer {
@@ -13,6 +14,8 @@ export interface RowPlayer {
   ceiling?: number | null;
   injury?: string | null;
   actual?: number;
+  role?: PlayerRole | null;
+  snap_pct?: number | null;
 }
 
 function pointsLine(p: RowPlayer): string {
@@ -42,6 +45,7 @@ export function LineupRow({ slot, player, right, note }: { slot: string; player:
             <Text className="lineup-player-meta">
               {player.position} · {player.team}
               {player.opponent ? ` vs ${player.opponent}` : ''}
+              {roleText(player) ? ` · ${roleText(player)}` : ''}
             </Text>
             {player.opponent ? <MatchupBadge opponent={player.opponent} position={player.position} /> : null}
             {note ? <Text className="lineup-player-note">{note}</Text> : null}

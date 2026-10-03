@@ -98,9 +98,12 @@ export const ordinal = (n: number) => {
 
 export type MatchupTone = 'soft' | 'neutral' | 'tough';
 
-/** Soft = top third of defenses by what they allow; tough = bottom third. */
+/** Ranks run 1 (allows the least) to 32 (allows the most). Soft = top third by what they allow; tough = bottom third. */
 export function matchupTone(rank: number, teams: number): MatchupTone {
-  if (rank <= Math.round(teams / 3)) return 'soft';
-  if (rank > teams - Math.round(teams / 3)) return 'tough';
+  if (rank > teams - Math.round(teams / 3)) return 'soft';
+  if (rank <= Math.round(teams / 3)) return 'tough';
   return 'neutral';
 }
+
+/** Matchup strength for sorting: the average of the points and efficiency ranks (higher = softer). */
+export const matchupScore = (m: { fp_rank: number; eff_rank: number }) => (m.fp_rank + m.eff_rank) / 2;

@@ -25,7 +25,8 @@ so a defense that only faced weak offenses stops looking stingy, and one that
 faced a gauntlet stops looking soft. Positive = allows more than its opponents
 usually get.
 
-Ranks run 1..N with 1 = allows the most (the softest matchup).
+Ranks run 1..N with N (32nd) = allows the most -- the softest matchup -- and
+1 = allows the least, the usual "32nd against the run" convention.
 """
 from __future__ import annotations
 
@@ -105,8 +106,8 @@ def _recent(records: list[dict], season: int, week: int) -> list[dict]:
 
 
 def _ranks(values: dict[str, float]) -> dict[str, int]:
-    """1 = the largest value (allows the most)."""
-    order = sorted(values, key=lambda t: -values[t])
+    """1 = the smallest value (allows the least); N = the largest (softest)."""
+    order = sorted(values, key=lambda t: values[t])
     return {t: i for i, t in enumerate(order, 1)}
 
 

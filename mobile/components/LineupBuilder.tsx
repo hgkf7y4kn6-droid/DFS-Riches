@@ -10,10 +10,20 @@ import { PLAYABLE_STATUSES, POSITION_FILTERS } from '@/constants/data';
 import icons from '@/constants/icons';
 import { useThemeColors } from '@/constants/theme';
 import { addPlayer, fitChecker, indexOfPlayer, removeAt, summarize, template } from '@/lib/lineups';
+import { sortByMatchup } from '@/lib/matchup-sort';
+import { useMatchups } from '@/lib/matchups-context';
 import { formatCurrency, formatEt, formatPoints } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
 
 const PAGE = 40;
+
+type SortKey = 'proj' | 'salary' | 'value' | 'matchup';
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: 'proj', label: 'Projection' },
+  { key: 'salary', label: 'Salary' },
+  { key: 'value', label: 'Value' },
+  { key: 'matchup', label: 'Matchup' },
+];
 
 /**
  * Build up to MAX_LINEUPS lineups for the selected slate: the active lineup
@@ -29,6 +39,8 @@ export default function LineupBuilder() {
   const [position, setPosition] = useState('All');
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const [sortBy, setSortBy] = useState<SortKey>('proj');
+  const { lookup } = useMatchups();
   const [limit, setLimit] = useState(PAGE);
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
   const [logging, setLogging] = useState(false);
@@ -42,15 +54,21 @@ export default function LineupBuilder() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return pool
+    const list = pool
       .filter((p) => showAll || PLAYABLE_STATUSES.has(p.injury ?? 'Healthy'))
       .filter((p) => {
         if (position === 'All') return true;
         return slateType === 'showdown' ? p.roster_slot === position : p.position === position;
       })
-      .filter((p) => !q || p.name.toLowerCase().includes(q) || p.team.toLowerCase() === q)
-      .sort((a, b) => b.proj_points - a.proj_points);
-  }, [pool, position, query, showAll, slateType]);
+      .filter((p) => !q || p.name.toLowerCase().includes(q) || p.team.toLowerCase() === q);
+    if (sortBy === 'matchup') return sortByMatchup(list, lookup, (p) => p.proj_points);
+    const key: Record<Exclude<SortKey, 'matchup'>, (p: Player) => number> = {
+      proj: (p) => p.proj_points,
+      salary: (p) => p.salary,
+      value: (p) => p.value_per_1k,
+    };
+    return list.sort((a, b) => key[sortBy](b) - key[sortBy](a));
+  }, [pool, position, query, showAll, slateType, sortBy, lookup]);
 
   if (!selectedSlate) return null;
   if (!selectedSlate.available) {
@@ -219,6 +237,31 @@ export default function LineupBuilder() {
           <Text className={`filter-chip-text ${showAll ? 'filter-chip-text-active' : ''}`}>Incl. Out/Doubtful</Text>
         </Pressable>
       </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
+        <Text className="matchup-toggle-label self-center">Sort</Text>
+        {SORTS.map((o) => {
+          const active = o.key === sortBy;
+          return (
+            <Pressable
+              key={o.key}
+              className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
+              onPress={() => {
+                setSortBy(o.key);
+                setLimit(PAGE);
+              }}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}>
+              <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{o.label}</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+      {sortBy === 'matchup' ? (
+        <Text className="dfs-reason mb-2">
+          Softest matchups first (#32 = allows the most), starters and rotation players (committee backs, every-down WRs) ahead of
+          backups.
+        </Text>
+      ) : null}
       <TextInput
         className="input mb-2"
         placeholder="Search player or team (e.g. BUF)"

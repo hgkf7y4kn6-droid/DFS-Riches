@@ -30,7 +30,7 @@ export default function MatchupModeToggle({ compact = false }: { compact?: boole
       </View>
       {!compact ? (
         <Text className="dfs-reason">
-          #1 = the defense allowing the most to that position over its last {data?.window ?? 8} games (green soft, red tough).{' '}
+          #32 = the defense allowing the most to that position over its last {data?.window ?? 8} games, #1 the least (green soft, red tough).{' '}
           {mode === 'adj'
             ? 'Schedule-adjusted judges each game against what that offense usually produces, so soft or brutal schedules don\'t skew the ranks.'
             : 'Raw is points and efficiency allowed as-is; switch to schedule-adjusted to strip out who they happened to face.'}

@@ -272,7 +272,7 @@ async def api_plays(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, 
 @app.get("/api/defense-vs-position")
 async def api_defense_vs_position(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
     """Every defense's rank against each position (DK points and efficiency allowed, last 8 games), raw and
-    strength-of-schedule adjusted (app.matchups). Rank 1 = allows the most."""
+    strength-of-schedule adjusted (app.matchups). Rank 32 = allows the most (softest)."""
     try:
         return await matchups.defense_vs_position(season, week)
     except Exception as exc:

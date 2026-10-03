@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from app import ceiling, dk_client, matching, nflverse_client, projections, sleeper_client, weather
+from app import ceiling, dk_client, matching, nflverse_client, player_games, projections, roles, sleeper_client, weather
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
 from app.models import Player, Slate, SlatePlayers, WeekSchedule
@@ -24,6 +24,25 @@ from app.schedule import get_week_schedule
 async def _get_sleeper_index() -> matching.SleeperNameIndex:
     players = await sleeper_client.get_players()
     return matching.SleeperNameIndex(players)
+
+
+async def _assign_roles(players: list[Player], season: int, week: int) -> None:
+    """Starter / rotation / backup / out per player (app.roles), from projections
+    and recent snap share. Showdown CPT rows share their FLEX row's role."""
+    index = await player_games.get_index(season)
+    base = {}
+    for p in players:
+        key = (p.name, p.team, p.position)
+        if key not in base or p.roster_slot != "CPT":
+            proj = p.proj_points / 1.5 if p.roster_slot == "CPT" else p.proj_points
+            snap_pct, opps = roles.recent_usage(index, season, week, p.name, p.position)
+            base[key] = {"name": p.name, "team": p.team, "position": p.position, "proj": proj, "injury": p.injury,
+                         "snap_pct": snap_pct, "opps": opps}
+    assigned = roles.assign(list(base.values()))
+    for p in players:
+        key = (p.name, p.team, p.position)
+        p.role = assigned.get(key)
+        p.snap_pct = base[key]["snap_pct"]
 
 
 @memoize_async(30)  # just long enough to cover one page load's schedule+slates+players calls
@@ -188,6 +207,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
             )
         )
 
+    await _assign_roles(players, season, week)
     players.sort(key=lambda p: p.salary, reverse=True)
 
     return SlatePlayers(

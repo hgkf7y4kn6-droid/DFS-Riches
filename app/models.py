@@ -97,6 +97,8 @@ class Player(BaseModel):
     injury: str | None = None
     sleeper_player_id: str | None = None
     dk_draftable_id: int | None = None
+    role: str | None = None           # starter / rotation / backup / out on his team this week (app.roles)
+    snap_pct: float | None = None     # average offensive snap % over his last 3 games
 
 
 class Slate(BaseModel):

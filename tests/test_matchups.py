@@ -23,10 +23,10 @@ def test_raw_ranks_reward_the_soft_schedule_and_adjusted_ranks_correct_it():
     soft, tough = t["teams"]["SOFTSKED"]["WR"], t["teams"]["TOUGHSKED"]["WR"]
     # Raw: TOUGHSKED allowed more points (26 vs 14) so it looks like the softer matchup.
     assert tough["raw"]["fp"] == 26 and soft["raw"]["fp"] == 14
-    assert tough["raw"]["fp_rank"] < soft["raw"]["fp_rank"]
+    assert tough["raw"]["fp_rank"] > soft["raw"]["fp_rank"]
     # Adjusted: SOFTSKED allowed 4 more than BAD's usual; TOUGHSKED held GOOD 4 under.
     assert soft["adj"]["fp"] == 4.0 and tough["adj"]["fp"] == -4.0
-    assert soft["adj"]["fp_rank"] < tough["adj"]["fp_rank"]
+    assert soft["adj"]["fp_rank"] > tough["adj"]["fp_rank"]
     # Efficiency: 8.0 yds/target allowed vs BAD's usual 5.0 -> +3.0; 8.0 vs GOOD's usual 10.0 -> -2.0.
     assert soft["raw"]["eff"] == 8.0 and soft["adj"]["eff"] == 3.0
     assert tough["adj"]["eff"] == -2.0
@@ -46,8 +46,8 @@ def test_window_caps_at_recent_games():
     assert d["raw"]["fp"] == sum(range(5, 13)) / 8
 
 
-def test_ranks_are_one_for_the_most_allowed():
-    assert m._ranks({"A": 1.0, "B": 3.0, "C": 2.0}) == {"B": 1, "C": 2, "A": 3}
+def test_highest_rank_is_the_most_allowed():
+    assert m._ranks({"A": 1.0, "B": 3.0, "C": 2.0}) == {"A": 1, "C": 2, "B": 3}
 
 
 def test_rb_efficiency_counts_rushing_and_receiving():

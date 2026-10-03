@@ -12,7 +12,7 @@ const TONE: Record<MatchupTone, { pill: string; text: string }> = {
 /**
  * Where the player's opponent ranks against his position: by DK points
  * allowed and by the position's efficiency metric, raw or strength-of-schedule
- * adjusted (the user's choice). #1 = allows the most, so green is a soft
+ * adjusted (the user's choice). #32 = allows the most, so green is a soft
  * matchup and red a tough one.
  */
 export default function MatchupBadge({ opponent, position }: { opponent?: string | null; position?: string | null }) {

@@ -5,6 +5,7 @@ import MatchupBadge from '@/components/MatchupBadge';
 import GameLog from '@/components/plays/GameLog';
 import TagChoices from '@/components/plays/TagChoices';
 import TagPill from '@/components/plays/TagPill';
+import { roleText } from '@/lib/matchup-sort';
 import type { Pool } from '@/lib/pool-tags-context';
 import { formatCurrency, formatPercent, formatSigned } from '@/lib/utils';
 
@@ -39,6 +40,7 @@ export default function PlayRow({ player, contest, pool }: { player: PlayPlayer;
           </Text>
           <Text className="dfs-meta">
             {p.position} · {p.team} vs {p.opponent} · implied {p.implied}
+            {roleText(p) ? ` · ${roleText(p)}` : ''}
           </Text>
           <MatchupBadge opponent={p.opponent} position={p.position} />
         </View>

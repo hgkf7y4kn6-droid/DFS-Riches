@@ -221,7 +221,14 @@ interface Player {
   injury: InjuryStatus | null;
   sleeper_player_id: string | null;
   dk_draftable_id: number | null;
+  /** Role on his team this week, from projections and recent snap share. */
+  role?: PlayerRole | null;
+  /** Average offensive snap % over his last 3 games. */
+  snap_pct?: number | null;
 }
+
+/** starter: top of the depth chart; rotation: real share of the work (committee backs, WR4s on the field). */
+type PlayerRole = 'starter' | 'rotation' | 'backup' | 'out';
 
 interface SlatePlayers {
   slate: Slate;
@@ -423,6 +430,8 @@ interface DfsPlayer {
   risk?: string;
   classification?: string;
   slot?: string;
+  role?: PlayerRole | null;
+  snap_pct?: number | null;
 }
 
 /** One game's environment for DFS, ranked across the slate (1 = best). */
@@ -565,6 +574,8 @@ interface PlayPlayer {
   ownership_models: Partial<Record<OwnershipContest, Record<string, number>>>;
   tag: PlayTag;
   tag_reason: string;
+  role?: PlayerRole | null;
+  snap_pct?: number | null;
   features: {
     value_ratio: number;
     position_value_rank: number;
@@ -710,7 +721,7 @@ type MatchupMode = 'raw' | 'adj';
 interface MatchupMetrics {
   /** Raw: DK points allowed per game. Adjusted: points allowed above the opponents' usual output. */
   fp: number;
-  /** 1 = allows the most (softest matchup). */
+  /** 1 = allows the least (toughest); 32 = allows the most (softest matchup). */
   fp_rank: number;
   /** Raw: the position's efficiency metric allowed. Adjusted: above the opponents' usual. */
   eff: number;

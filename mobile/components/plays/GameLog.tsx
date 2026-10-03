@@ -44,7 +44,7 @@ function scheduleNote(ranks: number[], teams: number, position: string, mode: Ma
   const avg = ranks.reduce((a, b) => a + b, 0) / ranks.length;
   const tone = matchupTone(avg, teams);
   const who = position === 'DST' ? 'offenses' : `defenses vs ${position}`;
-  const basis = `${mode === 'adj' ? 'schedule-adjusted' : 'raw'} FP rank, #1 = allows the most`;
+  const basis = `${mode === 'adj' ? 'schedule-adjusted' : 'raw'} FP rank, #32 = allows the most`;
   const head = `Faced ${who} averaging #${avg.toFixed(0)} (${basis}).`;
   if (tone === 'soft') return { tone, text: `Soft schedule: ${head} These numbers may be inflated by easy matchups.` };
   if (tone === 'tough') return { tone, text: `Tough schedule: ${head} The numbers may undersell this player.` };

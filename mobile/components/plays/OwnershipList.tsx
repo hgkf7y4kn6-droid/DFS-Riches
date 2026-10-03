@@ -5,6 +5,8 @@ import MatchupBadge from '@/components/MatchupBadge';
 import GameLog from '@/components/plays/GameLog';
 import TagChoices from '@/components/plays/TagChoices';
 import TagPill, { TAG_STYLE } from '@/components/plays/TagPill';
+import { roleText, sortByMatchup } from '@/lib/matchup-sort';
+import { useMatchups } from '@/lib/matchups-context';
 import type { Pool } from '@/lib/pool-tags-context';
 import { formatCurrency, formatSigned } from '@/lib/utils';
 
@@ -20,6 +22,9 @@ const MODEL_LABEL: Record<string, string> = {
 };
 const COLUMN: Record<OwnershipContest, string> = { cash: 'Cash', small_gpp: 'Small GPP', large_gpp: 'Large GPP' };
 const PAGE = 30;
+type SortKey = 'own' | 'matchup';
+const SORTS: SortKey[] = ['own', 'matchup'];
+const SORT_LABEL: Record<SortKey, string> = { own: 'Most owned', matchup: 'Best matchup' };
 
 function Chips<T extends string>({ items, value, label, onChange }: { items: T[]; value: T; label: (t: T) => string; onChange: (t: T) => void }) {
   return (
@@ -63,6 +68,7 @@ function OwnershipRow({ player, columns, expanded, onToggle, pool }: RowProps) {
           </Text>
           <Text className="dfs-meta">
             {p.position} · {p.team} vs {p.opponent} · {formatCurrency(p.salary)} · {p.final.toFixed(1)} proj
+            {roleText(p) ? ` · ${roleText(p)}` : ''}
           </Text>
           <MatchupBadge opponent={p.opponent} position={p.position} />
         </View>
@@ -137,16 +143,20 @@ export default function OwnershipList({ players, columns, pool }: { players: Pla
   const [tag, setTag] = useState<TagFilter>('all');
   const [limit, setLimit] = useState(PAGE);
   const [open, setOpen] = useState<number | null>(null);
-  const filtered = players.filter(
+  const [sortBy, setSortBy] = useState<SortKey>('own');
+  const { lookup } = useMatchups();
+  const matching = players.filter(
     (p) =>
       (position === 'All' || p.position === position) &&
       (tag === 'all' || (tag === 'mine' ? pool.isMine(p) : pool.tagOf(p) === tag)),
   );
+  const filtered = sortBy === 'matchup' ? sortByMatchup(matching, lookup, (p) => p.final) : matching;
   return (
     <View>
       <PoolSummary players={players} pool={pool} />
       <Chips items={POSITIONS} value={position} label={(t) => t} onChange={(t) => (setPosition(t), setLimit(PAGE))} />
       <Chips items={TAGS} value={tag} label={(t) => TAG_LABEL[t]} onChange={(t) => (setTag(t), setLimit(PAGE))} />
+      <Chips items={SORTS} value={sortBy} label={(t) => SORT_LABEL[t]} onChange={(t) => (setSortBy(t), setLimit(PAGE))} />
       <View className="player-pool">
         {filtered.slice(0, limit).map((p) => (
           <OwnershipRow
