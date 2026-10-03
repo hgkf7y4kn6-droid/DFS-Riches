@@ -74,6 +74,10 @@
         "SUN_NIGHT": {
           "draft_group_id": 154098,
           "label": "Showdown - Sun Night (DET @ CAR)"
+        },
+        "SUN_MORNING": {
+          "draft_group_id": 154085,
+          "label": "Showdown - Sun Morning (IND @ WAS)"
         }
       }
     }
