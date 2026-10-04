@@ -13,9 +13,11 @@ export const SALARY_CAP = 50000;
 /** Lineups the builder can hold per slate (same as the website). */
 export const MAX_LINEUPS = 5;
 
-/** Clerk (sign-in). Public by design; override with EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY. */
+/** Clerk (sign-in): the production instance, so every build (web, Expo Go, native)
+ * signs in to the same accounts. Public by design; override with
+ * EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY (e.g. a pk_test_ key for local development). */
 export const CLERK_PUBLISHABLE_KEY =
-  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_cmVsYXRlZC1jb3VnYXItMjE5MC5jbGVyay5hY2NvdW50cy5kZXYk';
+  process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_live_Y2xlcmsucmljaGVzZGlnaXRhbHZlbnR1cmVzLmNvbSQ';
 
 /** PostHog (product analytics). The project key is public by design; override with EXPO_PUBLIC_POSTHOG_KEY. */
 export const POSTHOG_KEY = process.env.EXPO_PUBLIC_POSTHOG_KEY || 'phc_oLAa9SV4LBadgjghnJuXkrdGMBcnVfGae8CaWCq5Mq6f';

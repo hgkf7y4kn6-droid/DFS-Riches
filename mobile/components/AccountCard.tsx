@@ -19,9 +19,17 @@ const STORAGE: Record<string, string> = { neon: 'Neon database', clerk: 'Clerk a
  * whether this is the master account, and the sync status of your saved data.
  */
 export default function AccountCard() {
-  const { isSignedIn, signOut } = useAuth();
+  const { isLoaded, isSignedIn, signOut } = useAuth();
   const { user } = useUser();
   const sync = useAccountSync();
+
+  if (!isLoaded) {
+    return (
+      <View className="account-card">
+        <Text className="account-text mt-0">Loading your account…</Text>
+      </View>
+    );
+  }
 
   if (!isSignedIn) {
     return (
@@ -76,8 +84,8 @@ export default function AccountCard() {
         <Pressable className="btn-outline flex-1 justify-center" onPress={sync.refresh} accessibilityRole="button">
           <Text className="btn-outline-text">Sync now</Text>
         </Pressable>
-        <Pressable className="btn-outline flex-1 justify-center" onPress={() => signOut()} accessibilityRole="button">
-          <Text className="btn-outline-text">Sign out</Text>
+        <Pressable className="btn-outline flex-1 justify-center" onPress={() => signOut()} accessibilityRole="button" accessibilityLabel="Log out">
+          <Text className="btn-outline-text">Log out</Text>
         </Pressable>
       </View>
     </View>
