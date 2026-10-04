@@ -104,11 +104,18 @@ const BUILD_NOTE: Record<PlayContest, string> = {
 function buildField(players: PlayPlayer[], field: OwnershipContest): BuildField {
   const ownership = new Map<number, number>();
   const floor = new Map<number, number>();
+  const env = new Map<number, number>();
+  const leverage = new Map<number, number>();
   for (const p of players) {
-    if (p.ownership[field] != null) ownership.set(p.id, p.ownership[field]!);
+    const own = p.ownership[field];
+    if (own != null) ownership.set(p.id, own);
     floor.set(p.id, p.floor);
+    if (p.parts.env != null) env.set(p.id, p.parts.env);
+    // GPP: the model's ceiling odds per unit of large-field ownership. Cash: P(2.5x) per unit of cash ownership.
+    const lev = field === 'cash' ? (own != null ? p.p_hit / Math.max(own / 100, 0.005) : null) : p.leverage_ratio;
+    if (lev != null) leverage.set(p.id, Math.round(lev * 100) / 100);
   }
-  return { label: FIELD_LABEL[field], ownership, floor: field === 'cash' ? floor : undefined };
+  return { label: FIELD_LABEL[field], ownership, floor: field === 'cash' ? floor : undefined, env, leverage };
 }
 
 /**

@@ -19,7 +19,7 @@ import { type LineupScope, useLineups, useWeek } from '@/lib/week-context';
 
 const PAGE = 40;
 
-type SortKey = 'proj' | 'floor' | 'ceiling' | 'value' | 'salary' | 'own' | 'l3' | 'l6' | 'l9' | 'matchup';
+type SortKey = 'proj' | 'floor' | 'ceiling' | 'value' | 'salary' | 'own' | 'lev' | 'env' | 'touch' | 'l3' | 'l6' | 'l9' | 'matchup';
 const SORTS: { key: SortKey; label: string }[] = [
   { key: 'proj', label: 'Projection' },
   { key: 'floor', label: 'Floor' },
@@ -27,6 +27,9 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: 'value', label: 'Value' },
   { key: 'salary', label: 'Salary' },
   { key: 'own', label: 'Ownership' },
+  { key: 'lev', label: 'Leverage' },
+  { key: 'env', label: 'Game environment' },
+  { key: 'touch', label: 'Touch %' },
   { key: 'l3', label: 'Last 3' },
   { key: 'l6', label: 'Last 6' },
   { key: 'l9', label: 'Last 9' },
@@ -43,6 +46,9 @@ const SORT_NOTE: Record<SortKey, string> = {
   value: 'Projected points per $1k of salary',
   salary: 'DraftKings salary',
   own: 'Expected large-field ownership from the DFS model',
+  lev: 'Leverage: his ceiling odds (GPP) or 2.5x-salary odds (cash) per point of expected ownership -- 1.0x = owned in line with his odds',
+  env: "Game environment: the model's score for his team's scoring setup -- implied total, game total, pace and weather",
+  touch: "Touch %: his share of the team's RB / WR / TE touches (carries + receptions) over the last 3 games",
   l3: 'DK points per game over his last 3 games this season (shown once he has played 3)',
   l6: 'DK points per game over his last 6 games this season (shown once he has played 6)',
   l9: 'DK points per game over his last 9 games this season (shown once he has played 9)',
@@ -56,6 +62,10 @@ export interface BuildField {
   label: string;
   ownership: Map<number, number>;
   floor?: Map<number, number>;
+  /** The model's game-environment score (z within the position: implied total, game total, pace, weather). */
+  env?: Map<number, number>;
+  /** Ceiling (GPP) or 2.5x (cash) odds per unit of expected ownership; 1.0 = owned in line with the odds. */
+  leverage?: Map<number, number>;
 }
 
 /**
@@ -66,7 +76,7 @@ export interface BuildField {
  * dimmed with the reason.
  */
 export default function LineupBuilder({ scope = '', field }: { scope?: LineupScope; field?: BuildField } = {}) {
-  const { selectedSlate, players } = useWeek();
+  const { selectedSlate, players, weekData } = useWeek();
   const { lineups, activeLineup, setActiveLineup, setLineup, addLineup, deleteLineup, saveLineups, savedAt, unsaved } = useLineups(scope);
   const colors = useThemeColors();
   const [position, setPosition] = useState('All');
@@ -92,8 +102,21 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   const own = field ? { ownership: field.ownership, available: true, loading: false, error: null } : modelOwn;
   const hasWindow = (k: 'trend_l6' | 'trend_l9') => pool.some((p) => p[k] != null);
   const sorts = SORTS.filter(
-    (o) => (o.key !== 'floor' || field?.floor) && (o.key !== 'l6' || hasWindow('trend_l6')) && (o.key !== 'l9' || hasWindow('trend_l9')),
+    (o) =>
+      (o.key !== 'floor' || field?.floor) &&
+      (o.key !== 'lev' || field?.leverage?.size) &&
+      (o.key !== 'l6' || hasWindow('trend_l6')) &&
+      (o.key !== 'l9' || hasWindow('trend_l9')),
   );
+  // Game environment without the model (the Lineups tab): each team's Vegas implied total.
+  const implied = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const g of weekData.data?.schedule.games ?? []) {
+      if (g.context?.away_implied_total != null) m.set(g.away, g.context.away_implied_total);
+      if (g.context?.home_implied_total != null) m.set(g.home, g.context.home_implied_total);
+    }
+    return m;
+  }, [weekData.data]);
   const lineup = useMemo(() => lineups[activeLineup] ?? [], [lineups, activeLineup]);
   const defs = template(slateType);
   const summary = summarize(lineup, slateType);
@@ -117,6 +140,9 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
       value: (p) => p.value_per_1k,
       salary: (p) => p.salary,
       own: (p) => (p.dk_draftable_id != null ? ownership?.get(p.dk_draftable_id) ?? null : null),
+      lev: (p) => (p.dk_draftable_id != null ? field?.leverage?.get(p.dk_draftable_id) ?? null : null),
+      env: (p) => (field?.env ? (p.dk_draftable_id != null ? field.env.get(p.dk_draftable_id) ?? null : null) : implied.get(p.team) ?? null),
+      touch: (p) => p.team_share?.touch_pct ?? null,
       l3: (p) => p.trend_l3,
       l6: (p) => p.trend_l6,
       l9: (p) => p.trend_l9,
@@ -142,7 +168,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
         return dir * (va - vb) || b.proj_points - a.proj_points;
       })
       .map((p) => ({ player: p, blend: null as number | null }));
-  }, [pool, position, query, showAll, slateType, selected, weights, lowFirst, blended, sortBy, ascending, lookup, own.ownership, field?.floor]);
+  }, [pool, position, query, showAll, slateType, selected, weights, lowFirst, blended, sortBy, ascending, lookup, own.ownership, field, implied]);
 
   /** Tap a sort: add it (weights reset to an even split), or remove it; tapping the only sort flips its direction. */
   const pressSort = (key: SortKey) => {
@@ -166,9 +192,15 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   // What each pool row shows beyond projection: the field's ownership (always, on the Cash / GPP tabs), floor for cash.
   const rowPlayer = (p: Player) => {
     const id = p.dk_draftable_id;
-    const extra: { ownership?: number | null; floor?: number | null; form?: RowPlayer['form'] } = {};
+    const extra: Pick<RowPlayer, 'ownership' | 'floor' | 'form' | 'leverage' | 'env'> = {};
     if (field || selected.includes('own')) extra.ownership = id != null ? own.ownership?.get(id) ?? null : null;
     if (field?.floor) extra.floor = id != null ? field.floor.get(id) ?? null : null;
+    if (selected.includes('lev')) extra.leverage = id != null ? field?.leverage?.get(id) ?? null : null;
+    if (selected.includes('env')) {
+      extra.env = field?.env
+        ? { value: id != null ? field.env.get(id) ?? null : null, kind: 'score' }
+        : { value: implied.get(p.team) ?? null, kind: 'implied' };
+    }
     if (selected.some((k) => k === 'l3' || k === 'l6' || k === 'l9')) {
       extra.form = { l3: p.trend_l3, l6: p.trend_l6, l9: p.trend_l9, season: p.trend_season ?? null };
     }

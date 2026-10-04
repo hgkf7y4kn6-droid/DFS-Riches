@@ -26,6 +26,10 @@ export interface RowPlayer {
   trend?: number | null;
   /** Builder "Recent form" sort: DK points per game over the last 3 / 6 / 9 games vs the season average. */
   form?: { l3: number | null; l6: number | null; l9: number | null; season: number | null } | null;
+  /** Builder Leverage sort: odds per unit of ownership. */
+  leverage?: number | null;
+  /** Builder Game environment sort: the model's score, or the team's implied total. */
+  env?: { value: number | null; kind: 'score' | 'implied' } | null;
   /** Builder blended sort: the player's weighted score (0-100) in the current pool. */
   blend?: number | null;
   /** Cash builder: the model's floor. */
@@ -41,6 +45,11 @@ function pointsLine(p: RowPlayer): string {
   if (p.ceiling != null && p.actual == null) parts.push(`${formatPoints(p.ceiling)} ceil`);
   if (p.actual != null) parts.push(`${formatPoints(p.actual)} actual`);
   if (p.ownership !== undefined) parts.push(p.ownership != null ? `${p.ownership.toFixed(1)}% own` : 'own n/a');
+  if (p.leverage !== undefined) parts.push(p.leverage != null ? `${p.leverage.toFixed(1)}x lev` : 'lev n/a');
+  if (p.env) {
+    const v = p.env.value;
+    parts.push(v == null ? 'env n/a' : p.env.kind === 'implied' ? `${v.toFixed(1)} implied` : `env ${v >= 0 ? '+' : ''}${v.toFixed(1)}`);
+  }
   if (p.trend !== undefined) parts.push(p.trend != null ? `${formatPoints(p.trend)} L3` : 'no games');
   return parts.join(' · ');
 }
