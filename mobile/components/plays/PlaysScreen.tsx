@@ -12,6 +12,7 @@ import ListHeading from '@/components/ListHeading';
 import OwnershipList from '@/components/plays/OwnershipList';
 import OptimalLineups from '@/components/OptimalLineups';
 import OwnershipModelNote from '@/components/plays/OwnershipModelNote';
+import LeverageCard from '@/components/plays/LeverageCard';
 import PlayRankingCard from '@/components/plays/PlayRankingCard';
 import RoleShiftsCard from '@/components/plays/RoleShiftsCard';
 import SafeAreaView from '@/components/SafeAreaView';
@@ -48,7 +49,7 @@ const POSITION_CARDS: { pos: 'QB' | 'RB' | 'WR' | 'TE'; label: string }[] = [
 interface Card {
   key: string;
   /** Rendered as the role-shifts card instead of a ranked-plays card. */
-  kind?: 'shifts';
+  kind?: 'shifts' | 'leverage';
   kicker?: string;
   title: string;
   subtitle: string;
@@ -79,17 +80,8 @@ function cards(data: PlaysResponse, contest: PlayContest): Card[] {
       note: 'Chalk with a strong ceiling (Prioritize) is worth eating; chalk tagged Fade is owned beyond its ceiling odds -- the field\'s best place to get off.',
     });
   }
-  if (contest === 'gpp' && data.leverage?.length) {
-    list.push({
-      key: 'leverage',
-      kicker: 'Leverage',
-      title: `Top ${data.leverage.length} leverage plays`,
-      subtitle: 'Most under-owned for their efficiency-adjusted ceiling odds, every position',
-      players: data.leverage,
-      preview: (p) => `${p.position} · ${p.leverage_detail?.fair_own?.toFixed(1)}% fair vs ${p.ownership.large_gpp?.toFixed(1)}% own`,
-      note:
-        "Leverage = fair ownership minus projected ownership (points). Fair ownership spreads the position's ownership by each player's efficiency-adjusted ceiling odds -- his offense's EPA, the opposing defense's EPA allowed and its record vs his position -- so a barely-owned dart with no real upside lands near zero, and chalk in a bad matchup goes negative.",
-    });
+  if (contest === 'gpp' && data.leverage_by_position && Object.keys(data.leverage_by_position).length) {
+    list.push({ key: 'leverage', kind: 'leverage', title: '', subtitle: '', players: [] });
   }
   return list;
 }
@@ -167,6 +159,8 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
               renderItem={({ item }) =>
                 item.kind === 'shifts' ? (
                   <RoleShiftsCard players={item.players} pool={pool} />
+                ) : item.kind === 'leverage' ? (
+                  <LeverageCard byPosition={ready.leverage_by_position ?? {}} pool={pool} />
                 ) : (
                   <PlayRankingCard
                     kicker={item.kicker}

@@ -119,6 +119,13 @@ def test_play_rankings_counts_tags_and_ownership(monkeypatch):
     assert chalk_own == sorted(chalk_own, reverse=True)
     levs = [p["leverage"] for p in gpp["leverage"]]
     assert levs == sorted(levs, reverse=True)
+    by_pos = gpp["leverage_by_position"]
+    assert set(by_pos) <= {"QB", "RB", "WR", "TE", "DST"} and "RB" in by_pos and "cash" not in gpp.get("leverage_by_position", {})
+    for pos, ps in by_pos.items():
+        assert 0 < len(ps) <= pr.LEVERAGE_PER_POSITION and all(p["position"] == pos for p in ps)
+        assert [p["leverage"] for p in ps] == sorted((p["leverage"] for p in ps), reverse=True)
+        assert [p["rank"] for p in ps] == list(range(1, len(ps) + 1))
+    assert "leverage_by_position" not in cash
     # Leverage is fair minus projected ownership: it nets to ~0 across each position.
     for pos in ("QB", "RB", "WR", "TE"):
         assert abs(sum(p["leverage"] for p in gpp["players"] if p["position"] == pos)) < 1.0

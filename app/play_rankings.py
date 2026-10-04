@@ -39,7 +39,8 @@ GPP also returns two cross-position lists for the tab's horizontal cards:
   chalk     the 10 highest large-field ownerships among relevant players
   leverage  the 10 highest leverage scores (fair minus projected large-
             field ownership, app.leverage) among relevant players -- the
-            pivots off the chalk
+            pivots off the chalk; leverage_by_position: the top 10 at each
+            position (QB, RB, WR, TE, DST), strongest first
 """
 from __future__ import annotations
 
@@ -54,6 +55,7 @@ GPP_CEILING_SCORE = {"QB": 28.0, "RB": 24.0, "WR": 24.0, "TE": 18.0, "DST": 14.0
 TAG_TOP = {**TOP_N, "DST": 3}
 RELEVANT_PROJ = {"QB": 5.0, "RB": 5.0, "WR": 5.0, "TE": 5.0, "DST": 3.0}
 CROSS_N = 10
+LEVERAGE_PER_POSITION = 10
 ROLE_SHIFTS_N = 40
 
 
@@ -150,8 +152,12 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
         relevant = [r for r in rows if r["final"] >= RELEVANT_PROJ[r["position"]]]
         chalk = sorted(relevant, key=lambda r: -r["lead_own"])[:CROSS_N]
         pivots = sorted(relevant, key=lambda r: -r["leverage"])[:CROSS_N]
+        by_pos = {pos: sorted((r for r in relevant if r["position"] == pos), key=lambda r: -r["leverage"])[:LEVERAGE_PER_POSITION]
+                  for pos in fo.POSITIONS}
         extra |= {"chalk": [_player(r, contest, own_contests, k) for k, r in enumerate(chalk, 1)],
-                 "leverage": [_player(r, contest, own_contests, k) for k, r in enumerate(pivots, 1)]}
+                 "leverage": [_player(r, contest, own_contests, k) for k, r in enumerate(pivots, 1)],
+                 "leverage_by_position": {pos: [_player(r, contest, own_contests, k) for k, r in enumerate(rs, 1)]
+                                          for pos, rs in by_pos.items() if rs}}
     return {
         "contest": contest,
         "season": season,

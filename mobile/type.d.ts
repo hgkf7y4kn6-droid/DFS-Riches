@@ -740,6 +740,8 @@ interface PlaysResponse {
   chalk?: PlayPlayer[];
   /** GPP only: the 10 best ceiling-odds-per-ownership pivots across positions. */
   leverage?: PlayPlayer[];
+  /** GPP: the top 10 leverage plays at each position, strongest first. */
+  leverage_by_position?: Partial<Record<string, PlayPlayer[]>>;
 }
 
 /** The user's own Prioritize / Neutral / Fade calls for one pool, by player id. */
