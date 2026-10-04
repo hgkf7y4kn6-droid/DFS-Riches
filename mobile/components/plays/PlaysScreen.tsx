@@ -16,6 +16,7 @@ import ActualOwnershipCard from '@/components/plays/ActualOwnershipCard';
 import LeverageCard from '@/components/plays/LeverageCard';
 import PlayRankingCard from '@/components/plays/PlayRankingCard';
 import RoleShiftsCard from '@/components/plays/RoleShiftsCard';
+import SlateList from '@/components/SlateList';
 import SafeAreaView from '@/components/SafeAreaView';
 import StatusView from '@/components/StatusView';
 import { FLOATING_TAB_BAR, useThemeColors } from '@/constants/theme';
@@ -119,7 +120,7 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
   const { data, loading, refreshing, error, refresh } = usePlays(contest);
-  const { season, week, selectedSlate, selectSlate } = useWeek();
+  const { season, week, weekData, selectedSlate, selectSlate } = useWeek();
   const copy = COPY[contest];
   const ready = data?.available ? data : null;
   const pool = usePool(ready && season && week ? poolKey(season, week, ready.slate.slate_id, contest) : null);
@@ -128,12 +129,16 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
   const fieldKey: OwnershipContest = contest === 'cash' ? 'cash' : gppField;
   const field = useMemo(() => (ready ? buildField(ready.players, fieldKey) : undefined), [ready, fieldKey]);
 
-  // The builder works on Home's selected slate; keep it on this tab's slate while the tab is open.
+  // The builder can work on any slate this week (Showdowns included); it starts on, and
+  // follows, the slate this tab analyzes, and only that slate has the field's ownership.
   const slateId = ready?.slate.slate_id;
+  const [pick, setPick] = useState<{ forSlate: string; id: string } | null>(null);
+  const buildSlateId = pick && pick.forSlate === slateId ? pick.id : slateId;
+  const onPlaysSlate = buildSlateId === slateId;
   useFocusEffect(
     useCallback(() => {
-      if (slateId && selectedSlate?.slate_id !== slateId) selectSlate(slateId);
-    }, [slateId, selectedSlate?.slate_id, selectSlate]),
+      if (buildSlateId && selectedSlate?.slate_id !== buildSlateId) selectSlate(buildSlateId);
+    }, [buildSlateId, selectedSlate?.slate_id, selectSlate]),
   );
 
   return (
@@ -183,8 +188,18 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
             <ActualOwnershipCard contest={contest} plays={ready} onUploaded={refresh} />
             <OwnershipList players={ready.players} columns={columns} pool={pool} />
 
-            <ListHeading title={`Build ${contest === 'cash' ? 'cash' : 'GPP'} lineups`} subtitle={BUILD_NOTE[contest]} />
-            {contest === 'gpp' ? (
+            <ListHeading
+              title={`Build ${contest === 'cash' ? 'cash' : 'GPP'} lineups`}
+              subtitle={onPlaysSlate ? BUILD_NOTE[contest] : 'Field ownership is modeled for this tab\'s Classic slate only.'}
+            />
+            <View className="mb-3">
+              <SlateList
+                slates={weekData.data?.slates ?? []}
+                selectedId={buildSlateId ?? null}
+                onSelect={(id) => slateId && setPick({ forSlate: slateId, id })}
+              />
+            </View>
+            {contest === 'gpp' && onPlaysSlate ? (
               <View className="chip-row-content mb-2 flex-row">
                 {(['large_gpp', 'small_gpp'] as GppField[]).map((f) => {
                   const active = f === gppField;
@@ -203,12 +218,12 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
                 })}
               </View>
             ) : null}
-            {selectedSlate?.slate_id === ready.slate.slate_id ? (
+            {buildSlateId && selectedSlate?.slate_id === buildSlateId ? (
               <>
                 <ExpandableCard title="Projected optimal" subtitle="Highest-projected lineups · copy one into the builder" defaultExpanded={false}>
                   <OptimalLineups scope={contest} />
                 </ExpandableCard>
-                <LineupBuilder scope={contest} field={field} />
+                <LineupBuilder scope={contest} field={onPlaysSlate ? field : undefined} />
               </>
             ) : null}
           </>
