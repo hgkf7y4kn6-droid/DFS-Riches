@@ -1,6 +1,7 @@
-import { Text, useColorScheme, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { type Better, trendFill, trendLevel } from '@/lib/trend';
+import { useColorScheme } from '@/lib/color-scheme';
 
 interface Windows {
   l3?: number | null;

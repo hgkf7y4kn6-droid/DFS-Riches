@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { Alert, Linking, Platform, Pressable, ScrollView, Text, useColorScheme, View } from 'react-native';
+import { Alert, Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AccountCard from '@/components/AccountCard';
@@ -13,6 +13,7 @@ import { useDfsModel } from '@/lib/dfs-model-context';
 import { useSubmissions } from '@/lib/submissions-context';
 import { usePoolTags } from '@/lib/pool-tags-context';
 import { useWeek } from '@/lib/week-context';
+import { useColorScheme } from '@/lib/color-scheme';
 
 /** Asks before destructive actions (Alert on phones; confirm() on web, where Alert is a no-op). */
 function confirm(title: string, message: string, onConfirm: () => void) {

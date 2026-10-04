@@ -9,8 +9,10 @@ import BalanceStats from '@/components/BalanceStats';
 import ExpandableCard from '@/components/ExpandableCard';
 import LinesList from '@/components/LinesList';
 import ListHeading from '@/components/ListHeading';
+import OptimalLineups from '@/components/OptimalLineups';
 import ProfitLossTracker from '@/components/ProfitLossTracker';
 import SafeAreaView from '@/components/SafeAreaView';
+import SlateList from '@/components/SlateList';
 import StatusView from '@/components/StatusView';
 import SubmissionForm from '@/components/SubmissionForm';
 import UpcomingGamesCard from '@/components/UpcomingGamesCard';
@@ -26,7 +28,7 @@ import { useWeek } from '@/lib/week-context';
 export default function Home() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
-  const { week, weekData, refresh, selectedSlate } = useWeek();
+  const { week, weekData, refresh, selectedSlate, selectSlate } = useWeek();
   const { submissions } = useSubmissions();
   const data = weekData.data;
   const [profitOpen, setProfitOpen] = useState(HOME_SECTIONS.profit.defaultExpanded);
@@ -145,6 +147,28 @@ export default function Home() {
                   )
                 }
               />
+            </View>
+
+            {/* Slates: every DraftKings slate this week (Sunday Main, Full Week, each Showdown) and its optimal lineups */}
+            <View>
+              <ListHeading
+                title={HOME_SECTIONS.slates.title}
+                subtitle={`${data.slates.length} slates this week · tap one for its optimal lineups`}
+                onPress={() => router.push('/lineups')}
+              />
+              {data.slates.length ? (
+                <>
+                  <SlateList slates={data.slates} selectedId={selectedSlate?.slate_id ?? null} onSelect={selectSlate} />
+                  <View className="mt-3">
+                    <OptimalLineups />
+                  </View>
+                  <Pressable className="btn-outline mt-2" onPress={() => router.push('/lineups')} accessibilityRole="button">
+                    <Text className="btn-outline-text">Build lineups for this slate ›</Text>
+                  </Pressable>
+                </>
+              ) : (
+                <Text className="home-empty-state">{"DraftKings hasn't posted this week's slates yet."}</Text>
+              )}
             </View>
           </>
         ) : null}

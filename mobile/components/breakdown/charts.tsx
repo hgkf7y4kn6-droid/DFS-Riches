@@ -1,4 +1,5 @@
-import { Text, useColorScheme, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { useColorScheme } from '@/lib/color-scheme';
 
 // Away / home identity for two-team charts, validated for color-vision
 // deficiency in each mode; every bar also carries its team label.

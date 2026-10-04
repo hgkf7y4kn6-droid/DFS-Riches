@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Image, View } from 'react-native';
+import { Image, Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HIDDEN_TAB_ROUTES, tabs } from '@/constants/data';
@@ -9,7 +9,20 @@ export default function TabLayout() {
   // The tab bar floats above the device's bottom inset (home indicator /
   // gesture bar) on every phone.
   const insets = useSafeAreaInsets();
-  const colors = useThemeColors();
+  const theme = useThemeColors();
+  // On web, the stylesheet's theme variables (they follow the device's light/dark
+  // setting instantly, even on the pre-rendered page); native uses the palette.
+  const colors =
+    Platform.OS === 'web'
+      ? {
+          ...theme,
+          background: 'var(--color-background)',
+          card: 'var(--color-card)',
+          border: 'var(--color-border)',
+          accentInk: 'var(--color-accent-ink)',
+          mutedForeground: 'var(--color-muted-foreground)',
+        }
+      : theme;
 
   return (
     <Tabs
@@ -60,7 +73,7 @@ export default function TabLayout() {
                   source={tab.icon}
                   className="tabs-icon"
                   // size-6 is 24px; set here too because react-native-web ignores className sizes on Image
-                  style={{ width: 22, height: 22, tintColor: focused ? colors.accentForeground : colors.mutedForeground }}
+                  style={{ width: 22, height: 22, tintColor: focused ? theme.accentForeground : theme.mutedForeground }}
                   resizeMode="contain"
                 />
               </View>

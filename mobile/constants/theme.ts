@@ -1,4 +1,4 @@
-import { useColorScheme } from 'react-native';
+import { useColorScheme } from '@/lib/color-scheme';
 
 // The color tokens from global.css (CSS variables, light + dark) as JS
 // values, for places that can't take a className: tab bar colors, image

@@ -73,7 +73,7 @@ interface UpcomingGame {
 
 /** One Home section: what it's called and how it's laid out. */
 interface HomeSection {
-  id: 'profit' | 'upcoming' | 'lineups' | 'lines';
+  id: 'profit' | 'upcoming' | 'slates' | 'lines';
   title: string;
   subtitle: string;
   /** Whether the section starts expanded. */

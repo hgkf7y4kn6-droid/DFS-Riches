@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { Text, useColorScheme, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { useLeverage } from '@/lib/leverage-context';
 import { trendInk, trendLevel } from '@/lib/trend';
+import { useColorScheme } from '@/lib/color-scheme';
 
 // Shades by size in ownership points: under 1.5 steady (gold), then 1.5 / 4 / 8.
 const STEPS: [number, number, number] = [1.5, 4, 8];

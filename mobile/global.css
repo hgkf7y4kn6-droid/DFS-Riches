@@ -32,6 +32,16 @@
   --gold: 166 124 0;
 }
 
+/* Full colors from the tokens, for inline styles on web (react-native-web passes
+   var(...) through as-is): they follow the light/dark media query instantly. */
+:root {
+  --color-background: rgb(var(--background));
+  --color-card: rgb(var(--card));
+  --color-border: rgb(var(--border));
+  --color-accent-ink: rgb(var(--accent-ink));
+  --color-muted-foreground: rgb(var(--muted-foreground));
+}
+
 /* Dark: rich black matte background, dark slate structure (cards, borders,
    the balance card), cool off-white type, metallic gold (#D4AF37) for
    buttons and active states, emerald (#50C878) gains and electric red

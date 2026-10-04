@@ -8,7 +8,7 @@ import Head from 'expo-router/head';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Platform, useColorScheme } from 'react-native';
+import { Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { CLERK_PUBLISHABLE_KEY } from '@/constants/config';
@@ -22,6 +22,7 @@ import { MatchupsProvider } from '@/lib/matchups-context';
 import { PoolTagsProvider } from '@/lib/pool-tags-context';
 import { SubmissionsProvider } from '@/lib/submissions-context';
 import { WeekProvider } from '@/lib/week-context';
+import { useColorScheme } from '@/lib/color-scheme';
 
 SplashScreen.preventAutoHideAsync();
 
