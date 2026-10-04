@@ -3225,7 +3225,7 @@
         ]
       },
       "classic": {
-        "saved_at": "2026-10-04T18:43:50+00:00",
+        "saved_at": "2026-10-04T22:58:25+00:00",
         "draft_group_id": 154077,
         "lineups": [
           {
@@ -3257,9 +3257,9 @@
                 "opponent": "CAR",
                 "roster_slot": "",
                 "salary": 9000,
-                "proj_points": 26.19,
+                "proj_points": 26.11,
                 "ceiling": 58.6,
-                "sleeper_proj": 24.94,
+                "sleeper_proj": 24.87,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44314498,
@@ -3357,9 +3357,9 @@
                 "opponent": "DET",
                 "roster_slot": "",
                 "salary": 3300,
-                "proj_points": 11.25,
+                "proj_points": 11.27,
                 "ceiling": 21.5,
-                "sleeper_proj": 10.71,
+                "sleeper_proj": 10.73,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44315528,
@@ -3384,7 +3384,7 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 147.56,
+            "proj_points": 147.5,
             "ceiling": 257.0
           },
           {
@@ -3399,9 +3399,9 @@
                 "opponent": "DET",
                 "roster_slot": "",
                 "salary": 5900,
-                "proj_points": 20.48,
+                "proj_points": 20.49,
                 "ceiling": 38.8,
-                "sleeper_proj": 19.5,
+                "sleeper_proj": 19.51,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44314403,
@@ -3415,9 +3415,9 @@
                 "opponent": "CAR",
                 "roster_slot": "",
                 "salary": 9000,
-                "proj_points": 26.19,
+                "proj_points": 26.11,
                 "ceiling": 58.6,
-                "sleeper_proj": 24.94,
+                "sleeper_proj": 24.87,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44314498,
@@ -3454,7 +3454,8 @@
                 "game_info": "LAC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44314872,
-                "dk_fppg": 37.7
+                "dk_fppg": 37.7,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -3481,9 +3482,9 @@
                 "opponent": "DET",
                 "roster_slot": "",
                 "salary": 3100,
-                "proj_points": 8.19,
+                "proj_points": 8.2,
                 "ceiling": 19.8,
-                "sleeper_proj": 7.84,
+                "sleeper_proj": 7.85,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44315100,
@@ -3503,7 +3504,8 @@
                 "game_info": "KC @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44315480,
-                "dk_fppg": 30.6
+                "dk_fppg": 30.6,
+                "locked": true
               },
               {
                 "slot": "FLEX",
@@ -3535,11 +3537,12 @@
                 "game_info": "KC @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44315886,
-                "dk_fppg": 12.3
+                "dk_fppg": 12.3,
+                "locked": true
               }
             ],
             "salary": 49900,
-            "proj_points": 134.84,
+            "proj_points": 134.78,
             "ceiling": 314.5
           }
         ]
@@ -3856,7 +3859,7 @@
         "results_at": "2026-10-02T11:22:07+00:00"
       },
       "showdown_sun_night": {
-        "saved_at": "2026-10-04T15:38:35+00:00",
+        "saved_at": "2026-10-04T22:58:34+00:00",
         "draft_group_id": 154098,
         "lineups": [
           {
@@ -3871,9 +3874,9 @@
                 "opponent": "CAR",
                 "roster_slot": "CPT",
                 "salary": 18000,
-                "proj_points": 39.29,
+                "proj_points": 39.16,
                 "ceiling": 87.9,
-                "sleeper_proj": 37.41,
+                "sleeper_proj": 37.3,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358497,
@@ -3903,9 +3906,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 9800,
-                "proj_points": 20.48,
+                "proj_points": 20.49,
                 "ceiling": 38.8,
-                "sleeper_proj": 19.5,
+                "sleeper_proj": 19.51,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358450,
@@ -3935,9 +3938,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 4400,
-                "proj_points": 11.25,
+                "proj_points": 11.27,
                 "ceiling": 21.5,
-                "sleeper_proj": 10.71,
+                "sleeper_proj": 10.73,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358462,
@@ -3951,9 +3954,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 2600,
-                "proj_points": 8.19,
+                "proj_points": 8.2,
                 "ceiling": 19.8,
-                "sleeper_proj": 7.84,
+                "sleeper_proj": 7.85,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358470,
@@ -3961,7 +3964,7 @@
               }
             ],
             "salary": 49600,
-            "proj_points": 109.06,
+            "proj_points": 108.97,
             "ceiling": 224.1
           },
           {
@@ -3976,9 +3979,9 @@
                 "opponent": "CAR",
                 "roster_slot": "CPT",
                 "salary": 18000,
-                "proj_points": 39.29,
+                "proj_points": 39.16,
                 "ceiling": 87.9,
-                "sleeper_proj": 37.41,
+                "sleeper_proj": 37.3,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358497,
@@ -4008,9 +4011,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 9800,
-                "proj_points": 20.48,
+                "proj_points": 20.49,
                 "ceiling": 38.8,
-                "sleeper_proj": 19.5,
+                "sleeper_proj": 19.51,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358450,
@@ -4040,9 +4043,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 4400,
-                "proj_points": 11.25,
+                "proj_points": 11.27,
                 "ceiling": 21.5,
-                "sleeper_proj": 10.71,
+                "sleeper_proj": 10.73,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358462,
@@ -4056,9 +4059,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 2600,
-                "proj_points": 8.19,
+                "proj_points": 8.2,
                 "ceiling": 19.8,
-                "sleeper_proj": 7.84,
+                "sleeper_proj": 7.85,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358470,
@@ -4066,7 +4069,7 @@
               }
             ],
             "salary": 49600,
-            "proj_points": 109.06,
+            "proj_points": 108.97,
             "ceiling": 224.1
           }
         ]
@@ -4309,7 +4312,8 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331973,
-                "dk_fppg": 12.7
+                "dk_fppg": 12.7,
+                "actual": 24.0
               },
               {
                 "slot": "FLEX",
@@ -4325,7 +4329,8 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331903,
-                "dk_fppg": 21.5
+                "dk_fppg": 21.5,
+                "actual": 22.7
               },
               {
                 "slot": "FLEX",
@@ -4341,7 +4346,8 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331905,
-                "dk_fppg": 11.1
+                "dk_fppg": 11.1,
+                "actual": 9.92
               },
               {
                 "slot": "FLEX",
@@ -4357,7 +4363,8 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331906,
-                "dk_fppg": 14.6
+                "dk_fppg": 14.6,
+                "actual": 5.34
               },
               {
                 "slot": "FLEX",
@@ -4373,7 +4380,8 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331912,
-                "dk_fppg": 7.9
+                "dk_fppg": 7.9,
+                "actual": 7.0
               },
               {
                 "slot": "FLEX",
@@ -4389,12 +4397,14 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331922,
-                "dk_fppg": 8.4
+                "dk_fppg": 8.4,
+                "actual": 5.1
               }
             ],
             "salary": 49900,
             "proj_points": 97.07,
-            "ceiling": 144.0
+            "ceiling": 144.0,
+            "actual": 74.06
           },
           {
             "metric": "ceiling",
@@ -4414,7 +4424,8 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331963,
-                "dk_fppg": 13.1
+                "dk_fppg": 13.1,
+                "actual": 13.65
               },
               {
                 "slot": "FLEX",
@@ -4430,7 +4441,8 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331903,
-                "dk_fppg": 21.5
+                "dk_fppg": 21.5,
+                "actual": 22.7
               },
               {
                 "slot": "FLEX",
@@ -4446,7 +4458,8 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331905,
-                "dk_fppg": 11.1
+                "dk_fppg": 11.1,
+                "actual": 9.92
               },
               {
                 "slot": "FLEX",
@@ -4462,7 +4475,8 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331912,
-                "dk_fppg": 7.9
+                "dk_fppg": 7.9,
+                "actual": 7.0
               },
               {
                 "slot": "FLEX",
@@ -4478,7 +4492,8 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331918,
-                "dk_fppg": 12.7
+                "dk_fppg": 12.7,
+                "actual": 16.0
               },
               {
                 "slot": "FLEX",
@@ -4494,14 +4509,97 @@
                 "game_info": "IND @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44331925,
-                "dk_fppg": 4.0
+                "dk_fppg": 4.0,
+                "actual": 9.2
               }
             ],
             "salary": 49900,
             "proj_points": 93.01,
-            "ceiling": 151.5
+            "ceiling": 151.5,
+            "actual": 78.47
           }
-        ]
+        ],
+        "hindsight": {
+          "metric": "actual",
+          "label": "Best possible (actual)",
+          "players": [
+            {
+              "slot": "CPT",
+              "name": "Jonathan Taylor",
+              "position": "RB",
+              "team": "IND",
+              "opponent": "WAS",
+              "roster_slot": "CPT",
+              "salary": 17400,
+              "game_info": "IND @ WAS",
+              "dk_draftable_id": 44331958,
+              "actual": 34.05
+            },
+            {
+              "slot": "FLEX",
+              "name": "Daniel Jones",
+              "position": "QB",
+              "team": "IND",
+              "opponent": "WAS",
+              "roster_slot": "FLEX",
+              "salary": 10400,
+              "game_info": "IND @ WAS",
+              "dk_draftable_id": 44331905,
+              "actual": 9.92
+            },
+            {
+              "slot": "FLEX",
+              "name": "Athan Kaliakmanis",
+              "position": "QB",
+              "team": "WAS",
+              "opponent": "IND",
+              "roster_slot": "FLEX",
+              "salary": 6000,
+              "game_info": "IND @ WAS",
+              "dk_draftable_id": 44331916,
+              "actual": 12.04
+            },
+            {
+              "slot": "FLEX",
+              "name": "Spencer Shrader",
+              "position": "K",
+              "team": "IND",
+              "opponent": "WAS",
+              "roster_slot": "FLEX",
+              "salary": 5000,
+              "game_info": "IND @ WAS",
+              "dk_draftable_id": 44331918,
+              "actual": 16.0
+            },
+            {
+              "slot": "FLEX",
+              "name": "Dyami Brown",
+              "position": "WR",
+              "team": "WAS",
+              "opponent": "IND",
+              "roster_slot": "FLEX",
+              "salary": 3000,
+              "game_info": "IND @ WAS",
+              "dk_draftable_id": 44331926,
+              "actual": 9.5
+            },
+            {
+              "slot": "FLEX",
+              "name": "Treylon Burks",
+              "position": "WR",
+              "team": "WAS",
+              "opponent": "IND",
+              "roster_slot": "FLEX",
+              "salary": 2000,
+              "game_info": "IND @ WAS",
+              "dk_draftable_id": 44331930,
+              "actual": 11.7
+            }
+          ],
+          "salary": 43800,
+          "actual": 93.21
+        },
+        "results_at": "2026-10-04T22:58:34+00:00"
       }
     }
   }
