@@ -11,9 +11,11 @@ import { useWeek } from '@/lib/week-context';
 /**
  * Logs a contest entry: contest type, slate, fee per entry, number of
  * entries, and winnings if it has already settled (leave blank while the
- * contest is pending; results can be added later in the tracker).
+ * contest is pending; results can be added later in the tracker). Logged
+ * from the builder, the entry keeps its lineup for late swaps and the
+ * tracker's player / team stats.
  */
-export default function SubmissionForm({ slateId, onDone }: { slateId?: string; onDone?: () => void }) {
+export default function SubmissionForm({ slateId, lineup, onDone }: { slateId?: string; lineup?: SubmittedPlayer[]; onDone?: () => void }) {
   const colors = useThemeColors();
   const { add } = useSubmissions();
   const { season, week, weekData, selectedSlate } = useWeek();
@@ -47,6 +49,7 @@ export default function SubmissionForm({ slateId, onDone }: { slateId?: string; 
       entryFee: feeValue,
       entries: entriesValue,
       winnings: won,
+      ...(lineup?.length ? { lineup } : {}),
     });
     setError(null);
     setName('');

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { FlatList, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,12 +13,19 @@ import StatusView from '@/components/StatusView';
 import UpcomingGamesCard from '@/components/UpcomingGamesCard';
 import { toUpcomingGame } from '@/lib/games';
 import { FLOATING_TAB_BAR } from '@/constants/theme';
+import { useSubmissions } from '@/lib/submissions-context';
 import { useWeek } from '@/lib/week-context';
 
 export default function Lineups() {
   const insets = useSafeAreaInsets();
   const { weekData, selectedSlate, selectSlate } = useWeek();
+  const { editing } = useSubmissions();
   const data = weekData.data;
+  // Editing a logged entry: show its slate.
+  const editSlate = editing?.slateId;
+  useEffect(() => {
+    if (editSlate && data?.slates.some((s) => s.slate_id === editSlate) && selectedSlate?.slate_id !== editSlate) selectSlate(editSlate);
+  }, [editSlate, data, selectedSlate?.slate_id, selectSlate]);
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
@@ -29,7 +37,12 @@ export default function Lineups() {
         <BrandHeader title="Lineups" />
         <BackLink />
         <StatusView loading={weekData.loading && !data} error={weekData.error} />
-        {data ? (
+        {data && editing ? (
+          <>
+            <ListHeading title="Edit your entry" subtitle="Late swap: change players whose games haven't started" />
+            <LineupBuilder scope="edit" />
+          </>
+        ) : data ? (
           <>
             <SlateList slates={data.slates} selectedId={selectedSlate?.slate_id ?? null} onSelect={selectSlate} />
             {selectedSlate ? (

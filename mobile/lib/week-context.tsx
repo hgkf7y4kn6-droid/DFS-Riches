@@ -17,6 +17,10 @@ interface WeekContextValue {
   week: number | null;
   weekData: Loadable<WeekData>;
   refresh: () => Promise<void>;
+  /** The NFL's current season and week (Sleeper), whatever week is being viewed. */
+  current: { season: number; week: number } | null;
+  /** View another season / week (every tab follows); null returns to the current week. */
+  setSeasonWeek: (seasonWeek: { season: number; week: number } | null) => void;
   /** The slate expanded on Home / shown on Lineups. */
   selectedSlate: Slate | null;
   selectSlate: (slateId: string) => void;
@@ -29,7 +33,8 @@ interface WeekContextValue {
 }
 
 /** Which builder: the Lineups tab's (''), or the Cash / GPP tabs' own sets. */
-export type LineupScope = '' | 'cash' | 'gpp';
+export type LineupScope = '' | 'cash' | 'gpp' | 'edit';
+// 'edit' (a logged entry open for late swap) is never saved as builder lineups.
 const SCOPES: LineupScope[] = ['', 'cash', 'gpp'];
 
 export interface LineupBuilderState {
@@ -72,6 +77,8 @@ function defaultSlate(slates: Slate[]): Slate | null {
 export function WeekProvider({ children }: { children: ReactNode }) {
   const [season, setSeason] = useState<number | null>(null);
   const [week, setWeek] = useState<number | null>(null);
+  const [current, setCurrent] = useState<{ season: number; week: number } | null>(null);
+  const [chosen, setChosen] = useState<{ season: number; week: number } | null>(null);
   const [weekData, setWeekData] = useState<Loadable<WeekData>>({ data: null, loading: true, error: null });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [optimal, setOptimal] = useState<Loadable<OptimalResponse>>(idle);
@@ -108,8 +115,11 @@ export function WeekProvider({ children }: { children: ReactNode }) {
     setWeekData((s) => ({ ...s, loading: true, error: null }));
     try {
       const state = await getNflState();
-      const szn = Number(state.season);
-      const wk = state.season_type === 'pre' ? 1 : Math.max(1, Math.min(18, Number(state.display_week ?? state.week)));
+      const nowSzn = Number(state.season);
+      const nowWk = state.season_type === 'pre' ? 1 : Math.max(1, Math.min(18, Number(state.display_week ?? state.week)));
+      setCurrent({ season: nowSzn, week: nowWk });
+      const szn = chosen?.season ?? nowSzn;
+      const wk = chosen?.week ?? nowWk;
       const data = await getWeek(szn, wk);
       setSeason(szn);
       setWeek(wk);
@@ -118,7 +128,7 @@ export function WeekProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       setWeekData((s) => ({ ...s, loading: false, error: message(e) }));
     }
-  }, []);
+  }, [chosen]);
 
   useEffect(() => {
     load();
@@ -156,7 +166,8 @@ export function WeekProvider({ children }: { children: ReactNode }) {
   // A Cash / GPP set that was never saved starts from the slate's earlier (unscoped) save.
   const savedEntryFor = (scope: LineupScope): SavedSlateLineups | undefined =>
     saved[savedKeyFor(scope)] ?? (scope ? saved[baseSavedKey] : undefined);
-  const builderKey = (scope: LineupScope) => (scope ? `${slateKey}|${scope}` : slateKey);
+  // Builders are per season/week/slate (and scope), so switching weeks never mixes in another week's players.
+  const builderKey = (scope: LineupScope) => `${season}:${week}:${slateKey}${scope ? `|${scope}` : ''}`;
   const slateType = selectedSlate?.slate_type ?? 'classic';
 
   // First time a slate's player pool loads this session, restore each scope's saved lineups.
@@ -182,7 +193,7 @@ export function WeekProvider({ children }: { children: ReactNode }) {
 
   const lineupsFor = (scope: LineupScope): LineupBuilderState => {
     const bKey = builderKey(scope);
-    const sKey = savedKeyFor(scope);
+    const sKey = scope === 'edit' ? '' : savedKeyFor(scope);
     const fresh = () => ({ lineups: [emptyLineup(slateType)], active: 0 });
     const current = builder[bKey] ?? fresh();
     const savedEntry = sKey ? saved[sKey] : undefined;
@@ -223,6 +234,8 @@ export function WeekProvider({ children }: { children: ReactNode }) {
     week,
     weekData,
     refresh: load,
+    current,
+    setSeasonWeek: (sw) => setChosen(sw && current && sw.season === current.season && sw.week === current.week ? null : sw),
     selectedSlate,
     selectSlate: setSelectedId,
     optimal,

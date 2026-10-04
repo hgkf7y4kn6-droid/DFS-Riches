@@ -15,7 +15,6 @@ import StatusView from '@/components/StatusView';
 import SubmissionForm from '@/components/SubmissionForm';
 import UpcomingGamesCard from '@/components/UpcomingGamesCard';
 import { HOME_BALANCE, HOME_SECTIONS, HOME_USER } from '@/constants/data';
-import icons from '@/constants/icons';
 import { FLOATING_TAB_BAR, useThemeColors } from '@/constants/theme';
 import dayjs from '@/lib/dayjs';
 import { toUpcomingGame } from '@/lib/games';
@@ -63,11 +62,6 @@ export default function Home() {
     ? user?.firstName || user?.username || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || HOME_USER.name
     : HOME_USER.name;
 
-  const openLogEntry = () => {
-    setProfitOpen(true);
-    setLogging(true);
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
       <ScrollView
@@ -75,14 +69,7 @@ export default function Home() {
         contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}
         refreshControl={<RefreshControl refreshing={weekData.loading && !!data} onRefresh={refresh} tintColor={colors.accent} />}>
-        <BrandHeader
-          title="Home"
-          right={
-            <Pressable onPress={openLogEntry} accessibilityRole="button" accessibilityLabel="Log a contest entry">
-              <Image source={icons.add} className="home-add-icon" style={{ width: 48, height: 48, tintColor: colors.primary }} />
-            </Pressable>
-          }
-        />
+        <BrandHeader title="Home" />
 
         {/* User info */}
         <View className="home-header">

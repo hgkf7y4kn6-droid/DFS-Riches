@@ -429,6 +429,51 @@
   .dfs-meta {
     @apply text-xs font-sans-medium text-muted-foreground;
   }
+  /* Profit / loss: most played and most profitable players and teams. */
+  .pl-exposure-title {
+    @apply mb-1 text-xs font-sans-bold uppercase text-accent;
+  }
+  .pl-exposure-row {
+    @apply flex-row items-center gap-2 border-b border-border py-1.5;
+  }
+  .pl-exposure-name {
+    @apply flex-1 text-xs font-sans-semibold text-foreground;
+  }
+  .pl-exposure-net {
+    @apply w-20 text-right text-xs font-sans-bold;
+  }
+  /* Lineup builder: editing a logged entry (late swap). */
+  .edit-banner {
+    @apply mb-3 rounded-xl border border-accent bg-card px-3 py-2.5;
+  }
+  .edit-banner-title {
+    @apply text-sm font-sans-bold text-foreground;
+  }
+  .edit-banner-text {
+    @apply mt-0.5 text-xs font-sans-regular text-muted-foreground;
+  }
+  /* Header season / week picker. */
+  .week-pill {
+    @apply items-end rounded-xl border border-border bg-card px-3 py-1.5;
+  }
+  .week-pill-past {
+    @apply border-accent;
+  }
+  .week-pill-season {
+    @apply text-[11px] font-sans-semibold text-muted-foreground;
+  }
+  .week-pill-week {
+    @apply text-sm font-sans-bold text-foreground;
+  }
+  .week-backdrop {
+    @apply flex-1 items-center justify-center bg-black/50 px-5;
+  }
+  .week-sheet {
+    @apply w-full max-w-md rounded-2xl bg-card p-4;
+  }
+  .week-sheet-title {
+    @apply mb-2 text-base font-sans-bold text-foreground;
+  }
   /* Lineup builder: weighted multi-sort panel. */
   .weight-panel {
     @apply mb-2 rounded-xl border border-border bg-card px-3 py-2;

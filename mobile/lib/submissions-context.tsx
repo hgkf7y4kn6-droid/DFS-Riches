@@ -12,6 +12,12 @@ interface SubmissionsContextValue {
   /** Records a pending entry's winnings (or clears them back to pending with null). */
   settle: (id: string, winnings: number | null) => void;
   remove: (id: string) => void;
+  /** Replaces an entry's lineup (late swap), stamping editedAt. */
+  updateLineup: (id: string, lineup: SubmittedPlayer[]) => void;
+  /** The entry whose lineup is open in the builder for editing, if any. */
+  editing: LineupSubmission | null;
+  startEditing: (id: string) => void;
+  stopEditing: () => void;
   /** Deletes every logged entry. */
   clear: () => void;
 }
@@ -25,6 +31,7 @@ const SubmissionsContext = createContext<SubmissionsContextValue | null>(null);
 export function SubmissionsProvider({ children }: { children: ReactNode }) {
   const [submissions, setSubmissions] = useState<LineupSubmission[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY)
@@ -60,9 +67,14 @@ export function SubmissionsProvider({ children }: { children: ReactNode }) {
         ]),
       settle: (id, winnings) => persist((cur) => cur.map((s) => (s.id === id ? { ...s, winnings } : s))),
       remove: (id) => persist((cur) => cur.filter((s) => s.id !== id)),
+      updateLineup: (id, lineup) =>
+        persist((cur) => cur.map((s) => (s.id === id ? { ...s, lineup, editedAt: new Date().toISOString() } : s))),
+      editing: submissions.find((s) => s.id === editingId) ?? null,
+      startEditing: (id) => setEditingId(id),
+      stopEditing: () => setEditingId(null),
       clear: () => persist(() => []),
     }),
-    [submissions, loaded, persist],
+    [submissions, loaded, persist, editingId],
   );
 
   return <SubmissionsContext.Provider value={value}>{children}</SubmissionsContext.Provider>;

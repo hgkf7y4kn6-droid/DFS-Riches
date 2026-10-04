@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import MatchupModeToggle from '@/components/MatchupModeToggle';
@@ -13,6 +13,7 @@ import { addPlayer, fitChecker, indexOfPlayer, removeAt, summarize, template } f
 import { sortByMatchup } from '@/lib/matchup-sort';
 import { useSlateOwnership } from '@/lib/slate-ownership';
 import { useLeverage } from '@/lib/leverage-context';
+import { useSubmissions } from '@/lib/submissions-context';
 import { matchupScore, useMatchups } from '@/lib/matchups-context';
 import { formatCurrency, formatEt, formatPoints } from '@/lib/utils';
 import { evenWeights, type Factor, setWeight, totalWeight, type Weights, weightedRank } from '@/lib/weighted-sort';
@@ -79,6 +80,9 @@ export interface BuildField {
 export default function LineupBuilder({ scope = '', field }: { scope?: LineupScope; field?: BuildField } = {}) {
   const { selectedSlate, players, weekData } = useWeek();
   const { lineups, activeLineup, setActiveLineup, setLineup, addLineup, deleteLineup, saveLineups, savedAt, unsaved } = useLineups(scope);
+  // Late swap: a logged entry's lineup open for editing (scope "edit").
+  const { editing, updateLineup, stopEditing } = useSubmissions();
+  const editMode = scope === 'edit' && editing != null;
   const colors = useThemeColors();
   const [position, setPosition] = useState('All');
   const [query, setQuery] = useState('');
@@ -121,7 +125,42 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   const lineup = useMemo(() => lineups[activeLineup] ?? [], [lineups, activeLineup]);
   const defs = template(slateType);
   const summary = summarize(lineup, slateType);
-  const fits = useMemo(() => fitChecker(lineup, slateType, pool), [lineup, slateType, pool]);
+  const baseFits = useMemo(() => fitChecker(lineup, slateType, pool), [lineup, slateType, pool]);
+  // While editing an entry, players whose games have kicked off are locked in (or out), like DraftKings late swap.
+  const [now] = useState(() => Date.now());
+  const lockedTeams = useMemo(() => {
+    if (!editMode || !selectedSlate) return new Set<string>();
+    return new Set(selectedSlate.games.filter((g) => new Date(g.kickoff_utc).getTime() <= now).flatMap((g) => [g.away, g.home]));
+  }, [editMode, selectedSlate, now]);
+  const fits = (p: Player) => (lockedTeams.has(p.team) && indexOfPlayer(lineup, p) === -1 ? { ok: false, reason: 'Game started: locked' } : baseFits(p));
+
+  // Load the entry's lineup into the edit builder once its slate's players are in.
+  const loadedFor = useRef<string | null>(null);
+  useEffect(() => {
+    const pool = players.data?.players;
+    if (!editMode || !editing || !pool || players.data?.slate.slate_id !== editing.slateId) return;
+    const stamp = `${editing.id}:${editing.editedAt ?? ''}`;
+    if (loadedFor.current === stamp) return;
+    loadedFor.current = stamp;
+    const byId = new Map(pool.map((p) => [p.dk_draftable_id, p]));
+    let slots: BuilderLineup = defs.map(() => null);
+    for (const sp of editing.lineup ?? []) {
+      const p = byId.get(sp.dk_draftable_id);
+      if (!p) continue;
+      const res = addPlayer(slots, slateType, p);
+      if (res.ok) slots = res.slots;
+    }
+    setActiveLineup(0);
+    setLineup(0, slots);
+    // defs / setters follow slateType and scope
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editMode, editing, players.data, slateType]);
+
+  /** The active lineup as stored on a logged entry. */
+  const asSubmitted = (): SubmittedPlayer[] =>
+    lineup.flatMap((p, i) =>
+      p ? [{ slot: defs[i].label, dk_draftable_id: p.dk_draftable_id, name: p.name, team: p.team, position: p.position, salary: p.salary }] : [],
+    );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -221,6 +260,10 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   }
 
   const toggle = (player: Player) => {
+    if (lockedTeams.has(player.team)) {
+      setMessage({ text: `${player.name}'s game has started: he's locked.`, error: true });
+      return;
+    }
     const idx = indexOfPlayer(lineup, player);
     if (idx !== -1) {
       setLineup(activeLineup, removeAt(lineup, idx));
@@ -238,7 +281,39 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
 
   return (
     <View>
+      {editMode ? (
+        <View className="edit-banner">
+          <Text className="edit-banner-title">Editing your logged entry</Text>
+          <Text className="edit-banner-text">
+            {editing!.contestName || 'Contest entry'} · {editing!.entries} × {formatCurrency(editing!.entryFee)} · {editing!.slateLabel}. Swap players for late news;
+            players whose games have started are locked.
+          </Text>
+          <View className="mt-2 flex-row gap-2">
+            <Pressable
+              className={`btn-accent flex-1 ${summary.valid ? '' : 'opacity-50'}`}
+              disabled={!summary.valid}
+              onPress={() => {
+                updateLineup(editing!.id, asSubmitted());
+                setMessage({ text: 'Entry updated with your new lineup.' });
+                stopEditing();
+              }}
+              accessibilityRole="button">
+              <Text className="btn-text">
+                {summary.valid
+                  ? 'Save changes to entry'
+                  : summary.filled < summary.total
+                    ? `Fill every slot (${summary.filled}/${summary.total})`
+                    : summary.errors[0] ?? 'Lineup not valid yet'}
+              </Text>
+            </Pressable>
+            <Pressable className="btn-outline px-4" onPress={stopEditing} accessibilityRole="button">
+              <Text className="btn-outline-text">Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
       {/* Save: keeps this slate's lineups on the device */}
+      {!editMode ? (
       <View className="save-row">
         <Text className="save-status">
           {savedAt ? (unsaved ? `Unsaved changes · last saved ${formatEt(savedAt)}` : `Saved ${formatEt(savedAt)}`) : 'Not saved yet'}
@@ -254,8 +329,10 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
           <Text className={`save-btn-text ${unsaved ? '' : 'save-btn-text-idle'}`}>{unsaved ? 'Save lineups' : 'Saved'}</Text>
         </Pressable>
       </View>
+      ) : null}
 
       {/* Lineup switcher */}
+      {!editMode ? (
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row" contentContainerClassName="chip-row-content">
         {lineups.map((lu, i) => {
           const s = summarize(lu, slateType);
@@ -280,11 +357,13 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
           </Pressable>
         ) : null}
       </ScrollView>
+      ) : null}
 
       {/* Active lineup: stacked vertical slots */}
       <View className="lineup-card">
         <View className="lineup-card-header">
-          <Text className="lineup-title">Lineup {activeLineup + 1}</Text>
+          <Text className="lineup-title">{editMode ? 'Your entry' : `Lineup ${activeLineup + 1}`}</Text>
+          {!editMode ? (
           <View className="flex-row gap-4">
             <Pressable onPress={() => setLineup(activeLineup, defs.map(() => null))} accessibilityRole="button">
               <Text className="caption">Clear</Text>
@@ -293,6 +372,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
               <Text className="danger-link">Delete</Text>
             </Pressable>
           </View>
+          ) : null}
         </View>
         {defs.map((def, i) => {
           const p = lineup[i] ?? null;
@@ -301,8 +381,11 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
               key={i}
               slot={def.label}
               player={p}
+              note={p && lockedTeams.has(p.team) ? 'Locked: game started' : null}
               right={
-                p ? (
+                p && lockedTeams.has(p.team) ? (
+                  <Text className="caption">🔒</Text>
+                ) : p ? (
                   <Pressable
                     className="player-remove"
                     onPress={() => setLineup(activeLineup, removeAt(lineup, i))}
@@ -328,7 +411,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
         {summary.errors.length > 0 && summary.filled > 0 ? (
           <Text className="lineup-errors">{summary.errors.join(' · ')}</Text>
         ) : null}
-        {summary.valid && !logging ? (
+        {summary.valid && !logging && !editMode ? (
           <Pressable className="btn-accent mt-3" onPress={() => setLogging(true)} accessibilityRole="button">
             <Text className="btn-text">Log a contest entry for this lineup</Text>
           </Pressable>
@@ -343,6 +426,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
             </View>
             <SubmissionForm
               slateId={selectedSlate.slate_id}
+              lineup={asSubmitted()}
               onDone={() => {
                 setLogging(false);
                 setMessage({ text: 'Entry logged -- see Profit / Loss on Home.' });

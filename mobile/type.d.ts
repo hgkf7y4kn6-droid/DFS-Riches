@@ -811,6 +811,20 @@ interface LineupSubmission {
   entries: number;
   /** Total winnings across those entries; null while the contest is pending. */
   winnings: number | null;
+  /** The lineup entered (logged from the builder); edited for late swaps until each player's game starts. */
+  lineup?: SubmittedPlayer[];
+  /** ISO timestamp of the last lineup edit. */
+  editedAt?: string;
+}
+
+/** One slot of a logged lineup. */
+interface SubmittedPlayer {
+  slot: string;
+  dk_draftable_id: number | null;
+  name: string;
+  team: string;
+  position: string;
+  salary: number;
 }
 
 /** Money and results for a set of submissions (all, or one contest type). */

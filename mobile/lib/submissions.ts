@@ -44,3 +44,57 @@ export function parseMoney(text: string): number | null {
   const n = Number(cleaned);
   return Number.isFinite(n) && n >= 0 ? round2(n) : null;
 }
+
+/** How often a player (or team) was played, and what lineups with him returned. */
+export interface ExposureStat {
+  key: string;
+  label: string;
+  sub: string;
+  /** Entries (contest entries) whose lineup included him. */
+  entries: number;
+  /** Logged lineups that included him. */
+  lineups: number;
+  /** Entry fees on those lineups, settled and pending. */
+  spent: number;
+  /** Net on settled lineups with him (winnings - fees); null until one settles. */
+  net: number | null;
+  /** Fees of the settled lineups with him, for ROI. */
+  settledFees: number;
+}
+
+/**
+ * Exposure and results by player and by team across logged lineups: each
+ * submission's entries, fees and (once settled) profit count toward every
+ * player in its lineup, and once toward each team in it. Submissions logged
+ * without a lineup don't count.
+ */
+export function exposure(list: LineupSubmission[]): { players: ExposureStat[]; teams: ExposureStat[] } {
+  const players = new Map<string, ExposureStat>();
+  const teams = new Map<string, ExposureStat>();
+  const bump = (map: Map<string, ExposureStat>, key: string, label: string, sub: string, s: LineupSubmission) => {
+    const cur = map.get(key) ?? { key, label, sub, entries: 0, lineups: 0, spent: 0, net: null, settledFees: 0 };
+    cur.entries += s.entries;
+    cur.lineups += 1;
+    cur.spent = round2(cur.spent + cost(s));
+    const p = profit(s);
+    if (p != null) {
+      cur.net = round2((cur.net ?? 0) + p);
+      cur.settledFees = round2(cur.settledFees + cost(s));
+    }
+    map.set(key, cur);
+  };
+  for (const s of list) {
+    if (!s.lineup?.length) continue;
+    for (const pl of s.lineup) bump(players, `${pl.name}|${pl.team}`, pl.name, `${pl.position} · ${pl.team}`, s);
+    for (const team of new Set(s.lineup.map((pl) => pl.team))) bump(teams, team, team, '', s);
+  }
+  return { players: [...players.values()], teams: [...teams.values()] };
+}
+
+/** Most played first (entries, then lineups). */
+export const mostPlayed = (stats: ExposureStat[], n = 5) =>
+  [...stats].sort((a, b) => b.entries - a.entries || b.lineups - a.lineups).slice(0, n);
+
+/** Most profitable first, among those with a settled lineup. */
+export const mostProfitable = (stats: ExposureStat[], n = 5) =>
+  stats.filter((s) => s.net != null).sort((a, b) => (b.net ?? 0) - (a.net ?? 0)).slice(0, n);
