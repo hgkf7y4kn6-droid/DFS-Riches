@@ -107,3 +107,14 @@ async def test_live_sunday_main_starting_at_the_same_kickoff_still_wins(monkeypa
 
     assert result["classic_sunday"]["draft_group_id"] == 160000
     assert result["classic_sunday"]["source"] == "live"
+
+
+def test_every_recorded_2026_week_has_both_classic_slates():
+    # Weeks 1-2 were recovered after the fact; none may lose a Classic slate again.
+    import json
+    from app.config import DK_OVERRIDES_PATH
+    weeks = json.loads(DK_OVERRIDES_PATH.read_text())["2026"]
+    for week in ("1", "2", "3", "4"):
+        assert weeks[week]["classic_sunday"]["draft_group_id"], week
+        assert weeks[week]["classic"]["draft_group_id"], week
+        assert weeks[week]["showdown"], week

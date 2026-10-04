@@ -1,5 +1,5 @@
 {
-  "_readme": "Fallback map of DraftKings draftGroupId values, keyed by season/week/slate. DraftKings' discovery listing (GET https://api.draftkings.com/draftgroups/v1/) only returns contests that are still 'Upcoming', so once a slate's games kick off its draftGroupId disappears from that listing even though /draftgroups/v1/draftgroups/{id}/draftables keeps serving it. The app tries live discovery first (app/dk_client.py:discover_draft_groups) and falls back to this file so already-started/completed slates still render. New weeks are added by 'python -m scripts.record_draft_groups', run weekly after salaries post and before the first kickoff; it only records groups found live that have salaried players. Week 2 of 2026 is missing because its slates had already started before this was set up.",
+  "_readme": "Fallback map of DraftKings draftGroupId values, keyed by season/week/slate. DraftKings' discovery listing (GET https://api.draftkings.com/draftgroups/v1/) only returns contests that are still 'Upcoming', so once a slate's games kick off its draftGroupId disappears from that listing even though /draftgroups/v1/draftgroups/{id}/draftables keeps serving it. The app tries live discovery first (app/dk_client.py:discover_draft_groups) and falls back to this file so already-started/completed slates still render. New weeks are added by 'python -m scripts.record_draft_groups', run weekly after salaries post and before the first kickoff; it only records groups found live that have salaried players. Week 2 of 2026 was recovered afterwards by scanning DraftKings draft group ids.",
   "2026": {
     "1": {
       "classic": {
@@ -22,6 +22,39 @@
         "MON_NIGHT": {
           "draft_group_id": 153086,
           "label": "Showdown - Mon Night (DEN @ KC)"
+        }
+      },
+      "classic_sunday": {
+        "draft_group_id": 153054,
+        "label": "Classic - Sunday Main (12 games)",
+        "first_kickoff": "2026-09-13T17:00:00+00:00",
+        "last_kickoff": "2026-09-13T20:25:00+00:00",
+        "note": "DraftKings no longer serves this Main (153055); rebuilt from the Full Week group, whose players and salaries are identical, filtered to the Sunday games."
+      }
+    },
+    "2": {
+      "classic_sunday": {
+        "draft_group_id": 153428,
+        "label": "Classic - Sunday Main (13 games)",
+        "first_kickoff": "2026-09-20T17:00:00+00:00",
+        "last_kickoff": "2026-09-20T20:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 153427,
+        "label": "Full Week 2 Slate (16 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 153434,
+          "label": "Showdown - Thu Night (DET @ BUF)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 153448,
+          "label": "Showdown - Sun Night (IND @ KC)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 153449,
+          "label": "Showdown - Mon Night (NYG @ LAR)"
         }
       }
     },

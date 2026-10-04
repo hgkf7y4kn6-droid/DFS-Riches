@@ -128,7 +128,11 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         return SlatePlayers(slate=slate, players=[], unmatched_dk_names=[], match_count=0, total_count=0)
 
     raw = await dk_client.fetch_draftables(slate.draft_group_id)
-    rows = dk_client.parse_draftables(raw, slate.slate_type)
+    # Only the slate's own games: a no-op for its own draft group, and how a Sunday
+    # Main DraftKings no longer serves is rebuilt from that week's Full Week group
+    # (same players, salaries and ids -- data/dk_overrides.json).
+    slate_teams = {t for g in slate.games for t in (g.away, g.home)}
+    rows = [r for r in dk_client.parse_draftables(raw, slate.slate_type) if r["team"] in slate_teams]
 
     sleeper_points = await sleeper_client.get_projections(season, week)
     index = await _get_sleeper_index()
