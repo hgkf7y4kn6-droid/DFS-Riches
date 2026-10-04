@@ -259,13 +259,13 @@
       const track = el("div", { cls: "gd-track plain" }, [
         el("div", {
           cls: `gd-bar team-${team} pos`,
-          style: { left: "0%", width: (u.share_l3 / maxShare) * 100 + "%" },
-          tip: `${u.name}: ${fmtPct(u.share_l3)} last 3 games${u.share_l8 != null ? `, ${fmtPct(u.share_l8)} last 8` : ""}`,
+          style: { left: "0%", width: ((u.share_l3 ?? u.share_season) / maxShare) * 100 + "%" },
+          tip: `${u.name}: ${fmtPct(u.share_l3 ?? u.share_season)} ${u.share_l3 != null ? "last 3 games" : "this season"}${u.share_l8 != null ? `, ${fmtPct(u.share_l8)} last 8` : ""}`,
         }),
       ]);
       if (u.share_l8 != null) track.appendChild(el("span", { cls: "gd-tick", style: { left: (u.share_l8 / maxShare) * 100 + "%" } }));
       const name = `${u.position} ${u.name}${u.injury !== "Healthy" ? ` (${u.injury})` : ""}`;
-      chart.appendChild(el("div", { cls: "gd-row" }, [el("span", { cls: "gd-label", text: name }), track, el("span", { cls: "gd-value", text: fmtPct(u.share_l3) })]));
+      chart.appendChild(el("div", { cls: "gd-row" }, [el("span", { cls: "gd-label", text: name }), track, el("span", { cls: "gd-value", text: fmtPct(u.share_l3 ?? u.share_season) })]));
     }
     return chart;
   }
@@ -545,7 +545,7 @@
         dataTable(["Matchup", "DK pts allowed/gm", "League avg", "vs avg", "Rank"], posTables)));
 
     // Usage
-    const maxShare = Math.max(0.4, ...[...d.away_usage, ...d.home_usage].map((u) => Math.max(u.share_l3, u.share_l8 || 0)));
+    const maxShare = Math.max(0.4, ...[...d.away_usage, ...d.home_usage].map((u) => Math.max(u.share_l3 ?? u.share_season, u.share_l8 || 0)));
     const usageFacets = [];
     for (const [rows, team] of [[d.away_usage, g.away], [d.home_usage, g.home]]) {
       if (rows.length) usageFacets.push(el("div", { cls: "gd-facet" }, [el("h4", { text: `${team}` }), usageChart(rows, teamKey(team, g), maxShare)]));

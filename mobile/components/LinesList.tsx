@@ -1,5 +1,7 @@
 import { Text, View } from 'react-native';
 
+import TrendChips from '@/components/TrendChips';
+
 import { atsCell, finalCell, impliedCell, paceCell, spreadCell, totalCell, totalResultCell, weatherText, type Cell } from '@/lib/lines';
 
 const TONE_CLASS: Record<string, string> = {
@@ -15,6 +17,18 @@ function LinesCell({ label, cell, wide }: { label: string; cell: Cell; wide?: bo
       <Text className="lines-label">{label}</Text>
       <Text className={`lines-value ${TONE_CLASS[cell.tone ?? 'neutral']}`}>{cell.text}</Text>
       {cell.sub ? <Text className="lines-sub">{cell.sub}</Text> : null}
+      {cell.trends?.map((t) => (
+        <TrendChips
+          key={t.label}
+          label={t.label}
+          windows={t.windows}
+          baseline={t.baseline}
+          better={t.better}
+          steps={t.steps}
+          absolute
+          format={t.format}
+        />
+      ))}
     </View>
   );
 }
@@ -48,7 +62,9 @@ function GameLines({ game }: { game: Game }) {
 
 /**
  * Lines & Performance as a vertical list: each game's closing spread, total
- * and implied team totals (with each team's trailing L3/L6/L9 averages), and
+ * and implied team totals (with each team's trailing L3/L6/L9 averages as
+ * conditionally-colored chips -- each shows once the team has played that
+ * many games this season), and
  * once final, how the result landed against each line and each team's pace.
  */
 export default function LinesList({ games }: { games: Game[] }) {

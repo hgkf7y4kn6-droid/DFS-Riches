@@ -1,6 +1,9 @@
 import { Text, View } from 'react-native';
 
+import TrenchSection from '@/components/breakdown/TrenchSection';
+import UnitMatchups from '@/components/breakdown/UnitMatchups';
 import StatusView from '@/components/StatusView';
+import TrendChips from '@/components/TrendChips';
 import { useGameDetail } from '@/lib/game-detail';
 import { formatCurrency, formatPercent, formatSigned } from '@/lib/utils';
 
@@ -12,6 +15,13 @@ const ordinal = (n: number) => {
 const rank = (r: number | null) => (r ? ` (#${r})` : '');
 const vsLeague = (value: number | null, league: number | null) =>
   value != null && league ? `${formatSigned(((value / league) - 1) * 100, 0)}%` : null;
+
+/** "6.12 yards/play (#2 of 32) · +24% vs the league's 4.94" -- the value, its rank and the gap to the league average. */
+function vsLine(value: number | null, rankNo: number | null, league: number | null, unit: string, decimals: number): string | null {
+  const pct = vsLeague(value, league);
+  if (value == null || !pct || league == null) return null;
+  return `${value.toFixed(decimals)} ${unit}${rankNo ? ` (#${rankNo} of 32)` : ''} · ${pct} vs the league's ${league.toFixed(decimals)}`;
+}
 
 function Section({ title, insight, children }: { title: string; insight?: string; children?: React.ReactNode }) {
   return (
@@ -158,18 +168,31 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
       ].map(([off, def, o, d, insight]) => {
         const offense = o as TeamStatLine;
         const defense = d as TeamStatLine;
-        const items = [
-          vsLeague(offense.yards_per_play, L.yards_per_play) && `${off} offense: ${vsLeague(offense.yards_per_play, L.yards_per_play)} yards/play vs league`,
-          vsLeague(defense.yards_allowed_per_play, L.yards_per_play) && `${def} defense: ${vsLeague(defense.yards_allowed_per_play, L.yards_per_play)} yards/play allowed`,
-          vsLeague(offense.points_for, L.points) && `${off} offense: ${vsLeague(offense.points_for, L.points)} points/game`,
-          vsLeague(defense.points_against, L.points) && `${def} defense: ${vsLeague(defense.points_against, L.points)} points allowed`,
-        ].filter(Boolean) as string[];
+        const lines: [string, string | null][] = [
+          [`${off} offense`, vsLine(offense.yards_per_play, offense.yards_per_play_rank, L.yards_per_play, 'yards/play', 2)],
+          [`${def} defense`, vsLine(defense.yards_allowed_per_play, defense.yards_allowed_per_play_rank, L.yards_per_play, 'yards/play allowed', 2)],
+          [`${off} offense`, vsLine(offense.points_for, offense.points_for_rank, L.points, 'points/game', 1)],
+          [`${def} defense`, vsLine(defense.points_against, defense.points_against_rank, L.points, 'points allowed/game', 1)],
+        ];
+        const items = lines.filter(([, t]) => t).map(([who, t]) => `${who}: ${t}`);
         return items.length ? (
           <Section key={off as string} title={`When ${off} has the ball`} insight={insight as string | undefined}>
             <Bullets items={items} />
           </Section>
         ) : null;
       })}
+
+      {detail.units ? (
+        <Section title="Units: yards, fantasy points and turnovers">
+          <UnitMatchups units={detail.units} away={g.away} home={g.home} />
+        </Section>
+      ) : null}
+
+      {detail.trenches ? (
+        <Section title="Trenches, efficiency and schemes">
+          <TrenchSection t={detail.trenches} away={g.away} home={g.home} />
+        </Section>
+      ) : null}
 
       {ins.tempo || ins.tendency ? (
         <Section title="Tempo and tendencies">
@@ -203,6 +226,7 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
       </Section>
 
       <Section title="Who gets the ball (share of targets + carries)" insight={ins.usage}>
+        <Text className="detail-note">Season share, with the last 3 / 6 / 9 games against it once played.</Text>
         {[
           [g.away, detail.away_usage],
           [g.home, detail.home_usage],
@@ -210,12 +234,18 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
           <View key={team as string} className="mt-1">
             <Text className="detail-subhead">{team as string}</Text>
             {(rows as UsageShare[]).slice(0, 5).map((u) => (
-              <View key={u.name} className="detail-row">
-                <Text className="detail-row-label" numberOfLines={1}>
-                  {u.name} <Text className="detail-target-meta">{u.position}</Text>
-                </Text>
-                <Text className="detail-row-value">L3 {formatPercent(u.share_l3, 0)}</Text>
-                <Text className="detail-row-value">L8 {formatPercent(u.share_l8, 0)}</Text>
+              <View key={u.name} className="detail-target">
+                <View className="flex-row items-center">
+                  <Text className="detail-row-label" numberOfLines={1}>
+                    {u.name} <Text className="detail-target-meta">{u.position}</Text>
+                  </Text>
+                  <Text className="detail-row-value">{formatPercent(u.share_season, 0)} season</Text>
+                </View>
+                <TrendChips
+                  windows={{ l3: u.share_l3, l6: u.share_l6, l9: u.share_l9 }}
+                  baseline={u.share_season}
+                  format={(v) => formatPercent(v, 0)}
+                />
               </View>
             ))}
           </View>
@@ -228,7 +258,7 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
       </Section>
 
       {gb.takeaways.length ? (
-        <Section title="Takeaways" insight={ins.trenches}>
+        <Section title="Takeaways">
           <Bullets items={gb.takeaways} />
         </Section>
       ) : null}

@@ -341,10 +341,19 @@ def season_entries(entries: list[list], season: int, week: int, *, team: str | N
     return sorted(e for e in entries if e[0] == season - 1 and len(e) > 3 and e[-1] == team)
 
 
-def _trailing_avg(entries: list[list], season: int, week: int, n: int, *, team: str | None = None) -> float | None:
+def _trailing_avg(entries: list[list], season: int, week: int, n: int, *, team: str | None = None,
+                  full: bool = False) -> float | None:
     """Average of the last n entries in season_entries (current season only,
-    or a same-team carryover for a player with none)."""
-    tail = season_entries(entries, season, week, team=team)[-n:]
+    or a same-team carryover for a player with none). With `full`, only once
+    n games have been played this season -- a displayed L3/L6/L9 trend never
+    averages fewer games than it says or reaches into last season."""
+    if full:
+        played = season_entries(entries, season, week)
+        tail = played[-n:] if n else played          # n=0: the whole season to date
+        if not tail or len(tail) < n:
+            return None
+    else:
+        tail = season_entries(entries, season, week, team=team)[-n:]
     if not tail:
         return None
     return round(sum(e[2] for e in tail) / len(tail), 2)
@@ -518,14 +527,14 @@ def actual_points(actuals: dict, *, name: str, position: str, team: str, roster_
 
 def trailing_dk_fppg(season: int, week: int, n: int, *, player_index: dict, name: str, position: str,
                      team: str | None = None) -> float | None:
-    """DK points per game over his last n games this season (or, with none
-    yet, last season's games for his current `team`)."""
+    """DK points per game over his last n games this season; None until he
+    has played n games this season."""
     key = player_key(name, position)
-    return _trailing_avg(player_index.get(key, []), season, week, n, team=team)
+    return _trailing_avg(player_index.get(key, []), season, week, n, team=team, full=True)
 
 
 def trailing_dst_points(season: int, week: int, n: int, *, team_index: dict, team: str) -> float | None:
-    return _trailing_avg(team_index.get(team, []), season, week, n)
+    return _trailing_avg(team_index.get(team, []), season, week, n, full=True)
 
 
 async def get_baseline_plays(season: int, week: int, team: str) -> float | None:
@@ -660,9 +669,9 @@ def team_trend(index: dict, team: str, metric: str, season: int, week: int) -> d
     for one team/metric, built from get_team_context_trailing_index."""
     series = index.get(team, {}).get(metric, [])
     return {
-        "l3": _trailing_avg(series, season, week, 3),
-        "l6": _trailing_avg(series, season, week, 6),
-        "l9": _trailing_avg(series, season, week, 9),
+        "l3": _trailing_avg(series, season, week, 3, full=True),
+        "l6": _trailing_avg(series, season, week, 6, full=True),
+        "l9": _trailing_avg(series, season, week, 9, full=True),
     }
 
 

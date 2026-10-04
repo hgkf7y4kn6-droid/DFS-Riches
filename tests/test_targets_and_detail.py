@@ -103,7 +103,35 @@ def test_tempo_positions_and_usage_insights():
     assert "DET's best matchup: RBs vs NYJ (+42% DK pts allowed); toughest: WRs (-20%)" in pos
     assert "NYJ's best matchup: TEs vs DET (+49% DK pts allowed)" in pos
 
-    use = usage_insight(g, [UsageShare(name="Hall", position="RB", share_l3=0.22, share_l8=0.3)],
-                        [UsageShare(name="Gibbs", position="RB", share_l3=0.41, share_l8=0.37)])
-    assert "NYJ spreads the ball around (leader: Hall, 22%, down from 30%)" in use
-    assert "Gibbs handles 41% of DET's targets + carries, up from 37%" in use
+    use = usage_insight(g, [UsageShare(name="Hall", position="RB", share_season=0.3, share_l3=0.22)],
+                        [UsageShare(name="Gibbs", position="RB", share_season=0.37, share_l3=0.41)])
+    assert "NYJ spreads the ball around (leader: Hall, 22%, down from 30% on the season)" in use
+    assert "Gibbs handles 41% of DET's targets + carries, up from 37% on the season" in use
+    early = usage_insight(g, [UsageShare(name="Hall", position="RB", share_season=0.25)], [])
+    assert "leader: Hall, 25%)" in early                         # fewer than 3 games: season share, no trend
+
+
+def test_team_units_rank_and_hide_short_windows():
+    from app import team_units
+    rows = []
+    for wk in (1, 2, 3):
+        rows += [
+            {"team": "BAL", "week": str(wk), "opponent_team": "CLE", "season_type": "REG", "passing_yards": "250",
+             "sack_yards_lost": "10", "rushing_yards": str(150 + wk * 10), "passing_interceptions": "0", "fumbles_lost_total": "1"},
+            {"team": "CLE", "week": str(wk), "opponent_team": "BAL", "season_type": "REG", "passing_yards": "180",
+             "sack_yards_lost": "20", "rushing_yards": "80", "passing_interceptions": "2", "fumbles_lost_total": "0"},
+        ]
+    rows.append({"team": "BAL", "week": "4", "opponent_team": "CLE", "season_type": "REG", "passing_yards": "999"})  # not before week 4
+    records = {"QB": [{"season": 2026, "week": w, "producer": "BAL", "fp": 20.0} for w in (1, 2, 3)],
+               "WR": [{"season": 2026, "week": w, "producer": "CLE", "fp": 9.0} for w in (1, 2, 3)]}
+    t = team_units.table(team_units.team_games(rows, records, 2026, 4))
+    bal, cle = t["teams"]["BAL"], t["teams"]["CLE"]
+    assert bal["games"] == 3
+    assert bal["offense"]["yards"]["value"] == 240 + 170 and bal["offense"]["yards"]["rank"] == 1
+    assert bal["offense"]["rush_yards"]["l3"] == 170 and bal["offense"]["rush_yards"]["l6"] is None
+    assert bal["offense"]["fantasy_points"]["value"] == 20.0
+    assert bal["offense"]["giveaways"]["rank"] == 1 and cle["offense"]["giveaways"]["rank"] == 2   # 1 vs 2 a game: fewer is better
+    assert bal["defense"]["takeaways"]["value"] == 2.0 and bal["defense"]["takeaways"]["rank"] == 1
+    assert bal["defense"]["yards"]["value"] == 160 + 80 and bal["defense"]["yards"]["rank"] == 1     # allows fewer than CLE
+    assert t["league"]["offense"]["giveaways"]["better"] == "low"
+    assert team_units.game_units(t, "BAL", "CLE")["away"] is bal and team_units.game_units(t, "BAL", "NYJ") is None

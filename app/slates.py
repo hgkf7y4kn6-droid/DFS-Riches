@@ -174,6 +174,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         trend_l3 = trend_fn(season, week, 3, **trend_args)
         trend_l6 = trend_fn(season, week, 6, **trend_args)
         trend_l9 = trend_fn(season, week, 9, **trend_args)
+        trend_season = trend_fn(season, week, 0, **trend_args)
 
         player_ceiling, ceiling_notes = ceiling.player_ceiling(
             ceiling_ctx,
@@ -206,6 +207,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
                 trend_l3=trend_l3,
                 trend_l6=trend_l6,
                 trend_l9=trend_l9,
+                trend_season=trend_season,
                 ceiling=player_ceiling,
                 ceiling_notes=ceiling_notes,
                 value_per_1k=value,

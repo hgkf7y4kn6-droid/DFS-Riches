@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
 import TeamShareText from '@/components/TeamShare';
+import TrendChips from '@/components/TrendChips';
 import { roleText } from '@/lib/matchup-sort';
 import { formatCurrency, formatPoints } from '@/lib/utils';
 
@@ -23,6 +24,8 @@ export interface RowPlayer {
   /** Shown when the builder sorts by them: expected ownership (%), DK pts/game over the last 3. */
   ownership?: number | null;
   trend?: number | null;
+  /** Builder "Recent form" sort: DK points per game over the last 3 / 6 / 9 games vs the season average. */
+  form?: { l3: number | null; l6: number | null; l9: number | null; season: number | null } | null;
   /** Cash builder: the model's floor. */
   floor?: number | null;
   team_share?: TeamShare | null;
@@ -67,6 +70,7 @@ export function LineupRow({ slot, player, right, note }: { slot: string; player:
             </Text>
             {player.opponent ? <MatchupBadge opponent={player.opponent} position={player.position} /> : null}
             <UsageTrendNote trend={player.usage_trend} open={trendOpen} />
+            {player.form ? <TrendChips windows={player.form} baseline={player.form.season} /> : null}
             {note ? <Text className="lineup-player-note">{note}</Text> : null}
           </View>
           <View className="lineup-numbers">

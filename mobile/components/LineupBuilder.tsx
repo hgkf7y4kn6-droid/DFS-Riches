@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import MatchupModeToggle from '@/components/MatchupModeToggle';
-import { LineupRow, Totals } from '@/components/LineupRows';
+import { LineupRow, type RowPlayer, Totals } from '@/components/LineupRows';
 import StatusView from '@/components/StatusView';
 import SubmissionForm from '@/components/SubmissionForm';
 import { MAX_LINEUPS } from '@/constants/config';
@@ -26,7 +26,7 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: 'value', label: 'Value' },
   { key: 'salary', label: 'Salary' },
   { key: 'own', label: 'Ownership' },
-  { key: 'trend', label: 'Last 3' },
+  { key: 'trend', label: 'Recent form' },
   { key: 'matchup', label: 'Matchup' },
 ];
 const SORT_NOTE: Record<SortKey, string> = {
@@ -36,7 +36,7 @@ const SORT_NOTE: Record<SortKey, string> = {
   value: 'Projected points per $1k of salary',
   salary: 'DraftKings salary',
   own: 'Expected large-field ownership from the DFS model',
-  trend: 'Actual DK points per game over his last 3 games this season',
+  trend: 'DK points per game over his last 3 games this season; chips show L3 / L6 / L9 against his season average once played',
   matchup:
     'Softest matchups first (#32 = allows the most), starters and rotation players (committee backs, every-down WRs) ahead of backups.',
 };
@@ -116,10 +116,10 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   // What each pool row shows beyond projection: the field's ownership (always, on the Cash / GPP tabs), floor for cash.
   const rowPlayer = (p: Player) => {
     const id = p.dk_draftable_id;
-    const extra: { ownership?: number | null; floor?: number | null; trend?: number | null } = {};
+    const extra: { ownership?: number | null; floor?: number | null; form?: RowPlayer['form'] } = {};
     if (field || sortBy === 'own') extra.ownership = id != null ? own.ownership?.get(id) ?? null : null;
     if (field?.floor) extra.floor = id != null ? field.floor.get(id) ?? null : null;
-    if (sortBy === 'trend') extra.trend = p.trend_l3;
+    if (sortBy === 'trend') extra.form = { l3: p.trend_l3, l6: p.trend_l6, l9: p.trend_l9, season: p.trend_season ?? null };
     return { ...p, ...extra };
   };
 

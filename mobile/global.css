@@ -333,6 +333,61 @@
   .detail-row-value {
     @apply w-24 text-right text-xs font-sans-semibold text-foreground;
   }
+  .detail-row-head {
+    @apply text-[10px] font-sans-bold uppercase text-muted-foreground;
+  }
+  .detail-row-value-compact {
+    @apply w-16 text-right text-xs font-sans-semibold text-foreground;
+  }
+  .detail-note {
+    @apply text-[11px] font-sans-regular text-muted-foreground;
+  }
+  /* Breakdown charts (components/breakdown/charts): thin bars on a muted track. */
+  .chart-heading {
+    @apply mb-0.5 text-xs font-sans-semibold text-foreground;
+  }
+  .chart-heading-sub {
+    @apply text-[11px] font-sans-medium text-muted-foreground;
+  }
+  .chart-row {
+    @apply flex-row items-center gap-2 py-0.5;
+  }
+  .chart-label {
+    @apply w-[84px] text-[11px] font-sans-semibold text-muted-foreground;
+  }
+  .chart-track {
+    @apply relative h-2.5 flex-1 overflow-hidden rounded-full bg-muted;
+  }
+  .chart-bar {
+    @apply h-2.5 rounded-full;
+  }
+  .chart-bar-muted {
+    @apply bg-muted-foreground/40;
+  }
+  .chart-center {
+    @apply absolute bottom-0 left-1/2 top-0 w-px bg-muted-foreground/60;
+  }
+  .chart-value {
+    @apply w-[92px] pr-1 text-right text-[11px] font-sans-semibold text-foreground;
+  }
+  .chart-rank {
+    @apply text-[11px] font-sans-bold text-accent;
+  }
+  .chart-diverging-row {
+    @apply py-1;
+  }
+  .chart-diverging-label {
+    @apply mb-0.5 text-[11px] font-sans-medium text-foreground;
+  }
+  .chart-diverging-line {
+    @apply flex-row items-center gap-2;
+  }
+  .chart-axis {
+    @apply mr-[100px] mt-0.5 flex-row justify-between;
+  }
+  .chart-axis-text {
+    @apply text-[10px] font-sans-medium text-muted-foreground;
+  }
   .detail-target {
     @apply border-b border-border py-2;
   }
@@ -373,6 +428,22 @@
   }
   .dfs-meta {
     @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  /* Trailing L3/L6/L9 trend chips (fill set inline from lib/trend). */
+  .trend-chips {
+    @apply mt-1 flex-row flex-wrap items-center gap-1;
+  }
+  .trend-chips-label {
+    @apply mr-0.5 text-[11px] font-sans-semibold text-muted-foreground;
+  }
+  .trend-chip {
+    @apply rounded-md px-1.5 py-0.5;
+  }
+  .trend-chip-text {
+    @apply text-[11px] font-sans-semibold text-foreground;
+  }
+  .trend-chip-key {
+    @apply text-[10px] font-sans-bold text-foreground;
   }
   /* Touch / FP share after the snap %: same size as the meta line, ranks in the accent. */
   .team-share {

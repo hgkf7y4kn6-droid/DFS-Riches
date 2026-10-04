@@ -213,6 +213,8 @@ interface Player {
   trend_l3: number | null;
   trend_l6: number | null;
   trend_l9: number | null;
+  /** DK points per game this season: the baseline trailing trends are colored against. */
+  trend_season?: number | null;
   /** 85th-percentile DK score estimate; x1.5 for CPT. */
   ceiling: number | null;
   ceiling_notes: string[];
@@ -409,7 +411,12 @@ interface UsageShare {
   name: string;
   position: string;
   injury: string;
-  share_l3: number;
+  /** Share of team targets + carries this season. */
+  share_season: number;
+  /** Last 3 / 6 / 9 games; null until he has played that many this season. */
+  share_l3: number | null;
+  share_l6: number | null;
+  share_l9: number | null;
   share_l8: number | null;
 }
 
@@ -432,6 +439,66 @@ interface GameDetail {
   home_usage: UsageShare[];
   /** Section -> 1-2 sentence takeaway: vegas, weather, away_offense, home_offense, tempo, tendency, positions, usage, trenches. */
   insights: Record<string, string>;
+  trenches?: TrenchDetail | null;
+  units?: GameUnits | null;
+}
+
+/** One unit metric: season-to-date per game, league rank (1 = best) and trailing windows (null until played). */
+interface UnitMetric {
+  value: number;
+  rank: number;
+  l3: number | null;
+  l6: number | null;
+  l9: number | null;
+}
+interface TeamUnits {
+  games: number;
+  offense: Record<string, UnitMetric>;
+  defense: Record<string, UnitMetric>;
+}
+interface UnitLeague {
+  avg: number | null;
+  label: string;
+  unit: string;
+  better: 'high' | 'low';
+}
+interface GameUnits {
+  away: TeamUnits;
+  home: TeamUnits;
+  league: { offense: Record<string, UnitLeague>; defense: Record<string, UnitLeague> };
+  teams_ranked: number;
+}
+
+/** Offense unit vs the defense unit it faces: positive = offense advantage (league z-score difference). */
+interface TrenchEdge {
+  edge: number;
+  strength: 'strong' | 'lean' | 'neutral';
+  offense_rank: number;
+  defense_rank: number;
+}
+interface TrenchMatchup {
+  offense: string;
+  defense: string;
+  edges: Partial<Record<'protection' | 'run' | 'pass', TrenchEdge>>;
+  notes: string[];
+}
+interface TrenchTeam {
+  team: string;
+  games: number;
+  units: Record<string, { label: string; rank: number; z: number }>;
+  off: Record<string, number | null>;
+  def: Record<string, number | null>;
+  cov: Record<string, number | string | null>;
+}
+interface TrenchDetail {
+  away: TrenchTeam;
+  home: TrenchTeam;
+  away_offense: TrenchMatchup;
+  home_offense: TrenchMatchup;
+  league: { off?: Record<string, number | null>; def?: Record<string, number | null>; cov?: Record<string, number | string | null> };
+  coverage_season?: number | null;
+  window?: string | null;
+  insight: string;
 }
 
 // ------------------------------------------------------- DFS model (/api/dfs-model)

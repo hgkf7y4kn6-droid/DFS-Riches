@@ -72,7 +72,11 @@ def test_trailing_dst_points_looks_up_by_team():
 def test_team_trend_returns_l3_l6_l9_from_one_series():
     index = {"SEA": {"spread": [[2026, w, float(w)] for w in range(1, 6)]}}
     trend = team_trend(index, "SEA", "spread", season=2026, week=6)
-    assert trend == {"l3": 4.0, "l6": 3.0, "l9": 3.0}  # last3=(3+4+5)/3, last5 avail for l6/l9=(1+2+3+4+5)/5
+    assert trend == {"l3": 4.0, "l6": None, "l9": None}   # last3=(3+4+5)/3; L6/L9 hidden until 6 and 9 games
+    index["SEA"]["spread"] += [[2025, 17, 99.0]]                 # last season never fills a team window
+    assert team_trend(index, "SEA", "spread", season=2026, week=6)["l6"] is None
+    index["SEA"]["spread"] += [[2026, 6, 6.0]]
+    assert team_trend(index, "SEA", "spread", season=2026, week=7)["l6"] == 3.5
 
 
 def test_dk_offense_points_applies_yardage_bonuses():

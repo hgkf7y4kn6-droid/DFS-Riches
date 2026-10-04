@@ -89,7 +89,8 @@ class Player(BaseModel):
     sleeper_proj: float | None = None  # Sleeper's week-specific PPR projection, when Sleeper has one
     trend_l3: float | None = None     # real DK-style FPPG over the player's last 3 games
     trend_l6: float | None = None     # ...last 6 games
-    trend_l9: float | None = None     # ...last 9 games
+    trend_l9: float | None = None     # ...last 9 games (each None until he has played that many this season)
+    trend_season: float | None = None # DK points per game this season: the baseline the trends are colored against
     ceiling: float | None = None      # 85th-percentile DK score estimate (app.ceiling), x1.5 for CPT
     ceiling_notes: list[str] = []     # one line per factor behind the ceiling
     value_per_1k: float
@@ -201,8 +202,11 @@ class UsageShare(BaseModel):
     name: str
     position: str
     injury: str = "Healthy"
-    share_l3: float                    # share of team targets + carries, last 3 games
-    share_l8: float | None = None
+    share_season: float                # share of team targets + carries, this season
+    share_l3: float | None = None      # last 3 / 6 / 9 games; None until he has played that many this season
+    share_l6: float | None = None
+    share_l9: float | None = None
+    share_l8: float | None = None      # last 8 (the classic page's tick)
 
 
 class LeagueContext(BaseModel):
@@ -228,6 +232,7 @@ class GameDetail(BaseModel):
     home_usage: list[UsageShare]
     insights: dict[str, str]                 # section -> 1-2 sentence game/DFS impact, generated from the numbers
     trenches: dict | None = None             # unit ranks, scheme rates and matchup edges (app.trenches); None if unavailable
+    units: dict | None = None                # offense/defense yards, DK points, giveaways: ranks + L3/L6/L9 (app.team_units)
 
 
 class WeekBreakdown(BaseModel):

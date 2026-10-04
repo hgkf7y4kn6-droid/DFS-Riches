@@ -1,21 +1,47 @@
 // "Lines & Performance" formatting, ported from the website's static/app.js
 // odds table: each function returns display text for one game's cell.
+import type { Better } from '@/lib/trend';
 import { formatLine, formatSigned } from '@/lib/utils';
 
 export type Tone = 'positive' | 'negative' | 'neutral' | 'pending';
+
+/** One team's L3 / L6 / L9 trailing averages, colored against a baseline (components/TrendChips). */
+export interface CellTrend {
+  label: string;
+  windows: TeamTrend | null;
+  baseline: number | null | undefined;
+  better: Better;
+  steps: [number, number, number];
+  format: (v: number) => string;
+}
+
 export interface Cell {
   text: string;
   sub?: string;
   tone?: Tone;
+  trends?: CellTrend[];
 }
 
-function trendLine(away: TeamTrend | null, home: TeamTrend | null, opts: { signed?: boolean; decimals?: number } = {}) {
-  if (!away && !home) return undefined;
-  const decimals = opts.decimals ?? 1;
-  const fmt = (v: number | null) => (v == null ? '-' : opts.signed ? formatSigned(v, decimals) : v.toFixed(decimals));
-  const a = away ?? { l3: null, l6: null, l9: null };
-  const h = home ?? { l3: null, l6: null, l9: null };
-  return `L3 ${fmt(a.l3)}/${fmt(h.l3)} · L6 ${fmt(a.l6)}/${fmt(h.l6)} · L9 ${fmt(a.l9)}/${fmt(h.l9)}`;
+/**
+ * Both teams' trailing windows for a line. Lines are colored by where this
+ * week's number sits against each window -- `nowBetter` says which way is
+ * good for the team (a bigger implied total, being favored by more), so a
+ * window *below* a higher number now means trending up (green).
+ */
+function lineTrends(
+  g: Game,
+  away: TeamTrend | null,
+  home: TeamTrend | null,
+  now: [number | null | undefined, number | null | undefined],
+  nowBetter: Better,
+  steps: [number, number, number],
+  format: (v: number) => string,
+): CellTrend[] {
+  const better: Better = nowBetter === 'high' ? 'low' : 'high';     // the window vs now, flipped
+  return [
+    { label: g.away, windows: away, baseline: now[0], better, steps, format },
+    { label: g.home, windows: home, baseline: now[1], better, steps, format },
+  ];
 }
 
 export function spreadCell(g: Game): Cell {
@@ -23,14 +49,18 @@ export function spreadCell(g: Game): Cell {
   if (!c || c.away_spread == null || c.home_spread == null) return { text: '-' };
   return {
     text: `${g.away} ${formatSigned(c.away_spread)} / ${g.home} ${formatSigned(c.home_spread)}`,
-    sub: trendLine(c.away_spread_trend, c.home_spread_trend, { signed: true }),
+    // A spread is better when lower (favored by more).
+    trends: lineTrends(g, c.away_spread_trend, c.home_spread_trend, [c.away_spread, c.home_spread], 'low', [0.5, 1.5, 3], (v) => formatSigned(v, 1)),
   };
 }
 
 export function totalCell(g: Game): Cell {
   const c = g.context;
   if (!c || c.total_line == null) return { text: '-' };
-  return { text: c.total_line.toFixed(1), sub: trendLine(c.away_total_trend, c.home_total_trend) };
+  return {
+    text: c.total_line.toFixed(1),
+    trends: lineTrends(g, c.away_total_trend, c.home_total_trend, [c.total_line, c.total_line], 'high', [1, 2.5, 4], (v) => v.toFixed(1)),
+  };
 }
 
 export function impliedCell(g: Game): Cell {
@@ -38,7 +68,15 @@ export function impliedCell(g: Game): Cell {
   if (!c || c.away_implied_total == null || c.home_implied_total == null) return { text: '-' };
   return {
     text: `${g.away} ${c.away_implied_total.toFixed(1)} / ${g.home} ${c.home_implied_total.toFixed(1)}`,
-    sub: trendLine(c.away_implied_total_trend, c.home_implied_total_trend),
+    trends: lineTrends(
+      g,
+      c.away_implied_total_trend,
+      c.home_implied_total_trend,
+      [c.away_implied_total, c.home_implied_total],
+      'high',
+      [0.75, 2, 3.5],
+      (v) => v.toFixed(1),
+    ),
   };
 }
 
@@ -83,7 +121,11 @@ export function paceCell(g: Game): Cell {
     !c.is_final || !pace || pace.delta == null ? `${team} -` : `${team} ${formatSigned(pace.delta)}`;
   return {
     text: `${part(g.away, c.away_pace)} / ${part(g.home, c.home_pace)}`,
-    sub: trendLine(c.away_pace?.trend ?? null, c.home_pace?.trend ?? null, { decimals: 0 }),
+    // Plays per game: each window against the team's season baseline.
+    trends: [
+      { label: g.away, windows: c.away_pace?.trend ?? null, baseline: c.away_pace?.baseline_plays, better: 'high', steps: [1.5, 3.5, 6], format: (v) => v.toFixed(0) },
+      { label: g.home, windows: c.home_pace?.trend ?? null, baseline: c.home_pace?.baseline_plays, better: 'high', steps: [1.5, 3.5, 6], format: (v) => v.toFixed(0) },
+    ],
   };
 }
 
