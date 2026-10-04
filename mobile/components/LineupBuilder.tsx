@@ -14,13 +14,14 @@ import { sortByMatchup } from '@/lib/matchup-sort';
 import { useSlateOwnership } from '@/lib/slate-ownership';
 import { useMatchups } from '@/lib/matchups-context';
 import { formatCurrency, formatEt, formatPoints } from '@/lib/utils';
-import { useWeek } from '@/lib/week-context';
+import { type LineupScope, useLineups, useWeek } from '@/lib/week-context';
 
 const PAGE = 40;
 
-type SortKey = 'proj' | 'ceiling' | 'value' | 'salary' | 'own' | 'trend' | 'matchup';
+type SortKey = 'proj' | 'floor' | 'ceiling' | 'value' | 'salary' | 'own' | 'trend' | 'matchup';
 const SORTS: { key: SortKey; label: string }[] = [
   { key: 'proj', label: 'Projection' },
+  { key: 'floor', label: 'Floor' },
   { key: 'ceiling', label: 'Ceiling' },
   { key: 'value', label: 'Value' },
   { key: 'salary', label: 'Salary' },
@@ -30,6 +31,7 @@ const SORTS: { key: SortKey; label: string }[] = [
 ];
 const SORT_NOTE: Record<SortKey, string> = {
   proj: 'Projected DK points',
+  floor: "Floor: the DFS model's low-end (15th-percentile) DK score -- what a cash lineup leans on",
   ceiling: 'Ceiling: the 85th-percentile DK score (one game in seven)',
   value: 'Projected points per $1k of salary',
   salary: 'DraftKings salary',
@@ -39,6 +41,14 @@ const SORT_NOTE: Record<SortKey, string> = {
     'Softest matchups first (#32 = allows the most), starters and rotation players (committee backs, every-down WRs) ahead of backups.',
 };
 
+/** Expected ownership (and model floor) for the field a lineup is being built for, by DK draftable id. */
+export interface BuildField {
+  /** e.g. "Cash", "Large-field GPP" */
+  label: string;
+  ownership: Map<number, number>;
+  floor?: Map<number, number>;
+}
+
 /**
  * Build up to MAX_LINEUPS lineups for the selected slate: the active lineup
  * as a stacked vertical list of slots (tap x to remove), its totals, then the
@@ -46,9 +56,9 @@ const SORT_NOTE: Record<SortKey, string> = {
  * can't fit (no open slot, or too little salary left to fill the rest) are
  * dimmed with the reason.
  */
-export default function LineupBuilder() {
-  const { selectedSlate, players, lineups, activeLineup, setActiveLineup, setLineup, addLineup, deleteLineup, saveLineups, savedAt, unsaved } =
-    useWeek();
+export default function LineupBuilder({ scope = '', field }: { scope?: LineupScope; field?: BuildField } = {}) {
+  const { selectedSlate, players } = useWeek();
+  const { lineups, activeLineup, setActiveLineup, setLineup, addLineup, deleteLineup, saveLineups, savedAt, unsaved } = useLineups(scope);
   const colors = useThemeColors();
   const [position, setPosition] = useState('All');
   const [query, setQuery] = useState('');
@@ -63,7 +73,10 @@ export default function LineupBuilder() {
 
   const slateType: SlateType = selectedSlate?.slate_type ?? 'classic';
   const pool = useMemo(() => players.data?.players ?? [], [players.data]);
-  const own = useSlateOwnership(selectedSlate, sortBy === 'own');
+  // With a field (Cash / GPP tabs) ownership comes from that contest's plays; otherwise the DFS model, on demand.
+  const modelOwn = useSlateOwnership(selectedSlate, !field && sortBy === 'own');
+  const own = field ? { ownership: field.ownership, available: true, loading: false, error: null } : modelOwn;
+  const sorts = SORTS.filter((o) => o.key !== 'floor' || field?.floor);
   const lineup = useMemo(() => lineups[activeLineup] ?? [], [lineups, activeLineup]);
   const defs = template(slateType);
   const summary = summarize(lineup, slateType);
@@ -82,6 +95,7 @@ export default function LineupBuilder() {
     const ownership = own.ownership;
     const key: Record<Exclude<SortKey, 'matchup'>, (p: Player) => number | null> = {
       proj: (p) => p.proj_points,
+      floor: (p) => (p.dk_draftable_id != null ? field?.floor?.get(p.dk_draftable_id) ?? null : null),
       ceiling: (p) => p.ceiling,
       value: (p) => p.value_per_1k,
       salary: (p) => p.salary,
@@ -97,7 +111,17 @@ export default function LineupBuilder() {
       if (va == null || vb == null) return va == null && vb == null ? b.proj_points - a.proj_points : va == null ? 1 : -1;
       return dir * (va - vb) || b.proj_points - a.proj_points;
     });
-  }, [pool, position, query, showAll, slateType, sortBy, ascending, lookup, own.ownership]);
+  }, [pool, position, query, showAll, slateType, sortBy, ascending, lookup, own.ownership, field?.floor]);
+
+  // What each pool row shows beyond projection: the field's ownership (always, on the Cash / GPP tabs), floor for cash.
+  const rowPlayer = (p: Player) => {
+    const id = p.dk_draftable_id;
+    const extra: { ownership?: number | null; floor?: number | null; trend?: number | null } = {};
+    if (field || sortBy === 'own') extra.ownership = id != null ? own.ownership?.get(id) ?? null : null;
+    if (field?.floor) extra.floor = id != null ? field.floor.get(id) ?? null : null;
+    if (sortBy === 'trend') extra.trend = p.trend_l3;
+    return { ...p, ...extra };
+  };
 
   if (!selectedSlate) return null;
   if (!selectedSlate.available) {
@@ -268,7 +292,7 @@ export default function LineupBuilder() {
       </ScrollView>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
         <Text className="matchup-toggle-label mr-1 self-center">Sort</Text>
-        {SORTS.map((o) => {
+        {sorts.map((o) => {
           const active = o.key === sortBy;
           return (
             <Pressable
@@ -293,7 +317,7 @@ export default function LineupBuilder() {
         })}
       </ScrollView>
       <Text className="dfs-reason mb-2">
-        {SORT_NOTE[sortBy]}
+        {sortBy === 'own' && field ? `Expected ${field.label.toLowerCase()} ownership` : SORT_NOTE[sortBy]}
         {sortBy !== 'matchup' ? (ascending ? ' · lowest first (tap again to flip)' : ' · highest first (tap again to flip)') : ''}
         {sortBy === 'own' && !own.available ? ' · not available for Showdown slates (no DFS model)' : ''}
         {sortBy === 'own' && own.loading ? ' · loading the DFS model…' : ''}
@@ -321,13 +345,7 @@ export default function LineupBuilder() {
             <View key={p.dk_draftable_id ?? `${p.name}-${p.roster_slot}`} className={fit.ok ? '' : 'player-unfit'}>
               <LineupRow
                 slot={p.roster_slot || p.position}
-                player={
-                  sortBy === 'own' && p.dk_draftable_id != null
-                    ? { ...p, ownership: own.ownership?.get(p.dk_draftable_id) ?? null }
-                    : sortBy === 'trend'
-                      ? { ...p, trend: p.trend_l3 }
-                      : p
-                }
+                player={rowPlayer(p)}
                 note={fit.ok ? null : fit.reason}
                 right={
                   <Pressable

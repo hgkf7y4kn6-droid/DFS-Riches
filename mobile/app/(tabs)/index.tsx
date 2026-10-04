@@ -11,7 +11,6 @@ import LinesList from '@/components/LinesList';
 import ListHeading from '@/components/ListHeading';
 import ProfitLossTracker from '@/components/ProfitLossTracker';
 import SafeAreaView from '@/components/SafeAreaView';
-import SlateCard from '@/components/SlateCard';
 import StatusView from '@/components/StatusView';
 import SubmissionForm from '@/components/SubmissionForm';
 import UpcomingGamesCard from '@/components/UpcomingGamesCard';
@@ -28,12 +27,11 @@ import { useWeek } from '@/lib/week-context';
 export default function Home() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
-  const { week, weekData, refresh, selectedSlate, selectSlate } = useWeek();
+  const { week, weekData, refresh, selectedSlate } = useWeek();
   const { submissions } = useSubmissions();
   const data = weekData.data;
   const [profitOpen, setProfitOpen] = useState(HOME_SECTIONS.profit.defaultExpanded);
   const [logging, setLogging] = useState(false);
-  const [expandedSlate, setExpandedSlate] = useState<string | null>(null);
   const [now] = useState(() => Date.now());
 
   // Games that haven't kicked off, soonest first.
@@ -160,35 +158,6 @@ export default function Home() {
                   )
                 }
               />
-            </View>
-
-            {/* Slates: every DraftKings slate this week; tap one to open its lineups */}
-            <View>
-              <ListHeading
-                title={HOME_SECTIONS.slates.title}
-                subtitle={`${data.slates.length} slates this week · tap one for lineups`}
-                onPress={() => router.push('/lineups')}
-              />
-              {data.slates.length ? (
-                data.slates.map((slate) => (
-                  <SlateCard
-                    key={slate.slate_id}
-                    slate={slate}
-                    now={now}
-                    expanded={expandedSlate === slate.slate_id}
-                    onToggle={() => {
-                      if (expandedSlate === slate.slate_id) {
-                        setExpandedSlate(null);
-                      } else {
-                        selectSlate(slate.slate_id);
-                        setExpandedSlate(slate.slate_id);
-                      }
-                    }}
-                  />
-                ))
-              ) : (
-                <Text className="home-empty-state">{"DraftKings hasn't posted this week's slates yet."}</Text>
-              )}
             </View>
           </>
         ) : null}

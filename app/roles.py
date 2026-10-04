@@ -43,6 +43,11 @@ a bounce back from one odd game -- with more than one game's evidence:
              the same way by 3+ When
 a teammate at the position moved the other way, the note names him -- a
 backfield shifting from one back to another.
+
+Team share (RB/WR/TE only): over his team's last 3 games this season, his
+share of the skill-position touches (carries + receptions) and of the
+skill-position DK points, with where each ranks among the team's RBs, WRs and
+TEs. With no games yet this season, last season's games for the same team.
 """
 from __future__ import annotations
 
@@ -195,3 +200,51 @@ def assign(players: list[dict]) -> dict[tuple[str, str, str], str]:
             involved = pos != "QB" and (on_field or (bar > 0 and (p.get("proj") or 0) >= bar))
             roles[(p["name"], p["team"], pos)] = "rotation" if involved else "backup"
     return roles
+
+
+SKILL = ("RB", "WR", "TE")
+
+
+def _touches(g: dict) -> float:
+    st = g.get("stats") or {}
+    return float((st.get("rushing") or {}).get("att", 0) + (st.get("receiving") or {}).get("rec", 0))
+
+
+def team_shares(index: dict, season: int, week: int) -> dict[tuple[str, str], dict]:
+    """{(player_key, team): {touch_pct, touch_rank, fp_pct, fp_rank, of, games}}
+    for every RB/WR/TE: shares of his team's skill-position touches and DK
+    points over the team's last RECENT_GAMES games before `week` (last
+    season's for the same team when it hasn't played yet), ranked 1 = most."""
+    by_team: dict[str, dict[str, list[dict]]] = {}
+    for key, games in index["players"].items():
+        if key.rsplit("|", 1)[-1] not in SKILL:
+            continue
+        for g in games:
+            if (g["season"], g["week"]) < (season, week) and g["season"] >= season - 1 and g.get("team"):
+                by_team.setdefault(g["team"], {}).setdefault(key, []).append(g)
+    out: dict[tuple[str, str], dict] = {}
+    for team, players in by_team.items():
+        played = {(g["season"], g["week"]) for gs in players.values() for g in gs}
+        this = sorted(w for w in played if w[0] == season)
+        window = set((this or sorted(w for w in played if w[0] == season - 1))[-RECENT_GAMES:])
+        totals = {}
+        for key, gs in players.items():
+            use = [g for g in gs if (g["season"], g["week"]) in window]
+            if use:
+                totals[key] = (sum(_touches(g) for g in use), sum(g.get("dk_points") or 0.0 for g in use))
+        touch_sum = sum(t for t, _ in totals.values())
+        fp_sum = sum(max(f, 0.0) for _, f in totals.values())
+        if not totals or touch_sum <= 0:
+            continue
+        touch_order = sorted(totals, key=lambda k: -totals[k][0])
+        fp_order = sorted(totals, key=lambda k: -totals[k][1])
+        for key, (t, f) in totals.items():
+            out[(key, team)] = {
+                "touch_pct": round(100 * t / touch_sum, 1),
+                "touch_rank": touch_order.index(key) + 1,
+                "fp_pct": round(100 * max(f, 0.0) / fp_sum, 1) if fp_sum > 0 else 0.0,
+                "fp_rank": fp_order.index(key) + 1,
+                "of": len(totals),
+                "games": len(window),
+            }
+    return out

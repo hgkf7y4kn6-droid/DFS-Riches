@@ -45,11 +45,13 @@ async def _assign_roles(players: list[Player], season: int, week: int) -> None:
         if assigned.get(key) != "out" and (t := roles.usage_trend(index, season, week, key[0], key[2])):
             trends[key] = t
     trends = roles.link_shifts(trends)
+    shares = roles.team_shares(index, season, week)
     for p in players:
         key = (p.name, p.team, p.position)
         p.role = assigned.get(key)
         p.snap_pct = base[key]["snap_pct"]
         p.usage_trend = trends.get(key)
+        p.team_share = shares.get((nflverse_client.player_key(p.name, p.position), p.team)) if p.position in roles.SKILL else None
 
 
 @memoize_async(30)  # just long enough to cover one page load's schedule+slates+players calls

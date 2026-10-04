@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 
 import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
+import TeamShareText from '@/components/TeamShare';
 import { roleText } from '@/lib/matchup-sort';
 import { formatCurrency, formatPoints } from '@/lib/utils';
 
@@ -22,11 +23,15 @@ export interface RowPlayer {
   /** Shown when the builder sorts by them: expected ownership (%), DK pts/game over the last 3. */
   ownership?: number | null;
   trend?: number | null;
+  /** Cash builder: the model's floor. */
+  floor?: number | null;
+  team_share?: TeamShare | null;
 }
 
 function pointsLine(p: RowPlayer): string {
   const parts: string[] = [];
   if (p.proj_points != null) parts.push(`${formatPoints(p.proj_points)} proj`);
+  if (p.floor != null) parts.push(`${formatPoints(p.floor)} floor`);
   if (p.ceiling != null && p.actual == null) parts.push(`${formatPoints(p.ceiling)} ceil`);
   if (p.actual != null) parts.push(`${formatPoints(p.actual)} actual`);
   if (p.ownership !== undefined) parts.push(p.ownership != null ? `${p.ownership.toFixed(1)}% own` : 'own n/a');
@@ -58,6 +63,7 @@ export function LineupRow({ slot, player, right, note }: { slot: string; player:
               {player.position} · {player.team}
               {player.opponent ? ` vs ${player.opponent}` : ''}
               {roleText(player) ? ` · ${roleText(player)}` : ''}
+              <TeamShareText share={player.team_share} />
             </Text>
             {player.opponent ? <MatchupBadge opponent={player.opponent} position={player.position} /> : null}
             <UsageTrendNote trend={player.usage_trend} open={trendOpen} />

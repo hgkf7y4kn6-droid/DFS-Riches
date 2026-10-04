@@ -1,11 +1,16 @@
-import { FlatList, RefreshControl, ScrollView, Text } from 'react-native';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
+import { FlatList, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import MatchupModeToggle from '@/components/MatchupModeToggle';
 import BrandHeader from '@/components/BrandHeader';
 import DfsSlatePicker from '@/components/dfs/DfsSlatePicker';
+import ExpandableCard from '@/components/ExpandableCard';
+import LineupBuilder, { type BuildField } from '@/components/LineupBuilder';
 import ListHeading from '@/components/ListHeading';
 import OwnershipList from '@/components/plays/OwnershipList';
+import OptimalLineups from '@/components/OptimalLineups';
 import OwnershipModelNote from '@/components/plays/OwnershipModelNote';
 import PlayRankingCard from '@/components/plays/PlayRankingCard';
 import RoleShiftsCard from '@/components/plays/RoleShiftsCard';
@@ -22,14 +27,14 @@ const COPY: Record<PlayContest, { title: string; subtitle: string; balance: stri
     subtitle: '50/50s, double-ups and head-to-heads',
     balance: 'Ranked on floor safety, salary, game environment and the odds of a median-to-high (2.5x) game',
     ownTitle: 'Expected cash ownership',
-    ownSubtitle: 'Every playable player, most owned first · tap a row for the models and game log, a tag to set your own call',
+    ownSubtitle: 'By position, most owned first · tap a card for every player, a row for the models and game log',
   },
   gpp: {
     title: 'GPP',
     subtitle: 'Tournaments, small field and large field',
     balance: 'Ranked on ownership leverage, salary, game environment and the odds of a ceiling game',
     ownTitle: 'Expected GPP ownership',
-    ownSubtitle: 'Small-field and large-field, most owned first · tap a row for the models and game log, a tag to set your own call',
+    ownSubtitle: 'Small- and large-field by position, most owned first · tap a card for every player, a row for the models and game log',
   },
 };
 
@@ -88,16 +93,48 @@ function cards(data: PlaysResponse, contest: PlayContest): Card[] {
   return list;
 }
 
-/** The Cash and GPP tabs: top plays by position (horizontal), then field ownership with tags (vertical). */
+type GppField = 'large_gpp' | 'small_gpp';
+const FIELD_LABEL: Record<OwnershipContest, string> = { cash: 'Cash', small_gpp: 'Small-field GPP', large_gpp: 'Large-field GPP' };
+const BUILD_NOTE: Record<PlayContest, string> = {
+  cash: 'Cash lineups lean on floor and utilization -- every player shows expected cash ownership and the model floor',
+  gpp: 'Every player shows expected ownership for the field you pick',
+};
+
+/** The field's ownership (and, for cash, the model floor) by DK draftable id, for the lineup builder. */
+function buildField(players: PlayPlayer[], field: OwnershipContest): BuildField {
+  const ownership = new Map<number, number>();
+  const floor = new Map<number, number>();
+  for (const p of players) {
+    if (p.ownership[field] != null) ownership.set(p.id, p.ownership[field]!);
+    floor.set(p.id, p.floor);
+  }
+  return { label: FIELD_LABEL[field], ownership, floor: field === 'cash' ? floor : undefined };
+}
+
+/**
+ * The Cash and GPP tabs: top plays by position (horizontal), field ownership
+ * by position (horizontal), then this contest's own lineup builder.
+ */
 export default function PlaysScreen({ contest }: { contest: PlayContest }) {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
   const { data, loading, refreshing, error, refresh } = usePlays(contest);
-  const { season, week } = useWeek();
+  const { season, week, selectedSlate, selectSlate } = useWeek();
   const copy = COPY[contest];
   const ready = data?.available ? data : null;
   const pool = usePool(ready && season && week ? poolKey(season, week, ready.slate.slate_id, contest) : null);
   const columns: OwnershipContest[] = contest === 'cash' ? ['cash'] : ['small_gpp', 'large_gpp'];
+  const [gppField, setGppField] = useState<GppField>('large_gpp');
+  const fieldKey: OwnershipContest = contest === 'cash' ? 'cash' : gppField;
+  const field = useMemo(() => (ready ? buildField(ready.players, fieldKey) : undefined), [ready, fieldKey]);
+
+  // The builder works on Home's selected slate; keep it on this tab's slate while the tab is open.
+  const slateId = ready?.slate.slate_id;
+  useFocusEffect(
+    useCallback(() => {
+      if (slateId && selectedSlate?.slate_id !== slateId) selectSlate(slateId);
+    }, [slateId, selectedSlate?.slate_id, selectSlate]),
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
@@ -142,6 +179,35 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
             <ListHeading title={copy.ownTitle} subtitle={copy.ownSubtitle} />
             <OwnershipModelNote models={ready.ownership_models} />
             <OwnershipList players={ready.players} columns={columns} pool={pool} />
+
+            <ListHeading title={`Build ${contest === 'cash' ? 'cash' : 'GPP'} lineups`} subtitle={BUILD_NOTE[contest]} />
+            {contest === 'gpp' ? (
+              <View className="chip-row-content mb-2 flex-row">
+                {(['large_gpp', 'small_gpp'] as GppField[]).map((f) => {
+                  const active = f === gppField;
+                  return (
+                    <Pressable
+                      key={f}
+                      className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
+                      onPress={() => setGppField(f)}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: active }}>
+                      <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>
+                        {f === 'large_gpp' ? 'Large field' : 'Small field'}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : null}
+            {selectedSlate?.slate_id === ready.slate.slate_id ? (
+              <>
+                <ExpandableCard title="Projected optimal" subtitle="Highest-projected lineups · copy one into the builder" defaultExpanded={false}>
+                  <OptimalLineups scope={contest} />
+                </ExpandableCard>
+                <LineupBuilder scope={contest} field={field} />
+              </>
+            ) : null}
           </>
         ) : null}
       </ScrollView>

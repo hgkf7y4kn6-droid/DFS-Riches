@@ -22,21 +22,30 @@ interface WeekContextValue {
   selectSlate: (slateId: string) => void;
   optimal: Loadable<OptimalResponse>;
   players: Loadable<SlatePlayers>;
-  /** Builder lineups for the selected slate (kept per slate for the session). */
+  /** The lineup builder for the selected slate in one scope (see useLineups). */
+  lineupsFor: (scope: LineupScope) => LineupBuilderState;
+  /** Deletes every saved lineup on the device and resets the builders. */
+  clearSavedLineups: () => void;
+}
+
+/** Which builder: the Lineups tab's (''), or the Cash / GPP tabs' own sets. */
+export type LineupScope = '' | 'cash' | 'gpp';
+const SCOPES: LineupScope[] = ['', 'cash', 'gpp'];
+
+export interface LineupBuilderState {
+  /** Builder lineups for the selected slate (kept per slate and scope for the session). */
   lineups: BuilderLineup[];
   activeLineup: number;
   setActiveLineup: (i: number) => void;
   setLineup: (i: number, lineup: BuilderLineup) => void;
   addLineup: () => void;
   deleteLineup: (i: number) => void;
-  /** Saves the selected slate's lineups on the device; they're restored next time the slate opens. */
+  /** Saves these lineups; they're restored next time the slate opens. */
   saveLineups: () => void;
-  /** When the selected slate's lineups were last saved (ISO), or null. */
+  /** When these lineups were last saved (ISO), or null. */
   savedAt: string | null;
   /** True when the lineups differ from what was last saved. */
   unsaved: boolean;
-  /** Deletes every saved lineup on the device and resets the builders. */
-  clearSavedLineups: () => void;
 }
 
 const SAVED_KEY = 'dfsriches:saved-lineups:v1';
@@ -141,36 +150,73 @@ export function WeekProvider({ children }: { children: ReactNode }) {
   }, [season, week, selectedSlate]);
 
   const slateKey = selectedSlate?.slate_id ?? '';
-  // Saved lineups are per season/week/slate.
-  const savedKey = season && week && slateKey ? `${season}:${week}:${slateKey}` : '';
+  // Saved lineups are per season/week/slate, plus ":cash" / ":gpp" for the Cash and GPP tabs' sets.
+  const baseSavedKey = season && week && slateKey ? `${season}:${week}:${slateKey}` : '';
+  const savedKeyFor = (scope: LineupScope) => (baseSavedKey && scope ? `${baseSavedKey}:${scope}` : baseSavedKey);
+  // A Cash / GPP set that was never saved starts from the slate's earlier (unscoped) save.
+  const savedEntryFor = (scope: LineupScope): SavedSlateLineups | undefined =>
+    saved[savedKeyFor(scope)] ?? (scope ? saved[baseSavedKey] : undefined);
+  const builderKey = (scope: LineupScope) => (scope ? `${slateKey}|${scope}` : slateKey);
   const slateType = selectedSlate?.slate_type ?? 'classic';
 
-  // First time a slate's player pool loads this session, restore its saved lineups.
+  // First time a slate's player pool loads this session, restore each scope's saved lineups.
   useEffect(() => {
     const pool = players.data?.players;
-    const entry = saved[savedKey];
-    if (!pool || !entry || builder[slateKey] || players.data?.slate.slate_id !== slateKey) return;
+    if (!pool || players.data?.slate.slate_id !== slateKey) return;
     const byId = new Map(pool.map((p) => [p.dk_draftable_id, p]));
     const size = emptyLineup(slateType).length;
-    const lineups = entry.lineups
-      .filter((ids) => ids.length === size)
-      .slice(0, MAX_LINEUPS)
-      .map((ids) => ids.map((id) => (id == null ? null : byId.get(id) ?? null)));
-    if (lineups.length) {
-      setBuilder((all) => ({ ...all, [slateKey]: { lineups, active: Math.min(entry.active, lineups.length - 1) } }));
+    const restored: Record<string, { lineups: BuilderLineup[]; active: number }> = {};
+    for (const scope of SCOPES) {
+      const entry = savedEntryFor(scope);
+      if (!entry || builder[builderKey(scope)]) continue;
+      const lineups = entry.lineups
+        .filter((ids) => ids.length === size)
+        .slice(0, MAX_LINEUPS)
+        .map((ids) => ids.map((id) => (id == null ? null : byId.get(id) ?? null)));
+      if (lineups.length) restored[builderKey(scope)] = { lineups, active: Math.min(entry.active, lineups.length - 1) };
     }
-  }, [players.data, saved, savedKey, slateKey, slateType, builder]);
+    if (Object.keys(restored).length) setBuilder((all) => ({ ...all, ...restored }));
+    // savedEntryFor / builderKey derive from the listed state
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [players.data, saved, baseSavedKey, slateKey, slateType, builder]);
 
-  const current = builder[slateKey] ?? { lineups: [emptyLineup(slateType)], active: 0 };
-  const savedEntry = saved[savedKey];
-
-  const update = useCallback(
-    (fn: (cur: { lineups: BuilderLineup[]; active: number }) => { lineups: BuilderLineup[]; active: number }) => {
+  const lineupsFor = (scope: LineupScope): LineupBuilderState => {
+    const bKey = builderKey(scope);
+    const sKey = savedKeyFor(scope);
+    const fresh = () => ({ lineups: [emptyLineup(slateType)], active: 0 });
+    const current = builder[bKey] ?? fresh();
+    const savedEntry = sKey ? saved[sKey] : undefined;
+    const update = (fn: (cur: { lineups: BuilderLineup[]; active: number }) => { lineups: BuilderLineup[]; active: number }) => {
       if (!slateKey) return;
-      setBuilder((all) => ({ ...all, [slateKey]: fn(all[slateKey] ?? { lineups: [emptyLineup(slateType)], active: 0 }) }));
-    },
-    [slateKey, slateType],
-  );
+      setBuilder((all) => ({ ...all, [bKey]: fn(all[bKey] ?? fresh()) }));
+    };
+    return {
+      lineups: current.lineups,
+      activeLineup: current.active,
+      setActiveLineup: (i) => update((c) => ({ ...c, active: i })),
+      setLineup: (i, lineup) => update((c) => ({ ...c, lineups: c.lineups.map((l, j) => (j === i ? lineup : l)) })),
+      addLineup: () =>
+        update((c) =>
+          c.lineups.length >= MAX_LINEUPS ? c : { lineups: [...c.lineups, emptyLineup(slateType)], active: c.lineups.length },
+        ),
+      deleteLineup: (i) =>
+        update((c) => {
+          const lineups = c.lineups.filter((_, j) => j !== i);
+          return lineups.length ? { lineups, active: Math.min(c.active, lineups.length - 1) } : fresh();
+        }),
+      saveLineups: () => {
+        if (!sKey) return;
+        const entry: SavedSlateLineups = { active: current.active, lineups: toIds(current.lineups), savedAt: new Date().toISOString() };
+        setSaved((all) => {
+          const next = { ...all, [sKey]: entry };
+          AsyncStorage.setItem(SAVED_KEY, JSON.stringify(next)).catch(() => {});
+          return next;
+        });
+      },
+      savedAt: savedEntry?.savedAt ?? null,
+      unsaved: JSON.stringify(toIds(current.lineups)) !== JSON.stringify(savedEntry?.lineups ?? toIds([emptyLineup(slateType)])),
+    };
+  };
 
   const value: WeekContextValue = {
     season,
@@ -181,40 +227,20 @@ export function WeekProvider({ children }: { children: ReactNode }) {
     selectSlate: setSelectedId,
     optimal,
     players,
-    lineups: current.lineups,
-    activeLineup: current.active,
-    setActiveLineup: (i) => update((c) => ({ ...c, active: i })),
-    setLineup: (i, lineup) => update((c) => ({ ...c, lineups: c.lineups.map((l, j) => (j === i ? lineup : l)) })),
-    addLineup: () =>
-      update((c) =>
-        c.lineups.length >= MAX_LINEUPS ? c : { lineups: [...c.lineups, emptyLineup(slateType)], active: c.lineups.length },
-      ),
-    deleteLineup: (i) =>
-      update((c) => {
-        const lineups = c.lineups.filter((_, j) => j !== i);
-        return lineups.length
-          ? { lineups, active: Math.min(c.active, lineups.length - 1) }
-          : { lineups: [emptyLineup(slateType)], active: 0 };
-      }),
-    saveLineups: () => {
-      if (!savedKey) return;
-      const entry: SavedSlateLineups = { active: current.active, lineups: toIds(current.lineups), savedAt: new Date().toISOString() };
-      setSaved((all) => {
-        const next = { ...all, [savedKey]: entry };
-        AsyncStorage.setItem(SAVED_KEY, JSON.stringify(next)).catch(() => {});
-        return next;
-      });
-    },
-    savedAt: savedEntry?.savedAt ?? null,
+    lineupsFor,
     clearSavedLineups: () => {
       setSaved({});
       setBuilder({});
       AsyncStorage.removeItem(SAVED_KEY).catch(() => {});
     },
-    unsaved: JSON.stringify(toIds(current.lineups)) !== JSON.stringify(savedEntry?.lineups ?? toIds([emptyLineup(slateType)])),
   };
 
   return <WeekContext.Provider value={value}>{children}</WeekContext.Provider>;
+}
+
+/** The lineup builder for the selected slate: the Lineups tab's set (''), or the Cash / GPP tabs' own. */
+export function useLineups(scope: LineupScope = ''): LineupBuilderState {
+  return useWeek().lineupsFor(scope);
 }
 
 export function useWeek(): WeekContextValue {

@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
+import TeamShareText from '@/components/TeamShare';
 import GameLog from '@/components/plays/GameLog';
 import TagChoices from '@/components/plays/TagChoices';
 import TagPill from '@/components/plays/TagPill';
@@ -46,6 +47,7 @@ export default function PlayRow({ player, contest, pool }: { player: PlayPlayer;
           <Text className="dfs-meta">
             {p.position} · {p.team} vs {p.opponent} · implied {p.implied}
             {roleText(p) ? ` · ${roleText(p)}` : ''}
+            <TeamShareText share={p.team_share} />
           </Text>
           <MatchupBadge opponent={p.opponent} position={p.position} />
           <UsageTrendNote trend={p.usage_trend} open={trendOpen} />

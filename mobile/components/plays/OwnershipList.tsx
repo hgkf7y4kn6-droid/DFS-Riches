@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, Text, View } from 'react-native';
 
+import { useExpandedWidth } from '@/components/dfs/useCardWidth';
 import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
+import TeamShareText from '@/components/TeamShare';
 import GameLog from '@/components/plays/GameLog';
 import TagChoices from '@/components/plays/TagChoices';
 import TagPill, { TAG_STYLE } from '@/components/plays/TagPill';
@@ -11,7 +13,13 @@ import { useMatchups } from '@/lib/matchups-context';
 import type { Pool } from '@/lib/pool-tags-context';
 import { formatCurrency, formatSigned } from '@/lib/utils';
 
-const POSITIONS = ['All', 'QB', 'RB', 'WR', 'TE', 'DST'];
+const POSITION_CARDS: { pos: string; label: string }[] = [
+  { pos: 'QB', label: 'Quarterbacks' },
+  { pos: 'RB', label: 'Running backs' },
+  { pos: 'WR', label: 'Wide receivers' },
+  { pos: 'TE', label: 'Tight ends' },
+  { pos: 'DST', label: 'Defenses' },
+];
 type TagFilter = 'all' | 'mine' | PlayTag;
 const TAGS: TagFilter[] = ['all', 'prioritize', 'neutral', 'fade', 'mine'];
 const TAG_LABEL: Record<TagFilter, string> = { all: 'All tags', prioritize: 'Prioritize', neutral: 'Neutral', fade: 'Fade', mine: 'My changes' };
@@ -22,7 +30,7 @@ const MODEL_LABEL: Record<string, string> = {
   gbm: 'LightGBM',
 };
 const COLUMN: Record<OwnershipContest, string> = { cash: 'Cash', small_gpp: 'Small GPP', large_gpp: 'Large GPP' };
-const PAGE = 30;
+const PAGE = 25;
 type SortKey = 'own' | 'matchup';
 const SORTS: SortKey[] = ['own', 'matchup'];
 const SORT_LABEL: Record<SortKey, string> = { own: 'Most owned', matchup: 'Best matchup' };
@@ -74,6 +82,7 @@ function OwnershipRow({ player, columns, expanded, onToggle, pool }: RowProps) {
           <Text className="dfs-meta">
             {p.position} · {p.team} vs {p.opponent} · {formatCurrency(p.salary)} · {p.final.toFixed(1)} proj
             {roleText(p) ? ` · ${roleText(p)}` : ''}
+            <TeamShareText share={p.team_share} />
           </Text>
           <MatchupBadge opponent={p.opponent} position={p.position} />
           <UsageTrendNote trend={p.usage_trend} open={trendOpen} />
@@ -137,50 +146,97 @@ function PoolSummary({ players, pool }: { players: PlayPlayer[]; pool: Pool }) {
   );
 }
 
+interface CardProps {
+  pos: string;
+  label: string;
+  players: PlayPlayer[];
+  columns: OwnershipContest[];
+  pool: Pool;
+}
+
 /**
- * Every playable player with expected field ownership for the contest
- * type(s), most owned first, with Prioritize / Neutral / Fade tags. Tap a
- * tag to set your own call for your pool (saved on the device). Filter by
- * position and tag; tap a row for each model's estimate, the engineered
- * features behind it, and the player's recent game log.
+ * One position's expected ownership as a horizontal-list card. Collapsed:
+ * the three most-owned (or, sorted by matchup, the three best matchups).
+ * Tap to expand into every player -- tap a row for the models and game log,
+ * a tag to set your own call.
  */
-export default function OwnershipList({ players, columns, pool }: { players: PlayPlayer[]; columns: OwnershipContest[]; pool: Pool }) {
-  const [position, setPosition] = useState('All');
-  const [tag, setTag] = useState<TagFilter>('all');
+function OwnershipPositionCard({ pos, label, players, columns, pool }: CardProps) {
+  const [expanded, setExpanded] = useState(false);
   const [limit, setLimit] = useState(PAGE);
   const [open, setOpen] = useState<number | null>(null);
+  const style = useExpandedWidth(expanded);
+  const main = columns[columns.length - 1];
+  return (
+    <View className="dfs-card" style={style}>
+      <Pressable onPress={() => setExpanded((e) => !e)} accessibilityRole="button" accessibilityState={{ expanded }}>
+        <Text className="dfs-card-kicker">{pos} ownership</Text>
+        <Text className="dfs-card-title">{label}</Text>
+        <Text className="dfs-card-subtitle">
+          {players.length} player{players.length === 1 ? '' : 's'} · {columns.map((c) => COLUMN[c]).join(' / ')}
+        </Text>
+        {!expanded ? (
+          <View className="mt-2">
+            {players.slice(0, 3).map((p) => (
+              <Text key={p.id} className="dfs-preview" numberOfLines={1}>
+                {p.name} <Text className="dfs-meta">{p.team} · {(p.ownership[main] ?? 0).toFixed(1)}% own</Text>
+              </Text>
+            ))}
+            {!players.length ? <Text className="dfs-meta">No players match.</Text> : null}
+          </View>
+        ) : null}
+        <Text className="upcoming-expand-hint">{expanded ? 'Collapse ▲' : `Tap for all ${players.length} ▼`}</Text>
+      </Pressable>
+      {expanded ? (
+        <View className="player-pool mt-2">
+          {players.slice(0, limit).map((p) => (
+            <OwnershipRow
+              key={p.id}
+              player={p}
+              columns={columns}
+              pool={pool}
+              expanded={open === p.id}
+              onToggle={() => setOpen((o) => (o === p.id ? null : p.id))}
+            />
+          ))}
+          {players.length > limit ? (
+            <Pressable className="btn-outline mt-3" onPress={() => setLimit((n) => n + PAGE)} accessibilityRole="button">
+              <Text className="btn-outline-text">Show more ({players.length - limit} left)</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+/**
+ * Every playable player's expected field ownership for the contest type(s),
+ * as a horizontal list with a card per position (most owned first), with
+ * Prioritize / Neutral / Fade tags. Tag and sort filters apply to every card;
+ * tap a tag to set your own call for your pool.
+ */
+export default function OwnershipList({ players, columns, pool }: { players: PlayPlayer[]; columns: OwnershipContest[]; pool: Pool }) {
+  const [tag, setTag] = useState<TagFilter>('all');
   const [sortBy, setSortBy] = useState<SortKey>('own');
   const { lookup } = useMatchups();
-  const matching = players.filter(
-    (p) =>
-      (position === 'All' || p.position === position) &&
-      (tag === 'all' || (tag === 'mine' ? pool.isMine(p) : pool.tagOf(p) === tag)),
-  );
-  const filtered = sortBy === 'matchup' ? sortByMatchup(matching, lookup, (p) => p.final) : matching;
+  const matching = players.filter((p) => tag === 'all' || (tag === 'mine' ? pool.isMine(p) : pool.tagOf(p) === tag));
+  const sorted = sortBy === 'matchup' ? sortByMatchup(matching, lookup, (p) => p.final) : matching;
+  const cards = POSITION_CARDS.filter(({ pos }) => players.some((p) => p.position === pos)).map((c) => ({
+    ...c,
+    players: sorted.filter((p) => p.position === c.pos),
+  }));
   return (
     <View>
       <PoolSummary players={players} pool={pool} />
-      <Chips items={POSITIONS} value={position} label={(t) => t} onChange={(t) => (setPosition(t), setLimit(PAGE))} />
-      <Chips items={TAGS} value={tag} label={(t) => TAG_LABEL[t]} onChange={(t) => (setTag(t), setLimit(PAGE))} />
-      <Chips items={SORTS} value={sortBy} label={(t) => SORT_LABEL[t]} onChange={(t) => (setSortBy(t), setLimit(PAGE))} />
-      <View className="player-pool">
-        {filtered.slice(0, limit).map((p) => (
-          <OwnershipRow
-            key={p.id}
-            player={p}
-            columns={columns}
-            pool={pool}
-            expanded={open === p.id}
-            onToggle={() => setOpen((o) => (o === p.id ? null : p.id))}
-          />
-        ))}
-        {!filtered.length ? <Text className="home-empty-state">No players match.</Text> : null}
-      </View>
-      {filtered.length > limit ? (
-        <Pressable className="btn-outline mt-3" onPress={() => setLimit((n) => n + PAGE)} accessibilityRole="button">
-          <Text className="btn-outline-text">Show more ({filtered.length - limit} left)</Text>
-        </Pressable>
-      ) : null}
+      <Chips items={TAGS} value={tag} label={(t) => TAG_LABEL[t]} onChange={setTag} />
+      <Chips items={SORTS} value={sortBy} label={(t) => SORT_LABEL[t]} onChange={setSortBy} />
+      <FlatList
+        data={cards}
+        keyExtractor={(c) => c.pos}
+        renderItem={({ item }) => <OwnershipPositionCard {...item} columns={columns} pool={pool} />}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      />
     </View>
   );
 }

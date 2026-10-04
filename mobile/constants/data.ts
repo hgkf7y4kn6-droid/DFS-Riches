@@ -43,12 +43,6 @@ export const HOME_SECTIONS: Record<HomeSection['id'], HomeSection> = {
     subtitle: "This week's games that haven't kicked off",
     defaultExpanded: true,
   },
-  slates: {
-    id: 'slates',
-    title: 'Slates',
-    subtitle: 'Main, Full Week and every island Showdown',
-    defaultExpanded: true,
-  },
   lineups: {
     id: 'lineups',
     title: 'Lineups',

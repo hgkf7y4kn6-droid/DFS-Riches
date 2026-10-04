@@ -374,6 +374,13 @@
   .dfs-meta {
     @apply text-xs font-sans-medium text-muted-foreground;
   }
+  /* Touch / FP share after the snap %: same size as the meta line, ranks in the accent. */
+  .team-share {
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .team-share-rank {
+    @apply text-xs font-sans-bold text-accent;
+  }
   .dfs-salary {
     @apply text-sm font-sans-semibold text-foreground;
   }

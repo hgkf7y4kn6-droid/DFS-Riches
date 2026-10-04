@@ -105,3 +105,33 @@ def test_genuine_shifts_need_a_new_level_and_more_than_one_game():
     assert not kept[("Saquon Barkley", "PHI", "RB")]["genuine"]     # 72% after 71% / 16%: no new high
     assert ("Lone Spike", "XYZ", "WR") not in kept                   # one-game WR swing under 20 points, no partner
     assert [g["snap_pct"] for g in kept[("Jeremiyah Love", "ARI", "RB")]["series"]] == [43.0, 40.0, 64.0]
+
+
+def _share_game(season, week, team, carries=0, rec=0, pts=0.0):
+    return {"season": season, "week": week, "team": team, "dk_points": pts,
+            "stats": {"rushing": {"att": carries}, "receiving": {"rec": rec}}}
+
+
+def test_team_shares_rank_skill_players_over_the_last_three_games():
+    index = {"players": {
+        "lead back|RB": [_share_game(2026, w, "ATL", carries=15, rec=3, pts=18.0) for w in (1, 2, 3, 4)],
+        "slot guy|WR": [_share_game(2026, w, "ATL", rec=6, pts=20.0) for w in (1, 2, 3, 4)],
+        "big te|TE": [_share_game(2026, w, "ATL", rec=2, pts=4.0) for w in (2, 3, 4)],
+        "the qb|QB": [_share_game(2026, w, "ATL", carries=5, pts=25.0) for w in (1, 2, 3, 4)],     # not a skill position
+        "other wr|WR": [_share_game(2026, w, "NO", rec=5, pts=10.0) for w in (1, 2, 3, 4)],        # other team
+    }}
+    shares = roles.team_shares(index, 2026, 5)
+    rb, wr, te = shares[("lead back|RB", "ATL")], shares[("slot guy|WR", "ATL")], shares[("big te|TE", "ATL")]
+    assert rb["games"] == 3 and rb["of"] == 3                      # weeks 2-4 only
+    assert rb["touch_pct"] == round(100 * 54 / (54 + 18 + 6), 1) and rb["touch_rank"] == 1
+    assert wr["touch_rank"] == 2 and te["touch_rank"] == 3
+    assert wr["fp_rank"] == 1 and rb["fp_rank"] == 2 and wr["fp_pct"] == round(100 * 60 / (54 + 60 + 12), 1)
+    assert ("the qb|QB", "ATL") not in shares
+    assert shares[("other wr|WR", "NO")]["touch_pct"] == 100.0
+
+
+def test_team_shares_fall_back_to_last_season_for_the_same_team():
+    index = {"players": {"lead back|RB": [_share_game(2025, 17, "ATL", carries=20, pts=15.0)],
+                         "slot guy|WR": [_share_game(2025, 17, "ATL", rec=5, pts=12.0)]}}
+    shares = roles.team_shares(index, 2026, 1)
+    assert shares[("lead back|RB", "ATL")]["touch_rank"] == 1 and shares[("lead back|RB", "ATL")]["games"] == 1

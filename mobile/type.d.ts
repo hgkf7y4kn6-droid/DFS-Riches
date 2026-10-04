@@ -73,7 +73,7 @@ interface UpcomingGame {
 
 /** One Home section: what it's called and how it's laid out. */
 interface HomeSection {
-  id: 'profit' | 'upcoming' | 'slates' | 'lineups' | 'lines';
+  id: 'profit' | 'upcoming' | 'lineups' | 'lines';
   title: string;
   subtitle: string;
   /** Whether the section starts expanded. */
@@ -226,6 +226,19 @@ interface Player {
   /** Average offensive snap % over his last 3 games. */
   snap_pct?: number | null;
   usage_trend?: UsageTrend | null;
+  team_share?: TeamShare | null;
+}
+
+/** RB/WR/TE: share of the team's skill-position touches (carries + receptions) and DK points over its
+ *  last 3 games, and where each ranks among the team's RBs, WRs and TEs (1 = most). */
+interface TeamShare {
+  touch_pct: number;
+  touch_rank: number;
+  fp_pct: number;
+  fp_rank: number;
+  /** Skill players compared. */
+  of: number;
+  games: number;
 }
 
 /** A role that just shifted: the latest game's snaps/usage against the games before it. */
@@ -451,6 +464,7 @@ interface DfsPlayer {
   role?: PlayerRole | null;
   snap_pct?: number | null;
   usage_trend?: UsageTrend | null;
+  team_share?: TeamShare | null;
 }
 
 /** One game's environment for DFS, ranked across the slate (1 = best). */
@@ -596,6 +610,7 @@ interface PlayPlayer {
   role?: PlayerRole | null;
   snap_pct?: number | null;
   usage_trend?: UsageTrend | null;
+  team_share?: TeamShare | null;
   features: {
     value_ratio: number;
     position_value_rank: number;

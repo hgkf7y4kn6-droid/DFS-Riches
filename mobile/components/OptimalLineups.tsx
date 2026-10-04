@@ -5,7 +5,7 @@ import StatusView from '@/components/StatusView';
 import { OPTIMAL_STATUS_TEXT } from '@/constants/data';
 import { fromOptimal } from '@/lib/lineups';
 import { formatCurrency, formatEt, formatPoints } from '@/lib/utils';
-import { useWeek } from '@/lib/week-context';
+import { type LineupScope, useLineups, useWeek } from '@/lib/week-context';
 
 function statusLine(opt: OptimalResponse): string {
   if (opt.status === 'live') return `${OPTIMAL_STATUS_TEXT.live} (last change ${formatEt(opt.saved_at)})`;
@@ -40,9 +40,11 @@ function OptimalCard({ lineup, onEdit }: { lineup: OptimalLineup; onEdit?: () =>
   );
 }
 
-/** The projected optimal lineups for the selected slate (and, once final, the best possible). */
-export default function OptimalLineups() {
-  const { selectedSlate, optimal, players, activeLineup, setLineup } = useWeek();
+/** The projected optimal lineups for the selected slate (and, once final, the best possible);
+ *  "Edit in builder" copies one into the `scope` builder's active lineup. */
+export default function OptimalLineups({ scope = '' }: { scope?: LineupScope }) {
+  const { selectedSlate, optimal, players } = useWeek();
+  const { activeLineup, setLineup } = useLineups(scope);
   if (!selectedSlate) return null;
   const opt = optimal.data;
   const pool = players.data?.players ?? [];
