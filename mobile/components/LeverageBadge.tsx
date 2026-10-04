@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Text, useColorScheme, View } from 'react-native';
 
 import { useLeverage } from '@/lib/leverage-context';
-import { trendFill, trendLevel } from '@/lib/trend';
+import { trendInk, trendLevel } from '@/lib/trend';
 
 // Shades by size in ownership points: under 1.5 steady (gold), then 1.5 / 4 / 8.
 const STEPS: [number, number, number] = [1.5, 4, 8];
@@ -38,7 +38,7 @@ interface Props {
 
 /**
  * A small leverage number after a player's name: fair minus projected
- * ownership in points (app/leverage.py), colored green (positive), red
+ * ownership in points (app/leverage.py), the number itself colored green (positive), red
  * (negative) or gold (about even) -- darker = bigger. Renders nothing when
  * the player has no leverage (not on the DFS model's slate).
  */
@@ -52,21 +52,23 @@ export default function LeverageBadge({ player, value, detail, inline }: Props) 
   const info = explicit ? (value != null ? { value, detail: detail ?? null } : null) : player ? lookup(player) : null;
   if (!info) return null;
   const level = trendLevel(info.value, 0, 'high', { steps: STEPS, absolute: true });
-  const fill = trendFill(level, dark);
+  const color = trendInk(level, dark);
   const label = leverageText(info.value, info.detail);
   if (inline) {
     return (
       <Text accessibilityLabel={label}>
         {' '}
-        <Text className="lev-badge-text" style={{ backgroundColor: fill }}>
-          {` ${formatLeverage(info.value)} `}
+        <Text className="lev-badge-text" style={{ color }}>
+          {formatLeverage(info.value)}
         </Text>
       </Text>
     );
   }
   return (
-    <View className="lev-badge" style={{ backgroundColor: fill }} accessibilityLabel={label}>
-      <Text className="lev-badge-text">{formatLeverage(info.value)}</Text>
+    <View className="lev-badge" accessibilityLabel={label}>
+      <Text className="lev-badge-text" style={{ color }}>
+        {formatLeverage(info.value)}
+      </Text>
     </View>
   );
 }

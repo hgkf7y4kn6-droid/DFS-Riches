@@ -58,4 +58,30 @@ export function trendFill(level: TrendLevel, dark: boolean): string {
   return (dark ? DARK : LIGHT)[level];
 }
 
+// Text colors for the same scale (the number itself is colored, no fill): stronger
+// shade = bigger, kept readable on the card background in each theme.
+const INK_LIGHT: Record<TrendLevel, string> = {
+  [-3]: '#991B1B',
+  [-2]: '#DC2626',
+  [-1]: '#EF5350',
+  0: '#B8860B',
+  1: '#2FAE5E',
+  2: '#16A34A',
+  3: '#166534',
+};
+const INK_DARK: Record<TrendLevel, string> = {
+  [-3]: '#FF4D4D',
+  [-2]: '#F87171',
+  [-1]: '#FCA5A5',
+  0: '#E5BE4F',
+  1: '#A7F3C0',
+  2: '#4ADE80',
+  3: '#22C55E',
+};
+
+/** Text color for a level, for values shown in color rather than on a fill. */
+export function trendInk(level: TrendLevel, dark: boolean): string {
+  return (dark ? INK_DARK : INK_LIGHT)[level];
+}
+
 export const TREND_LEGEND = 'Green = improving, red = getting worse (darker = bigger move), gold = steady';

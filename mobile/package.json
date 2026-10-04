@@ -1,7 +1,7 @@
 {
   "name": "mobile",
   "main": "expo-router/entry",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "dependencies": {
     "@clerk/expo": "^4.8.0",
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",

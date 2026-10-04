@@ -530,12 +530,12 @@
   .weight-pct {
     @apply -ml-1 text-xs font-sans-semibold text-muted-foreground;
   }
-  /* Leverage badge after a player's name (fill set inline from lib/trend). */
+  /* Leverage number after a player's name (text color set inline from lib/trend). */
   .lev-badge {
-    @apply ml-1.5 rounded px-1 py-px;
+    @apply ml-1.5;
   }
   .lev-badge-text {
-    @apply text-[10px] font-sans-bold text-foreground;
+    @apply text-[11px] font-sans-bold;
   }
   .lev-detail {
     @apply mt-1 text-[11px] font-sans-medium text-muted-foreground;
