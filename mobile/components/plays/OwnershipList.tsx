@@ -12,6 +12,7 @@ import { roleText, sortByMatchup } from '@/lib/matchup-sort';
 import { useMatchups } from '@/lib/matchups-context';
 import type { Pool } from '@/lib/pool-tags-context';
 import { formatCurrency, formatSigned } from '@/lib/utils';
+import LeverageBadge, { leverageText } from '@/components/LeverageBadge';
 
 const POSITION_CARDS: { pos: string; label: string }[] = [
   { pos: 'QB', label: 'Quarterbacks' },
@@ -77,6 +78,7 @@ function OwnershipRow({ player, columns, expanded, onToggle, pool }: RowProps) {
               {p.name}
               {p.injury && p.injury !== 'Healthy' ? <Text className="injury-tag"> {p.injury}</Text> : null}
             </Text>
+            <LeverageBadge value={p.leverage ?? null} detail={p.leverage_detail} />
             <UsageTrendArrow trend={p.usage_trend} open={trendOpen} onToggle={() => setTrendOpen((o) => !o)} />
           </View>
           <Text className="dfs-meta">
@@ -104,6 +106,7 @@ function OwnershipRow({ player, columns, expanded, onToggle, pool }: RowProps) {
       {picking ? <TagChoices player={p} pool={pool} onDone={() => setPicking(false)} /> : null}
       {expanded ? (
         <View className="own-detail">
+          {p.leverage != null ? <Text className="lev-detail mb-1">{leverageText(p.leverage, p.leverage_detail)}</Text> : null}
           {columns.map((c) => (
             <Text key={c} className="dfs-stats">
               {COLUMN[c]} by model:{' '}
@@ -178,7 +181,8 @@ function OwnershipPositionCard({ pos, label, players, columns, pool }: CardProps
           <View className="mt-2">
             {players.slice(0, 3).map((p) => (
               <Text key={p.id} className="dfs-preview" numberOfLines={1}>
-                {p.name} <Text className="dfs-meta">{p.team} · {(p.ownership[main] ?? 0).toFixed(1)}% own</Text>
+                {p.name}
+                <LeverageBadge inline value={p.leverage ?? null} /> <Text className="dfs-meta">{p.team} · {(p.ownership[main] ?? 0).toFixed(1)}% own</Text>
               </Text>
             ))}
             {!players.length ? <Text className="dfs-meta">No players match.</Text> : null}

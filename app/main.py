@@ -30,6 +30,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
+from app import leverage as leverage_module
+from app import trenches as trenches_module
 from app import dfs_model
 from app import accounts, guard, matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
 from app import game_detail as game_detail_module
@@ -253,8 +255,13 @@ async def _plays(season: int, week: int, slate_id: str | None, contest: str, ver
     model = json.loads(await _dfs_model(season, week, slate_id, "gpp", None, version))
     if not model.get("available"):
         return json.dumps({"available": False, "reason": model.get("reason") or "The DFS model isn't available for this slate."}).encode()
+    try:
+        efficiency = leverage_module.efficiency_context(await trenches_module.week_profiles(season, week),
+                                                        await matchups.defense_vs_position(season, week))
+    except Exception:
+        efficiency = None        # leverage falls back to the plain odds
     result = await asyncio.to_thread(play_rankings.build, model["table"], model["strategy"]["games"], contest,
-                                     season, week, model["slate"]["slate_id"])
+                                     season, week, model["slate"]["slate_id"], efficiency)
     result["available"] = True
     result["slate"] = model["slate"]
     result["slates"] = model["slates"]

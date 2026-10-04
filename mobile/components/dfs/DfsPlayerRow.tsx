@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
 import { formatCurrency, formatPercent } from '@/lib/utils';
+import LeverageBadge from '@/components/LeverageBadge';
 
 export type DfsMetric = 'final' | 'value' | 'ceiling';
 
@@ -48,6 +49,7 @@ export default function DfsPlayerRow({
               {p.name}
               {p.injury && p.injury !== 'Healthy' ? <Text className="injury-tag"> {p.injury}</Text> : null}
             </Text>
+            <LeverageBadge player={{ id: p.id, name: p.name, team: p.team }} />
             <UsageTrendArrow trend={p.usage_trend} open={trendOpen} onToggle={() => setTrendOpen((o) => !o)} />
           </View>
           <Text className="dfs-meta">

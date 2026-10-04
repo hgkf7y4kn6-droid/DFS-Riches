@@ -84,10 +84,11 @@ function cards(data: PlaysResponse, contest: PlayContest): Card[] {
       key: 'leverage',
       kicker: 'Leverage',
       title: `Top ${data.leverage.length} leverage plays`,
-      subtitle: 'Ceiling odds per point of ownership, every position',
+      subtitle: 'Most under-owned for their efficiency-adjusted ceiling odds, every position',
       players: data.leverage,
-      preview: (p) => `${p.position} · ${p.leverage_ratio?.toFixed(1)}x · ${p.ownership.large_gpp?.toFixed(1)}% own`,
-      note: 'Leverage = P(ceiling game) / large-field ownership; 1.0x is owned in line with the ceiling odds. Each has at least a 12% shot at a tournament-winning score.',
+      preview: (p) => `${p.position} · ${p.leverage_detail?.fair_own?.toFixed(1)}% fair vs ${p.ownership.large_gpp?.toFixed(1)}% own`,
+      note:
+        "Leverage = fair ownership minus projected ownership (points). Fair ownership spreads the position's ownership by each player's efficiency-adjusted ceiling odds -- his offense's EPA, the opposing defense's EPA allowed and its record vs his position -- so a barely-owned dart with no real upside lands near zero, and chalk in a bad matchup goes negative.",
     });
   }
   return list;
@@ -111,9 +112,8 @@ function buildField(players: PlayPlayer[], field: OwnershipContest): BuildField 
     if (own != null) ownership.set(p.id, own);
     floor.set(p.id, p.floor);
     if (p.parts.env != null) env.set(p.id, p.parts.env);
-    // GPP: the model's ceiling odds per unit of large-field ownership. Cash: P(2.5x) per unit of cash ownership.
-    const lev = field === 'cash' ? (own != null ? p.p_hit / Math.max(own / 100, 0.005) : null) : p.leverage_ratio;
-    if (lev != null) leverage.set(p.id, Math.round(lev * 100) / 100);
+    // Fair minus projected ownership for this tab's contest (app/leverage.py; cash: odds of 2.5x salary).
+    if (p.leverage != null) leverage.set(p.id, p.leverage);
   }
   return { label: FIELD_LABEL[field], ownership, floor: field === 'cash' ? floor : undefined, env, leverage };
 }

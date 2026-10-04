@@ -650,6 +650,23 @@ type OwnershipContest = 'cash' | 'small_gpp' | 'large_gpp';
 type PlayTag = 'prioritize' | 'neutral' | 'fade';
 
 /** One player's play strength and expected field ownership for a contest type. */
+/** How a player's leverage was built (app/leverage.py). */
+interface LeverageDetail {
+  /** Fair ownership: the position's ownership redistributed by efficiency-adjusted odds (percent). */
+  fair_own: number | null;
+  own: number | null;
+  /** True Efficiency-Adjusted Projection. */
+  teap: number | null;
+  /** Efficiency-adjusted hit odds (GPP: ceiling score; cash: 2.5x salary), 0-1. */
+  p: number | null;
+  /** Matchup-Efficiency Multiplier and its parts (league z-scores). */
+  mem: number;
+  off_z: number;
+  def_z: number;
+  pos_z: number;
+  verdict: 'Efficient secret' | 'Public trap' | 'Mirage' | null;
+}
+
 interface PlayPlayer {
   /** 1-based strength-of-play rank in a ranking list; null in the full player list. */
   rank: number | null;
@@ -673,6 +690,9 @@ interface PlayPlayer {
   parts: Record<string, number>;
   /** GPP: P(ceiling) / large-field ownership (1.0 = owned in line with the ceiling odds); null for cash. */
   leverage_ratio: number | null;
+  /** Fair minus projected ownership for this contest's field, in percentage points (app/leverage.py). */
+  leverage?: number | null;
+  leverage_detail?: LeverageDetail | null;
   /** Blended expected ownership, percent, per contest type. */
   ownership: Partial<Record<OwnershipContest, number>>;
   /** Each model's estimate (percent) before the blend: sim, bt, frac_logit, gbm. */

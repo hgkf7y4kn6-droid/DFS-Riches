@@ -16,8 +16,9 @@ Strength of play is scored within each position from z-scored components:
     P(ceiling outcome)         P(points >= the position's tournament-
                                winning score: QB 28, RB/WR 24, TE 18,
                                DST 14)                                  x 0.40
-    ownership leverage         ceiling probability relative to
-                               large-field ownership                  x 0.25
+    ownership leverage         fair minus projected large-field
+                               ownership (app.leverage: efficiency-
+                               adjusted ceiling odds)                 x 0.25
     salary                     ceiling per $1k                         x 0.15
     game environment                                                   x 0.20
 
@@ -36,15 +37,16 @@ Tags (per player, per contest), among the position's relevant players
 
 GPP also returns two cross-position lists for the tab's horizontal cards:
   chalk     the 10 highest large-field ownerships among relevant players
-  leverage  the 10 best ceiling-odds-per-ownership ratios (P(ceiling) /
-            large-field ownership) among relevant players with real ceiling
-            odds (P(ceiling) >= 12%) -- the pivots off the chalk
+  leverage  the 10 highest leverage scores (fair minus projected large-
+            field ownership, app.leverage) among relevant players -- the
+            pivots off the chalk
 """
 from __future__ import annotations
 
 import numpy as np
 
 from app import field_ownership as fo
+from app import leverage as lv
 
 TOP_N = {"QB": 5, "RB": 10, "WR": 10, "TE": 5}
 CASH_TARGET_X = 2.5
@@ -53,7 +55,6 @@ TAG_TOP = {**TOP_N, "DST": 3}
 RELEVANT_PROJ = {"QB": 5.0, "RB": 5.0, "WR": 5.0, "TE": 5.0, "DST": 3.0}
 CROSS_N = 10
 ROLE_SHIFTS_N = 40
-LEVERAGE_MIN_CEILING = 0.12
 
 
 def _z(vals: list[float]) -> list[float]:
@@ -66,8 +67,11 @@ def _round(x, n=2):
     return None if x is None else round(float(x), n)
 
 
-def build(table: list[dict], games: list[dict], contest: str, season: int, week: int, slate_id: str) -> dict:
-    """contest "cash" -> cash rankings + cash ownership; "gpp" -> GPP rankings + small/large-field ownership."""
+def build(table: list[dict], games: list[dict], contest: str, season: int, week: int, slate_id: str,
+          efficiency: dict | None = None) -> dict:
+    """contest "cash" -> cash rankings + cash ownership; "gpp" -> GPP rankings + small/large-field ownership.
+    `efficiency` (app.leverage.efficiency_context) drives the leverage score; without it the
+    multiplier is 1 and leverage rests on the plain odds."""
     rows = fo.engineer(table, games)
     env = fo.env_by_team(games)
     fo.save_features(season, week, slate_id, rows)
@@ -85,6 +89,19 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
             r[f"own_{c}"] = float(owns[c]["own"][i])
             r[f"models_{c}"] = {k: round(float(v[i]) * 100, 1) for k, v in owns[c]["components"].items()}
         r["lead_own"] = float(lead_own[i])
+        # Leverage (app.leverage): efficiency-adjusted projection and odds.
+        m = lv.mem(efficiency or {"off_db": {}, "off_rush": {}, "off_play": {}, "def_db": {}, "def_rush": {}, "def_play": {}, "pos": {}},
+                   r["position"], r["team"], r["opponent"])
+        k = m["mem"]
+        lo, hi = fo.player_sd(r["final"] * k, r["floor"] * k, r["ceiling"] * k)
+        r["mem"] = m
+        r["teap"] = r["final"] * k
+        r["p_eff"] = fo.p_at_least((CASH_TARGET_X * r["salary_k"]) if contest == "cash" else GPP_CEILING_SCORE[r["position"]],
+                                   r["final"] * k, lo, hi)
+
+    lv.fair_ownership(rows, "p_eff", "lead_own")
+    for r in rows:
+        r["leverage"] = (r["fair_own"] - r["lead_own"]) * 100
 
     out_players, rankings = [], {}
     for pos in fo.POSITIONS:
@@ -101,11 +118,9 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
             }
             w = {"p_hit": 0.35, "floor": 0.25, "salary": 0.20, "env": 0.20}
         else:
-            own_share = np.array([max(r["lead_own"], 0.005) for r in grp])
-            lev = np.log(np.array([max(r["p_ceiling"], 1e-4) for r in grp]) / own_share)
             parts = {
                 "p_hit": _z([r["p_ceiling"] for r in grp]),
-                "leverage": _z(list(lev)),
+                "leverage": _z([r["leverage"] for r in grp]),
                 "salary": _z([r["ceiling_value"] for r in grp]),
                 "env": env_z,
             }
@@ -134,8 +149,7 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
     if contest == "gpp":
         relevant = [r for r in rows if r["final"] >= RELEVANT_PROJ[r["position"]]]
         chalk = sorted(relevant, key=lambda r: -r["lead_own"])[:CROSS_N]
-        pivots = sorted((r for r in relevant if r["p_ceiling"] >= LEVERAGE_MIN_CEILING),
-                        key=lambda r: -_leverage_ratio(r))[:CROSS_N]
+        pivots = sorted(relevant, key=lambda r: -r["leverage"])[:CROSS_N]
         extra |= {"chalk": [_player(r, contest, own_contests, k) for k, r in enumerate(chalk, 1)],
                  "leverage": [_player(r, contest, own_contests, k) for k, r in enumerate(pivots, 1)]}
     return {
@@ -199,6 +213,16 @@ def _player(r: dict, contest: str, own_contests: list[str], rank: int | None = N
         "score": _round(r["score"], 3),
         "parts": r["parts"],
         "leverage_ratio": _round(_leverage_ratio(r)) if contest == "gpp" else None,
+        # Fair minus projected ownership for this contest's field, percentage points (app.leverage).
+        "leverage": _round(r["leverage"], 1),
+        "leverage_detail": {
+            "fair_own": _round(r["fair_own"] * 100, 1),
+            "own": _round(r["lead_own"] * 100, 1),
+            "teap": _round(r["teap"]),
+            "p": _round(r["p_eff"], 3),
+            **r["mem"],
+            "verdict": lv.verdict(r["leverage"], r["lead_own"], r["mem"]["mem"], r["p_eff"]),
+        },
         "ownership": {c: _round(r[f"own_{c}"] * 100, 1) for c in own_contests},
         # each model's own estimate (percent) before the blend
         "ownership_models": {c: r[f"models_{c}"] for c in own_contests},

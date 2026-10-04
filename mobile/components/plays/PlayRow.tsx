@@ -10,6 +10,7 @@ import TagPill from '@/components/plays/TagPill';
 import { roleText } from '@/lib/matchup-sort';
 import type { Pool } from '@/lib/pool-tags-context';
 import { formatCurrency, formatPercent, formatSigned } from '@/lib/utils';
+import LeverageBadge, { leverageText } from '@/components/LeverageBadge';
 
 const OWN_LABEL: Record<OwnershipContest, string> = { cash: 'cash own', small_gpp: 'small-field', large_gpp: 'large-field' };
 const PART_LABEL: Record<string, string> = {
@@ -42,6 +43,7 @@ export default function PlayRow({ player, contest, pool }: { player: PlayPlayer;
               {p.name}
               {p.injury && p.injury !== 'Healthy' ? <Text className="injury-tag"> {p.injury}</Text> : null}
             </Text>
+            <LeverageBadge value={p.leverage ?? null} detail={p.leverage_detail} />
             <UsageTrendArrow trend={p.usage_trend} open={trendOpen} onToggle={() => setTrendOpen((o) => !o)} />
           </View>
           <Text className="dfs-meta">
@@ -63,7 +65,6 @@ export default function PlayRow({ player, contest, pool }: { player: PlayPlayer;
         {(Object.entries(p.ownership) as [OwnershipContest, number][])
           .map(([c, v]) => `${v.toFixed(1)}% ${OWN_LABEL[c]}`)
           .join(' · ')}
-        {p.leverage_ratio != null ? ` · ${p.leverage_ratio.toFixed(1)}x leverage` : ''}
       </Text>
       <View className="part-row">
         {Object.entries(p.parts).map(([k, z]) => (
@@ -74,6 +75,7 @@ export default function PlayRow({ player, contest, pool }: { player: PlayPlayer;
           </View>
         ))}
       </View>
+      {expanded && p.leverage != null ? <Text className="lev-detail">{leverageText(p.leverage, p.leverage_detail)}</Text> : null}
       {expanded ? <GameLog player={p} /> : <Text className="upcoming-expand-hint mt-1">Game log ▼</Text>}
     </Pressable>
   );

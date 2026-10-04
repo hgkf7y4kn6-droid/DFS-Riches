@@ -6,6 +6,7 @@ import StatusView from '@/components/StatusView';
 import TrendChips from '@/components/TrendChips';
 import { useGameDetail } from '@/lib/game-detail';
 import { formatCurrency, formatPercent, formatSigned } from '@/lib/utils';
+import LeverageBadge from '@/components/LeverageBadge';
 
 const ordinal = (n: number) => {
   const s = ['th', 'st', 'nd', 'rd'];
@@ -75,7 +76,8 @@ function Targets({ team, players }: { team: string; players: TopPlayer[] }) {
         <View key={`${p.name}-${p.position}`} className="detail-target">
           <View className="flex-row items-center justify-between">
             <Text className="detail-target-name" numberOfLines={1}>
-              {p.name} <Text className="detail-target-meta">{p.position} · {p.role}</Text>
+              {p.name}
+              <LeverageBadge inline player={{ name: p.name, team }} /> <Text className="detail-target-meta">{p.position} · {p.role}</Text>
             </Text>
             <Text className="detail-target-meta">{formatCurrency(p.salary)}</Text>
           </View>
@@ -237,7 +239,8 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
               <View key={u.name} className="detail-target">
                 <View className="flex-row items-center">
                   <Text className="detail-row-label" numberOfLines={1}>
-                    {u.name} <Text className="detail-target-meta">{u.position}</Text>
+                    {u.name}
+                    <LeverageBadge inline player={{ name: u.name, team: team as string }} /> <Text className="detail-target-meta">{u.position}</Text>
                   </Text>
                   <Text className="detail-row-value">{formatPercent(u.share_season, 0)} season</Text>
                 </View>

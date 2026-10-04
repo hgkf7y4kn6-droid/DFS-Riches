@@ -8,10 +8,10 @@ import { useWeek } from '@/lib/week-context';
 const cache = new Map<string, PlaysResponse>();
 
 /** Cash or GPP plays for the slate picked in the DFS model tabs; pull-to-refresh via refresh(). */
-export function usePlays(contest: PlayContest) {
+export function usePlays(contest: PlayContest, enabled = true) {
   const { season, week } = useWeek();
   const { slateId } = useDfsModel();
-  const key = season && week ? `${season}:${week}:${slateId ?? 'default'}:${contest}` : '';
+  const key = enabled && season && week ? `${season}:${week}:${slateId ?? 'default'}:${contest}` : '';
   // Held in state so React re-renders (the React Compiler memoizes plain module-cache reads).
   const [fetched, setFetched] = useState<{ key: string; data: PlaysResponse } | null>(null);
   const [error, setError] = useState<{ key: string; message: string } | null>(null);

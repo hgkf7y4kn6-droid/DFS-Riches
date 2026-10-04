@@ -12,6 +12,7 @@ import { useThemeColors } from '@/constants/theme';
 import { addPlayer, fitChecker, indexOfPlayer, removeAt, summarize, template } from '@/lib/lineups';
 import { sortByMatchup } from '@/lib/matchup-sort';
 import { useSlateOwnership } from '@/lib/slate-ownership';
+import { useLeverage } from '@/lib/leverage-context';
 import { matchupScore, useMatchups } from '@/lib/matchups-context';
 import { formatCurrency, formatEt, formatPoints } from '@/lib/utils';
 import { evenWeights, type Factor, setWeight, totalWeight, type Weights, weightedRank } from '@/lib/weighted-sort';
@@ -46,7 +47,7 @@ const SORT_NOTE: Record<SortKey, string> = {
   value: 'Projected points per $1k of salary',
   salary: 'DraftKings salary',
   own: 'Expected large-field ownership from the DFS model',
-  lev: 'Leverage: his ceiling odds (GPP) or 2.5x-salary odds (cash) per point of expected ownership -- 1.0x = owned in line with his odds',
+  lev: "Leverage: fair minus projected ownership (points) -- fair ownership spreads the position's ownership by efficiency-adjusted odds (ceiling for GPP, 2.5x salary for cash)",
   env: "Game environment: the model's score for his team's scoring setup -- implied total, game total, pace and weather",
   touch: "Touch %: his share of the team's RB / WR / TE touches (carries + receptions) over the last 3 games",
   l3: 'DK points per game over his last 3 games this season (shown once he has played 3)',
@@ -64,7 +65,7 @@ export interface BuildField {
   floor?: Map<number, number>;
   /** The model's game-environment score (z within the position: implied total, game total, pace, weather). */
   env?: Map<number, number>;
-  /** Ceiling (GPP) or 2.5x (cash) odds per unit of expected ownership; 1.0 = owned in line with the odds. */
+  /** Fair minus projected ownership in points (app/leverage.py) for this field. */
   leverage?: Map<number, number>;
 }
 
@@ -91,6 +92,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   const blended = selected.length > 1;
   const ascending = Boolean(lowFirst[sortBy]);
   const { lookup } = useMatchups();
+  const { lookup: leverageOf, request: requestLeverage } = useLeverage();
   const [limit, setLimit] = useState(PAGE);
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
   const [logging, setLogging] = useState(false);
@@ -104,7 +106,6 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   const sorts = SORTS.filter(
     (o) =>
       (o.key !== 'floor' || field?.floor) &&
-      (o.key !== 'lev' || field?.leverage?.size) &&
       (o.key !== 'l6' || hasWindow('trend_l6')) &&
       (o.key !== 'l9' || hasWindow('trend_l9')),
   );
@@ -140,7 +141,13 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
       value: (p) => p.value_per_1k,
       salary: (p) => p.salary,
       own: (p) => (p.dk_draftable_id != null ? ownership?.get(p.dk_draftable_id) ?? null : null),
-      lev: (p) => (p.dk_draftable_id != null ? field?.leverage?.get(p.dk_draftable_id) ?? null : null),
+      // This tab's contest leverage, else large-field GPP leverage for the DFS model's slate.
+      lev: (p) =>
+        field?.leverage
+          ? p.dk_draftable_id != null
+            ? field.leverage.get(p.dk_draftable_id) ?? null
+            : null
+          : leverageOf({ id: p.dk_draftable_id, name: p.name, team: p.team })?.value ?? null,
       env: (p) => (field?.env ? (p.dk_draftable_id != null ? field.env.get(p.dk_draftable_id) ?? null : null) : implied.get(p.team) ?? null),
       touch: (p) => p.team_share?.touch_pct ?? null,
       l3: (p) => p.trend_l3,
@@ -168,11 +175,12 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
         return dir * (va - vb) || b.proj_points - a.proj_points;
       })
       .map((p) => ({ player: p, blend: null as number | null }));
-  }, [pool, position, query, showAll, slateType, selected, weights, lowFirst, blended, sortBy, ascending, lookup, own.ownership, field, implied]);
+  }, [pool, position, query, showAll, slateType, selected, weights, lowFirst, blended, sortBy, ascending, lookup, own.ownership, field, implied, leverageOf]);
 
   /** Tap a sort: add it (weights reset to an even split), or remove it; tapping the only sort flips its direction. */
   const pressSort = (key: SortKey) => {
     setLimit(PAGE);
+    if (key === 'lev') requestLeverage();
     if (!selected.includes(key)) {
       const next = [...selected, key];
       setSelected(next);
@@ -195,7 +203,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
     const extra: Pick<RowPlayer, 'ownership' | 'floor' | 'form' | 'leverage' | 'env'> = {};
     if (field || selected.includes('own')) extra.ownership = id != null ? own.ownership?.get(id) ?? null : null;
     if (field?.floor) extra.floor = id != null ? field.floor.get(id) ?? null : null;
-    if (selected.includes('lev')) extra.leverage = id != null ? field?.leverage?.get(id) ?? null : null;
+    if (field?.leverage) extra.leverage = id != null ? field.leverage.get(id) ?? null : null;
     if (selected.includes('env')) {
       extra.env = field?.env
         ? { value: id != null ? field.env.get(id) ?? null : null, kind: 'score' }

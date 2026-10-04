@@ -4,6 +4,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import DfsPlayerRow, { type DfsMetric } from '@/components/dfs/DfsPlayerRow';
 import { useExpandedWidth } from '@/components/dfs/useCardWidth';
 import { PLAYABLE_STATUSES } from '@/constants/data';
+import LeverageBadge from '@/components/LeverageBadge';
 
 const POSITIONS = ['QB', 'RB', 'WR', 'TE', 'DST'];
 
@@ -45,7 +46,8 @@ export default function RankedPlayersCard({ title, subtitle, metric, players }: 
           <View className="mt-2">
             {top3.map((p, i) => (
               <Text key={p.id} className="dfs-preview" numberOfLines={1}>
-                {i + 1}. {p.name} <Text className="dfs-meta">{p.position} · {(p[metric] ?? 0).toFixed(metric === 'value' ? 2 : 1)}</Text>
+                {i + 1}. {p.name}
+                <LeverageBadge inline player={{ id: p.id, name: p.name, team: p.team }} /> <Text className="dfs-meta">{p.position} · {(p[metric] ?? 0).toFixed(metric === 'value' ? 2 : 1)}</Text>
               </Text>
             ))}
           </View>

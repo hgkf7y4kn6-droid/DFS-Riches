@@ -22,6 +22,7 @@ import { darkColors, lightColors } from '@/constants/theme';
 import { AccountSyncProvider } from '@/lib/account-sync';
 import { AnalyticsProvider } from '@/lib/analytics';
 import { DfsModelProvider } from '@/lib/dfs-model-context';
+import { LeverageProvider } from '@/lib/leverage-context';
 import { MatchupsProvider } from '@/lib/matchups-context';
 import { PoolTagsProvider } from '@/lib/pool-tags-context';
 import { SubmissionsProvider } from '@/lib/submissions-context';
@@ -66,16 +67,18 @@ export default function RootLayout() {
               <SubmissionsProvider>
                 <WeekProvider>
                   <DfsModelProvider>
-                    <PoolTagsProvider>
-                      <MatchupsProvider>
-                        <StatusBar style={dark ? 'light' : 'dark'} />
-                        <Stack screenOptions={{ headerShown: false }}>
-                          <Stack.Screen name="(tabs)" />
-                          <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
-                          <Stack.Screen name="sign-up" options={{ presentation: 'modal' }} />
-                        </Stack>
-                      </MatchupsProvider>
-                    </PoolTagsProvider>
+                    <LeverageProvider>
+                      <PoolTagsProvider>
+                        <MatchupsProvider>
+                          <StatusBar style={dark ? 'light' : 'dark'} />
+                          <Stack screenOptions={{ headerShown: false }}>
+                            <Stack.Screen name="(tabs)" />
+                            <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
+                            <Stack.Screen name="sign-up" options={{ presentation: 'modal' }} />
+                          </Stack>
+                        </MatchupsProvider>
+                      </PoolTagsProvider>
+                    </LeverageProvider>
                   </DfsModelProvider>
                 </WeekProvider>
               </SubmissionsProvider>

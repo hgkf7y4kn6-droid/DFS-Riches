@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useExpandedWidth } from '@/components/dfs/useCardWidth';
 import PlayRow from '@/components/plays/PlayRow';
 import type { Pool } from '@/lib/pool-tags-context';
+import LeverageBadge from '@/components/LeverageBadge';
 
 interface Props {
   kicker?: string;
@@ -39,7 +40,8 @@ export default function PlayRankingCard({ kicker, title, subtitle, players, cont
           <View className="mt-2">
             {players.slice(0, 3).map((p) => (
               <Text key={p.id} className="dfs-preview" numberOfLines={1}>
-                {p.rank}. {p.name} <Text className="dfs-meta">{preview(p)}</Text>
+                {p.rank}. {p.name}
+                <LeverageBadge inline value={p.leverage ?? null} /> <Text className="dfs-meta">{preview(p)}</Text>
               </Text>
             ))}
           </View>

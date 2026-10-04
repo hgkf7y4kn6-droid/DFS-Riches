@@ -463,6 +463,16 @@
   .weight-pct {
     @apply -ml-1 text-xs font-sans-semibold text-muted-foreground;
   }
+  /* Leverage badge after a player's name (fill set inline from lib/trend). */
+  .lev-badge {
+    @apply ml-1.5 rounded px-1 py-px;
+  }
+  .lev-badge-text {
+    @apply text-[10px] font-sans-bold text-foreground;
+  }
+  .lev-detail {
+    @apply mt-1 text-[11px] font-sans-medium text-muted-foreground;
+  }
   /* Trailing L3/L6/L9 trend chips (fill set inline from lib/trend). */
   .trend-chips {
     @apply mt-1 flex-row flex-wrap items-center gap-1;
