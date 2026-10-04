@@ -1,5 +1,5 @@
 import { useAuth, useUser } from '@clerk/expo';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -92,9 +92,12 @@ export default function Home() {
                 {displayName}
               </Text>
               {!isSignedIn ? (
-                <Pressable onPress={() => router.push('/sign-in')} accessibilityRole="button" className="ml-4 mt-0.5 self-start">
-                  <Text className="link-text text-xs">Sign in to sync across devices ›</Text>
-                </Pressable>
+                // A real link, so it works on the pre-rendered page before the app has loaded.
+                <Link href="/sign-in" asChild>
+                  <Pressable accessibilityRole="link" className="ml-4 mt-0.5 self-start">
+                    <Text className="link-text text-xs">Sign in to sync across devices ›</Text>
+                  </Pressable>
+                </Link>
               ) : null}
             </View>
           </View>

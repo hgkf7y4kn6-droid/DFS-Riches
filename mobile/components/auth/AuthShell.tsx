@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import SafeAreaView from '@/components/SafeAreaView';
@@ -67,10 +67,12 @@ export function Field(props: {
   );
 }
 
-export function SubmitButton({ label, onPress, busy }: { label: string; onPress: () => void; busy?: boolean }) {
+/** `ready` false (sign-in service still loading): shown as "Connecting…" rather than a button that ignores taps. */
+export function SubmitButton({ label, onPress, busy, ready = true }: { label: string; onPress: () => void; busy?: boolean; ready?: boolean }) {
+  const waiting = busy || !ready;
   return (
-    <Pressable className={`btn mt-1 ${busy ? 'opacity-60' : ''}`} onPress={onPress} disabled={busy} accessibilityRole="button">
-      <Text className="btn-text">{busy ? 'One moment…' : label}</Text>
+    <Pressable className={`btn mt-1 ${waiting ? 'opacity-60' : ''}`} onPress={onPress} disabled={waiting} accessibilityRole="button" aria-busy={waiting}>
+      <Text className="btn-text">{busy ? 'One moment…' : !ready ? 'Connecting…' : label}</Text>
     </Pressable>
   );
 }
@@ -83,4 +85,19 @@ export function FormError({ message }: { message: string | null }) {
 export function clerkMessage(e: unknown): string {
   const err = e as { errors?: { longMessage?: string; message?: string }[]; message?: string };
   return err?.errors?.[0]?.longMessage ?? err?.errors?.[0]?.message ?? err?.message ?? 'Something went wrong. Try again.';
+}
+
+const SLOW_MS = 12000;
+
+/** A note when the sign-in service hasn't loaded after a while (offline, or blocked by a content blocker). */
+export function useSlowLoadNotice(loaded: boolean): string | null {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (loaded) return;
+    const t = setTimeout(() => setSlow(true), SLOW_MS);
+    return () => clearTimeout(t);
+  }, [loaded]);
+  return slow && !loaded
+    ? "Still connecting to the sign-in service. Check your connection, or turn off any content blocker for this site, then reload."
+    : null;
 }

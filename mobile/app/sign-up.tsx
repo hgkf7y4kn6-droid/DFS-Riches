@@ -3,7 +3,7 @@ import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 
-import { AuthShell, clerkMessage, Field, FormError, SubmitButton } from '@/components/auth/AuthShell';
+import { AuthShell, clerkMessage, Field, FormError, SubmitButton, useSlowLoadNotice } from '@/components/auth/AuthShell';
 
 type Step = 'details' | 'email_code' | 'phone_code';
 
@@ -13,6 +13,7 @@ type Step = 'details' | 'email_code' | 'phone_code';
  */
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
+  const slowNotice = useSlowLoadNotice(isLoaded);
   const [form, setForm] = useState({ firstName: '', lastName: '', username: '', email: '', phone: '', password: '' });
   const [code, setCode] = useState('');
   const [step, setStep] = useState<Step>('details');
@@ -89,7 +90,7 @@ export default function SignUpScreen() {
           </Link>
         </Text>
       }>
-      <FormError message={error} />
+      <FormError message={error ?? slowNotice} />
       {verifying ? (
         <Field label="Verification code" value={code} onChangeText={setCode} keyboardType="number-pad" autoComplete="one-time-code" />
       ) : (
@@ -110,7 +111,7 @@ export default function SignUpScreen() {
       )}
       {/* Clerk's bot protection (CAPTCHA) renders here on the web. */}
       {Platform.OS === 'web' && !verifying ? <View nativeID="clerk-captcha" className="mb-2" /> : null}
-      <SubmitButton label={verifying ? 'Verify and continue' : 'Create account'} onPress={submit} busy={busy} />
+      <SubmitButton label={verifying ? 'Verify and continue' : 'Create account'} onPress={submit} busy={busy} ready={isLoaded} />
     </AuthShell>
   );
 }

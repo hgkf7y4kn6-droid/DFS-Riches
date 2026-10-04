@@ -4,7 +4,7 @@ import { Link, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 
-import { AuthShell, clerkMessage, Field, FormError, SubmitButton } from '@/components/auth/AuthShell';
+import { AuthShell, clerkMessage, Field, FormError, SubmitButton, useSlowLoadNotice } from '@/components/auth/AuthShell';
 
 type Step = 'password' | 'first_code' | 'second_code';
 type Factor = { strategy: string; emailAddressId?: string; phoneNumberId?: string };
@@ -21,6 +21,7 @@ const leave = () => {
  */
 export default function SignInScreen() {
   const { isLoaded, signIn, setActive } = useSignIn();
+  const slowNotice = useSlowLoadNotice(isLoaded);
   const { isSignedIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -140,7 +141,7 @@ export default function SignInScreen() {
           </Link>
         </Text>
       }>
-      <FormError message={error} />
+      <FormError message={error ?? slowNotice} />
       {coding ? (
         <Field label="Verification code" value={code} onChangeText={setCode} keyboardType="number-pad" autoComplete="one-time-code" />
       ) : (
@@ -149,8 +150,8 @@ export default function SignInScreen() {
           <Field label="Password" value={password} onChangeText={setPassword} secure autoComplete="current-password" />
         </>
       )}
-      <SubmitButton label={coding ? 'Verify' : 'Sign in'} onPress={submit} busy={busy} />
-      <Pressable className="mt-3 items-center" onPress={coding ? back : emailCode} accessibilityRole="button" disabled={busy}>
+      <SubmitButton label={coding ? 'Verify' : 'Sign in'} onPress={submit} busy={busy} ready={isLoaded} />
+      <Pressable className="mt-3 items-center" onPress={coding ? back : emailCode} accessibilityRole="button" disabled={busy || !isLoaded}>
         <Text className="link-text text-sm">{coding ? 'Use a different email or password' : 'Forgot password? Email me a sign-in code'}</Text>
       </Pressable>
     </AuthShell>
