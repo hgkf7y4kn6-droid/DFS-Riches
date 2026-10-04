@@ -2274,7 +2274,7 @@
     },
     "4": {
       "classic_sunday": {
-        "saved_at": "2026-10-04T14:08:35+00:00",
+        "saved_at": "2026-10-04T15:38:24+00:00",
         "draft_group_id": 154078,
         "lineups": [
           {
@@ -2337,9 +2337,9 @@
                 "opponent": "PHI",
                 "roster_slot": "",
                 "salary": 7500,
-                "proj_points": 19.49,
+                "proj_points": 19.47,
                 "ceiling": 30.0,
-                "sleeper_proj": 19.14,
+                "sleeper_proj": 19.27,
                 "game_info": "LAR @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44312568,
@@ -2401,9 +2401,9 @@
                 "opponent": "NYG",
                 "roster_slot": "",
                 "salary": 5800,
-                "proj_points": 15.82,
+                "proj_points": 15.81,
                 "ceiling": 22.1,
-                "sleeper_proj": 16.03,
+                "sleeper_proj": 16.02,
                 "game_info": "ARI @ NYG",
                 "injury": "Healthy",
                 "dk_draftable_id": 44312310,
@@ -2417,9 +2417,9 @@
                 "opponent": "PHI",
                 "roster_slot": "",
                 "salary": 2600,
-                "proj_points": 7.44,
+                "proj_points": 7.55,
                 "ceiling": 10.7,
-                "sleeper_proj": 7.31,
+                "sleeper_proj": 7.34,
                 "game_info": "LAR @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44313323,
@@ -2427,7 +2427,7 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 142.27,
+            "proj_points": 142.35,
             "ceiling": 200.9
           },
           {
@@ -2506,9 +2506,9 @@
                 "opponent": "PHI",
                 "roster_slot": "",
                 "salary": 7000,
-                "proj_points": 14.96,
+                "proj_points": 14.9,
                 "ceiling": 40.8,
-                "sleeper_proj": 14.7,
+                "sleeper_proj": 14.76,
                 "game_info": "LAR @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44312576,
@@ -2580,13 +2580,13 @@
               }
             ],
             "salary": 49700,
-            "proj_points": 124.79,
+            "proj_points": 124.73,
             "ceiling": 291.8
           }
         ]
       },
       "classic": {
-        "saved_at": "2026-10-04T14:08:36+00:00",
+        "saved_at": "2026-10-04T15:38:34+00:00",
         "draft_group_id": 154077,
         "lineups": [
           {
@@ -2682,9 +2682,9 @@
                 "opponent": "NYG",
                 "roster_slot": "",
                 "salary": 5500,
-                "proj_points": 15.0,
+                "proj_points": 15.06,
                 "ceiling": 25.7,
-                "sleeper_proj": 14.53,
+                "sleeper_proj": 14.54,
                 "game_info": "ARI @ NYG",
                 "injury": "Healthy",
                 "dk_draftable_id": 44314930,
@@ -2708,19 +2708,19 @@
               },
               {
                 "slot": "FLEX",
-                "name": "Brenton Strange",
+                "name": "Darren Waller",
                 "position": "TE",
-                "team": "JAX",
-                "opponent": "CIN",
+                "team": "CAR",
+                "opponent": "DET",
                 "roster_slot": "",
-                "salary": 3200,
-                "proj_points": 10.36,
-                "ceiling": 19.3,
-                "sleeper_proj": 9.87,
-                "game_info": "JAX @ CIN",
+                "salary": 3300,
+                "proj_points": 11.25,
+                "ceiling": 21.5,
+                "sleeper_proj": 10.71,
+                "game_info": "DET @ CAR",
                 "injury": "Healthy",
-                "dk_draftable_id": 44315538,
-                "dk_fppg": 6.7
+                "dk_draftable_id": 44315528,
+                "dk_fppg": 11.1
               },
               {
                 "slot": "DST",
@@ -2740,9 +2740,9 @@
                 "locked": true
               }
             ],
-            "salary": 49900,
-            "proj_points": 146.61,
-            "ceiling": 254.8
+            "salary": 50000,
+            "proj_points": 147.56,
+            "ceiling": 257.0
           },
           {
             "metric": "ceiling",
@@ -2756,9 +2756,9 @@
                 "opponent": "DET",
                 "roster_slot": "",
                 "salary": 5900,
-                "proj_points": 21.07,
+                "proj_points": 20.48,
                 "ceiling": 38.8,
-                "sleeper_proj": 20.07,
+                "sleeper_proj": 19.5,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44314403,
@@ -2782,19 +2782,19 @@
               },
               {
                 "slot": "RB",
-                "name": "D'Andre Swift",
+                "name": "David Montgomery",
                 "position": "RB",
-                "team": "CHI",
-                "opponent": "NYJ",
+                "team": "HOU",
+                "opponent": "DAL",
                 "roster_slot": "",
-                "salary": 6400,
-                "proj_points": 16.26,
-                "ceiling": 30.6,
-                "sleeper_proj": 16.33,
-                "game_info": "NYJ @ CHI",
+                "salary": 5700,
+                "proj_points": 14.69,
+                "ceiling": 25.3,
+                "sleeper_proj": 15.11,
+                "game_info": "DAL @ HOU",
                 "injury": "Healthy",
-                "dk_draftable_id": 44314520,
-                "dk_fppg": 20.0
+                "dk_draftable_id": 44314544,
+                "dk_fppg": 13.4
               },
               {
                 "slot": "WR",
@@ -2814,22 +2814,6 @@
               },
               {
                 "slot": "WR",
-                "name": "Davante Adams",
-                "position": "WR",
-                "team": "LAR",
-                "opponent": "PHI",
-                "roster_slot": "",
-                "salary": 7000,
-                "proj_points": 14.96,
-                "ceiling": 40.8,
-                "sleeper_proj": 14.7,
-                "game_info": "LAR @ PHI",
-                "injury": "Healthy",
-                "dk_draftable_id": 44314890,
-                "dk_fppg": 23.9
-              },
-              {
-                "slot": "WR",
                 "name": "Kalif Raymond",
                 "position": "WR",
                 "team": "CHI",
@@ -2845,36 +2829,52 @@
                 "dk_fppg": 15.5
               },
               {
-                "slot": "TE",
-                "name": "Mike Gesicki",
-                "position": "TE",
-                "team": "CIN",
-                "opponent": "JAX",
+                "slot": "WR",
+                "name": "Brycen Tremayne",
+                "position": "WR",
+                "team": "CAR",
+                "opponent": "DET",
                 "roster_slot": "",
-                "salary": 3300,
-                "proj_points": 7.7,
-                "ceiling": 23.0,
-                "sleeper_proj": 8.11,
-                "game_info": "JAX @ CIN",
+                "salary": 3100,
+                "proj_points": 8.19,
+                "ceiling": 19.8,
+                "sleeper_proj": 7.84,
+                "game_info": "DET @ CAR",
                 "injury": "Healthy",
-                "dk_draftable_id": 44315532,
-                "dk_fppg": 10.5
+                "dk_draftable_id": 44315100,
+                "dk_fppg": 4.1
+              },
+              {
+                "slot": "TE",
+                "name": "Brock Bowers",
+                "position": "TE",
+                "team": "LV",
+                "opponent": "KC",
+                "roster_slot": "",
+                "salary": 6900,
+                "proj_points": 16.13,
+                "ceiling": 46.2,
+                "sleeper_proj": 15.36,
+                "game_info": "KC @ LV",
+                "injury": "Healthy",
+                "dk_draftable_id": 44315480,
+                "dk_fppg": 30.6
               },
               {
                 "slot": "FLEX",
-                "name": "Noah Fant",
+                "name": "Juwan Johnson",
                 "position": "TE",
                 "team": "NO",
                 "opponent": "ATL",
                 "roster_slot": "",
-                "salary": 3200,
-                "proj_points": 6.39,
-                "ceiling": 22.6,
-                "sleeper_proj": 6.09,
+                "salary": 4200,
+                "proj_points": 12.41,
+                "ceiling": 30.7,
+                "sleeper_proj": 11.82,
                 "game_info": "ATL @ NO",
-                "injury": "Q",
-                "dk_draftable_id": 44315534,
-                "dk_fppg": 10.9
+                "injury": "Healthy",
+                "dk_draftable_id": 44315506,
+                "dk_fppg": 16.4
               },
               {
                 "slot": "DST",
@@ -2894,8 +2894,8 @@
               }
             ],
             "salary": 49900,
-            "proj_points": 129.38,
-            "ceiling": 309.5
+            "proj_points": 134.9,
+            "ceiling": 314.5
           }
         ]
       },
@@ -3211,7 +3211,7 @@
         "results_at": "2026-10-02T11:22:07+00:00"
       },
       "showdown_sun_night": {
-        "saved_at": "2026-10-04T14:08:38+00:00",
+        "saved_at": "2026-10-04T15:38:35+00:00",
         "draft_group_id": 154098,
         "lineups": [
           {
@@ -3242,9 +3242,9 @@
                 "opponent": "CAR",
                 "roster_slot": "FLEX",
                 "salary": 10000,
-                "proj_points": 18.84,
+                "proj_points": 18.85,
                 "ceiling": 36.4,
-                "sleeper_proj": 17.94,
+                "sleeper_proj": 17.95,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358449,
@@ -3258,9 +3258,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 9800,
-                "proj_points": 21.07,
+                "proj_points": 20.48,
                 "ceiling": 38.8,
-                "sleeper_proj": 20.07,
+                "sleeper_proj": 19.5,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358450,
@@ -3290,9 +3290,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 4400,
-                "proj_points": 10.34,
+                "proj_points": 11.25,
                 "ceiling": 21.5,
-                "sleeper_proj": 9.85,
+                "sleeper_proj": 10.71,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358462,
@@ -3306,9 +3306,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 2600,
-                "proj_points": 4.93,
-                "ceiling": 11.5,
-                "sleeper_proj": 4.72,
+                "proj_points": 8.19,
+                "ceiling": 19.8,
+                "sleeper_proj": 7.84,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358470,
@@ -3316,8 +3316,8 @@
               }
             ],
             "salary": 49600,
-            "proj_points": 105.47,
-            "ceiling": 215.8
+            "proj_points": 109.06,
+            "ceiling": 224.1
           },
           {
             "metric": "ceiling",
@@ -3347,9 +3347,9 @@
                 "opponent": "CAR",
                 "roster_slot": "FLEX",
                 "salary": 10000,
-                "proj_points": 18.84,
+                "proj_points": 18.85,
                 "ceiling": 36.4,
-                "sleeper_proj": 17.94,
+                "sleeper_proj": 17.95,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358449,
@@ -3363,9 +3363,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 9800,
-                "proj_points": 21.07,
+                "proj_points": 20.48,
                 "ceiling": 38.8,
-                "sleeper_proj": 20.07,
+                "sleeper_proj": 19.5,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358450,
@@ -3395,9 +3395,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 4400,
-                "proj_points": 10.34,
+                "proj_points": 11.25,
                 "ceiling": 21.5,
-                "sleeper_proj": 9.85,
+                "sleeper_proj": 10.71,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358462,
@@ -3411,9 +3411,9 @@
                 "opponent": "DET",
                 "roster_slot": "FLEX",
                 "salary": 2600,
-                "proj_points": 4.93,
-                "ceiling": 11.5,
-                "sleeper_proj": 4.72,
+                "proj_points": 8.19,
+                "ceiling": 19.8,
+                "sleeper_proj": 7.84,
                 "game_info": "DET @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44358470,
@@ -3421,8 +3421,8 @@
               }
             ],
             "salary": 49600,
-            "proj_points": 105.47,
-            "ceiling": 215.8
+            "proj_points": 109.06,
+            "ceiling": 224.1
           }
         ]
       },
