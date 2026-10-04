@@ -429,6 +429,28 @@
   .dfs-meta {
     @apply text-xs font-sans-medium text-muted-foreground;
   }
+  /* Actual contest ownership (uploaded standings). */
+  .actual-card {
+    @apply mb-3 rounded-xl border border-border bg-card px-3 py-2.5;
+  }
+  .actual-title {
+    @apply text-sm font-sans-bold text-foreground;
+  }
+  .actual-sub {
+    @apply text-xs font-sans-semibold text-foreground;
+  }
+  .actual-miss-head {
+    @apply mt-1 text-[10px] font-sans-bold uppercase text-muted-foreground;
+  }
+  .actual-miss {
+    @apply text-xs font-sans-medium text-foreground;
+  }
+  .actual-help {
+    @apply text-[11px] font-sans-regular text-muted-foreground;
+  }
+  .own-actual {
+    @apply text-[10px] font-sans-bold text-accent;
+  }
   /* Profit / loss: most played and most profitable players and teams. */
   .pl-exposure-title {
     @apply mb-1 text-xs font-sans-bold uppercase text-accent;

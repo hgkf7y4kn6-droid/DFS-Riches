@@ -70,6 +70,11 @@ def _bump() -> None:
     _writes += 1
 
 
+def bump() -> None:
+    """Marks new ownership information (e.g. uploads restored from the database)."""
+    _bump()
+
+
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -143,7 +148,10 @@ def parse_dk_standings(text: str) -> dict:
     """DraftKings contest-standings CSV -> {"ownership": {name: pct},
     "lineups": [[(slot, name), ...]], "entries": n}. The right-hand columns
     (Player, Roster Position, %Drafted) carry each player's actual ownership;
-    the Lineup column carries every entry's roster."""
+    the Lineup column carries every entry's roster. Mid-slate (late swap)
+    DraftKings shows players whose games haven't started as "LOCKED": they're
+    skipped, so a re-download after later kickoffs fills them in; lineups
+    with any LOCKED slot aren't kept as field lineups."""
     reader = csv.reader(io.StringIO(text))
     rows = list(reader)
     if not rows:
@@ -152,20 +160,26 @@ def parse_dk_standings(text: str) -> dict:
     idx = {h: i for i, h in enumerate(head) if h}
     own: dict[str, tuple[str, float]] = {}
     lineups = []
+    entries = 0
     for r in rows[1:]:
         if "Lineup" in idx and len(r) > idx["Lineup"] and r[idx["Lineup"]].strip():
+            entries += 1
             parts = LINEUP_SLOT_RE.split(" " + r[idx["Lineup"]].strip())
             lu = [(parts[i], parts[i + 1].strip()) for i in range(1, len(parts) - 1, 2)]
+            # DraftKings hides players whose games haven't started ("LOCKED") until kickoff.
+            if any(not name or name.upper() == "LOCKED" for _slot, name in lu):
+                lu = []
             if lu:
                 lineups.append(lu)
-        if "Player" in idx and "%Drafted" in idx and len(r) > idx["%Drafted"] and r[idx["Player"]].strip():
+        if ("Player" in idx and "%Drafted" in idx and len(r) > idx["%Drafted"] and r[idx["Player"]].strip()
+                and r[idx["Player"]].strip().upper() != "LOCKED"):
             try:
                 pct = float(r[idx["%Drafted"]].strip().rstrip("%"))
             except ValueError:
                 continue
             slot = r[idx["Roster Position"]].strip() if "Roster Position" in idx and len(r) > idx["Roster Position"] else ""
             own[(r[idx["Player"]].strip(), slot)] = pct
-    return {"ownership": own, "lineups": lineups, "entries": len(lineups)}
+    return {"ownership": own, "lineups": lineups, "entries": entries}
 
 
 # ------------------------------------------------------------------ writing
@@ -244,9 +258,15 @@ def load_learning() -> dict:
         return {}
 
 
-def save_learning(learning: dict) -> None:
+def write_learning_file(learning: dict) -> None:
     OWN_DIR.mkdir(parents=True, exist_ok=True)
     tmp = LEARNING_PATH.with_suffix(".tmp")
     tmp.write_text(json.dumps(learning, indent=1))
     os.replace(tmp, LEARNING_PATH)
+
+
+def save_learning(learning: dict) -> None:
+    write_learning_file(learning)
+    from app import ownership_persist          # kept across redeploys when a database is configured
+    ownership_persist.save_learning(learning)
 

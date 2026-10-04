@@ -93,6 +93,7 @@ function OwnershipRow({ player, columns, expanded, onToggle, pool }: RowProps) {
           <View key={c} className="own-col">
             <Text className="own-value">{(p.ownership[c] ?? 0).toFixed(1)}%</Text>
             {columns.length > 1 ? <Text className="own-label">{COLUMN[c]}</Text> : null}
+            {p.actual_ownership?.[c] != null ? <Text className="own-actual">actual {p.actual_ownership[c]!.toFixed(1)}%</Text> : null}
           </View>
         ))}
       </View>

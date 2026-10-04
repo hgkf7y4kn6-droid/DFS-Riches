@@ -80,3 +80,34 @@ export async function putAccountDoc(token: string, key: SyncKey, value: unknown,
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   return (await res.json()) as SyncedDoc;
 }
+
+export interface ActualUploadResult {
+  added: number;
+  unmatched: string[];
+  entries?: number;
+  field_lineups?: number;
+  players_with_ownership?: number;
+  persisted?: boolean;
+}
+
+/** Master accounts: uploads a DraftKings contest-standings CSV as actual ownership for a slate and contest type. */
+export async function postActualOwnership(
+  token: string,
+  body: { season: number; week: number; slate_id: string; contest: 'gpp' | 'se' | 'cash'; text: string },
+): Promise<ActualUploadResult> {
+  const res = await fetch(`${API_BASE_URL}/api/ownership/actual`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    let detail = `${res.status} ${res.statusText}`;
+    try {
+      detail = ((await res.json()) as { detail?: string }).detail ?? detail;
+    } catch {
+      // not JSON
+    }
+    throw new Error(detail);
+  }
+  return (await res.json()) as ActualUploadResult;
+}

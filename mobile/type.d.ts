@@ -650,11 +650,21 @@ type OwnershipContest = 'cash' | 'small_gpp' | 'large_gpp';
 type PlayTag = 'prioritize' | 'neutral' | 'fade';
 
 /** One player's play strength and expected field ownership for a contest type. */
+interface ActualOwnershipSummary {
+  uploaded_at: string | null;
+  players: number;
+  /** Mean absolute miss of the projection, in ownership points. */
+  mae: number | null;
+  misses: { name: string; position: string; team: string; actual: number | null; projected: number | null }[];
+}
+
 /** How a player's leverage was built (app/leverage.py). */
 interface LeverageDetail {
   /** Fair ownership: the position's ownership redistributed by efficiency-adjusted odds (percent). */
   fair_own: number | null;
   own: number | null;
+  /** True when `own` is uploaded actual ownership rather than the projection. */
+  own_is_actual?: boolean;
   /** True Efficiency-Adjusted Projection. */
   teap: number | null;
   /** Efficiency-adjusted hit odds (GPP: ceiling score; cash: 2.5x salary), 0-1. */
@@ -690,6 +700,8 @@ interface PlayPlayer {
   parts: Record<string, number>;
   /** GPP: P(ceiling) / large-field ownership (1.0 = owned in line with the ceiling odds); null for cash. */
   leverage_ratio: number | null;
+  /** Uploaded actual contest ownership (percent) where known, per field. */
+  actual_ownership?: Partial<Record<OwnershipContest, number>>;
   /** Fair minus projected ownership for this contest's field, in percentage points (app/leverage.py). */
   leverage?: number | null;
   leverage_detail?: LeverageDetail | null;
@@ -740,6 +752,8 @@ interface PlaysResponse {
   chalk?: PlayPlayer[];
   /** GPP only: the 10 best ceiling-odds-per-ownership pivots across positions. */
   leverage?: PlayPlayer[];
+  /** Uploaded actual ownership per field: when, how many players, model error and the biggest misses. */
+  actual_ownership?: Partial<Record<OwnershipContest, ActualOwnershipSummary>>;
   /** GPP: the top 10 leverage plays at each position, strongest first. */
   leverage_by_position?: Partial<Record<string, PlayPlayer[]>>;
 }

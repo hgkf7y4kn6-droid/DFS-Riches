@@ -153,3 +153,44 @@ def test_models_train_on_stored_features_and_actual_ownership(tmp_path, monkeypa
     assert trained["frac_logit"] is not None
     assert fo.trained_models("small_gpp")["frac_logit"] is None    # no small-field actuals stored
     fo._TRAINED.clear()
+
+
+def test_uploaded_actual_ownership_feeds_plays_and_leverage(monkeypatch):
+    from app import ownership_store as store
+    monkeypatch.setattr(fo, "trained_models", lambda c: {"slates": 0, "rows": 0, "frac_logit": None, "gbm": None})
+    monkeypatch.setattr(fo, "save_features", lambda *a, **k: None)
+    monkeypatch.setattr(fo, "N_SIMS", 1500)
+    table, games = _table()
+    base = pr.build(table, games, "gpp", 2026, 1, "classic")
+    star = max(base["players"], key=lambda p: p["ownership"]["large_gpp"])
+    key = store.player_key(star["name"], star["team"], star["position"])
+    obs = [
+        {"kind": "actual", "contest": "gpp", "key": key, "pct": 5.0, "timestamp": "2026-10-04T17:30:00+00:00"},
+        {"kind": "actual", "contest": "gpp", "key": key, "pct": 70.0, "timestamp": "2026-10-04T20:30:00+00:00"},  # later upload wins
+        {"kind": "source", "contest": "gpp", "key": key, "pct": 1.0, "timestamp": "2026-10-04T21:00:00+00:00"},   # not actual
+    ]
+    actuals = pr.actual_ownership(obs)
+    assert actuals["gpp"]["pct"][key] == 70.0
+    out = pr.build(table, games, "gpp", 2026, 1, "classic", actuals=actuals)
+    me = next(p for p in out["players"] if p["id"] == star["id"])
+    assert me["actual_ownership"] == {"large_gpp": 70.0}
+    assert me["leverage_detail"]["own_is_actual"] and me["leverage_detail"]["own"] == 70.0
+    assert me["leverage"] < next(p for p in base["players"] if p["id"] == star["id"])["leverage"]   # far more owned than projected
+    summary = out["actual_ownership"]["large_gpp"]
+    assert summary["players"] == 1 and summary["misses"][0]["name"] == star["name"] and summary["mae"] > 0
+    others = [p for p in out["players"] if p["id"] != star["id"]]
+    assert all(not p["actual_ownership"] for p in others)
+
+
+def test_standings_parser_skips_locked_late_swap_players():
+    from app import ownership_store as store
+    csv_text = (
+        "Rank,EntryId,EntryName,TimeRemaining,Points,Lineup,,Player,Roster Position,%Drafted,FPTS\n"
+        "1,1,a,0,100,QB Josh Allen RB LOCKED RB James Cook WR A WR B WR C TE D FLEX E DST Bills,,Josh Allen,QB,12.5%,20\n"
+        "2,2,b,0,90,QB Josh Allen RB James Cook RB X WR A WR B WR C TE D FLEX E DST Bills,,LOCKED,RB,3.1%,0\n"
+        "3,3,c,0,80,,,James Cook,RB,30.2%,15\n"
+    )
+    parsed = store.parse_dk_standings(csv_text)
+    assert parsed["entries"] == 2                      # both entries counted
+    assert len(parsed["lineups"]) == 1                 # the one with a LOCKED slot isn't kept as a field lineup
+    assert set(name for name, _slot in parsed["ownership"]) == {"Josh Allen", "James Cook"}

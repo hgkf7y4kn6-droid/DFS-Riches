@@ -12,6 +12,7 @@ import ListHeading from '@/components/ListHeading';
 import OwnershipList from '@/components/plays/OwnershipList';
 import OptimalLineups from '@/components/OptimalLineups';
 import OwnershipModelNote from '@/components/plays/OwnershipModelNote';
+import ActualOwnershipCard from '@/components/plays/ActualOwnershipCard';
 import LeverageCard from '@/components/plays/LeverageCard';
 import PlayRankingCard from '@/components/plays/PlayRankingCard';
 import RoleShiftsCard from '@/components/plays/RoleShiftsCard';
@@ -179,6 +180,7 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
             />
             <ListHeading title={copy.ownTitle} subtitle={copy.ownSubtitle} />
             <OwnershipModelNote models={ready.ownership_models} />
+            <ActualOwnershipCard contest={contest} plays={ready} onUploaded={refresh} />
             <OwnershipList players={ready.players} columns={columns} pool={pool} />
 
             <ListHeading title={`Build ${contest === 'cash' ? 'cash' : 'GPP'} lineups`} subtitle={BUILD_NOTE[contest]} />

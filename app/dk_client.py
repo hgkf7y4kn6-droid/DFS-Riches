@@ -94,6 +94,13 @@ def _parse_dk_timestamp(value: str) -> datetime | None:
         return None
 
 
+def _iso(value: str | None) -> datetime | None:
+    try:
+        return datetime.fromisoformat(value) if value else None
+    except ValueError:
+        return None
+
+
 def _team_pair_from_suffix(suffix: str | None) -> tuple[str, str] | None:
     if not suffix:
         return None
@@ -219,9 +226,17 @@ async def discover_draft_groups(schedule: WeekSchedule) -> dict[str, Any]:
             "source": "override",
         }
 
-    if result["classic_sunday"] is None and "classic_sunday" in season_overrides:
+    # Once the Sunday Main locks, DraftKings drops it from the lobby and the
+    # largest live Sunday group becomes a later subset (the 4-game "Afternoon"
+    # slate). So the recorded Main wins when nothing is live, or when the live
+    # pick starts after the recorded Main's first kickoff.
+    if "classic_sunday" in season_overrides:
         ov = season_overrides["classic_sunday"]
-        result["classic_sunday"] = {**ov, "source": "override"}
+        live = result["classic_sunday"]
+        ov_first = _iso(ov.get("first_kickoff"))
+        live_first = _iso(live.get("first_kickoff")) if live else None
+        if live is None or (ov_first and live_first and live_first > ov_first):
+            result["classic_sunday"] = {**ov, "source": "override"}
 
     for game in schedule.isolated_games:
         if game.day_part in result["showdown"]:

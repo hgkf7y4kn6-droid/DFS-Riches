@@ -48,6 +48,7 @@ import numpy as np
 
 from app import field_ownership as fo
 from app import leverage as lv
+from app import ownership_store
 
 TOP_N = {"QB": 5, "RB": 10, "WR": 10, "TE": 5}
 CASH_TARGET_X = 2.5
@@ -69,11 +70,28 @@ def _round(x, n=2):
     return None if x is None else round(float(x), n)
 
 
+# Field ownership contest -> the contest type actual-ownership uploads are filed under.
+ACTUAL_CONTEST = {"cash": "cash", "small_gpp": "se", "large_gpp": "gpp"}
+MISSES_N = 8
+
+
+def actual_ownership(observations: list[dict]) -> dict[str, dict]:
+    """Latest uploaded actual ownership per contest type: {contest: {"pct": {player_key: pct},
+    "uploaded_at": ts, "entries": n}} from the slate's "actual" observations."""
+    out: dict[str, dict] = {}
+    for o in sorted((o for o in observations if o.get("kind") == "actual"), key=lambda o: o.get("timestamp", "")):
+        c = out.setdefault(o["contest"], {"pct": {}, "uploaded_at": None})
+        c["pct"][o["key"]] = o["pct"]
+        c["uploaded_at"] = o.get("timestamp")
+    return out
+
+
 def build(table: list[dict], games: list[dict], contest: str, season: int, week: int, slate_id: str,
-          efficiency: dict | None = None) -> dict:
+          efficiency: dict | None = None, actuals: dict | None = None) -> dict:
     """contest "cash" -> cash rankings + cash ownership; "gpp" -> GPP rankings + small/large-field ownership.
     `efficiency` (app.leverage.efficiency_context) drives the leverage score; without it the
-    multiplier is 1 and leverage rests on the plain odds."""
+    multiplier is 1 and leverage rests on the plain odds. `actuals` (actual_ownership()) puts
+    uploaded contest ownership next to the projections, and leverage uses it where it exists."""
     rows = fo.engineer(table, games)
     env = fo.env_by_team(games)
     fo.save_features(season, week, slate_id, rows)
@@ -91,6 +109,12 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
             r[f"own_{c}"] = float(owns[c]["own"][i])
             r[f"models_{c}"] = {k: round(float(v[i]) * 100, 1) for k, v in owns[c]["components"].items()}
         r["lead_own"] = float(lead_own[i])
+        key = ownership_store.player_key(r["name"], r["team"], r["position"])
+        for c in own_contests:
+            pct = ((actuals or {}).get(ACTUAL_CONTEST[c]) or {}).get("pct", {}).get(key)
+            r[f"actual_{c}"] = None if pct is None else pct / 100
+        # Leverage uses actual ownership once it's known (late swap), else the projection.
+        r["lev_own"] = r[f"actual_{own_contests[-1]}"] if r[f"actual_{own_contests[-1]}"] is not None else r["lead_own"]
         # Leverage (app.leverage): efficiency-adjusted projection and odds.
         m = lv.mem(efficiency or {"off_db": {}, "off_rush": {}, "off_play": {}, "def_db": {}, "def_rush": {}, "def_play": {}, "pos": {}},
                    r["position"], r["team"], r["opponent"])
@@ -101,9 +125,9 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
         r["p_eff"] = fo.p_at_least((CASH_TARGET_X * r["salary_k"]) if contest == "cash" else GPP_CEILING_SCORE[r["position"]],
                                    r["final"] * k, lo, hi)
 
-    lv.fair_ownership(rows, "p_eff", "lead_own")
+    lv.fair_ownership(rows, "p_eff", "lev_own")
     for r in rows:
-        r["leverage"] = (r["fair_own"] - r["lead_own"]) * 100
+        r["leverage"] = (r["fair_own"] - r["lev_own"]) * 100
 
     out_players, rankings = [], {}
     for pos in fo.POSITIONS:
@@ -158,9 +182,24 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
                  "leverage": [_player(r, contest, own_contests, k) for k, r in enumerate(pivots, 1)],
                  "leverage_by_position": {pos: [_player(r, contest, own_contests, k) for k, r in enumerate(rs, 1)]
                                           for pos, rs in by_pos.items() if rs}}
+    actual_summary = {}
+    for c in own_contests:
+        have = [r for r in rows if r[f"actual_{c}"] is not None]
+        if not have:
+            continue
+        misses = sorted(have, key=lambda r: -abs(r[f"actual_{c}"] - r[f"own_{c}"]))[:MISSES_N]
+        actual_summary[c] = {
+            "uploaded_at": ((actuals or {}).get(ACTUAL_CONTEST[c]) or {}).get("uploaded_at"),
+            "players": len(have),
+            "mae": _round(sum(abs(r[f"actual_{c}"] - r[f"own_{c}"]) for r in have) / len(have) * 100, 2),
+            "misses": [{"name": r["name"], "position": r["position"], "team": r["team"],
+                        "actual": _round(r[f"actual_{c}"] * 100, 1), "projected": _round(r[f"own_{c}"] * 100, 1)}
+                       for r in misses],
+        }
     return {
         "contest": contest,
         "season": season,
+        "actual_ownership": actual_summary,
         "week": week,
         "slate_id": slate_id,
         "rankings": rankings,
@@ -223,13 +262,16 @@ def _player(r: dict, contest: str, own_contests: list[str], rank: int | None = N
         "leverage": _round(r["leverage"], 1),
         "leverage_detail": {
             "fair_own": _round(r["fair_own"] * 100, 1),
-            "own": _round(r["lead_own"] * 100, 1),
+            "own": _round(r["lev_own"] * 100, 1),
+            "own_is_actual": r[f"actual_{own_contests[-1]}"] is not None,
             "teap": _round(r["teap"]),
             "p": _round(r["p_eff"], 3),
             **r["mem"],
-            "verdict": lv.verdict(r["leverage"], r["lead_own"], r["mem"]["mem"], r["p_eff"]),
+            "verdict": lv.verdict(r["leverage"], r["lev_own"], r["mem"]["mem"], r["p_eff"]),
         },
         "ownership": {c: _round(r[f"own_{c}"] * 100, 1) for c in own_contests},
+        # Uploaded actual contest ownership (percent) where known.
+        "actual_ownership": {c: _round(r[f"actual_{c}"] * 100, 1) for c in own_contests if r.get(f"actual_{c}") is not None},
         # each model's own estimate (percent) before the blend
         "ownership_models": {c: r[f"models_{c}"] for c in own_contests},
         "tag": r["tag"],

@@ -12,7 +12,9 @@ export const formatLeverage = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''
 /** Plain-English read of a leverage number and how it was built. */
 export function leverageText(value: number, d: LeverageDetail | null | undefined): string {
   const parts = [`Leverage ${formatLeverage(value)} pts`];
-  if (d?.fair_own != null && d.own != null) parts.push(`fair ownership ${d.fair_own.toFixed(1)}% vs ${d.own.toFixed(1)}% projected`);
+  if (d?.fair_own != null && d.own != null) {
+    parts.push(`fair ownership ${d.fair_own.toFixed(1)}% vs ${d.own.toFixed(1)}% ${d.own_is_actual ? 'actual' : 'projected'}`);
+  }
   if (d) {
     const sig = (z: number) => `${z >= 0 ? '+' : '−'}${Math.abs(z).toFixed(1)}σ`;
     parts.push(

@@ -31,6 +31,7 @@ from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
 from app import leverage as leverage_module
+from app import ownership_persist
 from app import trenches as trenches_module
 from app import dfs_model
 from app import accounts, guard, matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
@@ -70,11 +71,17 @@ Season = Annotated[int, Query(ge=2000, le=2100)]
 Week = Annotated[int, Query(ge=1, le=22)]
 
 app = FastAPI(title="DFSRiches", description="DraftKings DFS explorer")
+
+
+@app.on_event("startup")
+async def _restore_ownership() -> None:
+    """Uploaded actual ownership and the models' learning survive redeploys via Postgres (app.ownership_persist)."""
+    asyncio.get_running_loop().run_in_executor(None, ownership_persist.restore)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 # The mobile app (mobile/) reads the public JSON API; its web build runs on
 # another origin, so allow cross-origin GETs. Writes stay same-origin.
 # Account sync adds authenticated PUTs (Bearer token, no cookies).
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "PUT"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "PUT", "POST"], allow_headers=["*"])
 # Outermost: per-client rate limits and body-size caps on /api/ (app.guard).
 app.add_middleware(guard.GuardMiddleware)
 
@@ -260,8 +267,10 @@ async def _plays(season: int, week: int, slate_id: str | None, contest: str, ver
                                                         await matchups.defense_vs_position(season, week))
     except Exception:
         efficiency = None        # leverage falls back to the plain odds
+    store = ownership_store.load(season, week, model["slate"]["slate_id"])
+    actuals = play_rankings.actual_ownership(store.get("observations", []))
     result = await asyncio.to_thread(play_rankings.build, model["table"], model["strategy"]["games"], contest,
-                                     season, week, model["slate"]["slate_id"], efficiency)
+                                     season, week, model["slate"]["slate_id"], efficiency, actuals)
     result["available"] = True
     result["slate"] = model["slate"]
     result["slates"] = model["slates"]
@@ -472,6 +481,7 @@ async def api_ownership_actual(body: dict = Body(...), authorization: Annotated[
                        for (name, slot), pct in parsed["ownership"].items()]
             result = ownership_store.add_observations(season, week, slate_id, "actual", contest, entries, players,
                                                       source="dk_standings")
+            result["players_with_ownership"] = len(entries)
             lineups = []
             for lu in parsed["lineups"]:
                 keys = []
@@ -487,6 +497,11 @@ async def api_ownership_actual(body: dict = Body(...), authorization: Annotated[
         else:
             result = ownership_store.add_observations(season, week, slate_id, "actual", contest,
                                                       ownership_store.parse_lines(text), players, source="pasted")
+        # Keep the upload across redeploys (the disk store is wiped on deploy).
+        batch_obs = [o for o in ownership_store.load(season, week, slate_id)["observations"] if o.get("batch") == result.get("batch")]
+        result["persisted"] = await asyncio.to_thread(ownership_persist.save_upload, season, week, slate_id, contest,
+                                                      result.get("batch", ""), result.get("timestamp", ""),
+                                                      result.get("entries"), batch_obs)
         learning = await asyncio.to_thread(ownership_learning.relearn)
         result["learned"] = {"slates_with_actuals": learning.get("slates_with_actuals")}
         return result
