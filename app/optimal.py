@@ -1,10 +1,14 @@
 """Optimal lineups per slate, and the saved record of them.
 
-Before a slate's first kickoff, optimal lineups are computed live from the
-current data and written to data/optimal_lineups.json whenever they change,
-so the file always holds the last optimal lineups shown before lock. Once
-the slate has started, only that saved record is served: live numbers after
-kickoff would already reflect the results.
+Optimal lineups lock player by player, the way a DraftKings contest does:
+until a slate's last game kicks off they're recomputed live from the current
+data (so news all week -- a QB change on Saturday -- still moves the Full
+Week lineups) and written to data/optimal_lineups.json whenever they change.
+A player in a lineup whose game has kicked off is locked in that lineup as
+it was saved before kickoff (his pre-game numbers, never live ones), and
+players from games already underway can't be added -- so in-game results
+never leak into a lineup. Once every game has started, only the saved record
+is served.
 
 Once every game in the slate is final and its box scores are in, the record
 is scored: each saved lineup (and each of its players) gets its actual
@@ -38,6 +42,15 @@ def slate_started(slate, now: datetime) -> bool:
     return any(g.kickoff_utc <= now for g in slate.games)
 
 
+def slate_locked(slate, now: datetime) -> bool:
+    """Every game has kicked off: nothing left to update."""
+    return bool(slate.games) and all(g.kickoff_utc <= now for g in slate.games)
+
+
+def started_teams(slate, now: datetime) -> set[str]:
+    return {t for g in slate.games if g.kickoff_utc <= now for t in (g.away, g.home)}
+
+
 def slate_complete(slate, actuals: dict) -> bool:
     """Every game final (nflverse games.csv) and both teams' box scores in."""
     reported = set(actuals["teams"])
@@ -47,13 +60,27 @@ def slate_complete(slate, actuals: dict) -> bool:
     )
 
 
-def build_lineups(players: list, slate_type: str) -> list[dict]:
+def build_lineups(players: list, slate_type: str, *, saved: list[dict] | None = None,
+                  started: set[str] | None = None) -> list[dict]:
+    """The optimal lineup per metric. With games underway (`started` teams),
+    each lineup keeps its saved players from those games (locked, with their
+    saved pre-kickoff rows) and fills the rest from games not yet started."""
+    started = started or set()
+    prev = {lu.get("metric"): lu for lu in (saved or [])}
+    open_players = [p for p in players if _get(p, "team") not in started]
     out = []
     for metric, label in METRICS:
-        lineup = optimize(players, slate_type, metric)
+        locked_rows = [r for r in prev[metric]["players"] if r["team"] in started] if metric in prev and started else []
+        lineup = optimize(open_players + locked_rows, slate_type, metric,
+                          locked={r["dk_draftable_id"] for r in locked_rows})
         if not lineup:
+            if locked_rows:          # can't complete around the locks: keep what was saved
+                out.append(prev[metric])
             continue
-        rows = [{"slot": slot, **{f: getattr(p, f) for f in _FIELDS}} for slot, p in zip(_slots(slate_type), lineup)]
+        lock_ids = {r["dk_draftable_id"] for r in locked_rows}
+        rows = [{"slot": slot, **{f: _get(p, f) for f in _FIELDS},
+                 **({"locked": True} if _get(p, "dk_draftable_id") in lock_ids else {})}
+                for slot, p in zip(_slots(slate_type), lineup)]
         out.append({
             "metric": metric,
             "label": f"Optimal - {label}",
@@ -63,6 +90,10 @@ def build_lineups(players: list, slate_type: str) -> list[dict]:
             "ceiling": round(sum(r["ceiling"] or 0 for r in rows), 2),
         })
     return out
+
+
+def _get(p, name: str):
+    return p.get(name) if isinstance(p, dict) else getattr(p, name)
 
 
 def score_results(saved_lineups: list[dict], players: list, slate_type: str, actuals: dict) -> tuple[list[dict], dict | None]:
@@ -107,10 +138,10 @@ def save(season: int, week: int, slate_id: str, entry: dict) -> None:
     # the event loop can't interleave; os.replace keeps the file whole.
     data = _load_all()
     data["_readme"] = (
-        "Optimal DraftKings lineups per season/week/slate as they stood before that slate's first kickoff "
-        "(app/optimal.py): written automatically while a slate is still open, frozen once it starts, then "
-        "scored with actual points (per player and lineup) plus a hindsight best-possible lineup once "
-        "every game is final."
+        "Optimal DraftKings lineups per season/week/slate (app/optimal.py): written automatically while any "
+        "of the slate's games is still to kick off, each player locked (\"locked\": true) once his game "
+        "starts, frozen when the last game starts, then scored with actual points (per player and lineup) "
+        "plus a hindsight best-possible lineup once every game is final."
     )
     weeks = data.setdefault(str(season), {})
     weeks.setdefault(str(week), {})[slate_id] = entry
@@ -139,13 +170,16 @@ async def get_optimal(season: int, week: int, slate_id: str, now: datetime | Non
         raise ValueError(f"Unknown slate_id: {slate_id}")
 
     saved = load_saved(season, week, slate_id)
-    if not slate_started(slate, now):
+    if not slate_locked(slate, now):
+        started = started_teams(slate, now)
         players = (await slates_module.get_slate_players(season, week, slate_id)).players
-        lineups = build_lineups(players, slate.slate_type)
+        lineups = build_lineups(players, slate.slate_type, saved=(saved or {}).get("lineups"), started=started)
         if lineups and (saved is None or saved.get("lineups") != lineups):
             saved = {"saved_at": now.isoformat(timespec="seconds"), "draft_group_id": slate.draft_group_id, "lineups": lineups}
             save(season, week, slate_id, saved)
-        return _response("live", saved if lineups else None) | {"lineups": lineups}
+        locked = sum(1 for lu in lineups for r in lu["players"] if r.get("locked"))
+        games = sum(1 for g in slate.games if g.kickoff_utc <= now)
+        return _response("live", saved if lineups else None) | {"lineups": lineups, "locked_players": locked, "games_started": games}
 
     if saved and saved.get("results_at"):
         return _response("final", saved)

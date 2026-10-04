@@ -8,7 +8,12 @@ import { formatCurrency, formatEt, formatPoints } from '@/lib/utils';
 import { type LineupScope, useLineups, useWeek } from '@/lib/week-context';
 
 function statusLine(opt: OptimalResponse): string {
-  if (opt.status === 'live') return `${OPTIMAL_STATUS_TEXT.live} (last change ${formatEt(opt.saved_at)})`;
+  if (opt.status === 'live') {
+    const locks = opt.locked_players
+      ? ` · ${opt.locked_players} player${opt.locked_players === 1 ? '' : 's'} locked (${opt.games_started} game${opt.games_started === 1 ? '' : 's'} underway)`
+      : '';
+    return `${OPTIMAL_STATUS_TEXT.live} (last change ${formatEt(opt.saved_at)})${locks}`;
+  }
   if (opt.status === 'saved') return `${OPTIMAL_STATUS_TEXT.saved} (saved ${formatEt(opt.saved_at)})`;
   if (opt.status === 'final') return `${OPTIMAL_STATUS_TEXT.final} (${formatEt(opt.results_at)})`;
   return OPTIMAL_STATUS_TEXT.none;
@@ -27,7 +32,12 @@ function OptimalCard({ lineup, onEdit }: { lineup: OptimalLineup; onEdit?: () =>
         ) : null}
       </View>
       {lineup.players.map((p, i) => (
-        <LineupRow key={`${p.slot}-${i}`} slot={p.slot} player={p} />
+        <LineupRow
+          key={`${p.slot}-${i}`}
+          slot={p.slot}
+          player={p}
+          note={p.locked && lineup.metric !== 'actual' && p.actual == null ? 'Locked: game underway (pre-kickoff numbers)' : null}
+        />
       ))}
       <Totals
         items={[

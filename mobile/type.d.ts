@@ -289,6 +289,8 @@ interface LineupPlayer {
   injury: InjuryStatus | null;
   dk_draftable_id: number | null;
   dk_fppg: number | null;
+  /** His game has kicked off: kept in the lineup as saved before kickoff. */
+  locked?: boolean;
   /** Added once the slate is final. */
   actual?: number;
 }
@@ -304,7 +306,7 @@ interface OptimalLineup {
   actual?: number;
 }
 
-/** live: recalculated until kickoff; saved: frozen at kickoff; final: scored. */
+/** live: recalculated until the last kickoff (players lock as their games start); saved: frozen; final: scored. */
 type OptimalStatus = 'live' | 'saved' | 'final' | 'none';
 
 interface OptimalResponse {
@@ -313,6 +315,9 @@ interface OptimalResponse {
   results_at: string | null;
   lineups: OptimalLineup[];
   hindsight: OptimalLineup | null;
+  /** Live, with games underway: players locked across the lineups, and how many games have started. */
+  locked_players?: number;
+  games_started?: number;
 }
 
 /** One position in the lineup builder's roster template. */

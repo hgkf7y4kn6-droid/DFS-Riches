@@ -68,8 +68,8 @@ export const POSITION_FILTERS: Record<SlateType, string[]> = {
 export const PLAYABLE_STATUSES = new Set(['Healthy', 'Q']);
 
 export const OPTIMAL_STATUS_TEXT: Record<OptimalStatus, string> = {
-  live: 'Live: recalculated until kickoff',
-  saved: 'Saved at kickoff; actual scores are added once every game is final',
+  live: 'Live: updates with news until kickoff; each player locks when his game starts',
+  saved: 'Locked: every game has started; actual scores are added once every game is final',
   final: 'Final: scored with actual points',
   none: 'No lineups were saved for this slate',
 };

@@ -215,3 +215,64 @@ def test_skill_players_without_a_projected_role_are_never_optimal():
     pool = _classic_pool()
     pool.append(_p(98, "Benched QB", "QB", "C", 4000, 1.0, game="C@D", ceiling=60))   # played earlier, no line now
     assert "Benched QB" not in {p["name"] for p in optimize(pool, "classic", "ceiling")}
+
+
+async def test_lineups_lock_player_by_player_as_games_kick_off(monkeypatch, tmp_path):
+    early = datetime(2026, 9, 27, 17, 0, tzinfo=timezone.utc)
+    late = early + timedelta(hours=3, minutes=25)
+    monkeypatch.setattr(optimal, "OPTIMAL_LINEUPS_PATH", tmp_path / "optimal.json")
+    games = [
+        Game(game_id="g1", season=2026, week=3, away="A", home="B", kickoff_utc=early, kickoff_et="", day_part="SUN_EARLY",
+             context=GameContext()),
+        Game(game_id="g2", season=2026, week=3, away="C", home="D", kickoff_utc=late, kickoff_et="", day_part="SUN_LATE",
+             context=GameContext()),
+    ]
+    slate = Slate(slate_id="classic", label="C", slate_type="classic", draft_group_id=1, games=games, available=True, source="live")
+
+    async def fake_list_slates(season, week):
+        return None, [slate]
+
+    players = [Player(**{**p, "opponent": "", "value_per_1k": 0.0}) for p in _classic_pool()]
+
+    class _SP:
+        pass
+
+    async def fake_players(season, week, slate_id):
+        sp = _SP()
+        sp.players = players
+        return sp
+
+    monkeypatch.setattr(optimal.slates_module, "list_slates", fake_list_slates)
+    monkeypatch.setattr(optimal.slates_module, "get_slate_players", fake_players)
+
+    before = await optimal.get_optimal(2026, 3, "classic", now=early - timedelta(hours=1))
+    proj_before = next(lu for lu in before["lineups"] if lu["metric"] == "proj_points")
+    early_ids = {r["dk_draftable_id"] for r in proj_before["players"] if r["team"] in ("A", "B")}
+    assert early_ids and not any(r.get("locked") for r in proj_before["players"])
+
+    # Between kickoffs: the early game's live numbers move (must not leak in), late-game news arrives.
+    by_id = {p.dk_draftable_id: i for i, p in enumerate(players)}
+    for pid, proj in ((1, 0.0), (5, 99.0), (10, 40.0)):            # QB Star tanks, RB3 (early) booms, WR4 (late) news
+        players[by_id[pid]] = players[by_id[pid]].model_copy(update={"proj_points": proj, "dk_fppg": max(proj, 1.0)})
+    mid = await optimal.get_optimal(2026, 3, "classic", now=early + timedelta(hours=1))
+    assert mid["status"] == "live" and mid["games_started"] == 1 and mid["locked_players"] > 0
+    lu = next(lu for lu in mid["lineups"] if lu["metric"] == "proj_points")
+    ids = {r["dk_draftable_id"] for r in lu["players"]}
+    assert early_ids <= ids                                          # early-game picks stay, as saved
+    locked = [r for r in lu["players"] if r.get("locked")]
+    assert {r["dk_draftable_id"] for r in locked} == early_ids
+    assert all(r["proj_points"] == next(p for p in proj_before["players"] if p["dk_draftable_id"] == r["dk_draftable_id"])["proj_points"]
+               for r in locked)                                      # pre-kickoff numbers, not live ones
+    assert 5 not in ids or 5 in early_ids                            # no new early-game player
+    assert 10 in ids                                                 # late-game news is picked up
+
+    after = await optimal.get_optimal(2026, 3, "classic", now=late + timedelta(minutes=5))
+    assert after["status"] == "saved" and after["lineups"] == mid["lineups"]
+
+
+def test_locked_players_are_forced_in_even_when_now_ineligible():
+    pool = _classic_pool()
+    benched = {**pool[1], "proj_points": 0.0}                        # QB Cheap, locked at 0 now
+    lineup = optimize([benched] + pool[2:], "classic", "proj_points", locked={2})
+    assert lineup and 2 in {p["dk_draftable_id"] for p in lineup}
+    assert optimize(pool, "classic", "proj_points", locked={999}) is None   # a lock that isn't in the pool

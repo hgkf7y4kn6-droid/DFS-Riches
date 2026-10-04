@@ -1,7 +1,8 @@
 """Keeps data/optimal_lineups.json current (a scheduled job runs this weekly):
 
-  - the current week: records optimal lineups for every slate that hasn't
-    kicked off yet (slates already underway are left as recorded);
+  - the current week: records optimal lineups for every slate with a game
+    still to kick off -- players whose games have started stay locked as
+    recorded, the open slots update (slates fully underway are left as is);
   - the previous week: once a slate's games are all final, scores its saved
     lineups with actual points and adds the hindsight best-possible lineup.
 
