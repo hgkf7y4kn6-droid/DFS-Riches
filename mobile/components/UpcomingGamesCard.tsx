@@ -42,7 +42,7 @@ export default function UpcomingGamesCard({
       style={style}
       onPress={() => setExpanded((e) => !e)}
       accessibilityRole="button"
-      accessibilityState={{ expanded }}
+      aria-expanded={expanded}
       accessibilityLabel={`${name}, ${expanded ? 'hide' : 'show'} game breakdown`}>
       <View className="upcoming-row">
         <View className="upcoming-logos">

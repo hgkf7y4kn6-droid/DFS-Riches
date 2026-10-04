@@ -43,7 +43,7 @@ export default function SlateList({ slates, selectedId, onSelect }: Props) {
             className={`slate-chip ${active ? 'slate-chip-active' : ''}`}
             onPress={() => onSelect(item.slate_id)}
             accessibilityRole="button"
-            accessibilityState={{ selected: active }}>
+            aria-pressed={active}>
             <Text className={`slate-chip-kicker ${active ? 'slate-chip-kicker-active' : ''}`}>
               {item.slate_type === 'showdown' ? 'Showdown' : 'Classic'}
             </Text>

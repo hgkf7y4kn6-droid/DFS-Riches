@@ -343,7 +343,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
               className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
               onPress={() => setActiveLineup(i)}
               accessibilityRole="button"
-              accessibilityState={{ selected: active }}>
+              aria-pressed={active}>
               <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>
                 Lineup {i + 1} · {s.valid ? 'Valid' : `${s.filled}/${s.total}`}
               </Text>
@@ -453,7 +453,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
                 setLimit(PAGE);
               }}
               accessibilityRole="button"
-              accessibilityState={{ selected: active }}>
+              aria-pressed={active}>
               <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{pos}</Text>
             </Pressable>
           );
@@ -462,7 +462,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
           className={`filter-chip ${showAll ? 'filter-chip-active' : ''}`}
           onPress={() => setShowAll((v) => !v)}
           accessibilityRole="button"
-          accessibilityState={{ selected: showAll }}>
+          aria-pressed={showAll}>
           <Text className={`filter-chip-text ${showAll ? 'filter-chip-text-active' : ''}`}>Incl. Out/Doubtful</Text>
         </Pressable>
       </ScrollView>
@@ -477,7 +477,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
               className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
               onPress={() => pressSort(o.key)}
               accessibilityRole="button"
-              accessibilityState={{ selected: active }}
+              aria-pressed={active}
               accessibilityHint={active ? (blended ? 'Removes this sort from the blend' : 'Flips the order') : 'Adds this sort'}>
               <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>
                 {o.label}

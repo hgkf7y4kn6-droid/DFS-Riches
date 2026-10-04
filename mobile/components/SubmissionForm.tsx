@@ -71,7 +71,7 @@ export default function SubmissionForm({ slateId, lineup, onDone }: { slateId?: 
               className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
               onPress={() => setType(c.id)}
               accessibilityRole="button"
-              accessibilityState={{ selected: active }}
+              aria-pressed={active}
               accessibilityHint={c.description}>
               <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{c.short}</Text>
             </Pressable>
@@ -89,7 +89,7 @@ export default function SubmissionForm({ slateId, lineup, onDone }: { slateId?: 
               className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
               onPress={() => setSlate(s.slate_id)}
               accessibilityRole="button"
-              accessibilityState={{ selected: active }}>
+              aria-pressed={active}>
               <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{s.label}</Text>
             </Pressable>
           );

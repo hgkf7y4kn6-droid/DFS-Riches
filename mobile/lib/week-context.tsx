@@ -37,7 +37,7 @@ export type LineupScope = '' | 'cash' | 'gpp' | 'edit';
 // 'edit' (a logged entry open for late swap) is never saved as builder lineups.
 const SCOPES: LineupScope[] = ['', 'cash', 'gpp'];
 
-export interface LineupBuilderState {
+interface LineupBuilderState {
   /** Builder lineups for the selected slate (kept per slate and scope for the session). */
   lineups: BuilderLineup[];
   activeLineup: number;

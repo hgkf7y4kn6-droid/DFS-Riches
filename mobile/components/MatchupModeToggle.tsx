@@ -22,7 +22,7 @@ export default function MatchupModeToggle({ compact = false }: { compact?: boole
               className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
               onPress={() => setMode(o.mode)}
               accessibilityRole="radio"
-              accessibilityState={{ selected: active }}>
+              aria-checked={active}>
               <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{o.label}</Text>
             </Pressable>
           );

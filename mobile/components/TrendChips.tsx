@@ -2,7 +2,7 @@ import { Text, useColorScheme, View } from 'react-native';
 
 import { type Better, trendFill, trendLevel } from '@/lib/trend';
 
-export interface Windows {
+interface Windows {
   l3?: number | null;
   l6?: number | null;
   l9?: number | null;

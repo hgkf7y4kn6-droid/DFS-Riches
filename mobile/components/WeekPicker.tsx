@@ -46,7 +46,7 @@ export default function WeekPicker() {
                     className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
                     onPress={() => setPickSeason(s)}
                     accessibilityRole="button"
-                    accessibilityState={{ selected: active }}>
+                    aria-pressed={active}>
                     <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{s}</Text>
                   </Pressable>
                 );
@@ -64,7 +64,7 @@ export default function WeekPicker() {
                     className={`filter-chip ${active ? 'filter-chip-active' : ''} ${future ? 'opacity-50' : ''}`}
                     onPress={() => choose(shownSeason, w)}
                     accessibilityRole="button"
-                    accessibilityState={{ selected: active }}
+                    aria-pressed={active}
                     accessibilityLabel={`Week ${w}${isNow ? ', current week' : ''}`}>
                     <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>
                       {w}

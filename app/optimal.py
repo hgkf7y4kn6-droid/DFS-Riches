@@ -38,10 +38,6 @@ def _slots(slate_type: str) -> list[str]:
     return ["CPT"] + ["FLEX"] * 5 if slate_type == "showdown" else CLASSIC_SLOTS
 
 
-def slate_started(slate, now: datetime) -> bool:
-    return any(g.kickoff_utc <= now for g in slate.games)
-
-
 def slate_locked(slate, now: datetime) -> bool:
     """Every game has kicked off: nothing left to update."""
     return bool(slate.games) and all(g.kickoff_utc <= now for g in slate.games)

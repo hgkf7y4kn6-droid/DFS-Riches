@@ -43,7 +43,7 @@ export function Field(props: {
   onChangeText: (t: string) => void;
   secure?: boolean;
   keyboardType?: 'email-address' | 'number-pad' | 'phone-pad' | 'default';
-  autoComplete?: 'email' | 'password' | 'new-password' | 'one-time-code';
+  autoComplete?: 'email' | 'current-password' | 'new-password' | 'one-time-code';
   placeholder?: string;
 }) {
   const colors = useThemeColors();

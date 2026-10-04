@@ -8,7 +8,7 @@ const TEAM_FILL = {
 };
 export type Side = 'away' | 'home';
 
-export function useTeamFill(side: Side): string {
+function useTeamFill(side: Side): string {
   return TEAM_FILL[useColorScheme() === 'dark' ? 'dark' : 'light'][side];
 }
 

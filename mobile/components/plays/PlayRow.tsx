@@ -34,7 +34,7 @@ export default function PlayRow({ player, contest, pool }: { player: PlayPlayer;
   const [trendOpen, setTrendOpen] = useState(false);
   const hitLabel = contest === 'cash' ? 'P(2.5x)' : 'P(ceiling)';
   return (
-    <Pressable className="dfs-row" onPress={() => setExpanded((e) => !e)} accessibilityRole="button" accessibilityState={{ expanded }}>
+    <Pressable className="dfs-row" onPress={() => setExpanded((e) => !e)} accessibilityRole="button" aria-expanded={expanded}>
       <View className="dfs-row-main">
         {p.rank != null ? <Text className="dfs-rank">{p.rank}</Text> : null}
         <View className="flex-1 pr-2">

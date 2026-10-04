@@ -81,7 +81,7 @@ export async function putAccountDoc(token: string, key: SyncKey, value: unknown,
   return (await res.json()) as SyncedDoc;
 }
 
-export interface ActualUploadResult {
+interface ActualUploadResult {
   added: number;
   unmatched: string[];
   entries?: number;

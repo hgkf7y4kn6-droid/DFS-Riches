@@ -10,10 +10,11 @@ export const lightColors = {
   primary: '#081126',
   primaryForeground: '#FFF9E3',
   accent: '#EA7A53',
+  accentInk: '#BD512E',
   accentForeground: '#FFF9E3',
   gold: '#A67C00',
   muted: '#F4ECD6',
-  mutedForeground: '#6B7280',
+  mutedForeground: '#5D6472',
   border: '#E8DFC4',
   success: '#15803D',
   danger: '#B91C1C',
@@ -30,6 +31,7 @@ export const darkColors: typeof lightColors = {
   primary: '#D4AF37',
   primaryForeground: '#0C0C0D',
   accent: '#D4AF37',
+  accentInk: '#D4AF37',
   accentForeground: '#0C0C0D',
   gold: '#D4AF37',
   muted: '#252E3A',
@@ -41,7 +43,7 @@ export const darkColors: typeof lightColors = {
   info: '#60A5FA',
 };
 
-export type ThemeColors = typeof lightColors;
+type ThemeColors = typeof lightColors;
 
 /** The palette for the device's current light/dark setting. */
 export function useThemeColors(): ThemeColors {
@@ -61,6 +63,8 @@ export const fonts = {
 export const FLOATING_TAB_BAR = {
   height: 80,
   margin: 14,
+  /** Widest the bar gets (tablets, desktops); it centers beyond that. */
+  maxWidth: 560,
   gap: 10,
   /** Height + gap + breathing room, added to the bottom safe-area inset. */
   space: 80 + 10 + 24,

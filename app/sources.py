@@ -47,13 +47,6 @@ SOURCES = {
     "fftoday": "FFToday",
     "fantasypros": "FantasyPros",
 }
-SOURCE_URLS = {
-    "sleeper": "https://api.sleeper.com/projections/nfl/",
-    "espn": "https://fantasy.espn.com/football/players/projections",
-    "cbs": "https://www.cbssports.com/fantasy/football/stats/QB/{season}/{week}/projections/ppr/",
-    "fftoday": "https://www.fftoday.com/rankings/playerwkproj.php",
-    "fantasypros": "https://www.fantasypros.com/nfl/projections/qb.php?week={week}",
-}
 UNAVAILABLE = {
     "NFL.com": "robots.txt disallows automated access to its fantasy API",
     "FantasySharks": "blocks non-browser clients (HTTP 403)",

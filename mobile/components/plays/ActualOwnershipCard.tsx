@@ -103,7 +103,7 @@ export default function ActualOwnershipCard({ contest, plays, onUploaded }: { co
                   className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
                   onPress={() => setType(c.id)}
                   accessibilityRole="button"
-                  accessibilityState={{ selected: active }}>
+                  aria-pressed={active}>
                   <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{c.label}</Text>
                 </Pressable>
               );

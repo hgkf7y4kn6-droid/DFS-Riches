@@ -60,6 +60,13 @@ def test_web_app_serves_routes_files_and_shell(client, monkeypatch, tmp_path):
     r = client.get("/_expo/app.js")
     assert r.text == "js" and "immutable" in r.headers["cache-control"]
     assert client.get("/no/such/route").text == "home"            # client-side routes get the app shell
+    (tmp_path / "assets").mkdir()
+    (tmp_path / "assets" / "font.abc123.ttf").write_text("ttf")
+    r = client.get("/assets/font.abc123.ttf")
+    assert r.text == "ttf" and "immutable" in r.headers["cache-control"]
+    assert client.get("/assets/gone.def456.ttf").status_code == 404  # never the shell under a hashed path
+    assert client.get("/_expo/static/js/old.js").status_code == 404
+    assert client.get("/cash").headers["cache-control"] == "no-cache"
     assert client.get("/../app/main.py").text == "home"           # never outside the build
     assert client.get("/api/nope").status_code == 404
     assert client.get("/breakdown", follow_redirects=False).headers["location"] == "/classic/breakdown"

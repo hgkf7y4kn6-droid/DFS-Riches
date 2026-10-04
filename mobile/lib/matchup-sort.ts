@@ -28,7 +28,7 @@ export function sortByMatchup<T extends Sortable>(
   return keyed.map((k) => k.t);
 }
 
-export const ROLE_LABEL: Record<PlayerRole, string> = {
+const ROLE_LABEL: Record<PlayerRole, string> = {
   starter: 'Starter',
   rotation: 'Rotation',
   backup: 'Backup',

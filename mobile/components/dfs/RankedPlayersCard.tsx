@@ -38,7 +38,7 @@ export default function RankedPlayersCard({ title, subtitle, metric, players }: 
 
   return (
     <View className="dfs-card" style={style}>
-      <Pressable onPress={() => setExpanded((e) => !e)} accessibilityRole="button" accessibilityState={{ expanded }}>
+      <Pressable onPress={() => setExpanded((e) => !e)} accessibilityRole="button" aria-expanded={expanded}>
         <Text className="dfs-card-kicker">Top 10 by position</Text>
         <Text className="dfs-card-title">{title}</Text>
         <Text className="dfs-card-subtitle">{subtitle}</Text>
@@ -65,7 +65,7 @@ export default function RankedPlayersCard({ title, subtitle, metric, players }: 
                   className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
                   onPress={() => setPosition(pos)}
                   accessibilityRole="button"
-                  accessibilityState={{ selected: active }}>
+                  aria-pressed={active}>
                   <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{pos}</Text>
                 </Pressable>
               );

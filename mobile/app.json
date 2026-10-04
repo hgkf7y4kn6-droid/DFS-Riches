@@ -2,7 +2,7 @@
   "expo": {
     "name": "DFSRiches",
     "slug": "dfs-riches",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "dfsriches",
@@ -37,7 +37,8 @@
       "expo-font",
       "expo-secure-store",
       "expo-web-browser",
-      "expo-localization"
+      "expo-localization",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,

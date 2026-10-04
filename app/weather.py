@@ -46,7 +46,6 @@ FULL_WEIGHT_DAYS = 7           # beyond a week out, forecasts are shaky: adjustm
 WINDOW_HOURS = 3
 TTL_FUTURE = 60 * 60           # forecasts update hourly
 TTL_PAST = 60 * 60 * 24 * 30
-ATTRIBUTION = "Weather: Open-Meteo.com (CC BY 4.0) / National Weather Service"
 
 # stadium_id -> (name, lat, lon, roof): roof is "dome", "retractable" or "outdoors"
 STADIUMS: dict[str, tuple[str, float, float, str]] = {

@@ -90,7 +90,7 @@ export default function RoleShiftsCard({ players, pool }: { players: PlayPlayer[
   const up = players.filter((p) => p.usage_trend?.direction === 'up').length;
   return (
     <View className="dfs-card" style={style}>
-      <Pressable onPress={() => setExpanded((e) => !e)} accessibilityRole="button" accessibilityState={{ expanded }}>
+      <Pressable onPress={() => setExpanded((e) => !e)} accessibilityRole="button" aria-expanded={expanded}>
         <Text className="dfs-card-kicker">Role shifts</Text>
         <Text className="dfs-card-title">{players.length} roles shifting</Text>
         <Text className="dfs-card-subtitle">
@@ -130,7 +130,7 @@ export default function RoleShiftsCard({ players, pool }: { players: PlayPlayer[
                   className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
                   onPress={() => setPosition(pos)}
                   accessibilityRole="button"
-                  accessibilityState={{ selected: active }}>
+                  aria-pressed={active}>
                   <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{pos}</Text>
                 </Pressable>
               );

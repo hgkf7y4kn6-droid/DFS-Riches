@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 
 import { usePlays } from '@/lib/plays';
 
-export interface LeverageInfo {
+interface LeverageInfo {
   value: number;
   detail: LeverageDetail | null;
 }

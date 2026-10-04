@@ -14,6 +14,7 @@ module.exports = {
         'primary-foreground': 'rgb(var(--primary-foreground) / <alpha-value>)',
         accent: 'rgb(var(--accent) / <alpha-value>)',
         'accent-foreground': 'rgb(var(--accent-foreground) / <alpha-value>)',
+        'accent-ink': 'rgb(var(--accent-ink) / <alpha-value>)',
         muted: 'rgb(var(--muted) / <alpha-value>)',
         'muted-foreground': 'rgb(var(--muted-foreground) / <alpha-value>)',
         border: 'rgb(var(--border) / <alpha-value>)',

@@ -7,7 +7,7 @@ import { useWeek } from '@/lib/week-context';
 
 const MODE_KEY = 'dfsriches:matchup-mode:v1';
 
-export interface Matchup extends MatchupMetrics {
+interface Matchup extends MatchupMetrics {
   /** The team being ranked: the defense, or for a DST the opposing offense. */
   team: string;
   position: string;
@@ -107,12 +107,6 @@ export function useMatchups() {
   if (!ctx) throw new Error('useMatchups must be used inside MatchupsProvider');
   return ctx;
 }
-
-export const ordinal = (n: number) => {
-  const s = ['th', 'st', 'nd', 'rd'];
-  const v = n % 100;
-  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
-};
 
 export type MatchupTone = 'soft' | 'neutral' | 'tough';
 

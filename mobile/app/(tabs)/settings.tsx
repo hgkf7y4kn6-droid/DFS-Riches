@@ -128,7 +128,8 @@ export default function SettingsScreen() {
         <Text className="settings-group-title">About</Text>
         <View className="settings-group mt-0">
           <Row label="DFSRiches" value={`Version ${Constants.expoConfig?.version ?? '1.0.0'}`} />
-          <Row label="Data" value="DraftKings, Sleeper, nflverse" last />
+          <Row label="Data" value="DraftKings, Sleeper, nflverse" />
+          <Row label="Weather" value="Open-Meteo.com (CC BY 4.0), National Weather Service" last />
         </View>
       </ScrollView>
     </SafeAreaView>

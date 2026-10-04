@@ -63,7 +63,7 @@ export interface Factor<T> {
  * sharing the average rank. Unknown values sit at the middle (0.5) so a
  * missing stat neither helps nor buries a player.
  */
-export function percentiles<T>(items: T[], f: Factor<T>): number[] {
+function percentiles<T>(items: T[], f: Factor<T>): number[] {
   const known = items.map((t, i) => ({ i, v: f.value(t) })).filter((x): x is { i: number; v: number } => x.v != null && Number.isFinite(x.v));
   const out = items.map(() => 0.5);
   if (known.length < 2) return out;

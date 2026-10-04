@@ -39,7 +39,7 @@ export default function ExpandableCard({
         className="expand-header"
         onPress={toggle}
         accessibilityRole="button"
-        accessibilityState={{ expanded }}
+        aria-expanded={expanded}
         accessibilityLabel={`${title}, ${expanded ? 'collapse' : 'expand'}`}>
         <View className="flex-1 pr-3">
           <Text className="section-title">{title}</Text>

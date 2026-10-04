@@ -56,7 +56,6 @@ from app.sleeper_client import get_nfl_state
 POSITIONS = ("QB", "RB", "WR", "TE", "DST")
 PLAYABLE = {"Healthy", "Q"}
 MIN_SKILL_PROJ = 3.0
-POP_TIER_SIZE = {"QB": 2, "RB": 3, "WR": 4, "TE": 2, "DST": 2}
 STATUS_LABEL = {"O": "OUT", "D": "Doubtful", "Q": "Questionable", "IR": "on IR"}
 DEFAULT_CALIB = {"q15": 0.4, "q50": 0.85, "q85": 1.6}
 

@@ -5,14 +5,9 @@ import UnitMatchups from '@/components/breakdown/UnitMatchups';
 import StatusView from '@/components/StatusView';
 import TrendChips from '@/components/TrendChips';
 import { useGameDetail } from '@/lib/game-detail';
-import { formatCurrency, formatPercent, formatSigned } from '@/lib/utils';
+import { formatCurrency, formatPercent, formatSigned, ordinal } from '@/lib/utils';
 import LeverageBadge from '@/components/LeverageBadge';
 
-const ordinal = (n: number) => {
-  const s = ['th', 'st', 'nd', 'rd'];
-  const v = n % 100;
-  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
-};
 const rank = (r: number | null) => (r ? ` (#${r})` : '');
 const vsLeague = (value: number | null, league: number | null) =>
   value != null && league ? `${formatSigned(((value / league) - 1) * 100, 0)}%` : null;

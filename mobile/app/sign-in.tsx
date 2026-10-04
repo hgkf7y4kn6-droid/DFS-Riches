@@ -146,7 +146,7 @@ export default function SignInScreen() {
       ) : (
         <>
           <Field label="Email or username" value={email} onChangeText={setEmail} keyboardType="email-address" autoComplete="email" placeholder="you@example.com" />
-          <Field label="Password" value={password} onChangeText={setPassword} secure autoComplete="password" />
+          <Field label="Password" value={password} onChangeText={setPassword} secure autoComplete="current-password" />
         </>
       )}
       <SubmitButton label={coding ? 'Verify' : 'Sign in'} onPress={submit} busy={busy} />

@@ -194,7 +194,7 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
                       className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
                       onPress={() => setGppField(f)}
                       accessibilityRole="button"
-                      accessibilityState={{ selected: active }}>
+                      aria-pressed={active}>
                       <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>
                         {f === 'large_gpp' ? 'Large field' : 'Small field'}
                       </Text>

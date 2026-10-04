@@ -10,7 +10,7 @@ export function UsageTrendArrow({ trend, open, onToggle }: { trend?: UsageTrend 
       hitSlop={10}
       className="trend-arrow"
       accessibilityRole="button"
-      accessibilityState={{ expanded: open }}
+      aria-expanded={open}
       accessibilityLabel={up ? 'Role growing: show why' : 'Role shrinking: show why'}>
       <Text className={up ? 'trend-arrow-text text-success' : 'trend-arrow-text text-danger'}>{up ? '▲' : '▼'}</Text>
     </Pressable>

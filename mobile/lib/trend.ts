@@ -5,10 +5,10 @@
 
 export type Better = 'high' | 'low';
 /** -3 (much worse) .. 0 (steady) .. 3 (much better). */
-export type TrendLevel = -3 | -2 | -1 | 0 | 1 | 2 | 3;
+type TrendLevel = -3 | -2 | -1 | 0 | 1 | 2 | 3;
 
 /** Relative change (fraction of the baseline) for shades 1, 2 and 3. */
-export const PCT_STEPS: [number, number, number] = [0.04, 0.1, 0.2];
+const PCT_STEPS: [number, number, number] = [0.04, 0.1, 0.2];
 
 /**
  * How a window compares with its baseline, from the unit's point of view
@@ -61,13 +61,13 @@ export function trendFill(level: TrendLevel, dark: boolean): string {
 // Text colors for the same scale (the number itself is colored, no fill): stronger
 // shade = bigger, kept readable on the card background in each theme.
 const INK_LIGHT: Record<TrendLevel, string> = {
-  [-3]: '#991B1B',
-  [-2]: '#DC2626',
-  [-1]: '#EF5350',
-  0: '#B8860B',
-  1: '#2FAE5E',
-  2: '#16A34A',
-  3: '#166534',
+  [-3]: '#7F1D1D',
+  [-2]: '#B91C1C',
+  [-1]: '#D63A3A',
+  0: '#8A6500',
+  1: '#1A7F41',
+  2: '#15803D',
+  3: '#14532D',
 };
 const INK_DARK: Record<TrendLevel, string> = {
   [-3]: '#FF4D4D',

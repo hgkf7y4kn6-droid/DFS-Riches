@@ -32,7 +32,7 @@ export default function PlayRankingCard({ kicker, title, subtitle, players, cont
   const style = useExpandedWidth(expanded);
   return (
     <View className="dfs-card" style={style}>
-      <Pressable onPress={() => setExpanded((e) => !e)} accessibilityRole="button" accessibilityState={{ expanded }}>
+      <Pressable onPress={() => setExpanded((e) => !e)} accessibilityRole="button" aria-expanded={expanded}>
         <Text className="dfs-card-kicker">{kicker ?? (contest === 'cash' ? 'Cash plays' : 'GPP plays')}</Text>
         <Text className="dfs-card-title">{title}</Text>
         <Text className="dfs-card-subtitle">{subtitle}</Text>

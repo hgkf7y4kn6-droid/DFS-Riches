@@ -14,8 +14,10 @@
   --primary-foreground: 255 249 227;
   --accent: 234 122 83;
   --accent-foreground: 255 249 227;
+  /* Accent as text: a deeper shade of the orange so small labels read (4.5:1). */
+  --accent-ink: 189 81 46;
   --muted: 244 236 214;
-  --muted-foreground: 107 114 128;
+  --muted-foreground: 93 100 114;
   --border: 232 223 196;
   --success: 21 128 61;
   --danger: 185 28 28;
@@ -43,6 +45,7 @@
     --primary-foreground: 12 12 13;
     --accent: 212 175 55;
     --accent-foreground: 12 12 13;
+    --accent-ink: 212 175 55;
     --muted: 37 46 58;
     --muted-foreground: 148 163 184;
     --border: 46 57 71;
@@ -141,8 +144,9 @@
   .screen {
     @apply flex-1 bg-background;
   }
+  /* Screens fill a phone; on tablets and desktops they stay a readable centered column. */
   .screen-content {
-    @apply px-5 pt-5;
+    @apply w-full max-w-[1120px] self-center px-5 pt-5;
   }
   .brand-header {
     @apply mb-3 flex-row items-center justify-between;
@@ -156,9 +160,6 @@
   }
   .brand-subheading {
     @apply mt-0.5 text-lg font-sans-semibold text-muted-foreground;
-  }
-  .screen-title {
-    @apply text-2xl font-sans-bold text-foreground;
   }
   .screen-subtitle {
     @apply mb-4 text-xs font-sans-medium text-muted-foreground;
@@ -179,9 +180,6 @@
   }
   .home-user-name {
     @apply ml-4 text-2xl font-sans-bold text-foreground;
-  }
-  .home-add-icon {
-    @apply size-12;
   }
   .home-empty-state {
     @apply py-4 text-sm font-sans-medium text-black/60 dark:text-foreground/60;
@@ -268,7 +266,7 @@
     @apply text-lg font-sans-extrabold text-foreground;
   }
   .upcoming-countdown {
-    @apply text-[11px] font-sans-bold uppercase text-accent;
+    @apply text-[11px] font-sans-bold uppercase text-accent-ink;
   }
   .upcoming-info {
     @apply mt-3 gap-0.5 border-t border-border pt-3;
@@ -281,7 +279,7 @@
   }
 
   .upcoming-expand-hint {
-    @apply mt-2 text-[11px] font-sans-semibold text-accent;
+    @apply mt-2 text-[11px] font-sans-semibold text-accent-ink;
   }
 
   /* --------------------------- game detail (weekly breakdown in a card) */
@@ -295,7 +293,7 @@
     @apply mb-1.5 text-sm font-sans-bold text-foreground;
   }
   .detail-subhead {
-    @apply mb-1 mt-1 text-xs font-sans-bold uppercase text-accent;
+    @apply mb-1 mt-1 text-xs font-sans-bold uppercase text-accent-ink;
   }
   .detail-headline {
     @apply text-sm font-sans-semibold text-foreground;
@@ -371,7 +369,7 @@
     @apply w-[92px] pr-1 text-right text-[11px] font-sans-semibold text-foreground;
   }
   .chart-rank {
-    @apply text-[11px] font-sans-bold text-accent;
+    @apply text-[11px] font-sans-bold text-accent-ink;
   }
   .chart-diverging-row {
     @apply py-1;
@@ -403,7 +401,7 @@
     @apply mr-3 w-72 rounded-2xl border border-border bg-card p-4;
   }
   .dfs-card-kicker {
-    @apply text-[11px] font-sans-bold uppercase text-accent;
+    @apply text-[11px] font-sans-bold uppercase text-accent-ink;
   }
   .dfs-card-title {
     @apply mt-0.5 text-lg font-sans-extrabold text-foreground;
@@ -421,7 +419,7 @@
     @apply flex-row items-center;
   }
   .dfs-rank {
-    @apply w-7 text-sm font-sans-extrabold text-accent;
+    @apply w-7 text-sm font-sans-extrabold text-accent-ink;
   }
   .dfs-name {
     @apply text-sm font-sans-semibold text-foreground;
@@ -449,11 +447,11 @@
     @apply text-[11px] font-sans-regular text-muted-foreground;
   }
   .own-actual {
-    @apply text-[10px] font-sans-bold text-accent;
+    @apply text-[10px] font-sans-bold text-accent-ink;
   }
   /* Profit / loss: most played and most profitable players and teams. */
   .pl-exposure-title {
-    @apply mb-1 text-xs font-sans-bold uppercase text-accent;
+    @apply mb-1 text-xs font-sans-bold uppercase text-accent-ink;
   }
   .pl-exposure-row {
     @apply flex-row items-center gap-2 border-b border-border py-1.5;
@@ -561,7 +559,7 @@
     @apply text-xs font-sans-medium text-muted-foreground;
   }
   .team-share-rank {
-    @apply text-xs font-sans-bold text-accent;
+    @apply text-xs font-sans-bold text-accent-ink;
   }
   .dfs-salary {
     @apply text-sm font-sans-semibold text-foreground;
@@ -728,7 +726,7 @@
     @apply text-[11px] font-sans-semibold text-muted-foreground;
   }
   .tag-choice-reset {
-    @apply mt-1.5 text-[11px] font-sans-semibold text-accent;
+    @apply mt-1.5 text-[11px] font-sans-semibold text-accent-ink;
   }
   .pool-summary {
     @apply mb-2 flex-row items-center justify-between rounded-xl bg-muted px-3 py-2;
@@ -796,15 +794,8 @@
     @apply text-sm font-sans-semibold text-danger;
   }
 
-  /* ------------------------------------------------ slate card (Home) */
-  .slate-card {
-    @apply mb-3 rounded-2xl border border-border bg-card p-4;
-  }
   .slate-card-active {
     @apply border-primary;
-  }
-  .slate-card-header {
-    @apply flex-row items-center justify-between;
   }
   .slate-card-title {
     @apply text-base font-sans-bold text-foreground;
@@ -813,7 +804,7 @@
     @apply mt-0.5 text-xs font-sans-medium text-muted-foreground;
   }
   .slate-card-status {
-    @apply text-[11px] font-sans-bold uppercase text-accent;
+    @apply text-[11px] font-sans-bold uppercase text-accent-ink;
   }
   .slate-card-body {
     @apply mt-4 border-t border-border pt-4;
@@ -847,9 +838,6 @@
   .expand-icon {
     @apply size-4;
   }
-  .divider {
-    @apply my-3 h-px bg-border;
-  }
   .label {
     @apply text-[11px] font-sans-semibold uppercase tracking-wide text-muted-foreground;
   }
@@ -857,42 +845,23 @@
     @apply text-xs font-sans-medium text-muted-foreground;
   }
   .link-text {
-    @apply text-xs font-sans-bold text-accent;
+    @apply text-xs font-sans-bold text-accent-ink;
   }
   .danger-link {
     @apply text-xs font-sans-bold text-danger;
   }
 
-  /* ------------------------------------------------------------- games */
-  .game-row {
-    @apply flex-row items-center justify-between py-2.5;
-  }
-  .game-row-divider {
-    @apply border-b border-border;
-  }
   .game-matchup {
     @apply text-base font-sans-bold text-foreground;
   }
   .game-meta {
     @apply text-xs font-sans-medium text-muted-foreground;
   }
-  .game-weather {
-    @apply text-xs font-sans-regular text-muted-foreground;
-  }
-  .game-side {
-    @apply items-end gap-1;
-  }
   .game-score {
     @apply text-sm font-sans-bold text-foreground;
   }
-  .game-line {
-    @apply text-xs font-sans-semibold text-muted-foreground;
-  }
   .badge {
     @apply self-start rounded-full bg-accent/15 px-2 py-0.5;
-  }
-  .badge-text {
-    @apply text-[10px] font-sans-bold uppercase text-accent;
   }
 
   /* ------------------------------------------------------------ slates */
@@ -903,7 +872,7 @@
     @apply border-primary bg-primary;
   }
   .slate-chip-kicker {
-    @apply text-[10px] font-sans-bold uppercase text-accent;
+    @apply text-[10px] font-sans-bold uppercase text-accent-ink;
   }
   .slate-chip-kicker-active {
     @apply text-primary-foreground/70;
@@ -938,7 +907,7 @@
     @apply flex-row items-center border-b border-border py-2.5;
   }
   .lineup-slot {
-    @apply w-12 text-xs font-sans-bold text-accent;
+    @apply w-12 text-xs font-sans-bold text-accent-ink;
   }
   .lineup-open {
     @apply flex-1 text-sm font-sans-medium text-muted-foreground;

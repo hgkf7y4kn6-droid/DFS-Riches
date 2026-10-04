@@ -109,7 +109,7 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
 
   return (
     <View className={`env-card ${expanded ? 'slate-card-active' : ''}`}>
-      <Pressable onPress={onToggle} accessibilityRole="button" accessibilityState={{ expanded }}>
+      <Pressable onPress={onToggle} accessibilityRole="button" aria-expanded={expanded}>
         <View className="flex-row items-center gap-3">
           <View className="env-rank">
             <Text className="env-rank-text">#{env.env_rank}</Text>

@@ -16,13 +16,17 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         sceneStyle: { backgroundColor: colors.background },
-        tabBarActiveTintColor: colors.accent,
+        tabBarActiveTintColor: colors.accentInk,
         tabBarInactiveTintColor: colors.mutedForeground,
         tabBarStyle: {
           // Floating: inset from the edges and the bottom, rounded, with a shadow.
           position: 'absolute',
+          // Full width less the margins on phones; centered at maxWidth on wider screens
+          // (pure layout, so the pre-rendered page already has it right).
           left: FLOATING_TAB_BAR.margin,
           right: FLOATING_TAB_BAR.margin,
+          maxWidth: FLOATING_TAB_BAR.maxWidth,
+          marginHorizontal: 'auto',
           bottom: insets.bottom + FLOATING_TAB_BAR.gap,
           height: FLOATING_TAB_BAR.height,
           paddingTop: 10,
@@ -39,6 +43,7 @@ export default function TabLayout() {
           shadowOffset: { width: 0, height: 6 },
           elevation: 10,
         },
+        tabBarLabelPosition: 'below-icon',
         tabBarLabelStyle: { fontSize: 10, lineHeight: 13, fontFamily: fonts.semibold, marginTop: 3 },
         tabBarIconStyle: { height: 28 },
         tabBarItemStyle: { justifyContent: 'center', paddingVertical: 0 },

@@ -42,17 +42,3 @@ export function toUpcomingGame(g: Game, now: number = Date.now()): UpcomingGame 
     islandLabel: g.isolated ? formatDayPart(g.day_part) : null,
   };
 }
-
-/** Where a slate stands: upcoming until its first kickoff, live until every game is final. */
-export function slateStatus(slate: Slate, now: number = Date.now()): { status: UpcomingGameStatus; daysLeft: number; firstKickoff: string | null } {
-  const kickoffs = slate.games.map((g) => g.kickoff_utc).sort();
-  const firstKickoff = kickoffs[0] ?? null;
-  if (!firstKickoff) return { status: 'upcoming', daysLeft: 0, firstKickoff };
-  const allFinal = slate.games.every((g) => g.context?.is_final);
-  const started = new Date(firstKickoff).getTime() <= now;
-  return {
-    status: allFinal ? 'final' : started ? 'live' : 'upcoming',
-    daysLeft: dayjs(firstKickoff).startOf('day').diff(dayjs(now).startOf('day'), 'day'),
-    firstKickoff,
-  };
-}

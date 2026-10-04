@@ -18,7 +18,7 @@ export default function OwnershipModelNote({ models }: { models: PlaysResponse['
   if (!first) return null;
   const t = first.training;
   return (
-    <Pressable className="env-stack mb-3" onPress={() => setOpen((o) => !o)} accessibilityRole="button" accessibilityState={{ expanded: open }}>
+    <Pressable className="env-stack mb-3" onPress={() => setOpen((o) => !o)} accessibilityRole="button" aria-expanded={open}>
       <Text className="dfs-stats mt-0">
         {first.simulated_lineups.toLocaleString('en-US')} simulated lineups per contest ·{' '}
         {Object.entries(first.weights)

@@ -7,7 +7,7 @@ import { trendInk, trendLevel } from '@/lib/trend';
 // Shades by size in ownership points: under 1.5 steady (gold), then 1.5 / 4 / 8.
 const STEPS: [number, number, number] = [1.5, 4, 8];
 
-export const formatLeverage = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}`;
+const formatLeverage = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}`;
 
 /** Plain-English read of a leverage number and how it was built. */
 export function leverageText(value: number, d: LeverageDetail | null | undefined): string {

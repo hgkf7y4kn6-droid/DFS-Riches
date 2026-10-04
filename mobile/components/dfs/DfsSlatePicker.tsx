@@ -18,7 +18,7 @@ export default function DfsSlatePicker({ slates, current }: { slates?: { slate_i
             className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
             onPress={() => selectSlate(s.slate_id)}
             accessibilityRole="button"
-            accessibilityState={{ selected: active }}>
+            aria-pressed={active}>
             <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{s.label}</Text>
           </Pressable>
         );

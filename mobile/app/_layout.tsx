@@ -1,16 +1,10 @@
 import '../global.css';
 
-import {
-  PlusJakartaSans_400Regular,
-  PlusJakartaSans_500Medium,
-  PlusJakartaSans_600SemiBold,
-  PlusJakartaSans_700Bold,
-  PlusJakartaSans_800ExtraBold,
-  useFonts,
-} from '@expo-google-fonts/plus-jakarta-sans';
+import { useFonts } from 'expo-font';
 import { ClerkProvider } from '@clerk/expo';
 import { tokenCache } from '@clerk/expo/token-cache';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import Head from 'expo-router/head';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -18,6 +12,7 @@ import { Platform, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { CLERK_PUBLISHABLE_KEY } from '@/constants/config';
+import { FONTS } from '@/constants/fonts';
 import { darkColors, lightColors } from '@/constants/theme';
 import { AccountSyncProvider } from '@/lib/account-sync';
 import { AnalyticsProvider } from '@/lib/analytics';
@@ -43,20 +38,15 @@ const navTheme = (dark: boolean) => {
 
 export default function RootLayout() {
   const dark = useColorScheme() === 'dark';
-  // The font-sans-* classes (tailwind.config.js) name these families.
-  const [fontsLoaded, fontError] = useFonts({
-    PlusJakartaSans_400Regular,
-    PlusJakartaSans_500Medium,
-    PlusJakartaSans_600SemiBold,
-    PlusJakartaSans_700Bold,
-    PlusJakartaSans_800ExtraBold,
-  });
+  const [fontsLoaded, fontError] = useFonts(FONTS);
 
   useEffect(() => {
     if (fontsLoaded || fontError) SplashScreen.hideAsync();
   }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded && !fontError) return null;
+  // Native waits for fonts behind the splash screen. Web renders right away (and
+  // so is pre-rendered into the static HTML); the fonts swap in once loaded.
+  if (!fontsLoaded && !fontError && Platform.OS !== 'web') return null;
 
   return (
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} tokenCache={Platform.OS === 'web' ? undefined : tokenCache}>
@@ -70,6 +60,9 @@ export default function RootLayout() {
                     <LeverageProvider>
                       <PoolTagsProvider>
                         <MatchupsProvider>
+                          <Head>
+                            <title>DFSRiches</title>
+                          </Head>
                           <StatusBar style={dark ? 'light' : 'dark'} />
                           <Stack screenOptions={{ headerShown: false }}>
                             <Stack.Screen name="(tabs)" />

@@ -552,7 +552,9 @@ async def web_app(path: str):
     if not (WEB_DIR / "index.html").is_file():
         return RedirectResponse("/classic")
     f = _web_file(path)
-    hashed = path.startswith("_expo/")       # content-hashed bundles
+    hashed = path.startswith(("_expo/", "assets/"))   # content-hashed bundles, fonts and images
+    if hashed and f.name == "index.html":              # a missing hashed file: never cache the app shell under it
+        raise HTTPException(status_code=404)
     headers = {"Cache-Control": "public, max-age=31536000, immutable" if hashed else "no-cache"}
     return FileResponse(f, headers=headers)
 

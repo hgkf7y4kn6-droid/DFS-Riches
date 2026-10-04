@@ -57,7 +57,6 @@ from app import ownership_store as store
 
 EPS = 0.01
 PLAYABLE = {"Healthy", "Q"}
-OUT_STATUSES = {"O", "OUT", "D", "IR", "PUP", "NFI", "SUSP"}
 CLASSIC_POS = ("QB", "RB", "WR", "TE", "DST")
 BASE_SLOTS = {"QB": 1.0, "RB": 2.0, "WR": 3.0, "TE": 1.0, "DST": 1.0}
 DEFAULT_FLEX = {"RB": 0.40, "WR": 0.50, "TE": 0.10}           # assumption until learned from actuals
@@ -279,7 +278,7 @@ def model_b(contest: str, crowd_obs: list[dict], learning: dict, now: datetime, 
     wsum = nsum = acc = 0.0
     ests = []
     for o in crowd_obs:
-        mae, n_graded = user_mae(learning, o.get("user_id", ""))
+        mae, _ = user_mae(learning, o.get("user_id", ""))
         r = 1 / (mae + EPS)
         conf = 0.5 + 0.1 * (o.get("confidence") or 3)
         age = (now - store.parse_iso(o["timestamp"])).total_seconds() / 3600

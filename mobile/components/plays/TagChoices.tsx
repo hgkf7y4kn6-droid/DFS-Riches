@@ -27,7 +27,7 @@ export default function TagChoices({ player, pool, onDone }: { player: PlayPlaye
               className={active ? ACTIVE[t] : 'tag-choice'}
               onPress={() => (pool.setTag(player, t), onDone?.())}
               accessibilityRole="radio"
-              accessibilityState={{ selected: active }}>
+              aria-checked={active}>
               <Text className={active ? TAG_STYLE[t].text : 'tag-choice-text'}>{TAG_STYLE[t].label}</Text>
             </Pressable>
           );

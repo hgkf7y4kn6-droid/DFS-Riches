@@ -47,7 +47,7 @@ function Chips<T extends string>({ items, value, label, onChange }: { items: T[]
             className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
             onPress={() => onChange(it)}
             accessibilityRole="button"
-            accessibilityState={{ selected: active }}>
+            aria-pressed={active}>
             <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{label(it)}</Text>
           </Pressable>
         );
@@ -70,7 +70,7 @@ function OwnershipRow({ player, columns, expanded, onToggle, pool }: RowProps) {
   const [picking, setPicking] = useState(false);
   const [trendOpen, setTrendOpen] = useState(false);
   return (
-    <Pressable className="own-row" onPress={onToggle} accessibilityRole="button" accessibilityState={{ expanded }}>
+    <Pressable className="own-row" onPress={onToggle} accessibilityRole="button" aria-expanded={expanded}>
       <View className="dfs-row-main">
         <View className="flex-1 pr-2">
           <View className="flex-row items-center">
@@ -172,7 +172,7 @@ function OwnershipPositionCard({ pos, label, players, columns, pool }: CardProps
   const main = columns[columns.length - 1];
   return (
     <View className="dfs-card" style={style}>
-      <Pressable onPress={() => setExpanded((e) => !e)} accessibilityRole="button" accessibilityState={{ expanded }}>
+      <Pressable onPress={() => setExpanded((e) => !e)} accessibilityRole="button" aria-expanded={expanded}>
         <Text className="dfs-card-kicker">{pos} ownership</Text>
         <Text className="dfs-card-title">{label}</Text>
         <Text className="dfs-card-subtitle">

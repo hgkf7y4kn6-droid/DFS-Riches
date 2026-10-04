@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native';
 
 import { ChartAxis, DivergingBar, type Side } from '@/components/breakdown/charts';
+import { ordinal } from '@/lib/utils';
 
 const EDGE_LABELS: Record<string, [string, string]> = {
   protection: ['protection', 'pass rush'],
@@ -56,12 +57,6 @@ function fmt(v: unknown, kind: Kind): string {
   if (kind === 'sec') return `${v.toFixed(2)}s`;
   return v.toFixed(2);
 }
-
-const ordinal = (n: number) => {
-  const s = ['th', 'st', 'nd', 'rd'];
-  const v = n % 100;
-  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
-};
 
 function Row({ cells, head }: { cells: string[]; head?: boolean }) {
   const compact = cells.length > 3;

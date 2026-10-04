@@ -49,7 +49,7 @@ export function indexOfPlayer(slots: BuilderLineup, player: Player): number {
   return slots.findIndex((p) => p != null && p.dk_draftable_id === player.dk_draftable_id);
 }
 
-export type AddResult = { ok: true; slots: BuilderLineup; index: number } | { ok: false; reason: string };
+type AddResult = { ok: true; slots: BuilderLineup; index: number } | { ok: false; reason: string };
 
 export function addPlayer(slots: BuilderLineup, slateType: SlateType, player: Player): AddResult {
   if (indexOfPlayer(slots, player) !== -1) return { ok: false, reason: `${player.name} is already in this lineup.` };
