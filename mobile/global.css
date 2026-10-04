@@ -429,6 +429,40 @@
   .dfs-meta {
     @apply text-xs font-sans-medium text-muted-foreground;
   }
+  /* Lineup builder: weighted multi-sort panel. */
+  .weight-panel {
+    @apply mb-2 rounded-xl border border-border bg-card px-3 py-2;
+  }
+  .weight-title {
+    @apply text-xs font-sans-bold text-foreground;
+  }
+  .weight-help {
+    @apply mt-0.5 text-[11px] font-sans-regular text-muted-foreground;
+  }
+  .weight-row {
+    @apply mt-1.5 flex-row items-center gap-1.5;
+  }
+  .weight-label {
+    @apply flex-1 text-xs font-sans-semibold text-foreground;
+  }
+  .weight-dir {
+    @apply rounded-md border border-border bg-muted px-2 py-1;
+  }
+  .weight-dir-text {
+    @apply text-[11px] font-sans-semibold text-foreground;
+  }
+  .weight-step {
+    @apply h-7 w-7 items-center justify-center rounded-full border border-border;
+  }
+  .weight-step-text {
+    @apply text-sm font-sans-bold text-foreground;
+  }
+  .weight-input {
+    @apply w-11 rounded-md border border-border px-1 py-1 text-center text-xs font-sans-semibold text-foreground;
+  }
+  .weight-pct {
+    @apply -ml-1 text-xs font-sans-semibold text-muted-foreground;
+  }
   /* Trailing L3/L6/L9 trend chips (fill set inline from lib/trend). */
   .trend-chips {
     @apply mt-1 flex-row flex-wrap items-center gap-1;
@@ -845,13 +879,13 @@
     @apply text-[11px] font-sans-regular text-muted-foreground;
   }
   .lineup-numbers {
-    @apply items-end;
+    @apply max-w-[46%] items-end;
   }
   .lineup-salary {
     @apply text-sm font-sans-semibold text-foreground;
   }
   .lineup-proj {
-    @apply text-xs font-sans-medium text-success;
+    @apply text-right text-xs font-sans-medium text-success;
   }
   .lineup-totals {
     @apply mt-3 flex-row flex-wrap justify-between gap-y-2;

@@ -59,7 +59,7 @@ export const HOME_SECTIONS: Record<HomeSection['id'], HomeSection> = {
 
 // Lineup builder position filters.
 export const POSITION_FILTERS: Record<SlateType, string[]> = {
-  classic: ['All', 'QB', 'RB', 'WR', 'TE', 'DST'],
+  classic: ['All', 'QB', 'RB', 'WR', 'TE', 'FLEX', 'DST'],
   showdown: ['All', 'CPT', 'FLEX'],
 };
 

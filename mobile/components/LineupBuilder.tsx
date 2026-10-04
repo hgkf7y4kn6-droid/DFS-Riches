@@ -12,13 +12,14 @@ import { useThemeColors } from '@/constants/theme';
 import { addPlayer, fitChecker, indexOfPlayer, removeAt, summarize, template } from '@/lib/lineups';
 import { sortByMatchup } from '@/lib/matchup-sort';
 import { useSlateOwnership } from '@/lib/slate-ownership';
-import { useMatchups } from '@/lib/matchups-context';
+import { matchupScore, useMatchups } from '@/lib/matchups-context';
 import { formatCurrency, formatEt, formatPoints } from '@/lib/utils';
+import { evenWeights, type Factor, setWeight, totalWeight, type Weights, weightedRank } from '@/lib/weighted-sort';
 import { type LineupScope, useLineups, useWeek } from '@/lib/week-context';
 
 const PAGE = 40;
 
-type SortKey = 'proj' | 'floor' | 'ceiling' | 'value' | 'salary' | 'own' | 'trend' | 'matchup';
+type SortKey = 'proj' | 'floor' | 'ceiling' | 'value' | 'salary' | 'own' | 'l3' | 'l6' | 'l9' | 'matchup';
 const SORTS: { key: SortKey; label: string }[] = [
   { key: 'proj', label: 'Projection' },
   { key: 'floor', label: 'Floor' },
@@ -26,9 +27,15 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: 'value', label: 'Value' },
   { key: 'salary', label: 'Salary' },
   { key: 'own', label: 'Ownership' },
-  { key: 'trend', label: 'Recent form' },
+  { key: 'l3', label: 'Last 3' },
+  { key: 'l6', label: 'Last 6' },
+  { key: 'l9', label: 'Last 9' },
   { key: 'matchup', label: 'Matchup' },
 ];
+const SORT_LABEL = Object.fromEntries(SORTS.map((o) => [o.key, o.label])) as Record<SortKey, string>;
+// The FLEX filter: every player who can fill the FLEX slot.
+const FLEX_POSITIONS = new Set(['RB', 'WR', 'TE']);
+const STEP = 5;
 const SORT_NOTE: Record<SortKey, string> = {
   proj: 'Projected DK points',
   floor: "Floor: the DFS model's low-end (15th-percentile) DK score -- what a cash lineup leans on",
@@ -36,7 +43,9 @@ const SORT_NOTE: Record<SortKey, string> = {
   value: 'Projected points per $1k of salary',
   salary: 'DraftKings salary',
   own: 'Expected large-field ownership from the DFS model',
-  trend: 'DK points per game over his last 3 games this season; chips show L3 / L6 / L9 against his season average once played',
+  l3: 'DK points per game over his last 3 games this season (shown once he has played 3)',
+  l6: 'DK points per game over his last 6 games this season (shown once he has played 6)',
+  l9: 'DK points per game over his last 9 games this season (shown once he has played 9)',
   matchup:
     'Softest matchups first (#32 = allows the most), starters and rotation players (committee backs, every-down WRs) ahead of backups.',
 };
@@ -63,9 +72,14 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   const [position, setPosition] = useState('All');
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
-  const [sortBy, setSortBy] = useState<SortKey>('proj');
-  // Tap the active sort again to flip it (e.g. lowest ownership first).
-  const [ascending, setAscending] = useState(false);
+  // One or more sorts; with several, each gets a weight (always totalling 100%) and players rank on the blend.
+  const [selected, setSelected] = useState<SortKey[]>(['proj']);
+  const [weights, setWeights] = useState<Weights<SortKey>>({ proj: 100 });
+  // Per sort: lower values rank higher (e.g. cheaper salary, lower ownership). Tap the only sort again to flip it.
+  const [lowFirst, setLowFirst] = useState<Partial<Record<SortKey, boolean>>>({});
+  const sortBy = selected[0];
+  const blended = selected.length > 1;
+  const ascending = Boolean(lowFirst[sortBy]);
   const { lookup } = useMatchups();
   const [limit, setLimit] = useState(PAGE);
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
@@ -74,9 +88,12 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   const slateType: SlateType = selectedSlate?.slate_type ?? 'classic';
   const pool = useMemo(() => players.data?.players ?? [], [players.data]);
   // With a field (Cash / GPP tabs) ownership comes from that contest's plays; otherwise the DFS model, on demand.
-  const modelOwn = useSlateOwnership(selectedSlate, !field && sortBy === 'own');
+  const modelOwn = useSlateOwnership(selectedSlate, !field && selected.includes('own'));
   const own = field ? { ownership: field.ownership, available: true, loading: false, error: null } : modelOwn;
-  const sorts = SORTS.filter((o) => o.key !== 'floor' || field?.floor);
+  const hasWindow = (k: 'trend_l6' | 'trend_l9') => pool.some((p) => p[k] != null);
+  const sorts = SORTS.filter(
+    (o) => (o.key !== 'floor' || field?.floor) && (o.key !== 'l6' || hasWindow('trend_l6')) && (o.key !== 'l9' || hasWindow('trend_l9')),
+  );
   const lineup = useMemo(() => lineups[activeLineup] ?? [], [lineups, activeLineup]);
   const defs = template(slateType);
   const summary = summarize(lineup, slateType);
@@ -88,38 +105,73 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
       .filter((p) => showAll || PLAYABLE_STATUSES.has(p.injury ?? 'Healthy'))
       .filter((p) => {
         if (position === 'All') return true;
-        return slateType === 'showdown' ? p.roster_slot === position : p.position === position;
+        if (slateType === 'showdown') return p.roster_slot === position;
+        return position === 'FLEX' ? FLEX_POSITIONS.has(p.position) : p.position === position;
       })
       .filter((p) => !q || p.name.toLowerCase().includes(q) || p.team.toLowerCase() === q);
-    if (sortBy === 'matchup') return sortByMatchup(list, lookup, (p) => p.proj_points);
     const ownership = own.ownership;
-    const key: Record<Exclude<SortKey, 'matchup'>, (p: Player) => number | null> = {
+    const value: Record<SortKey, (p: Player) => number | null | undefined> = {
       proj: (p) => p.proj_points,
       floor: (p) => (p.dk_draftable_id != null ? field?.floor?.get(p.dk_draftable_id) ?? null : null),
       ceiling: (p) => p.ceiling,
       value: (p) => p.value_per_1k,
       salary: (p) => p.salary,
       own: (p) => (p.dk_draftable_id != null ? ownership?.get(p.dk_draftable_id) ?? null : null),
-      trend: (p) => p.trend_l3,
+      l3: (p) => p.trend_l3,
+      l6: (p) => p.trend_l6,
+      l9: (p) => p.trend_l9,
+      // Higher = softer defense vs his position.
+      matchup: (p) => {
+        const m = lookup(p.opponent, p.position);
+        return m ? matchupScore(m) : null;
+      },
     };
-    const get = key[sortBy];
+    if (blended) {
+      const factors: Factor<Player>[] = selected.map((k) => ({ weight: weights[k] ?? 0, value: value[k], ascending: Boolean(lowFirst[k]) }));
+      return weightedRank(list, factors).map(({ item, score }) => ({ player: item, blend: score }));
+    }
+    if (sortBy === 'matchup') return sortByMatchup(list, lookup, (p) => p.proj_points).map((p) => ({ player: p, blend: null }));
+    const get = value[sortBy];
     const dir = ascending ? 1 : -1;
     // Players with no value for the sort (no ceiling, no ownership, no games) go last either way.
-    return list.sort((a, b) => {
-      const va = get(a);
-      const vb = get(b);
-      if (va == null || vb == null) return va == null && vb == null ? b.proj_points - a.proj_points : va == null ? 1 : -1;
-      return dir * (va - vb) || b.proj_points - a.proj_points;
-    });
-  }, [pool, position, query, showAll, slateType, sortBy, ascending, lookup, own.ownership, field?.floor]);
+    return list
+      .sort((a, b) => {
+        const va = get(a);
+        const vb = get(b);
+        if (va == null || vb == null) return va == null && vb == null ? b.proj_points - a.proj_points : va == null ? 1 : -1;
+        return dir * (va - vb) || b.proj_points - a.proj_points;
+      })
+      .map((p) => ({ player: p, blend: null as number | null }));
+  }, [pool, position, query, showAll, slateType, selected, weights, lowFirst, blended, sortBy, ascending, lookup, own.ownership, field?.floor]);
+
+  /** Tap a sort: add it (weights reset to an even split), or remove it; tapping the only sort flips its direction. */
+  const pressSort = (key: SortKey) => {
+    setLimit(PAGE);
+    if (!selected.includes(key)) {
+      const next = [...selected, key];
+      setSelected(next);
+      setWeights(evenWeights(next));
+      return;
+    }
+    if (selected.length === 1) {
+      if (key !== 'matchup') setLowFirst((d) => ({ ...d, [key]: !d[key] }));
+      return;
+    }
+    const next = selected.filter((k) => k !== key);
+    setSelected(next);
+    setWeights(evenWeights(next));
+  };
+  const changeWeight = (key: SortKey, v: number) => setWeights((w) => setWeight(w, selected, key, v));
 
   // What each pool row shows beyond projection: the field's ownership (always, on the Cash / GPP tabs), floor for cash.
   const rowPlayer = (p: Player) => {
     const id = p.dk_draftable_id;
     const extra: { ownership?: number | null; floor?: number | null; form?: RowPlayer['form'] } = {};
-    if (field || sortBy === 'own') extra.ownership = id != null ? own.ownership?.get(id) ?? null : null;
+    if (field || selected.includes('own')) extra.ownership = id != null ? own.ownership?.get(id) ?? null : null;
     if (field?.floor) extra.floor = id != null ? field.floor.get(id) ?? null : null;
-    if (sortBy === 'trend') extra.form = { l3: p.trend_l3, l6: p.trend_l6, l9: p.trend_l9, season: p.trend_season ?? null };
+    if (selected.some((k) => k === 'l3' || k === 'l6' || k === 'l9')) {
+      extra.form = { l3: p.trend_l3, l6: p.trend_l6, l9: p.trend_l9, season: p.trend_season ?? null };
+    }
     return { ...p, ...extra };
   };
 
@@ -293,35 +345,87 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
         <Text className="matchup-toggle-label mr-1 self-center">Sort</Text>
         {sorts.map((o) => {
-          const active = o.key === sortBy;
+          const active = selected.includes(o.key);
+          const showDir = active && !blended && o.key !== 'matchup';
           return (
             <Pressable
               key={o.key}
               className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
-              onPress={() => {
-                if (o.key === sortBy && o.key !== 'matchup') setAscending((v) => !v);
-                else {
-                  setSortBy(o.key);
-                  setAscending(false);
-                }
-                setLimit(PAGE);
-              }}
+              onPress={() => pressSort(o.key)}
               accessibilityRole="button"
-              accessibilityState={{ selected: active }}>
+              accessibilityState={{ selected: active }}
+              accessibilityHint={active ? (blended ? 'Removes this sort from the blend' : 'Flips the order') : 'Adds this sort'}>
               <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>
                 {o.label}
-                {active && o.key !== 'matchup' ? (ascending ? ' ▲' : ' ▼') : ''}
+                {showDir ? (ascending ? ' ▲' : ' ▼') : ''}
+                {active && blended ? ` ${weights[o.key] ?? 0}%` : ''}
               </Text>
             </Pressable>
           );
         })}
       </ScrollView>
+      {blended ? (
+        <View className="weight-panel">
+          <View className="flex-row items-center justify-between">
+            <Text className="weight-title">Sort weights · total {totalWeight(weights, selected)}%</Text>
+            <Pressable onPress={() => setWeights(evenWeights(selected))} hitSlop={8} accessibilityRole="button">
+              <Text className="link-text text-xs">Even split</Text>
+            </Pressable>
+          </View>
+          <Text className="weight-help">
+            Players rank on a blend of their percentile in this pool for each sort. Change one weight and the others rescale so the total stays 100%. Tap a
+            sort chip again to drop it.
+          </Text>
+          {selected.map((k) => (
+            <View key={k} className="weight-row">
+              <Text className="weight-label" numberOfLines={1}>
+                {SORT_LABEL[k]}
+              </Text>
+              {k !== 'matchup' ? (
+                <Pressable
+                  className="weight-dir"
+                  onPress={() => setLowFirst((d) => ({ ...d, [k]: !d[k] }))}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${SORT_LABEL[k]}: ${lowFirst[k] ? 'lower is better' : 'higher is better'}; tap to flip`}>
+                  <Text className="weight-dir-text">{lowFirst[k] ? 'Low ▲' : 'High ▼'}</Text>
+                </Pressable>
+              ) : (
+                <Text className="weight-dir-text px-2">Softest</Text>
+              )}
+              <Pressable className="weight-step" onPress={() => changeWeight(k, (weights[k] ?? 0) - STEP)} accessibilityRole="button" accessibilityLabel={`Lower ${SORT_LABEL[k]} weight`}>
+                <Text className="weight-step-text">−</Text>
+              </Pressable>
+              <TextInput
+                className="weight-input"
+                keyboardType="number-pad"
+                defaultValue={String(weights[k] ?? 0)}
+                key={`${k}-${weights[k]}`}
+                onEndEditing={(e) => changeWeight(k, Number(e.nativeEvent.text))}
+                onSubmitEditing={(e) => changeWeight(k, Number(e.nativeEvent.text))}
+                maxLength={3}
+                selectTextOnFocus
+                accessibilityLabel={`${SORT_LABEL[k]} weight percent`}
+              />
+              <Text className="weight-pct">%</Text>
+              <Pressable className="weight-step" onPress={() => changeWeight(k, (weights[k] ?? 0) + STEP)} accessibilityRole="button" accessibilityLabel={`Raise ${SORT_LABEL[k]} weight`}>
+                <Text className="weight-step-text">+</Text>
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      ) : null}
       <Text className="dfs-reason mb-2">
-        {sortBy === 'own' && field ? `Expected ${field.label.toLowerCase()} ownership` : SORT_NOTE[sortBy]}
-        {sortBy !== 'matchup' ? (ascending ? ' · lowest first (tap again to flip)' : ' · highest first (tap again to flip)') : ''}
-        {sortBy === 'own' && !own.available ? ' · not available for Showdown slates (no DFS model)' : ''}
-        {sortBy === 'own' && own.loading ? ' · loading the DFS model…' : ''}
-        {sortBy === 'own' && own.error ? ` · couldn't load ownership: ${own.error}` : ''}
+        {blended
+          ? 'Blend score (0-100) shown on each player: 100 = best in this pool on every selected sort.'
+          : sortBy === 'own' && field
+            ? `Expected ${field.label.toLowerCase()} ownership`
+            : SORT_NOTE[sortBy]}
+        {!blended && sortBy !== 'matchup' ? (ascending ? ' · lowest first (tap again to flip)' : ' · highest first (tap again to flip)') : ''}
+        {!blended ? ' · tap more sorts to blend them' : ''}
+        {selected.includes('own') && !own.available ? ' · ownership not available for Showdown slates (no DFS model)' : ''}
+        {selected.includes('own') && own.loading ? ' · loading the DFS model…' : ''}
+        {selected.includes('own') && own.error ? ` · couldn't load ownership: ${own.error}` : ''}
+        {position === 'FLEX' ? ' · FLEX: RBs, WRs and TEs -- adding one fills an open RB / WR / TE slot first, then FLEX' : ''}
       </Text>
       <TextInput
         className="input mb-2"
@@ -338,14 +442,14 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
 
       <StatusView loading={players.loading} error={players.error} empty={!players.loading && filtered.length === 0 ? 'No players match' : null} />
       <View className="player-pool">
-        {filtered.slice(0, limit).map((p) => {
+        {filtered.slice(0, limit).map(({ player: p, blend }) => {
           const fit = fits(p);
           const inLineup = indexOfPlayer(lineup, p) !== -1;
           return (
             <View key={p.dk_draftable_id ?? `${p.name}-${p.roster_slot}`} className={fit.ok ? '' : 'player-unfit'}>
               <LineupRow
                 slot={p.roster_slot || p.position}
-                player={rowPlayer(p)}
+                player={{ ...rowPlayer(p), blend }}
                 note={fit.ok ? null : fit.reason}
                 right={
                   <Pressable

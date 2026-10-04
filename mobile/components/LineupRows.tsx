@@ -26,6 +26,8 @@ export interface RowPlayer {
   trend?: number | null;
   /** Builder "Recent form" sort: DK points per game over the last 3 / 6 / 9 games vs the season average. */
   form?: { l3: number | null; l6: number | null; l9: number | null; season: number | null } | null;
+  /** Builder blended sort: the player's weighted score (0-100) in the current pool. */
+  blend?: number | null;
   /** Cash builder: the model's floor. */
   floor?: number | null;
   team_share?: TeamShare | null;
@@ -33,6 +35,7 @@ export interface RowPlayer {
 
 function pointsLine(p: RowPlayer): string {
   const parts: string[] = [];
+  if (p.blend != null) parts.push(`Blend ${Math.round(p.blend)}`);
   if (p.proj_points != null) parts.push(`${formatPoints(p.proj_points)} proj`);
   if (p.floor != null) parts.push(`${formatPoints(p.floor)} floor`);
   if (p.ceiling != null && p.actual == null) parts.push(`${formatPoints(p.ceiling)} ceil`);
