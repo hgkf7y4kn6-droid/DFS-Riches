@@ -163,7 +163,7 @@ export default function Home() {
                 <>
                   <SlateList slates={data.slates} selectedId={selectedSlate?.slate_id ?? null} onSelect={selectSlate} />
                   <View className="mt-3">
-                    <OptimalLineups />
+                    <OptimalLineups collapsible />
                   </View>
                   <Pressable className="btn-outline mt-2" onPress={() => router.push('/lineups')} accessibilityRole="button">
                     <Text className="btn-outline-text">Build lineups for this slate ›</Text>
