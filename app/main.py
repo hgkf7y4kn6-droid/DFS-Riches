@@ -77,6 +77,25 @@ app = FastAPI(title="DFSRiches", description="DraftKings DFS explorer")
 async def _restore_ownership() -> None:
     """Uploaded actual ownership and the models' learning survive redeploys via Postgres (app.ownership_persist)."""
     asyncio.get_running_loop().run_in_executor(None, ownership_persist.restore)
+
+
+# Sign-in (Clerk production) only works on the site's own domain, so pages opened on
+# Render's address (e.g. an old bookmark) move there. The API stays reachable on both
+# (the native app calls it), and so does the health check.
+CANONICAL_HOST = os.environ.get("CANONICAL_HOST", "dfsriches.richesdigitalventures.com")
+
+
+@app.middleware("http")
+async def _canonical_host(request: Request, call_next):
+    host = (request.headers.get("host") or "").split(":")[0].lower()
+    path = request.url.path
+    if (CANONICAL_HOST and host.endswith(".onrender.com") and request.method in ("GET", "HEAD")
+            and not path.startswith(("/api/", "/healthz"))):
+        query = f"?{request.url.query}" if request.url.query else ""
+        return RedirectResponse(f"https://{CANONICAL_HOST}{path}{query}", status_code=301)
+    return await call_next(request)
+
+
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 # The mobile app (mobile/) reads the public JSON API; its web build runs on
 # another origin, so allow cross-origin GETs. Writes stay same-origin.

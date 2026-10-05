@@ -127,3 +127,13 @@ def test_slate_ownership_rejects_unknown_slates(client, monkeypatch):
         return None, []
     monkeypatch.setattr(main.slates, "list_slates", fake_list)
     assert client.get("/api/slates/nope/ownership?season=2026&week=3").status_code == 404
+
+
+def test_pages_on_the_render_address_move_to_the_site_domain(client):
+    r = client.get("/sign-in?x=1", headers={"host": "dfs-riches.onrender.com"}, follow_redirects=False)
+    assert r.status_code == 301
+    assert r.headers["location"] == "https://dfsriches.richesdigitalventures.com/sign-in?x=1"
+    # The API and health check stay on any host; the site's own domain isn't redirected.
+    assert client.get("/healthz", headers={"host": "dfs-riches.onrender.com"}).status_code == 200
+    assert client.get("/api/nope", headers={"host": "dfs-riches.onrender.com"}, follow_redirects=False).status_code != 301
+    assert client.get("/healthz", headers={"host": "dfsriches.richesdigitalventures.com"}, follow_redirects=False).status_code == 200
