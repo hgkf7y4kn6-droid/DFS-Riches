@@ -221,7 +221,7 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
             {buildSlateId && selectedSlate?.slate_id === buildSlateId ? (
               <>
                 <ExpandableCard title="Projected optimal" subtitle="Highest-projected lineups · copy one into the builder" defaultExpanded={false}>
-                  <OptimalLineups scope={contest} />
+                  <OptimalLineups scope={contest} collapsible />
                 </ExpandableCard>
                 <LineupBuilder scope={contest} field={onPlaysSlate ? field : undefined} />
               </>
