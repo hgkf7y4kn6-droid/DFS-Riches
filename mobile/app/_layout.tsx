@@ -16,6 +16,7 @@ import { FONTS } from '@/constants/fonts';
 import { darkColors, lightColors } from '@/constants/theme';
 import { AccountSyncProvider } from '@/lib/account-sync';
 import { AnalyticsProvider } from '@/lib/analytics';
+import '@/lib/clerk-diagnostics';
 import { DfsModelProvider } from '@/lib/dfs-model-context';
 import { LeverageProvider } from '@/lib/leverage-context';
 import { MatchupsProvider } from '@/lib/matchups-context';

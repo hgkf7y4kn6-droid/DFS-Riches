@@ -1,9 +1,12 @@
+import { useClerk } from '@clerk/expo';
 import { router } from 'expo-router';
 import { type ReactNode, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import SafeAreaView from '@/components/SafeAreaView';
 import { useThemeColors } from '@/constants/theme';
+import { track } from '@/lib/analytics';
+import { clerkDiagnostics } from '@/lib/clerk-diagnostics';
 
 /** The sign-in / sign-up page frame: brand mark, title, subtitle, form, footer link. */
 export function AuthShell({ title, subtitle, children, footer }: { title: string; subtitle: string; children: ReactNode; footer?: ReactNode }) {
@@ -91,13 +94,19 @@ const SLOW_MS = 12000;
 
 /** A note when the sign-in service hasn't loaded after a while (offline, or blocked by a content blocker). */
 export function useSlowLoadNotice(loaded: boolean): string | null {
-  const [slow, setSlow] = useState(false);
+  const clerk = useClerk() as { status?: string };
+  const [detail, setDetail] = useState<string | null>(null);
   useEffect(() => {
     if (loaded) return;
-    const t = setTimeout(() => setSlow(true), SLOW_MS);
+    const t = setTimeout(() => {
+      // Record why (script blocked, script error, Clerk error) so it can be fixed.
+      const d = clerkDiagnostics(clerk.status);
+      track('sign_in_service_slow', d);
+      setDetail(`status ${d.status} · ${d.clerk_global ?? ''} · scripts: ${d.scripts ?? ''} · errors: ${d.errors ?? ''}`);
+    }, SLOW_MS);
     return () => clearTimeout(t);
-  }, [loaded]);
-  return slow && !loaded
-    ? "Still connecting to the sign-in service. Check your connection, or turn off any content blocker for this site, then reload."
+  }, [loaded, clerk]);
+  return detail && !loaded
+    ? `Still connecting to the sign-in service. Check your connection, or turn off any content blocker for this site, then reload. (Details: ${detail})`
     : null;
 }

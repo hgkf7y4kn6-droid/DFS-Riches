@@ -17,6 +17,11 @@ function send(fn: (c: Client) => unknown) {
   client.then((c) => c && fn(c));
 }
 
+/** A one-off analytics event (no-op without a PostHog key). */
+export function track(event: string, properties?: Record<string, string | number | boolean>) {
+  send((c) => (c as Client & { capture(e: string, p?: object): unknown }).capture(event, properties));
+}
+
 /** Screen views on every route change, and the signed-in Clerk user as the
  *  PostHog person (reset on sign-out so devices don't share a person). */
 function Tracking() {
