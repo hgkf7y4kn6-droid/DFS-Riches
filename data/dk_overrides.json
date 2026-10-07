@@ -129,6 +129,10 @@
         "THU_NIGHT": {
           "draft_group_id": 154474,
           "label": "Showdown - Thu Night (TB @ DAL)"
+        },
+        "SUN_MORNING": {
+          "draft_group_id": 154475,
+          "label": "Showdown - Sun Morning (PHI @ JAX)"
         }
       }
     }
