@@ -9,7 +9,8 @@ Strength of play is scored within each position from z-scored components:
     floor safety               15th-percentile outcome                x 0.25
     salary                     projected points per $1k               x 0.20
     game environment           team implied total and the game's
-                               environment score                      x 0.20
+                               environment score (DST: the reverse,
+                               dst_environment)                       x 0.20
     minus a Questionable penalty (cash can't absorb a late scratch)
 
   GPP   (same counts)
@@ -66,6 +67,48 @@ def _z(vals: list[float]) -> list[float]:
     return list((a - a.mean()) / sd) if sd > 1e-9 else [0.0] * len(vals)
 
 
+# A defense wants the opposite of a skill player's game: a slow, low-scoring
+# game against an offense that takes sacks and gives the ball away.
+DST_ENV_WEIGHTS = {"opp_implied": 0.40, "total": 0.15, "pace": 0.10, "opp_sacks": 0.15, "opp_giveaways": 0.20}
+
+
+def _z_known(vals: list[float | None]) -> list[float]:
+    """z-scores over the known values; unknowns count as average (0)."""
+    known = [v for v in vals if v is not None]
+    if len(known) < 2:
+        return [0.0] * len(vals)
+    zs = iter(_z(known))
+    return [next(zs) if v is not None else 0.0 for v in vals]
+
+
+def dst_environment(games: list[dict], offense: dict[str, dict] | None = None) -> dict[str, float]:
+    """Game-environment score for each team's DST, z-scored across the slate's
+    DSTs (higher = better for the defense):
+
+      opponent implied total, lower better   x 0.40
+      game total, lower better               x 0.15
+      pace, slower better                    x 0.10   (both teams' tempo ranks)
+      opponent sack rate, higher better      x 0.15   (sacks per dropback)
+      opponent giveaways/game, higher better x 0.20
+
+    `offense`: team -> {"sack_rate", "giveaways"} for the offense it faces."""
+    offense = offense or {}
+    teams, feats = [], {k: [] for k in DST_ENV_WEIGHTS}
+    for g in games:
+        tempo = [v for v in (g.get("tempo_ranks") or {}).values() if v is not None]
+        slowness = sum(tempo) / len(tempo) if tempo else None           # rank 1 = fastest
+        for team, opp, opp_implied in ((g["away"], g["home"], g.get("home_implied")), (g["home"], g["away"], g.get("away_implied"))):
+            teams.append(team)
+            o = offense.get(opp) or {}
+            feats["opp_implied"].append(-opp_implied if opp_implied is not None else None)
+            feats["total"].append(-g["total"] if g.get("total") is not None else None)
+            feats["pace"].append(slowness)
+            feats["opp_sacks"].append(o.get("sack_rate"))
+            feats["opp_giveaways"].append(o.get("giveaways"))
+    zs = {k: _z_known(v) for k, v in feats.items()}
+    return {t: round(sum(w * zs[k][i] for k, w in DST_ENV_WEIGHTS.items()), 3) for i, t in enumerate(teams)}
+
+
 def _round(x, n=2):
     return None if x is None else round(float(x), n)
 
@@ -87,13 +130,14 @@ def actual_ownership(observations: list[dict]) -> dict[str, dict]:
 
 
 def build(table: list[dict], games: list[dict], contest: str, season: int, week: int, slate_id: str,
-          efficiency: dict | None = None, actuals: dict | None = None) -> dict:
+          efficiency: dict | None = None, actuals: dict | None = None, offense: dict | None = None) -> dict:
     """contest "cash" -> cash rankings + cash ownership; "gpp" -> GPP rankings + small/large-field ownership.
     `efficiency` (app.leverage.efficiency_context) drives the leverage score; without it the
     multiplier is 1 and leverage rests on the plain odds. `actuals` (actual_ownership()) puts
     uploaded contest ownership next to the projections, and leverage uses it where it exists."""
     rows = fo.engineer(table, games)
     env = fo.env_by_team(games)
+    dst_env = dst_environment(games, offense)
     fo.save_features(season, week, slate_id, rows)
     own_contests = ["cash"] if contest == "cash" else ["small_gpp", "large_gpp"]
     owns = {c: fo.contest_ownership(rows, c) for c in own_contests}
@@ -103,7 +147,7 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
         sd_low, sd_high = fo.player_sd(r["final"], r["floor"], r["ceiling"])
         r["p_cash"] = fo.p_at_least(CASH_TARGET_X * r["salary_k"], r["final"], sd_low, sd_high)
         r["p_ceiling"] = fo.p_at_least(GPP_CEILING_SCORE[r["position"]], r["final"], sd_low, sd_high)
-        r["env"] = env.get(r["team"], 0.0)
+        r["env"] = dst_env.get(r["team"], 0.0) if r["position"] == "DST" else env.get(r["team"], 0.0)
         r["ceiling_value"] = r["ceiling"] / r["salary_k"]
         for c in own_contests:
             r[f"own_{c}"] = float(owns[c]["own"][i])
@@ -134,7 +178,10 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
         grp = [r for r in rows if r["position"] == pos]
         if not grp:
             continue
-        env_z = [0.6 * a + 0.4 * b for a, b in zip(_z([r["implied"] for r in grp]), _z([r["env"] for r in grp]))]
+        if pos == "DST":
+            env_z = _z([r["env"] for r in grp])        # already the defense's view (dst_environment)
+        else:
+            env_z = [0.6 * a + 0.4 * b for a, b in zip(_z([r["implied"] for r in grp]), _z([r["env"] for r in grp]))]
         if contest == "cash":
             parts = {
                 "p_hit": _z([r["p_cash"] for r in grp]),

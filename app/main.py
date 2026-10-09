@@ -38,6 +38,7 @@ from app import accounts, guard, matchups, ownership_learning, ownership_report,
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
+from app import team_units
 from app.cache import memoize_async
 from app.config import BASE_DIR, DEFAULT_SEASON, DEFAULT_WEEK
 from app.models import GameDetail, SlatePlayers, WeekBreakdown, WeekData, WeekSchedule
@@ -282,14 +283,24 @@ async def _plays(season: int, week: int, slate_id: str | None, contest: str, ver
     if not model.get("available"):
         return json.dumps({"available": False, "reason": model.get("reason") or "The DFS model isn't available for this slate."}).encode()
     try:
-        efficiency = leverage_module.efficiency_context(await trenches_module.week_profiles(season, week),
-                                                        await matchups.defense_vs_position(season, week))
+        profiles = await trenches_module.week_profiles(season, week)
+        efficiency = leverage_module.efficiency_context(profiles, await matchups.defense_vs_position(season, week))
     except Exception:
-        efficiency = None        # leverage falls back to the plain odds
+        profiles, efficiency = None, None        # leverage falls back to the plain odds
+    # What a DST faces: each offense's sack rate and giveaways per game (the DST game environment).
+    offense: dict[str, dict] = {}
+    try:
+        units = await team_units.unit_table(season, week)
+        for t, u in units["teams"].items():
+            offense.setdefault(t, {})["giveaways"] = ((u.get("offense") or {}).get("giveaways") or {}).get("value")
+    except Exception:
+        pass
+    for t, p in ((profiles or {}).get("teams") or {}).items():
+        offense.setdefault(t, {})["sack_rate"] = (p.get("off") or {}).get("sack_rate")
     store = ownership_store.load(season, week, model["slate"]["slate_id"])
     actuals = play_rankings.actual_ownership(store.get("observations", []))
     result = await asyncio.to_thread(play_rankings.build, model["table"], model["strategy"]["games"], contest,
-                                     season, week, model["slate"]["slate_id"], efficiency, actuals)
+                                     season, week, model["slate"]["slate_id"], efficiency, actuals, offense)
     result["available"] = True
     result["slate"] = model["slate"]
     result["slates"] = model["slates"]

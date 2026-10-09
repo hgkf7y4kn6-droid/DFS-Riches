@@ -157,7 +157,9 @@ def engineer(table: list[dict], games: list[dict]) -> list[dict]:
             **p,
             "salary_k": p["salary"] / 1000,
             "value": p["final"] / (p["salary"] / 1000),
-            "implied": implied.get(p["team"], 21.0),
+            # A DST's scoring setup is the reverse: points its opponent isn't expected to score
+            # (42 minus the opponent's implied total, so it stays on the same scale).
+            "implied": (42.0 - implied.get(p["opponent"], 21.0)) if p["position"] == "DST" else implied.get(p["team"], 21.0),
             "backup": 1.0 if p["id"] in backups else 0.0,
             "floor": p.get("floor") if p.get("floor") is not None else 0.6 * p["final"],
             "ceiling": p.get("ceiling") if p.get("ceiling") is not None else 1.6 * p["final"],

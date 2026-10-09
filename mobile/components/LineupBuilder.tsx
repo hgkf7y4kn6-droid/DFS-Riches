@@ -49,7 +49,7 @@ const SORT_NOTE: Record<SortKey, string> = {
   salary: 'DraftKings salary',
   own: 'Expected large-field ownership from the DFS model',
   lev: "Leverage: fair minus projected ownership (points) -- fair ownership spreads the position's ownership by efficiency-adjusted odds (ceiling for GPP, 2.5x salary for cash)",
-  env: "Game environment: the model's score for his team's scoring setup -- implied total, game total, pace and weather",
+  env: "Game environment: the model's score for his team's scoring setup -- implied total, game total, pace and weather. DSTs the other way: a slow, low-scoring game against an offense that takes sacks and turns it over",
   touch: "Touch %: his share of the team's RB / WR / TE touches (carries + receptions) over the last 3 games",
   l3: 'DK points per game over his last 3 games this season (shown once he has played 3)',
   l6: 'DK points per game over his last 6 games this season (shown once he has played 6)',
@@ -189,7 +189,15 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
             ? field.leverage.get(p.dk_draftable_id) ?? null
             : null
           : leverageOf({ id: p.dk_draftable_id, name: p.name, team: p.team })?.value ?? null,
-      env: (p) => (field?.env ? (p.dk_draftable_id != null ? field.env.get(p.dk_draftable_id) ?? null : null) : implied.get(p.team) ?? null),
+      env: (p) => {
+        if (field?.env) return p.dk_draftable_id != null ? field.env.get(p.dk_draftable_id) ?? null : null;
+        // A defense wants a low-scoring opponent: rank DSTs by the opponent's implied total, lowest first.
+        if (p.position === 'DST') {
+          const opp = implied.get(p.opponent);
+          return opp != null ? -opp : null;
+        }
+        return implied.get(p.team) ?? null;
+      },
       touch: (p) => p.team_share?.touch_pct ?? null,
       l3: (p) => p.trend_l3,
       l6: (p) => p.trend_l6,
@@ -249,7 +257,9 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
     if (selected.includes('env')) {
       extra.env = field?.env
         ? { value: id != null ? field.env.get(id) ?? null : null, kind: 'score' }
-        : { value: implied.get(p.team) ?? null, kind: 'implied' };
+        : p.position === 'DST'
+          ? { value: implied.get(p.opponent) ?? null, kind: 'opp_implied' }
+          : { value: implied.get(p.team) ?? null, kind: 'implied' };
     }
     if (selected.some((k) => k === 'l3' || k === 'l6' || k === 'l9')) {
       extra.form = { l3: p.trend_l3, l6: p.trend_l6, l9: p.trend_l9, season: p.trend_season ?? null };

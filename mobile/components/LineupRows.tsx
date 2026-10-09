@@ -31,8 +31,8 @@ export interface RowPlayer {
   /** This contest's leverage (Cash / GPP builder); otherwise the badge looks up large-field GPP leverage. */
   leverage?: number | null;
   leverage_detail?: LeverageDetail | null;
-  /** Builder Game environment sort: the model's score, or the team's implied total. */
-  env?: { value: number | null; kind: 'score' | 'implied' } | null;
+  /** Builder Game environment sort: the model's score, or the team's implied total (a DST: its opponent's). */
+  env?: { value: number | null; kind: 'score' | 'implied' | 'opp_implied' } | null;
   /** Builder blended sort: the player's weighted score (0-100) in the current pool. */
   blend?: number | null;
   /** Cash builder: the model's floor. */
@@ -50,7 +50,15 @@ function pointsLine(p: RowPlayer): string {
   if (p.ownership !== undefined) parts.push(p.ownership != null ? `${p.ownership.toFixed(1)}% own` : 'own n/a');
   if (p.env) {
     const v = p.env.value;
-    parts.push(v == null ? 'env n/a' : p.env.kind === 'implied' ? `${v.toFixed(1)} implied` : `env ${v >= 0 ? '+' : ''}${v.toFixed(1)}`);
+    parts.push(
+      v == null
+        ? 'env n/a'
+        : p.env.kind === 'implied'
+          ? `${v.toFixed(1)} implied`
+          : p.env.kind === 'opp_implied'
+            ? `opp ${v.toFixed(1)} implied`
+            : `env ${v >= 0 ? '+' : ''}${v.toFixed(1)}`,
+    );
   }
   if (p.trend !== undefined) parts.push(p.trend != null ? `${formatPoints(p.trend)} L3` : 'no games');
   return parts.join(' · ');
