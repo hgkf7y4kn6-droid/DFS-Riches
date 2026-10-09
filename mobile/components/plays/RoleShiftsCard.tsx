@@ -52,7 +52,7 @@ function ShiftRow({ player, pool }: { player: PlayPlayer; pool: Pool }) {
             <Text className="dfs-name flex-shrink" numberOfLines={1}>
               {p.name}
             </Text>
-            <LeverageBadge value={p.leverage ?? null} detail={p.leverage_detail} />
+            <LeverageBadge value={p.leverage ?? null} detail={p.leverage_detail} name={p.name} />
           </View>
           <Text className="dfs-meta">
             {p.position} · {p.team} vs {p.opponent} · {formatCurrency(p.salary)} · {p.final.toFixed(1)} proj
@@ -101,7 +101,7 @@ export default function RoleShiftsCard({ players, pool }: { players: PlayPlayer[
             {players.slice(0, 3).map((p) => (
               <Text key={p.id} className="dfs-preview" numberOfLines={1}>
                 <Text className={arrowClass(p.usage_trend!)}>{arrow(p.usage_trend!)}</Text> {p.name}
-                <LeverageBadge inline value={p.leverage ?? null} />{' '}
+                <LeverageBadge inline value={p.leverage ?? null} detail={p.leverage_detail} name={p.name} />{' '}
                 <Text className="dfs-meta">
                   {p.team} {p.position} ·{' '}
                   {(p.usage_trend!.series ?? [])

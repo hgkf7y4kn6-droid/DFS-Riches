@@ -68,6 +68,8 @@ export interface BuildField {
   env?: Map<number, number>;
   /** Fair minus projected ownership in points (app/leverage.py) for this field. */
   leverage?: Map<number, number>;
+  /** How each leverage number was built (shown when it's tapped). */
+  leverageDetail?: Map<number, LeverageDetail>;
 }
 
 /**
@@ -239,10 +241,11 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   // What each pool row shows beyond projection: the field's ownership (always, on the Cash / GPP tabs), floor for cash.
   const rowPlayer = (p: Player) => {
     const id = p.dk_draftable_id;
-    const extra: Pick<RowPlayer, 'ownership' | 'floor' | 'form' | 'leverage' | 'env'> = {};
+    const extra: Pick<RowPlayer, 'ownership' | 'floor' | 'form' | 'leverage' | 'leverage_detail' | 'env'> = {};
     if (field || selected.includes('own')) extra.ownership = id != null ? own.ownership?.get(id) ?? null : null;
     if (field?.floor) extra.floor = id != null ? field.floor.get(id) ?? null : null;
     if (field?.leverage) extra.leverage = id != null ? field.leverage.get(id) ?? null : null;
+    if (field?.leverageDetail) extra.leverage_detail = id != null ? field.leverageDetail.get(id) ?? null : null;
     if (selected.includes('env')) {
       extra.env = field?.env
         ? { value: id != null ? field.env.get(id) ?? null : null, kind: 'score' }

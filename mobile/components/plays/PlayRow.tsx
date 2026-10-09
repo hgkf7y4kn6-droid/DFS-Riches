@@ -43,7 +43,7 @@ export default function PlayRow({ player, contest, pool }: { player: PlayPlayer;
               {p.name}
               {p.injury && p.injury !== 'Healthy' ? <Text className="injury-tag"> {p.injury}</Text> : null}
             </Text>
-            <LeverageBadge value={p.leverage ?? null} detail={p.leverage_detail} />
+            <LeverageBadge value={p.leverage ?? null} detail={p.leverage_detail} name={p.name} />
             <UsageTrendArrow trend={p.usage_trend} open={trendOpen} onToggle={() => setTrendOpen((o) => !o)} />
           </View>
           <Text className="dfs-meta">

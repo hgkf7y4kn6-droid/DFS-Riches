@@ -504,6 +504,13 @@
   .week-sheet-title {
     @apply mb-2 text-base font-sans-bold text-foreground;
   }
+  /* Leverage explainer (tap a leverage number). */
+  .lev-explain-head {
+    @apply mb-1 mt-3 text-xs font-sans-bold uppercase text-accent-ink;
+  }
+  .lev-explain-text {
+    @apply mb-1 text-sm font-sans-medium text-foreground;
+  }
   /* Lineup builder: weighted multi-sort panel. */
   .weight-panel {
     @apply mb-2 rounded-xl border border-border bg-card px-3 py-2;

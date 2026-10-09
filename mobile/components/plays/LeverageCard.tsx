@@ -35,7 +35,7 @@ export default function LeverageCard({ byPosition, pool }: { byPosition: Partial
               return (
                 <Text key={p} className="dfs-preview" numberOfLines={1}>
                   {p} {best.name}
-                  <LeverageBadge inline value={best.leverage ?? null} />{' '}
+                  <LeverageBadge inline value={best.leverage ?? null} detail={best.leverage_detail} name={best.name} />{' '}
                   <Text className="dfs-meta">{best.ownership.large_gpp?.toFixed(1)}% own</Text>
                 </Text>
               );

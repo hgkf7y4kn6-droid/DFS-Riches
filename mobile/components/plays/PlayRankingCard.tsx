@@ -41,7 +41,7 @@ export default function PlayRankingCard({ kicker, title, subtitle, players, cont
             {players.slice(0, 3).map((p) => (
               <Text key={p.id} className="dfs-preview" numberOfLines={1}>
                 {p.rank}. {p.name}
-                <LeverageBadge inline value={p.leverage ?? null} /> <Text className="dfs-meta">{preview(p)}</Text>
+                <LeverageBadge inline value={p.leverage ?? null} detail={p.leverage_detail} name={p.name} /> <Text className="dfs-meta">{preview(p)}</Text>
               </Text>
             ))}
           </View>

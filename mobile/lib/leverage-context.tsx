@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
+import LeverageExplainer, { type LeverageExplanation } from '@/components/LeverageExplainer';
 import { usePlays } from '@/lib/plays';
 
 interface LeverageInfo {
@@ -12,6 +13,8 @@ interface LeverageContextValue {
   lookup: (p: { id?: number | null; name?: string | null; team?: string | null }) => LeverageInfo | null;
   /** Ask for the data (the first badge on screen does); loads the GPP plays once per slate. */
   request: () => void;
+  /** Open the explainer for a leverage number (tapping a badge). */
+  explain: (e: LeverageExplanation) => void;
 }
 
 const LeverageContext = createContext<LeverageContextValue | null>(null);
@@ -41,7 +44,15 @@ export function LeverageProvider({ children }: { children: ReactNode }) {
     [maps],
   );
   const request = useCallback(() => setWanted(true), []);
-  return <LeverageContext.Provider value={{ lookup, request }}>{children}</LeverageContext.Provider>;
+  // One explainer for every badge on screen.
+  const [shown, setShown] = useState<LeverageExplanation | null>(null);
+  const explain = useCallback((e: LeverageExplanation) => setShown(e), []);
+  return (
+    <LeverageContext.Provider value={{ lookup, request, explain }}>
+      {children}
+      <LeverageExplainer shown={shown} onClose={() => setShown(null)} />
+    </LeverageContext.Provider>
+  );
 }
 
 export function useLeverage(): LeverageContextValue {

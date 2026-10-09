@@ -101,6 +101,7 @@ function buildField(players: PlayPlayer[], field: OwnershipContest): BuildField 
   const floor = new Map<number, number>();
   const env = new Map<number, number>();
   const leverage = new Map<number, number>();
+  const leverageDetail = new Map<number, LeverageDetail>();
   for (const p of players) {
     const own = p.ownership[field];
     if (own != null) ownership.set(p.id, own);
@@ -108,8 +109,9 @@ function buildField(players: PlayPlayer[], field: OwnershipContest): BuildField 
     if (p.parts.env != null) env.set(p.id, p.parts.env);
     // Fair minus projected ownership for this tab's contest (app/leverage.py; cash: odds of 2.5x salary).
     if (p.leverage != null) leverage.set(p.id, p.leverage);
+    if (p.leverage_detail) leverageDetail.set(p.id, p.leverage_detail);
   }
-  return { label: FIELD_LABEL[field], ownership, floor: field === 'cash' ? floor : undefined, env, leverage };
+  return { label: FIELD_LABEL[field], ownership, floor: field === 'cash' ? floor : undefined, env, leverage, leverageDetail };
 }
 
 /**

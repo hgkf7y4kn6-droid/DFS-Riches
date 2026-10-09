@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { type GestureResponderEvent, Pressable, Text } from 'react-native';
 
 import { useLeverage } from '@/lib/leverage-context';
 import { trendInk, trendLevel } from '@/lib/trend';
@@ -35,6 +35,8 @@ interface Props {
   detail?: LeverageDetail | null;
   /** Inside a <Text> line (previews): renders as nested text. */
   inline?: boolean;
+  /** The player's name, for the explainer's title (when `player` isn't given). */
+  name?: string | null;
 }
 
 /**
@@ -43,9 +45,9 @@ interface Props {
  * (negative) or gold (about even) -- darker = bigger. Renders nothing when
  * the player has no leverage (not on the DFS model's slate).
  */
-export default function LeverageBadge({ player, value, detail, inline }: Props) {
+export default function LeverageBadge({ player, value, detail, inline, name }: Props) {
   const dark = useColorScheme() === 'dark';
-  const { lookup, request } = useLeverage();
+  const { lookup, request, explain } = useLeverage();
   const explicit = value !== undefined;
   useEffect(() => {
     if (!explicit) request();
@@ -54,10 +56,16 @@ export default function LeverageBadge({ player, value, detail, inline }: Props) 
   if (!info) return null;
   const level = trendLevel(info.value, 0, 'high', { steps: STEPS, absolute: true });
   const color = trendInk(level, dark);
-  const label = leverageText(info.value, info.detail);
+  const label = `${leverageText(info.value, info.detail)}. Tap for what this means.`;
+  // Tapping explains the number (one shared explainer, lib/leverage-context).
+  // The badge often sits inside a tappable row or card: the tap stays with the badge.
+  const open = (e?: GestureResponderEvent) => {
+    e?.stopPropagation?.();
+    explain({ value: info.value, detail: info.detail, name: name ?? player?.name });
+  };
   if (inline) {
     return (
-      <Text accessibilityLabel={label}>
+      <Text onPress={open} accessibilityRole="button" accessibilityLabel={label} suppressHighlighting>
         {' '}
         <Text className="lev-badge-text" style={{ color }}>
           {formatLeverage(info.value)}
@@ -66,10 +74,10 @@ export default function LeverageBadge({ player, value, detail, inline }: Props) 
     );
   }
   return (
-    <View className="lev-badge" accessibilityLabel={label}>
+    <Pressable className="lev-badge" onPress={open} accessibilityRole="button" accessibilityLabel={label} hitSlop={8}>
       <Text className="lev-badge-text" style={{ color }}>
         {formatLeverage(info.value)}
       </Text>
-    </View>
+    </Pressable>
   );
 }

@@ -30,6 +30,7 @@ export interface RowPlayer {
   dk_draftable_id?: number | null;
   /** This contest's leverage (Cash / GPP builder); otherwise the badge looks up large-field GPP leverage. */
   leverage?: number | null;
+  leverage_detail?: LeverageDetail | null;
   /** Builder Game environment sort: the model's score, or the team's implied total. */
   env?: { value: number | null; kind: 'score' | 'implied' } | null;
   /** Builder blended sort: the player's weighted score (0-100) in the current pool. */
@@ -74,7 +75,7 @@ export function LineupRow({ slot, player, right, note }: { slot: string; player:
                 {player.injury && player.injury !== 'Healthy' ? <Text className="injury-tag"> {player.injury}</Text> : null}
               </Text>
               {player.leverage !== undefined ? (
-                <LeverageBadge value={player.leverage} />
+                <LeverageBadge value={player.leverage} detail={player.leverage_detail} name={player.name} />
               ) : (
                 <LeverageBadge player={{ id: player.dk_draftable_id, name: player.name, team: player.team }} />
               )}
