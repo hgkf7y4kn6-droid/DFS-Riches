@@ -129,6 +129,14 @@ export function paceCell(g: Game): Cell {
   };
 }
 
+/** What a game's forecast does to projections (null when it doesn't move them or the game is played). */
+export function weatherImpactText(w: GameWeather | null): string | null {
+  if (!w || w.observed || !w.impact) return null;
+  const dst = w.multipliers?.dst;
+  const dstText = dst != null && Math.abs(dst - 1) >= 0.01 ? `, DSTs ${dst > 1 ? '+' : '−'}${Math.round(Math.abs(dst - 1) * 100)}%` : '';
+  return `Projections: ${w.impact}${dstText}${w.long_range ? ' (long-range, half strength)' : ''}`;
+}
+
 export function weatherText(w: GameWeather | null): string {
   if (!w) return '';
   if (w.roof === 'dome') return 'Dome';

@@ -63,6 +63,8 @@ interface UpcomingGame {
   lines: string;
   /** Kickoff-window forecast, "Dome" or "Retractable roof". */
   weather: string;
+  /** What the forecast does to projections, e.g. "Rain: passing TDs -10%, team scoring -6%, DSTs +6%". */
+  weatherImpact: string | null;
   /** Away team logo. */
   icon: import('react-native').ImageSourcePropType;
   /** Home team logo. */
@@ -142,6 +144,10 @@ interface GameWeather {
   summary: string | null;
   /** Plain-English projection impact, e.g. "passing yards -4%". */
   impact: string | null;
+  /** Projection multipliers (pass_yd, pass_td, rush_td, points, dst). */
+  multipliers?: Partial<Record<'pass_yd' | 'pass_td' | 'rush_td' | 'points' | 'dst', number>>;
+  /** Weather that was actually played in (finished games). */
+  observed?: boolean;
   source: string | null;
   long_range: boolean;
 }
@@ -678,6 +684,8 @@ interface LeverageDetail {
 }
 
 interface PlayPlayer {
+  /** The projection's weather adjustment (outdoor games where weather moved it). */
+  weather?: { factor: number; text: string | null } | null;
   /** 1-based strength-of-play rank in a ranking list; null in the full player list. */
   rank: number | null;
   id: number;

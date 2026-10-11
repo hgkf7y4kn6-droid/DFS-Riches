@@ -17,6 +17,10 @@ html, body { background-color: #FFF9E3; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+/* iOS Safari zooms into any field under 16px when it's focused: touch screens get 16px fields. */
+@media (pointer: coarse) {
+  input, textarea, select { font-size: 16px !important; }
+}
 `;
 
 // The app's fonts, declared up front so pre-rendered text paints in them

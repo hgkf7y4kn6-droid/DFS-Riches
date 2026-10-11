@@ -1,6 +1,6 @@
 // Turns API games into the UpcomingGame shape the game cards display.
 import dayjs from '@/lib/dayjs';
-import { weatherText } from '@/lib/lines';
+import { weatherImpactText, weatherText } from '@/lib/lines';
 import { formatDayPart, formatGameDate, formatGameTime, formatSigned } from '@/lib/utils';
 
 /** A team's logo from Sleeper's CDN (the app's projection source), e.g. "IND" -> .../ind.png. */
@@ -37,6 +37,7 @@ export function toUpcomingGame(g: Game, now: number = Date.now()): UpcomingGame 
     score: c?.away_score != null && c.home_score != null ? `${g.away} ${c.away_score} - ${g.home} ${c.home_score}` : null,
     lines: linesText(g),
     weather: weatherText(g.weather) || 'Forecast not available',
+    weatherImpact: weatherImpactText(g.weather),
     icon: teamLogo(g.away),
     opponentIcon: teamLogo(g.home),
     islandLabel: g.isolated ? formatDayPart(g.day_part) : null,

@@ -284,6 +284,10 @@
   .upcoming-game-info {
     @apply text-xs font-sans-medium text-muted-foreground;
   }
+  /* What the forecast does to projections (game cards, Weather watch). */
+  .upcoming-weather-impact {
+    @apply mt-0.5 text-xs font-sans-semibold text-info;
+  }
   .upcoming-game-lines {
     @apply mt-1.5 text-sm font-sans-bold text-foreground;
   }

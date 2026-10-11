@@ -15,6 +15,7 @@ import OwnershipModelNote from '@/components/plays/OwnershipModelNote';
 import ActualOwnershipCard from '@/components/plays/ActualOwnershipCard';
 import LeverageCard from '@/components/plays/LeverageCard';
 import PlayRankingCard from '@/components/plays/PlayRankingCard';
+import WeatherCard, { weatherGames } from '@/components/plays/WeatherCard';
 import RoleShiftsCard from '@/components/plays/RoleShiftsCard';
 import SlateList from '@/components/SlateList';
 import SafeAreaView from '@/components/SafeAreaView';
@@ -51,7 +52,7 @@ const POSITION_CARDS: { pos: 'QB' | 'RB' | 'WR' | 'TE'; label: string }[] = [
 interface Card {
   key: string;
   /** Rendered as the role-shifts card instead of a ranked-plays card. */
-  kind?: 'shifts' | 'leverage';
+  kind?: 'shifts' | 'leverage' | 'weather';
   kicker?: string;
   title: string;
   subtitle: string;
@@ -60,14 +61,15 @@ interface Card {
   note?: string;
 }
 
-/** The horizontal list: a card per position, then (GPP) the chalk and leverage cards. */
-function cards(data: PlaysResponse, contest: PlayContest): Card[] {
+/** The horizontal list: a card per position, then the weather card, then (GPP) the chalk and leverage cards. */
+function cards(data: PlaysResponse, contest: PlayContest, weather: boolean): Card[] {
   const list: Card[] = POSITION_CARDS.map(({ pos, label }) => ({
     key: pos,
     title: `Top ${data.rankings[pos]?.length ?? 0} ${label}`,
     subtitle: `${pos} ranked by strength of play`,
     players: data.rankings[pos] ?? [],
   }));
+  if (weather) list.push({ key: 'weather', kind: 'weather', title: '', subtitle: '', players: [] });
   if (data.role_shifts?.length) {
     list.push({ key: 'shifts', kind: 'shifts', title: '', subtitle: '', players: data.role_shifts });
   }
@@ -130,6 +132,11 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
   const [gppField, setGppField] = useState<GppField>('large_gpp');
   const fieldKey: OwnershipContest = contest === 'cash' ? 'cash' : gppField;
   const field = useMemo(() => (ready ? buildField(ready.players, fieldKey) : undefined), [ready, fieldKey]);
+  const schedule = weekData.data?.schedule;
+  const weather = useMemo(
+    () => (ready && schedule ? weatherGames([...schedule.games, ...schedule.isolated_games], ready.players) : []),
+    [ready, schedule],
+  );
 
   // The builder can work on any slate this week (Showdowns included); it starts on, and
   // follows, the slate this tab analyzes, and only that slate has the field's ownership.
@@ -162,11 +169,13 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
           <>
             <ListHeading title={`Top ${contest === 'cash' ? 'cash' : 'GPP'} plays`} subtitle={copy.balance} />
             <FlatList
-              data={cards(ready, contest)}
+              data={cards(ready, contest, weather.length > 0)}
               keyExtractor={(item) => item.key}
               renderItem={({ item }) =>
                 item.kind === 'shifts' ? (
                   <RoleShiftsCard players={item.players} pool={pool} />
+                ) : item.kind === 'weather' ? (
+                  <WeatherCard games={weather} />
                 ) : item.kind === 'leverage' ? (
                   <LeverageCard byPosition={ready.leverage_by_position ?? {}} pool={pool} />
                 ) : (

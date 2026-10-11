@@ -26,6 +26,7 @@ export default function UpcomingGamesCard({
   score,
   lines,
   weather,
+  weatherImpact,
   icon,
   opponentIcon,
   islandLabel,
@@ -65,6 +66,11 @@ export default function UpcomingGamesCard({
         <Text className="upcoming-game-info" numberOfLines={expanded ? undefined : 1}>
           {weather}
         </Text>
+        {weatherImpact ? (
+          <Text className="upcoming-weather-impact" numberOfLines={expanded ? undefined : 2}>
+            {weatherImpact}
+          </Text>
+        ) : null}
         <Text className="upcoming-game-lines">{status === 'upcoming' || !score ? lines : score}</Text>
         <Text className="upcoming-expand-hint">{expanded ? 'Hide breakdown ▲' : 'Tap for game breakdown ▼'}</Text>
       </View>

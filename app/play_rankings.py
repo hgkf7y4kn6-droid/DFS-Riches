@@ -304,6 +304,9 @@ def _player(r: dict, contest: str, own_contests: list[str], rank: int | None = N
         "p_hit": _round(r["p_cash"] if contest == "cash" else r["p_ceiling"], 3),
         "score": _round(r["score"], 3),
         "parts": r["parts"],
+        # The projection's weather adjustment (app.weather), when the game's weather moved it.
+        "weather": next(({"factor": _round(a["factor"], 3), "text": a.get("text")} for a in (r.get("adjustments") or [])
+                         if a.get("source") == "Weather" and a.get("factor") is not None), None),
         "leverage_ratio": _round(_leverage_ratio(r)) if contest == "gpp" else None,
         # Fair minus projected ownership for this contest's field, percentage points (app.leverage).
         "leverage": _round(r["leverage"], 1),

@@ -11,6 +11,7 @@ import { roleText } from '@/lib/matchup-sort';
 import type { Pool } from '@/lib/pool-tags-context';
 import { formatCurrency, formatPercent, formatSigned } from '@/lib/utils';
 import LeverageBadge, { leverageText } from '@/components/LeverageBadge';
+import { weatherFactorText, weatherSummary } from '@/components/plays/WeatherCard';
 
 const OWN_LABEL: Record<OwnershipContest, string> = { cash: 'cash own', small_gpp: 'small-field', large_gpp: 'large-field' };
 const PART_LABEL: Record<string, string> = {
@@ -51,6 +52,12 @@ export default function PlayRow({ player, contest, pool }: { player: PlayPlayer;
             {roleText(p) ? ` · ${roleText(p)}` : ''}
             <TeamShareText share={p.team_share} />
           </Text>
+          {p.weather ? (
+            <Text className="upcoming-weather-impact" numberOfLines={expanded ? undefined : 1}>
+              Weather {weatherFactorText(p.weather.factor)}
+              {weatherSummary(p.weather.text) ? ` · ${weatherSummary(p.weather.text)}` : ''}
+            </Text>
+          ) : null}
           <MatchupBadge opponent={p.opponent} position={p.position} />
           <UsageTrendNote trend={p.usage_trend} open={trendOpen} />
         </View>
