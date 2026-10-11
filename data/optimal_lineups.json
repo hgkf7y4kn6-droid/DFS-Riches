@@ -5073,7 +5073,7 @@
     },
     "5": {
       "classic_sunday": {
-        "saved_at": "2026-10-11T15:40:55+00:00",
+        "saved_at": "2026-10-11T18:44:05+00:00",
         "draft_group_id": 154468,
         "lineups": [
           {
@@ -5110,7 +5110,8 @@
                 "game_info": "IND @ PIT",
                 "injury": "Healthy",
                 "dk_draftable_id": 44391906,
-                "dk_fppg": 15.1
+                "dk_fppg": 15.1,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -5126,7 +5127,8 @@
                 "game_info": "CHI @ GB",
                 "injury": "Healthy",
                 "dk_draftable_id": 44391912,
-                "dk_fppg": 17.1
+                "dk_fppg": 17.1,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -5174,7 +5176,8 @@
                 "game_info": "LV @ NE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44392312,
-                "dk_fppg": 4.9
+                "dk_fppg": 4.9,
+                "locked": true
               },
               {
                 "slot": "TE",
@@ -5222,7 +5225,8 @@
                 "game_info": "CLE @ NYJ",
                 "injury": "Healthy",
                 "dk_draftable_id": 44392864,
-                "dk_fppg": 5.3
+                "dk_fppg": 5.3,
+                "locked": true
               }
             ],
             "salary": 50000,
@@ -5263,7 +5267,8 @@
                 "game_info": "CHI @ GB",
                 "injury": "Healthy",
                 "dk_draftable_id": 44391912,
-                "dk_fppg": 17.1
+                "dk_fppg": 17.1,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -5311,7 +5316,8 @@
                 "game_info": "HOU @ TEN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44392174,
-                "dk_fppg": 27.5
+                "dk_fppg": 27.5,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -5327,7 +5333,8 @@
                 "game_info": "LV @ NE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44392220,
-                "dk_fppg": 11.1
+                "dk_fppg": 11.1,
+                "locked": true
               },
               {
                 "slot": "TE",
@@ -5359,7 +5366,8 @@
                 "game_info": "CIN @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44392610,
-                "dk_fppg": 11.1
+                "dk_fppg": 11.1,
+                "locked": true
               },
               {
                 "slot": "DST",
@@ -5375,7 +5383,8 @@
                 "game_info": "LV @ NE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44392868,
-                "dk_fppg": 9.5
+                "dk_fppg": 9.5,
+                "locked": true
               }
             ],
             "salary": 50000,
@@ -5385,7 +5394,7 @@
         ]
       },
       "classic": {
-        "saved_at": "2026-10-11T15:41:07+00:00",
+        "saved_at": "2026-10-11T18:44:17+00:00",
         "draft_group_id": 154467,
         "lineups": [
           {
@@ -5422,7 +5431,8 @@
                 "game_info": "IND @ PIT",
                 "injury": "Healthy",
                 "dk_draftable_id": 44393823,
-                "dk_fppg": 15.1
+                "dk_fppg": 15.1,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -5486,7 +5496,8 @@
                 "game_info": "LV @ NE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44394357,
-                "dk_fppg": 4.9
+                "dk_fppg": 4.9,
+                "locked": true
               },
               {
                 "slot": "TE",
@@ -5518,7 +5529,8 @@
                 "game_info": "CHI @ GB",
                 "injury": "Healthy",
                 "dk_draftable_id": 44393833,
-                "dk_fppg": 17.1
+                "dk_fppg": 17.1,
+                "locked": true
               },
               {
                 "slot": "DST",
@@ -5534,7 +5546,8 @@
                 "game_info": "CLE @ NYJ",
                 "injury": "Healthy",
                 "dk_draftable_id": 44395099,
-                "dk_fppg": 5.3
+                "dk_fppg": 5.3,
+                "locked": true
               }
             ],
             "salary": 49800,
@@ -5592,7 +5605,8 @@
                 "game_info": "CHI @ GB",
                 "injury": "Healthy",
                 "dk_draftable_id": 44393833,
-                "dk_fppg": 17.1
+                "dk_fppg": 17.1,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -5625,7 +5639,8 @@
                 "game_info": "HOU @ TEN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44394169,
-                "dk_fppg": 27.5
+                "dk_fppg": 27.5,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -5657,7 +5672,8 @@
                 "game_info": "CIN @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44394753,
-                "dk_fppg": 11.1
+                "dk_fppg": 11.1,
+                "locked": true
               },
               {
                 "slot": "FLEX",
@@ -5689,7 +5705,8 @@
                 "game_info": "LV @ NE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44395103,
-                "dk_fppg": 9.5
+                "dk_fppg": 9.5,
+                "locked": true
               }
             ],
             "salary": 49800,
@@ -6226,7 +6243,7 @@
         ]
       },
       "showdown_sun_night": {
-        "saved_at": "2026-10-11T15:41:08+00:00",
+        "saved_at": "2026-10-11T18:44:18+00:00",
         "draft_group_id": 154487,
         "lineups": [
           {
@@ -6242,7 +6259,7 @@
                 "roster_slot": "CPT",
                 "salary": 17700,
                 "proj_points": 37.21,
-                "ceiling": 55.1,
+                "ceiling": 54.9,
                 "sleeper_proj": 36.66,
                 "game_info": "BAL @ ATL",
                 "injury": "Healthy",
@@ -6290,7 +6307,7 @@
                 "roster_slot": "FLEX",
                 "salary": 6400,
                 "proj_points": 9.51,
-                "ceiling": 16.1,
+                "ceiling": 16.0,
                 "sleeper_proj": 9.06,
                 "game_info": "BAL @ ATL",
                 "injury": "Healthy",
@@ -6332,7 +6349,7 @@
             ],
             "salary": 49700,
             "proj_points": 93.56,
-            "ceiling": 142.9
+            "ceiling": 142.6
           },
           {
             "metric": "ceiling",
@@ -6363,7 +6380,7 @@
                 "roster_slot": "FLEX",
                 "salary": 11800,
                 "proj_points": 24.81,
-                "ceiling": 36.7,
+                "ceiling": 36.6,
                 "sleeper_proj": 24.44,
                 "game_info": "BAL @ ATL",
                 "injury": "Healthy",
@@ -6437,7 +6454,7 @@
             ],
             "salary": 50000,
             "proj_points": 79.74,
-            "ceiling": 174.3
+            "ceiling": 174.2
           }
         ]
       },
