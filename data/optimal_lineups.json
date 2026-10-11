@@ -5073,7 +5073,7 @@
     },
     "5": {
       "classic_sunday": {
-        "saved_at": "2026-10-11T12:09:17+00:00",
+        "saved_at": "2026-10-11T15:40:55+00:00",
         "draft_group_id": 154468,
         "lineups": [
           {
@@ -5082,19 +5082,35 @@
             "players": [
               {
                 "slot": "QB",
-                "name": "Jared Goff",
+                "name": "Jacoby Brissett",
                 "position": "QB",
-                "team": "DET",
-                "opponent": "ARI",
+                "team": "ARI",
+                "opponent": "DET",
                 "roster_slot": "",
-                "salary": 6600,
-                "proj_points": 22.84,
-                "ceiling": 36.8,
-                "sleeper_proj": 21.75,
+                "salary": 5500,
+                "proj_points": 19.14,
+                "ceiling": 27.1,
+                "sleeper_proj": 18.23,
                 "game_info": "DET @ ARI",
                 "injury": "Healthy",
-                "dk_draftable_id": 44391825,
-                "dk_fppg": 23.0
+                "dk_draftable_id": 44391835,
+                "dk_fppg": 15.8
+              },
+              {
+                "slot": "RB",
+                "name": "Jaylen Warren",
+                "position": "RB",
+                "team": "PIT",
+                "opponent": "IND",
+                "roster_slot": "",
+                "salary": 6700,
+                "proj_points": 20.7,
+                "ceiling": 24.6,
+                "sleeper_proj": 19.92,
+                "game_info": "IND @ PIT",
+                "injury": "Healthy",
+                "dk_draftable_id": 44391906,
+                "dk_fppg": 15.1
               },
               {
                 "slot": "RB",
@@ -5111,22 +5127,6 @@
                 "injury": "Healthy",
                 "dk_draftable_id": 44391912,
                 "dk_fppg": 17.1
-              },
-              {
-                "slot": "RB",
-                "name": "Braelon Allen",
-                "position": "RB",
-                "team": "NYJ",
-                "opponent": "CLE",
-                "roster_slot": "",
-                "salary": 5400,
-                "proj_points": 14.43,
-                "ceiling": 17.2,
-                "sleeper_proj": 15.45,
-                "game_info": "CLE @ NYJ",
-                "injury": "Healthy",
-                "dk_draftable_id": 44391932,
-                "dk_fppg": 6.5
               },
               {
                 "slot": "WR",
@@ -5162,19 +5162,19 @@
               },
               {
                 "slot": "WR",
-                "name": "Kendrick Bourne",
+                "name": "Efton Chism III",
                 "position": "WR",
-                "team": "ARI",
-                "opponent": "DET",
+                "team": "NE",
+                "opponent": "LV",
                 "roster_slot": "",
-                "salary": 3400,
-                "proj_points": 9.09,
-                "ceiling": 14.8,
-                "sleeper_proj": 8.66,
-                "game_info": "DET @ ARI",
+                "salary": 3200,
+                "proj_points": 8.5,
+                "ceiling": 15.0,
+                "sleeper_proj": 8.59,
+                "game_info": "LV @ NE",
                 "injury": "Healthy",
-                "dk_draftable_id": 44392300,
-                "dk_fppg": 5.7
+                "dk_draftable_id": 44392312,
+                "dk_fppg": 4.9
               },
               {
                 "slot": "TE",
@@ -5216,9 +5216,9 @@
                 "opponent": "CLE",
                 "roster_slot": "",
                 "salary": 2700,
-                "proj_points": 7.72,
-                "ceiling": 9.6,
-                "sleeper_proj": 7.3,
+                "proj_points": 7.62,
+                "ceiling": 9.8,
+                "sleeper_proj": 7.23,
                 "game_info": "CLE @ NYJ",
                 "injury": "Healthy",
                 "dk_draftable_id": 44392864,
@@ -5226,8 +5226,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 144.68,
-            "ceiling": 240.8
+            "proj_points": 146.56,
+            "ceiling": 238.9
           },
           {
             "metric": "ceiling",
@@ -5273,9 +5273,9 @@
                 "opponent": "SF",
                 "roster_slot": "",
                 "salary": 5300,
-                "proj_points": 12.73,
+                "proj_points": 12.74,
                 "ceiling": 25.0,
-                "sleeper_proj": 12.54,
+                "sleeper_proj": 12.55,
                 "game_info": "SF @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44391938,
@@ -5305,9 +5305,9 @@
                 "opponent": "TEN",
                 "roster_slot": "",
                 "salary": 7500,
-                "proj_points": 17.59,
-                "ceiling": 43.4,
-                "sleeper_proj": 16.75,
+                "proj_points": 17.6,
+                "ceiling": 43.2,
+                "sleeper_proj": 16.76,
                 "game_info": "HOU @ TEN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44392174,
@@ -5321,9 +5321,9 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 5000,
-                "proj_points": 12.7,
+                "proj_points": 12.79,
                 "ceiling": 21.8,
-                "sleeper_proj": 12.84,
+                "sleeper_proj": 12.93,
                 "game_info": "LV @ NE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44392220,
@@ -5353,9 +5353,9 @@
                 "opponent": "MIA",
                 "roster_slot": "",
                 "salary": 4100,
-                "proj_points": 8.58,
-                "ceiling": 26.9,
-                "sleeper_proj": 8.17,
+                "proj_points": 8.66,
+                "ceiling": 27.2,
+                "sleeper_proj": 8.25,
                 "game_info": "CIN @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44392610,
@@ -5369,9 +5369,9 @@
                 "opponent": "NE",
                 "roster_slot": "",
                 "salary": 2500,
-                "proj_points": 4.05,
+                "proj_points": 4.08,
                 "ceiling": 15.6,
-                "sleeper_proj": 4.05,
+                "sleeper_proj": 4.08,
                 "game_info": "LV @ NE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44392868,
@@ -5379,13 +5379,13 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 133.13,
-            "ceiling": 271.5
+            "proj_points": 133.35,
+            "ceiling": 271.6
           }
         ]
       },
       "classic": {
-        "saved_at": "2026-10-11T12:09:29+00:00",
+        "saved_at": "2026-10-11T15:41:07+00:00",
         "draft_group_id": 154467,
         "lineups": [
           {
@@ -5410,19 +5410,19 @@
               },
               {
                 "slot": "RB",
-                "name": "Bijan Robinson",
+                "name": "Jaylen Warren",
                 "position": "RB",
-                "team": "ATL",
-                "opponent": "BAL",
+                "team": "PIT",
+                "opponent": "IND",
                 "roster_slot": "",
-                "salary": 8700,
-                "proj_points": 24.81,
-                "ceiling": 36.6,
-                "sleeper_proj": 24.44,
-                "game_info": "BAL @ ATL",
+                "salary": 6700,
+                "proj_points": 20.7,
+                "ceiling": 24.6,
+                "sleeper_proj": 19.92,
+                "game_info": "IND @ PIT",
                 "injury": "Healthy",
-                "dk_draftable_id": 44393807,
-                "dk_fppg": 27.9
+                "dk_draftable_id": 44393823,
+                "dk_fppg": 15.1
               },
               {
                 "slot": "RB",
@@ -5480,9 +5480,9 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 3200,
-                "proj_points": 8.47,
-                "ceiling": 14.9,
-                "sleeper_proj": 8.56,
+                "proj_points": 8.5,
+                "ceiling": 15.0,
+                "sleeper_proj": 8.59,
                 "game_info": "LV @ NE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44394357,
@@ -5490,19 +5490,19 @@
               },
               {
                 "slot": "TE",
-                "name": "Sam LaPorta",
+                "name": "Trey McBride",
                 "position": "TE",
-                "team": "DET",
-                "opponent": "ARI",
+                "team": "ARI",
+                "opponent": "DET",
                 "roster_slot": "",
-                "salary": 4900,
-                "proj_points": 13.59,
-                "ceiling": 28.6,
-                "sleeper_proj": 12.94,
+                "salary": 6700,
+                "proj_points": 18.99,
+                "ceiling": 30.9,
+                "sleeper_proj": 18.09,
                 "game_info": "DET @ ARI",
                 "injury": "Healthy",
-                "dk_draftable_id": 44394735,
-                "dk_fppg": 14.2
+                "dk_draftable_id": 44394727,
+                "dk_fppg": 17.3
               },
               {
                 "slot": "FLEX",
@@ -5528,18 +5528,18 @@
                 "opponent": "CLE",
                 "roster_slot": "",
                 "salary": 2700,
-                "proj_points": 7.72,
-                "ceiling": 9.6,
-                "sleeper_proj": 7.3,
+                "proj_points": 7.62,
+                "ceiling": 9.8,
+                "sleeper_proj": 7.23,
                 "game_info": "CLE @ NYJ",
                 "injury": "Healthy",
                 "dk_draftable_id": 44395099,
                 "dk_fppg": 5.3
               }
             ],
-            "salary": 50000,
-            "proj_points": 146.79,
-            "ceiling": 257.8
+            "salary": 49800,
+            "proj_points": 148.01,
+            "ceiling": 248.4
           },
           {
             "metric": "ceiling",
@@ -5619,9 +5619,9 @@
                 "opponent": "TEN",
                 "roster_slot": "",
                 "salary": 7500,
-                "proj_points": 17.59,
-                "ceiling": 43.4,
-                "sleeper_proj": 16.75,
+                "proj_points": 17.6,
+                "ceiling": 43.2,
+                "sleeper_proj": 16.76,
                 "game_info": "HOU @ TEN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44394169,
@@ -5651,9 +5651,9 @@
                 "opponent": "MIA",
                 "roster_slot": "",
                 "salary": 4100,
-                "proj_points": 8.58,
-                "ceiling": 26.9,
-                "sleeper_proj": 8.17,
+                "proj_points": 8.66,
+                "ceiling": 27.2,
+                "sleeper_proj": 8.25,
                 "game_info": "CIN @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44394753,
@@ -5683,9 +5683,9 @@
                 "opponent": "NE",
                 "roster_slot": "",
                 "salary": 2500,
-                "proj_points": 4.05,
+                "proj_points": 4.08,
                 "ceiling": 15.6,
-                "sleeper_proj": 4.05,
+                "sleeper_proj": 4.08,
                 "game_info": "LV @ NE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44395103,
@@ -5693,8 +5693,8 @@
               }
             ],
             "salary": 49800,
-            "proj_points": 129.21,
-            "ceiling": 296.5
+            "proj_points": 129.33,
+            "ceiling": 296.6
           }
         ]
       },
@@ -6226,7 +6226,7 @@
         ]
       },
       "showdown_sun_night": {
-        "saved_at": "2026-10-11T12:09:30+00:00",
+        "saved_at": "2026-10-11T15:41:08+00:00",
         "draft_group_id": 154487,
         "lineups": [
           {
@@ -6242,7 +6242,7 @@
                 "roster_slot": "CPT",
                 "salary": 17700,
                 "proj_points": 37.21,
-                "ceiling": 54.9,
+                "ceiling": 55.1,
                 "sleeper_proj": 36.66,
                 "game_info": "BAL @ ATL",
                 "injury": "Healthy",
@@ -6332,7 +6332,7 @@
             ],
             "salary": 49700,
             "proj_points": 93.56,
-            "ceiling": 142.7
+            "ceiling": 142.9
           },
           {
             "metric": "ceiling",
@@ -6363,7 +6363,7 @@
                 "roster_slot": "FLEX",
                 "salary": 11800,
                 "proj_points": 24.81,
-                "ceiling": 36.6,
+                "ceiling": 36.7,
                 "sleeper_proj": 24.44,
                 "game_info": "BAL @ ATL",
                 "injury": "Healthy",
@@ -6437,12 +6437,12 @@
             ],
             "salary": 50000,
             "proj_points": 79.74,
-            "ceiling": 174.2
+            "ceiling": 174.3
           }
         ]
       },
       "showdown_mon_night": {
-        "saved_at": "2026-10-11T11:16:59+00:00",
+        "saved_at": "2026-10-11T15:41:08+00:00",
         "draft_group_id": 154488,
         "lineups": [
           {
@@ -6506,7 +6506,7 @@
                 "roster_slot": "FLEX",
                 "salary": 5600,
                 "proj_points": 10.23,
-                "ceiling": 25.2,
+                "ceiling": 25.4,
                 "sleeper_proj": 10.29,
                 "game_info": "BUF @ LAR",
                 "injury": "Healthy",
@@ -6548,7 +6548,7 @@
             ],
             "salary": 49700,
             "proj_points": 98.34,
-            "ceiling": 197.3
+            "ceiling": 197.5
           },
           {
             "metric": "ceiling",
@@ -6611,7 +6611,7 @@
                 "roster_slot": "FLEX",
                 "salary": 5600,
                 "proj_points": 10.23,
-                "ceiling": 25.2,
+                "ceiling": 25.4,
                 "sleeper_proj": 10.29,
                 "game_info": "BUF @ LAR",
                 "injury": "Healthy",
@@ -6653,7 +6653,7 @@
             ],
             "salary": 49300,
             "proj_points": 93.59,
-            "ceiling": 203.9
+            "ceiling": 204.1
           }
         ]
       }
