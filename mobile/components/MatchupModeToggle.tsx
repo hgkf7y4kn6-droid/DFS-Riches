@@ -1,33 +1,57 @@
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { useMatchups } from '@/lib/matchups-context';
 
-const OPTIONS: { mode: MatchupMode; label: string }[] = [
-  { mode: 'raw', label: 'Raw' },
-  { mode: 'adj', label: 'Schedule-adjusted' },
+const OPTIONS: { mode: MatchupMode; label: string; hint: string }[] = [
+  { mode: 'raw', label: 'Raw', hint: 'Points and efficiency allowed as-is' },
+  { mode: 'adj', label: 'Schedule-adjusted', hint: 'Strips out the offenses each defense happened to face' },
 ];
 
-/** Switch every matchup badge between raw and strength-of-schedule adjusted ranks. */
+/** One dropdown that switches every matchup badge between raw and strength-of-schedule adjusted ranks. */
 export default function MatchupModeToggle({ compact = false }: { compact?: boolean }) {
   const { mode, setMode, data } = useMatchups();
+  const [open, setOpen] = useState(false);
+  const current = OPTIONS.find((o) => o.mode === mode) ?? OPTIONS[0];
   return (
     <View className="mb-2">
-      <View className="flex-row flex-wrap items-center gap-2">
+      <View className="flex-row items-center gap-2">
         <Text className="matchup-toggle-label">Matchup ranks</Text>
-        {OPTIONS.map((o) => {
-          const active = o.mode === mode;
-          return (
-            <Pressable
-              key={o.mode}
-              className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
-              onPress={() => setMode(o.mode)}
-              accessibilityRole="radio"
-              aria-checked={active}>
-              <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{o.label}</Text>
-            </Pressable>
-          );
-        })}
+        <Pressable
+          className="filter-chip flex-row items-center"
+          onPress={() => setOpen((o) => !o)}
+          accessibilityRole="button"
+          aria-expanded={open}
+          accessibilityLabel={`Matchup ranks: ${current.label}. Change`}>
+          <Text className="filter-chip-text">
+            {current.label} {open ? '▴' : '▾'}
+          </Text>
+        </Pressable>
       </View>
+      {open ? (
+        <View className="matchup-menu" accessibilityRole="radiogroup">
+          {OPTIONS.map((o) => {
+            const active = o.mode === mode;
+            return (
+              <Pressable
+                key={o.mode}
+                className={`matchup-menu-item ${active ? 'matchup-menu-item-active' : ''}`}
+                onPress={() => {
+                  setMode(o.mode);
+                  setOpen(false);
+                }}
+                accessibilityRole="radio"
+                aria-checked={active}>
+                <Text className="matchup-menu-label">
+                  {active ? '✓ ' : ''}
+                  {o.label}
+                </Text>
+                <Text className="matchup-menu-hint">{o.hint}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : null}
       {!compact ? (
         <Text className="dfs-reason">
           #32 = the defense allowing the most to that position this season (its last {data?.window ?? 8} games once it has played that many), #1 the least (green soft, red tough).{' '}

@@ -728,6 +728,21 @@
   .matchup-toggle-label {
     @apply text-xs font-sans-semibold text-muted-foreground;
   }
+  .matchup-menu {
+    @apply mt-2 self-start overflow-hidden rounded-xl border border-border bg-card;
+  }
+  .matchup-menu-item {
+    @apply px-3 py-2;
+  }
+  .matchup-menu-item-active {
+    @apply bg-muted;
+  }
+  .matchup-menu-label {
+    @apply text-sm font-sans-semibold text-foreground;
+  }
+  .matchup-menu-hint {
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
   .tag-pill-mine {
     @apply border border-primary;
   }
