@@ -181,3 +181,69 @@ def test_describe_secret_never_shows_the_value():
     from app.big_picture.run import describe_secret
     d = describe_secret("https://console.neon.tech/app/projects/secret-project-id")
     assert "secret-project-id" not in d and "scheme https" in d and "mentions neon.tech True" in d
+
+
+# ------------------------------------------------------------------ injury cross-check
+from app.big_picture import rosters  # noqa: E402
+
+REPORT_HTML = """
+<option value="/team/injury-report/week/REG-6" selected> WEEK 6 </option>
+<table class="d3-o-table"><caption class="d3-o-table__caption">Table - Injury report</caption>
+<thead><tr><th scope="col">Player</th><th scope="col">Position</th><th scope="col">Injury</th><th>Wed</th><th>Thu</th><th>Fri</th><th scope="col">Game Status</th></tr></thead>
+<tbody><tr><td><span class="d3-o-player-roster__player-name"> <a href="/x/"> Starter Back </a> </span></td><td>RB</td><td><span>Ankle</span></td><td>DNP</td><td>LP</td><td>LP</td><td>Questionable</td></tr>
+<tr><td><span class="d3-o-player-roster__player-name"> <a href="/y/"> Safe Guy </a> </span></td><td>WR</td><td>Rest</td><td>DNP</td><td>FP</td><td>--</td><td>(-)</td></tr></tbody></table>"""
+DEPTH_HTML = """<table><thead><tr><th>Position</th><th>Player</th><th>Player</th><th>Player</th></tr></thead>
+<tbody><tr><td>RB</td><td>22 Starter Back</td><td>30 Next Back</td><td>35 Third Back</td></tr>
+<tr><td>KR</td><td>30 Next Back</td><td>22 Starter Back</td><td></td></tr></tbody></table>"""
+
+
+def test_parse_team_site_report_and_depth_chart():
+    rep = rosters.parse_team_injury_report(REPORT_HTML, 6)
+    sb = rep[rosters._key("Starter Back")]
+    assert sb["game_status"] == "Questionable" and sb["practice"] == {"Wed": "DNP", "Thu": "LP", "Fri": "LP"}
+    assert rep[rosters._key("Safe Guy")]["game_status"] is None
+    assert rosters.parse_team_injury_report(REPORT_HTML, 7) is None          # the site fell back to another week
+    assert rosters.parse_team_depth_chart(DEPTH_HTML)[0] == ["RB", ["Starter Back", "Next Back", "Third Back"]]
+
+
+def _data(sleeper_status, espn_status, official_html=REPORT_HTML, espn_depth=None):
+    k = rosters._key("Starter Back")
+    return {
+        "sleeper": {"NE": {k: {"name": "Starter Back", "position": "RB", "status": sleeper_status, "updated": "2026-10-12T10:00+00:00"}}},
+        "espn": {"NE": {k: {"name": "Starter Back", "position": "RB", "status": espn_status, "updated": "2026-10-11T10:00Z"}}},
+        "team": {"NE": {"report": rosters.parse_team_injury_report(official_html, 6) if official_html else None,
+                        "depth": rosters.parse_team_depth_chart(DEPTH_HTML), "report_status": "ok", "depth_status": "ok"}},
+        "espn_depth": {"NE": espn_depth or [["RB", ["Starter Back", "Next Back"]]]},
+        "sleeper_depth": {"NE": [["RB", ["Starter Back", "Third Back"]]]},
+    }
+
+
+def test_official_status_wins_and_next_up_majority():
+    rows, cov = rosters.team_injuries("NE", _data("Out", "Out"), [])
+    r = rows[0]
+    assert r["status"] == "Questionable" and r["status_basis"] == "official team injury report"
+    assert r["practice"] == {"Wed": "DNP", "Thu": "LP", "Fri": "LP"}
+    assert r["next_up"] == "Next Back" and r["next_up_agreement"] == "2 of 3 depth charts"
+    assert r["next_up_by_source"]["Sleeper"] == "Third Back" and r["starter"]
+
+
+def test_disagreement_uses_most_recent_and_is_flagged():
+    rows, _ = rosters.team_injuries("NE", _data("Out", "Doubtful", official_html=None), [])
+    assert rows[0]["status"] == "Out" and not rows[0]["sources_agree"]
+    assert rows[0]["status_basis"] == "using Sleeper, the most recently updated"          # 1-1 split
+    d = _data("Out", "Out", official_html=None)
+    rows, _ = rosters.team_injuries("NE", d, [{"name": "Starter Back", "team": "NE", "position": "RB", "injury": "Q", "salary": 6000}])
+    assert rows[0]["status"] == "Out" and rows[0]["status_basis"] == "majority (Sleeper, ESPN); DraftKings shows Questionable"
+    rows, _ = rosters.team_injuries("NE", _data("PUP", "Out", official_html=None), [])
+    assert rows[0]["status"] == "PUP" and rows[0]["sources_agree"]                # PUP and Out both mean "won't play"
+
+
+def test_coachs_decision_inactives_are_not_injuries():
+    d = _data("Out", None, official_html=None)
+    d["sleeper"]["NE"][rosters._key("Starter Back")]["body_part"] = "Coach's Decision"
+    assert rosters.team_injuries("NE", d, [])[0] == []
+
+
+def test_status_normalization():
+    assert [rosters.norm_status(x) for x in ("O", "Injured Reserve", "(-)", "Day-To-Day", "PUP-R", "q")] == \
+        ["Out", "IR", None, "Day-to-day", "PUP", "Questionable"]

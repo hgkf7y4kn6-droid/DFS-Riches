@@ -124,6 +124,31 @@ def _bet_block(g: dict, c: dict) -> str:
     return "\n".join(lines)
 
 
+def injury_line(team: str, r: dict) -> str:
+    """One player's cross-checked injury line for Section 4."""
+    out = f"{team} {r['position']} {r['name']}: **{r['status']}**"
+    if r.get("body_part"):
+        out += f" ({r['body_part']})"
+    views = ", ".join(f"{src} {v}" for src, v in (r.get("designations") or {}).items() if v and src != "official")
+    if r.get("designations", {}).get("official"):
+        out += f" -- official team report: {r['designations']['official']}"
+    if not r.get("sources_agree", True):
+        out += f". Sources differ ({views}): {r.get('status_basis')}"
+    elif views:
+        out += f" ({views})"
+    if r.get("practice"):
+        out += ". Practice: " + ", ".join(f"{day} {code}" for day, code in r["practice"].items())
+    if r.get("next_up"):
+        out += f". Next up: {r['next_up']} ({r.get('next_up_agreement')})"
+        from app.big_picture.rosters import _key
+        others = {src: n for src, n in (r.get("next_up_by_source") or {}).items() if _key(n) != _key(r["next_up"])}
+        if others:
+            out += "; " + ", ".join(f"{src} lists {n}" for src, n in others.items())
+    if r.get("salary"):
+        out += f". DFS ${r['salary']}, proj {num(r.get('proj'))}"
+    return out + "."
+
+
 def desk_sections(d: dict) -> dict[int, str]:
     games = d["games"]
     feat = _featured(d)
@@ -182,14 +207,16 @@ def desk_sections(d: dict) -> dict[int, str]:
         if not rows:
             continue
         lines = [f"**{g['game']}**"]
-        for side, r in rows[:8]:
-            extra = f", next up {r['next_up']}" if r.get("next_up") else ""
-            dfs = f"; DFS ${r['salary']}, proj {num(r.get('proj'))}" if r.get("salary") else ""
-            lines.append(f"- {g[side]} {r['position']} {r['name']}: {r['status']}"
-                         + (f" ({r['body_part']})" if r.get("body_part") else "") + f" -- {r['unit']}{extra}{dfs}.")
+        for side, r in rows[:10]:
+            lines.append(f"- {injury_line(g[side], r)}")
+        missing = [f"{g[side]} {('official report: ' + c['team_report']) if c.get('team_report') != 'ok' else ''}".strip()
+                   for side, c in (g.get("injury_sources") or {}).items() if c.get("team_report") != "ok"]
+        if missing:
+            lines.append(f"- _Sources: {'; '.join(missing)}._")
         parts.append("\n".join(lines))
     s[4] = ("\n\n".join(parts) or "No designated starters on this week's teams.") + \
-        "\n\nPractice participation isn't published by the connected sources; designations come from Sleeper and DraftKings."
+        ("\n\nEach designation is cross-checked across Sleeper, ESPN, the team's official injury report and DraftKings; "
+         "the next player up across the team's own depth chart, ESPN's and Sleeper's.")
 
     # 5 -- environments
     lines = []

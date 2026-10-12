@@ -4,9 +4,10 @@ computed in code, with its source and capture time.
 The research agents (app.big_picture.agents) read slices of this and nothing
 else, and the quality check rejects figures that aren't in it. Built from the
 app's own data (schedule and weather, nflverse efficiency, DraftKings DFS
-salaries and statuses, the DFS model's projections and ownership), Sleeper's
-player statuses (injury designations and depth charts at every position) and
-DraftKings Sportsbook odds (app.big_picture.odds).
+salaries and statuses, the DFS model's projections and ownership), injury
+designations and next-man-up cross-checked across Sleeper, ESPN, each team's
+own site and DraftKings (app.big_picture.rosters), and DraftKings Sportsbook
+odds (app.big_picture.odds).
 """
 from __future__ import annotations
 
@@ -19,13 +20,12 @@ from datetime import datetime, timezone
 import httpx
 
 from app.big_picture import odds as odds_module
-from app.big_picture import quant, store
+from app.big_picture import quant, rosters, store
 from app.config import ET
 
 log = logging.getLogger(__name__)
 
 MODEL_VERSION = "bp-1.0"
-SLEEPER_PLAYERS = "https://api.sleeper.app/v1/players/nfl"
 SITE = os.environ.get("BIG_PICTURE_SITE", "https://dfsriches.richesdigitalventures.com")
 
 SKILL = {"QB", "RB", "WR", "TE"}
@@ -65,38 +65,6 @@ async def target_week() -> tuple[int, int]:
     if games and started / len(games) >= 0.6 and week < 18:
         week += 1
     return season, week
-
-
-async def sleeper_statuses() -> dict[str, list[dict]]:
-    """team -> players with an injury designation (all positions), with depth-chart slot and order."""
-    async with httpx.AsyncClient(timeout=60) as client:
-        r = await client.get(SLEEPER_PLAYERS)
-        r.raise_for_status()
-        full = r.json()
-    by_team: dict[str, list[dict]] = {}
-    depth: dict[tuple, list] = {}
-    for p in full.values():
-        team = p.get("team")
-        if not team or p.get("status") == "Retired":
-            continue
-        slot = p.get("depth_chart_position")
-        if slot and p.get("depth_chart_order"):
-            depth.setdefault((team, slot), []).append((p["depth_chart_order"], p.get("full_name"), p.get("injury_status")))
-        if p.get("injury_status"):
-            by_team.setdefault(team, []).append({
-                "name": p.get("full_name"), "position": p.get("position"), "slot": slot,
-                "depth": p.get("depth_chart_order"), "status": p.get("injury_status"),
-                "body_part": p.get("injury_body_part"), "notes": p.get("injury_notes"),
-                "practice": p.get("practice_participation"),
-                "updated": datetime.fromtimestamp(p["news_updated"] / 1000, timezone.utc).isoformat(timespec="minutes")
-                if p.get("news_updated") else None,
-            })
-    for team, rows in by_team.items():
-        for row in rows:
-            chart = sorted(depth.get((team, row["slot"]), []), key=lambda x: x[0])
-            nxt = next((n for o, n, s in chart if n != row["name"] and not s and o > (row["depth"] or 0)), None)
-            row["next_up"] = nxt
-    return by_team
 
 
 def _unit(position: str | None) -> str:
@@ -209,42 +177,13 @@ def line_movement(market: dict, fair: float | None, mkey: str, side: str) -> dic
 
 
 # ------------------------------------------------------------------ injuries
-def team_injuries(team: str, sleeper: list[dict], dk_rows: list[dict]) -> list[dict]:
-    """Designated players who matter: QBs, starters (depth 1) at any position, and DFS-relevant skill players."""
-    from app.matching import normalize_name
-    dk = {normalize_name(r["name"]): r for r in dk_rows if r.get("team") == team}
-    out = []
-    for p in sleeper:
-        status = p["status"]
-        if status not in STATUS_ORDER:
-            continue
-        unit = _unit(p["position"])
-        d = dk.get(normalize_name(p["name"] or ""))
-        starter = p.get("depth") == 1
-        relevant = (p["position"] == "QB" and (starter or d)) or starter or (d and (d.get("salary") or 0) >= 4500)
-        if not relevant:
-            continue
-        if status in ("IR", "PUP", "Sus") and not (p.get("updated") or "") >= (store.now().date().isoformat()[:8]):
-            continue          # long-term absences are old news unless updated this month
-        row = {"name": p["name"], "position": p["position"], "unit": unit, "slot": p.get("slot"),
-               "starter": starter, "status": status, "body_part": p.get("body_part"),
-               "practice": p.get("practice") or "not published", "next_up": p.get("next_up"),
-               "status_updated": p.get("updated"), "source": "Sleeper player status"}
-        if d:
-            row.update(dk_status=d.get("injury"), salary=d.get("salary"), proj=d.get("final"),
-                       own=d.get("ownership"))
-        out.append(row)
-    # DK-only designations (Sleeper lags occasionally)
-    named = {normalize_name(r["name"] or "") for r in out}
-    for key, d in dk.items():
-        name = d["name"]
-        st = DK_STATUS.get(str(d.get("injury") or "").upper())
-        if st and key not in named and ((d.get("salary") or 0) >= 4500 or d.get("position") == "QB"):
-            out.append({"name": name, "position": d.get("position"), "unit": _unit(d.get("position")), "starter": None,
-                        "status": st, "practice": "not published", "dk_status": d.get("injury"), "salary": d.get("salary"),
-                        "proj": d.get("final"), "own": d.get("ownership"), "source": "DraftKings DFS status"})
-    out.sort(key=lambda r: (STATUS_ORDER.get(r["status"], 3), r["unit"] != "skill" or r["position"] != "QB", r["name"]))
-    return out
+def team_injuries(team: str, roster_data: dict, dk_rows: list[dict]) -> tuple[list[dict], dict]:
+    """Designated players who matter, each cross-checked across Sleeper, ESPN, the team's site and DraftKings
+    (app.big_picture.rosters), plus the team's source coverage."""
+    rows, coverage = rosters.team_injuries(team, roster_data, dk_rows)
+    for row in rows:
+        row["unit"] = _unit(row["position"])
+    return rows, coverage
 
 
 def unresolved(injuries: list[dict]) -> bool:
@@ -327,11 +266,11 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
     model = json.loads(await main._dfs_model(season, week, None, "gpp", None, version))
     gpp = json.loads(await main._plays(season, week, None, "gpp", version))
     cash = json.loads(await main._plays(season, week, None, "cash", version))
-    try:
-        statuses = await sleeper_statuses()
-        status_note = None
-    except Exception as exc:
-        statuses, status_note = {}, f"Sleeper player statuses unavailable ({type(exc).__name__})"
+    playing = sorted({t for gb in wb.games for t in (gb.game.away, gb.game.home)})
+    roster_data = await rosters.gather(playing, week)
+    cov = roster_data["coverage"]
+    status_note = None if cov["sleeper"] == "ok" and cov["espn_injuries"] == "ok" else \
+        f"Injury sources partly unavailable: Sleeper {cov['sleeper']}, ESPN {cov['espn_injuries']}"
     dk = await fetch_odds(season, week)
     from app.big_picture import history
     backtest = await history.backtest(season, week)
@@ -359,8 +298,8 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
         wx = g.weather or {}
         mdl = model_game(gb, hp, ap, league, league_points, league_plays)
         mkt = market_view(key, dk, g.context)
-        inj = {"home": team_injuries(g.home, statuses.get(g.home, []), table),
-               "away": team_injuries(g.away, statuses.get(g.away, []), table)}
+        (home_inj, home_cov), (away_inj, away_cov) = team_injuries(g.home, roster_data, table), team_injuries(g.away, roster_data, table)
+        inj = {"home": home_inj, "away": away_inj}
         open_news = unresolved(inj["home"]) or unresolved(inj["away"])
         cands = candidates(mdl, mkt, open_news, trust)
         gd = details.get(g.game_id)
@@ -391,6 +330,7 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
             "candidates": cands,
             "unresolved_news": open_news,
             "injuries": inj,
+            "injury_sources": {"home": home_cov, "away": away_cov},
             "weather": {k: wx.get(k) for k in ("summary", "roof", "temp_f", "wind_mph", "gust_mph", "precip_chance",
                                                 "severity", "flags", "impact", "multipliers", "long_range", "source")},
             "environment": {**{k: env.get(k) for k in ("env_rank", "env_score", "pop_rank", "pop_share", "shootout",
@@ -437,7 +377,8 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
 
     gaps = [
         "Betting ticket and handle splits: no source connected -- public-betting sentiment is inferred, not measured.",
-        "Practice participation: not published in the connected feeds -- designations only.",
+        f"Official team injury reports: {cov['team_reports']} of {cov['teams']} teams have posted Week {week} "
+        "(reports start Wednesday; until then designations come from Sleeper, ESPN and DraftKings).",
         "Beat-reporter news and coaching comments: not connected.",
         "Sportsbooks other than DraftKings: not used (DraftKings only, by design).",
         "Showdown slates: listed, analyzed in depth only through the main-slate model.",
@@ -458,7 +399,13 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
                       "status": dk.get("status"), "captured_at": dk.get("captured_at")},
                      {"name": "nflverse play-by-play", "use": "EPA/play, success, pressure, explosive rates (app.trenches)"},
                      {"name": "nflverse schedules/lines", "use": "consensus lines, results, pace"},
-                     {"name": "Sleeper", "use": "injury designations and depth charts (all positions)", "captured_at": now_iso()},
+                     {"name": "Sleeper", "use": "injury designations and depth charts (all positions)", "status": cov["sleeper"],
+                      "captured_at": now_iso()},
+                     {"name": "ESPN", "use": "injury feed and team depth charts", "status": cov["espn_injuries"],
+                      "captured_at": now_iso()},
+                     {"name": "Team sites", "use": f"official injury reports ({cov['team_reports']}/{cov['teams']} posted) "
+                                                   f"and depth charts ({cov['team_depth_charts']}/{cov['teams']} readable)",
+                      "captured_at": now_iso()},
                      {"name": "DraftKings DFS", "use": "salaries, DFS player statuses, slates"},
                      {"name": "DFSRiches DFS model", "use": "projections, floors/ceilings, ownership, leverage"},
                      {"name": "National Weather Service (app.weather)", "use": "kickoff forecasts and projection multipliers"},

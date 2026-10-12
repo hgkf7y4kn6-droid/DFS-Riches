@@ -164,7 +164,9 @@ ANALYSTS = {
           "A forecaster who separates point estimates from confident forecasts and never overreacts to small samples."),
     "C": ("Injury, Personnel & Depth-Chart Analyst",
           "Explain each meaningful designation by football function: who replaces whom, which unit weakens, which teammates gain "
-          "a role, and whether it touches quarterback play, protection, pass rush, coverage or run fits.",
+          "a role, and whether it touches quarterback play, protection, pass rush, coverage or run fits. Each player's "
+          "designation and next man up are cross-checked across Sleeper, ESPN, the team's official report and DraftKings: "
+          "use the reconciled status and next_up, and call out where the sources disagree.",
           "A former pro scout who reads injuries as matchup consequences, not names; separates Out from Questionable."),
     "D": ("Game Environment & Shootout Analyst",
           "Rank game environments by combined scoring, shootout odds (50+), both teams scoring 24+, and correlated DFS ceiling; "
