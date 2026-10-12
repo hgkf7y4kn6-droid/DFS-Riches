@@ -2,7 +2,7 @@
 
 Frameworks, each doing what it's good at:
 
-* Hugging Face -- Llama (default meta-llama/Llama-3.3-70B-Instruct) served
+* Hugging Face -- Llama (default meta-llama/Llama-3.1-8B-Instruct) served
   through Hugging Face Inference Providers (HF_TOKEN; BIG_PICTURE_MODEL and
   BIG_PICTURE_PROVIDER choose the model and the provider).
 * LangChain -- the model interface (langchain-huggingface's ChatHuggingFace),
@@ -30,7 +30,7 @@ os.environ.setdefault("CREWAI_TRACING_ENABLED", "false")
 from crewai import Agent, Crew, Process, Task  # noqa: E402
 from crewai.llms.base_llm import BaseLLM  # noqa: E402
 
-DEFAULT_MODEL = "meta-llama/Llama-3.3-70B-Instruct"
+DEFAULT_MODEL = "meta-llama/Llama-3.1-8B-Instruct"    # small and cheap; BIG_PICTURE_MODEL overrides
 
 RULES = """Rules for everything you write:
 - Use ONLY facts and numbers from the data you are given. Never invent odds, prices, injuries, statistics,

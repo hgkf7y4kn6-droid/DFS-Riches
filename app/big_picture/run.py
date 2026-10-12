@@ -72,19 +72,20 @@ async def research(season: int | None = None, week: int | None = None, desk_only
     tables = writer.build_tables(d)
     desk = writer.desk_sections(d)
 
-    sections, notes, review, model_name = dict(desk), {}, None, None
+    sections, notes, review, model_name, usage = dict(desk), {}, None, None, None
     authors = {n: "desk" for n in desk}
     if not desk_only and os.environ.get("HF_TOKEN"):
         try:
             from app.big_picture import agents
             out = await asyncio.to_thread(agents.run, d, tables)
-            model_name = out.get("model")
+            model_name, usage = out.get("model"), out.get("usage")
             notes, review = out.get("notes") or {}, out.get("review")
             for n, text in (out.get("sections") or {}).items():
                 if text and text.strip():
                     sections[n], authors[n] = text.strip(), "agents"
         except Exception as exc:          # the desk version stands; say so in the report
-            log.warning("agents failed: %s", type(exc).__name__)
+            # The provider's error (e.g. auth, model access, context length) -- never report content.
+            log.warning("agents failed: %s: %s", type(exc).__name__, str(exc)[:300])
             review = {"verdict": "agents unavailable", "issues": [f"Research agents failed ({type(exc).__name__}); "
                                                                   "this report uses the desk's template writing."]}
     unverified = qc.check_sections(sections, d, tables)
@@ -99,6 +100,7 @@ async def research(season: int | None = None, week: int | None = None, desk_only
         "title": title(d), "header": header(d),
         "writer": "agents" if "agents" in authors.values() else "desk",
         "model": model_name,
+        "usage": usage,
         "sections": [{"n": n, "title": t, "markdown": sections.get(n, ""), "author": authors.get(n, "desk"),
                       "unverified": unverified.get(n, [])} for n, t in writer.SECTIONS],
         "tables": tables,
@@ -111,7 +113,7 @@ async def research(season: int | None = None, week: int | None = None, desk_only
                "games": len(d["games"]), "generated_et": d["meta"]["generated_et"]}
     kind = "agents" if report["writer"] == "agents" else "desk"
     saved = await asyncio.to_thread(store.add_report, season, week, kind, summary, d, report)
-    return {**saved, "season": season, "week": week, "kind": kind, "summary": summary}
+    return {**saved, "season": season, "week": week, "kind": kind, "summary": summary, "usage": usage}
 
 
 def main() -> None:
@@ -125,7 +127,7 @@ def main() -> None:
     # Only metadata: the report itself stays out of public logs.
     print(f"Stored Big Picture report #{out['id']} ({out['kind']}) for {out['season']} Week {out['week']}: "
           f"{out['summary']['games']} games, {out['summary']['edges']} rated edges, at {out['created_at']}"
-          f" ({datetime.now(timezone.utc).isoformat(timespec='seconds')})")
+          f" ({datetime.now(timezone.utc).isoformat(timespec='seconds')}); language model usage: {out.get('usage')}")
 
 
 if __name__ == "__main__":
