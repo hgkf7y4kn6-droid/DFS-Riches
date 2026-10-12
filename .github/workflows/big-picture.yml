@@ -50,9 +50,12 @@ jobs:
             requirements.txt
             requirements-agents.txt
       - name: Install
+        # The agent frameworks first, then the site's own pins on top: crewai pulls newer
+        # starlette/httpx than FastAPI 0.115 supports, and the run imports the site's code.
+        # (The agents run fine on the older httpx -- tests/test_big_picture_agents.py.)
         run: |
-          pip install -r requirements.txt
           pip install -r requirements-agents.txt
+          pip install -r requirements.txt
       - name: Check configuration
         run: |
           if [ -z "$DATABASE_URL" ]; then echo "::error::Add the DATABASE_URL repository secret (Settings > Secrets and variables > Actions)"; exit 1; fi
