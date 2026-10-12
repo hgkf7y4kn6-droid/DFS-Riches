@@ -3,6 +3,7 @@ __pycache__/
 .venv/
 venv/
 data/cache/*.json
+data/cache/big_picture/
 !data/cache/.gitkeep
 .env
 data/ownership/

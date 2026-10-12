@@ -1027,6 +1027,95 @@
     @apply text-muted-foreground;
   }
 
+  /* ----------------------------------------------- Big Picture (pilot) */
+  .bp-head {
+    @apply mb-3 rounded-2xl border border-border bg-card p-4;
+  }
+  .bp-title {
+    @apply text-base font-sans-extrabold text-foreground;
+  }
+  .bp-badge {
+    @apply overflow-hidden rounded-full px-2 py-0.5 text-[11px] font-sans-bold;
+  }
+  .bp-badge-ok {
+    @apply bg-success text-white;
+  }
+  .bp-badge-prelim {
+    @apply bg-warning text-white;
+  }
+  .bp-section {
+    @apply mb-3 rounded-2xl border border-border bg-card p-4;
+  }
+  .bp-section-n {
+    @apply mr-2 w-6 text-sm font-sans-extrabold text-accent-ink;
+  }
+  .bp-section-title {
+    @apply text-base font-sans-bold text-foreground;
+  }
+  .bp-chevron {
+    @apply text-xs text-muted-foreground;
+  }
+  .bp-md-h {
+    @apply mb-1 mt-2 text-sm font-sans-bold text-foreground;
+  }
+  .bp-md-p {
+    @apply mb-2 text-sm font-sans-medium leading-5 text-foreground;
+  }
+  .bp-md-li {
+    @apply mb-1.5 flex-row;
+  }
+  .bp-md-marker {
+    @apply w-5 text-sm font-sans-bold text-accent-ink;
+  }
+  .bp-md-text {
+    @apply text-sm font-sans-medium leading-5 text-foreground;
+  }
+  .bp-strong {
+    @apply font-sans-bold;
+  }
+  .bp-md-table {
+    @apply mb-2 rounded-lg border border-border p-2;
+  }
+  .bp-md-th {
+    @apply text-xs font-sans-bold text-foreground;
+  }
+  .bp-md-td {
+    @apply mt-1 text-xs font-sans-medium text-muted-foreground;
+  }
+  .bp-row {
+    @apply border-b border-border py-2;
+  }
+  .bp-row-title {
+    @apply pr-2 text-sm font-sans-semibold text-foreground;
+  }
+  .bp-row-meta {
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .bp-class {
+    @apply text-[11px] font-sans-bold;
+  }
+  .bp-class-strong {
+    @apply text-success;
+  }
+  .bp-class-small {
+    @apply text-info;
+  }
+  .bp-class-watch {
+    @apply text-warning;
+  }
+  .bp-class-none {
+    @apply text-muted-foreground;
+  }
+  .bp-warn {
+    @apply mt-2 text-xs font-sans-semibold text-warning;
+  }
+  .bp-gap {
+    @apply mt-1 text-xs font-sans-medium text-muted-foreground;
+  }
+  .bp-author {
+    @apply mt-2 text-[11px] font-sans-medium text-muted-foreground;
+  }
+
   /* ------------------------------------------------- buttons and chips */
   .btn {
     @apply items-center rounded-xl bg-primary px-4 py-3;

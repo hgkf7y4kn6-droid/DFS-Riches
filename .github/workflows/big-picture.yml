@@ -1,0 +1,61 @@
+# Big Picture (NFL Intelligence Desk) research run: builds the dossier, runs
+# the research agents (CrewAI + LangChain + Llama via Hugging Face) and stores
+# a new report version in Postgres, where the app's master-only Big Picture
+# tab reads it. Runs here, not on the web server, for the memory the agent
+# frameworks need. Logs show only metadata: the report stays in the database.
+#
+# Repository secrets: DATABASE_URL (Neon, same as the server), HF_TOKEN
+# (Hugging Face access token with Inference Providers permission).
+# Optional repository variables: BIG_PICTURE_MODEL, BIG_PICTURE_PROVIDER.
+name: Big Picture research run
+
+on:
+  workflow_dispatch:
+    inputs:
+      week:
+        description: "NFL week (blank = the upcoming week)"
+        required: false
+      desk_only:
+        description: "Skip the language model (desk template writing only)"
+        type: boolean
+        default: false
+  schedule:
+    - cron: "37 11 * * *"     # daily, 7:37 AM ET (EDT)
+    - cron: "47 15 * * 0"     # Sundays 11:47 AM ET, after the early games' inactives
+
+concurrency:
+  group: big-picture
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      BIG_PICTURE_MODEL: ${{ vars.BIG_PICTURE_MODEL }}
+      BIG_PICTURE_PROVIDER: ${{ vars.BIG_PICTURE_PROVIDER }}
+      BIG_PICTURE_WEEK: ${{ inputs.week }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-agents.txt
+      - name: Install
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-agents.txt
+      - name: Check configuration
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "::error::Add the DATABASE_URL repository secret (Settings > Secrets and variables > Actions)"; exit 1; fi
+          if [ -z "$HF_TOKEN" ]; then echo "::warning::No HF_TOKEN secret: the report uses the desk's template writing, without the research agents"; fi
+      - name: Research run
+        run: python -m app.big_picture.run ${{ inputs.desk_only && '--desk-only' || '' }}

@@ -1,4 +1,5 @@
 import add from '@/assets/icons/add.png';
+import bigpicture from '@/assets/icons/bigpicture.png';
 import calendar from '@/assets/icons/calendar.png';
 import chevron from '@/assets/icons/chevron.png';
 import cash from '@/assets/icons/cash.png';
@@ -16,6 +17,7 @@ import slates from '@/assets/icons/slates.png';
 // asset paths directly. Glyphs are white on transparent, tinted at runtime.
 const icons = {
   add,
+  bigpicture,
   calendar,
   cash,
   chevron,

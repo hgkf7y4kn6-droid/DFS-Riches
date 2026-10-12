@@ -1,0 +1,7 @@
+# Big Picture research agents (app/big_picture/agents.py). Installed only by
+# the GitHub Actions research run (.github/workflows/big-picture.yml) -- never
+# in the web server's image, whose 512 MB can't hold them.
+crewai==1.15.27
+langchain-core==1.6.10
+langchain-huggingface==1.2.3
+huggingface_hub==1.33.0

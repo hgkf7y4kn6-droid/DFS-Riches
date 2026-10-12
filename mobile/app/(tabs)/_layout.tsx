@@ -4,12 +4,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HIDDEN_TAB_ROUTES, tabs } from '@/constants/data';
 import { FLOATING_TAB_BAR, fonts, useThemeColors } from '@/constants/theme';
+import { useAccountSync } from '@/lib/account-sync';
 
 export default function TabLayout() {
   // The tab bar floats above the device's bottom inset (home indicator /
   // gesture bar) on every phone.
   const insets = useSafeAreaInsets();
   const theme = useThemeColors();
+  const { master } = useAccountSync();
   // On web, the stylesheet's theme variables (they follow the device's light/dark
   // setting instantly, even on the pre-rendered page); native uses the palette.
   const colors =
@@ -67,6 +69,7 @@ export default function TabLayout() {
           name={tab.name}
           options={{
             title: tab.title,
+            ...(tab.masterOnly && !master ? { href: null } : null),
             tabBarIcon: ({ focused }) => (
               <View className={`tabs-pill ${focused ? 'tabs-active' : ''}`}>
                 <Image

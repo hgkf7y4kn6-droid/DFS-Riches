@@ -10,11 +10,13 @@ interface AppTab {
   /** Stable id, used as the React key. */
   id: string;
   /** Route file name inside app/(tabs) (e.g. "index" for app/(tabs)/index.tsx). */
-  name: 'index' | 'dfs-model' | 'cash' | 'gpp' | 'settings';
+  name: 'index' | 'dfs-model' | 'cash' | 'gpp' | 'big-picture' | 'settings';
   /** Label under the icon and the screen title. */
   title: string;
   /** Icon from constants/icons.ts, tinted with the active/inactive color. */
   icon: import('react-native').ImageSourcePropType;
+  /** Shown only to master accounts (hidden from the tab bar for everyone else). */
+  masterOnly?: boolean;
 }
 
 /** The signed-in user shown in the Home header. */
@@ -931,4 +933,93 @@ interface AccountData {
   /** Where the data lives: Neon Postgres, Clerk metadata, or not configured on the server. */
   storage: 'neon' | 'clerk' | 'none';
   data: Partial<Record<SyncKey, SyncedDoc>>;
+}
+
+// ------------------------------------------------------------- Big Picture (master-only pilot)
+interface BigPictureRow {
+  game: string;
+  market: string;
+  side: string;
+  opening: string;
+  current: string;
+  fair: string;
+  edge: string;
+  status: string;
+  class: 'strongest' | 'price_sensitive' | 'watchlist' | 'none';
+  moved: string | null;
+}
+
+interface BigPictureChange {
+  item: string;
+  previous: string;
+  current: string;
+  reason: string;
+  action: string;
+}
+
+interface BigPictureSection {
+  n: number;
+  title: string;
+  markdown: string;
+  author: string;
+  unverified: string[];
+}
+
+interface BigPictureRecord {
+  w: number;
+  l: number;
+  p: number;
+  n: number;
+  win_pct: number | null;
+}
+
+interface BigPictureReport {
+  title: string;
+  header: {
+    generated_et: string;
+    status: 'Preliminary' | 'Updated';
+    week: number;
+    season: number;
+    games: string[];
+    markets: string[];
+    freshness: { source: string; status?: string | null; captured_at?: string | null }[];
+    gaps: string[];
+  };
+  writer: 'agents' | 'desk';
+  model: string | null;
+  sections: BigPictureSection[];
+  tables: { dashboard: BigPictureRow[]; changelog: BigPictureChange[] };
+  qc: { review: { verdict: string; issues: { section: number; problem: string; fix?: string }[]; revised?: boolean } | null };
+  agent_notes: Record<string, string>;
+  elapsed_s: number;
+}
+
+interface BigPictureVersion {
+  id: number;
+  created_at: string;
+  season: number;
+  week: number;
+  kind: string;
+  summary: { title: string; status: string; writer: string; edges: number; games: number; generated_et: string };
+}
+
+interface BigPictureResponse {
+  report: {
+    id: number;
+    created_at: string;
+    season: number;
+    week: number;
+    kind: string;
+    report: BigPictureReport;
+    dossier?: {
+      track_record?: {
+        backtest?: Record<string, unknown> & { games: number; note?: string };
+        graded?: { record: BigPictureRecord; avg_clv_points: number | null; note: string | null };
+      };
+      calibration?: { trusted?: { spread?: boolean; total?: boolean } };
+    };
+  } | null;
+  versions: BigPictureVersion[];
+  can_run: boolean;
+  run: { status: string | null; conclusion?: string | null; started_at?: string | null } | null;
 }

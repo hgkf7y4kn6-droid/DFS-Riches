@@ -111,3 +111,27 @@ export async function postActualOwnership(
   }
   return (await res.json()) as ActualUploadResult;
 }
+
+async function authed<T>(token: string, path: string, method: 'GET' | 'POST' = 'GET'): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}${path}`, { method, headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } });
+  if (!res.ok) {
+    let detail = `${res.status} ${res.statusText}`;
+    try {
+      detail = ((await res.json()) as { detail?: string }).detail ?? detail;
+    } catch {
+      // not JSON
+    }
+    throw new Error(detail);
+  }
+  return (await res.json()) as T;
+}
+
+/** Master accounts: the NFL Intelligence Desk report (newest, or one version by id) and its version list. */
+export function getBigPicture(token: string, id?: number | null) {
+  return authed<BigPictureResponse>(token, `/api/big-picture${id ? `?id=${id}` : ''}`);
+}
+
+/** Master accounts: start a research run now (when on-demand runs are configured). */
+export function runBigPicture(token: string) {
+  return authed<{ started: boolean }>(token, '/api/big-picture/run', 'POST');
+}

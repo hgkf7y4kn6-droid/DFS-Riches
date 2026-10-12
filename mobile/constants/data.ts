@@ -7,6 +7,8 @@ export const tabs: AppTab[] = [
   { id: 'dfs-model', name: 'dfs-model', title: 'DFS Model', icon: icons.dfs },
   { id: 'cash', name: 'cash', title: 'Cash', icon: icons.cash },
   { id: 'gpp', name: 'gpp', title: 'GPP', icon: icons.gpp },
+  // Master accounts only while it's piloted (the tab is hidden for everyone else).
+  { id: 'big-picture', name: 'big-picture', title: 'Big Picture', icon: icons.bigpicture, masterOnly: true },
   { id: 'settings', name: 'settings', title: 'Settings', icon: icons.settings },
 ];
 

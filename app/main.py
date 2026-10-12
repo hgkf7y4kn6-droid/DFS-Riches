@@ -560,6 +560,91 @@ async def api_ownership_duplication(body: dict = Body(...)):
     return {"duplication": rep["duplication"], "leverage": rep["leverage"], "contest_size": size}
 
 
+# ------------------------------------------------------------------ Big Picture (master-only pilot)
+BIG_PICTURE_WORKFLOW = "big-picture.yml"
+
+
+@app.get("/api/odds")
+async def api_odds(season: Annotated[int | None, Query(ge=2000, le=2100)] = None,
+                   week: Annotated[int | None, Query(ge=1, le=22)] = None, summary: bool = False):
+    """DraftKings Sportsbook lines for a week (default: the upcoming one) (app.big_picture.odds): opening
+    (first captured) and current quotes per game and market. Each call may take a fresh snapshot (at most
+    every 10 minutes); summary=1 returns only the capture status."""
+    from app.big_picture import dossier as bp_dossier
+    from app.big_picture import odds as odds_module
+    from app.big_picture import store as bp_store
+    try:
+        if season is None or week is None:
+            season, week = await bp_dossier.target_week()
+        schedule, _ = await slates.list_slates(season, week)
+        games = [(g.away, g.home) for g in schedule.games + schedule.isolated_games]
+        snap = await odds_module.snapshot(season, week, games)
+        history = await asyncio.to_thread(bp_store.odds_history, season, week)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not load odds: {exc}") from exc
+    out = {"source": odds_module.SOURCE, "season": season, "week": week, "available": bool(history),
+           "status": snap.get("status"), "captured_at": snap.get("fetched_at"), "stored": snap.get("stored"),
+           "quotes_total": len(history)}
+    if not summary:
+        out["games"] = odds_module.summarize(history)
+    return out
+
+
+async def _workflow_status() -> dict | None:
+    token = os.environ.get("GITHUB_DISPATCH_TOKEN")
+    if not token:
+        return None
+    import httpx
+    repo = os.environ.get("GITHUB_REPO", "hgkf7y4kn6-droid/DFS-Riches")
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(f"https://api.github.com/repos/{repo}/actions/workflows/{BIG_PICTURE_WORKFLOW}/runs",
+                                 params={"per_page": 1}, headers={"Authorization": f"Bearer {token}",
+                                                                  "Accept": "application/vnd.github+json"})
+            runs = r.json().get("workflow_runs") or [] if r.status_code == 200 else []
+    except Exception:
+        return None
+    if not runs:
+        return {"status": None}
+    run = runs[0]
+    return {"status": run.get("status"), "conclusion": run.get("conclusion"), "started_at": run.get("run_started_at"),
+            "updated_at": run.get("updated_at")}
+
+
+@app.get("/api/big-picture")
+async def api_big_picture(id: int | None = None, authorization: Annotated[str | None, Header()] = None):
+    """The NFL Intelligence Desk report (master accounts only): the newest version, or one by id, plus the
+    version list and whether a new run can be started from the app."""
+    await _require_master(authorization)
+    from app.big_picture import store as bp_store
+    try:
+        report = await asyncio.to_thread(bp_store.get_report, id, with_dossier=True)
+        versions = await asyncio.to_thread(bp_store.list_reports, None, 40)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not load the Big Picture: {exc}") from exc
+    return {"report": report, "versions": versions, "can_run": bool(os.environ.get("GITHUB_DISPATCH_TOKEN")),
+            "run": await _workflow_status()}
+
+
+@app.post("/api/big-picture/run")
+async def api_big_picture_run(authorization: Annotated[str | None, Header()] = None):
+    """Start a research run (GitHub Actions workflow) now. Master accounts only."""
+    await _require_master(authorization)
+    token = os.environ.get("GITHUB_DISPATCH_TOKEN")
+    if not token:
+        raise HTTPException(status_code=503, detail="On-demand runs aren't set up (GITHUB_DISPATCH_TOKEN); reports run on schedule.")
+    import httpx
+    repo = os.environ.get("GITHUB_REPO", "hgkf7y4kn6-droid/DFS-Riches")
+    ref = os.environ.get("GITHUB_REF_NAME", "claude/dfsriches-explorer-t1pdh5")
+    async with httpx.AsyncClient(timeout=15) as client:
+        r = await client.post(f"https://api.github.com/repos/{repo}/actions/workflows/{BIG_PICTURE_WORKFLOW}/dispatches",
+                              json={"ref": ref}, headers={"Authorization": f"Bearer {token}",
+                                                          "Accept": "application/vnd.github+json"})
+    if r.status_code not in (201, 204):
+        raise HTTPException(status_code=502, detail=f"GitHub refused the run (HTTP {r.status_code})")
+    return {"started": True}
+
+
 def _web_file(path: str):
     """The web build's file for a URL path: the file itself, its pre-rendered
     .html route (expo-router static output), or the app shell for anything else."""
