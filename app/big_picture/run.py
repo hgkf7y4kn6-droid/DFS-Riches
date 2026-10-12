@@ -57,6 +57,11 @@ def header(d: dict) -> dict:
 
 async def research(season: int | None = None, week: int | None = None, desk_only: bool = False) -> dict:
     t0 = time.time()
+    try:        # DraftKings refuses some cloud servers: capture from this runner if the site couldn't
+        from app.big_picture import odds
+        await odds.snapshot_via_runner(dossier_module.SITE)
+    except Exception as exc:
+        log.warning("odds snapshot from the runner failed: %s", type(exc).__name__)
     d = await dossier_module.build(season, week)
     season, week = d["meta"]["season"], d["meta"]["week"]
     prev = (await asyncio.to_thread(store.previous_dossiers, season, week, None, 1) or [None])[0]

@@ -201,3 +201,35 @@ def summarize(history: list[dict]) -> dict:
             for s in m.values():
                 s["moves"] = s["moves"][-12:]
     return out
+
+
+# ------------------------------------------------------------------ from a GitHub Actions runner
+async def snapshot_via_runner(site: str) -> dict:
+    """When the site's server can't read DraftKings, fetch it from here (a GitHub Actions runner) and store
+    the week's changed quotes in the same database. Returns the capture status (no odds are printed)."""
+    async with httpx.AsyncClient(timeout=120) as client:
+        info = (await client.get(f"{site}/api/odds", params={"summary": 1})).json()
+        season, week = info["season"], info["week"]
+        if info.get("status") == "ok":
+            return {"via": "site", **info}
+        wk = (await client.get(f"{site}/api/week", params={"season": season, "week": week})).json()
+    sched = wk.get("schedule") or {}
+    games = [(g["away"], g["home"]) for g in (sched.get("games") or []) + (sched.get("isolated_games") or [])]
+    if not store._url():
+        quotes, status = await fetch()
+        return {"via": "runner", "status": status, "quotes": len(quotes), "stored": 0, "note": "no DATABASE_URL: nothing stored"}
+    out = await snapshot(season, week, games, force=True)
+    return {"via": "runner", "season": season, "week": week, **out}
+
+
+def main() -> None:
+    import asyncio
+    import json
+    import os
+    logging.basicConfig(level=logging.WARNING)
+    site = os.environ.get("BIG_PICTURE_SITE", "https://dfsriches.richesdigitalventures.com")
+    print(json.dumps(asyncio.run(snapshot_via_runner(site))))
+
+
+if __name__ == "__main__":
+    main()

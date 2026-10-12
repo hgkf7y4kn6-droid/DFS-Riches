@@ -1,6 +1,9 @@
-# Captures DraftKings Sportsbook lines every two hours through the site's
-# /api/odds (its server stores each changed quote), so the Big Picture has
-# opening lines and line-movement history. No secrets; a few seconds a run.
+# Captures DraftKings Sportsbook lines every two hours so the Big Picture has
+# opening lines and line-movement history. First through the site's
+# /api/odds (its server stores each changed quote); DraftKings refuses some
+# cloud servers, so when the site can't read it, this runner fetches
+# DraftKings itself and stores the quotes (needs the DATABASE_URL secret).
+# Logs show only capture counts and status.
 name: Odds snapshot
 
 on:
@@ -8,14 +11,21 @@ on:
   schedule:
     - cron: "13 */2 * * *"
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   snapshot:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
       - name: Capture DraftKings lines
-        run: |
-          curl -fsS --retry 3 --retry-delay 20 --max-time 120 \
-            "https://dfsriches.richesdigitalventures.com/api/odds?summary=1" | head -c 300
+        run: python -m app.big_picture.odds
