@@ -15,6 +15,7 @@ import argparse
 import asyncio
 import logging
 import os
+import re
 import time
 from datetime import datetime, timezone
 
@@ -117,16 +118,19 @@ async def research(season: int | None = None, week: int | None = None, desk_only
 
 
 def clean_database_url(raw: str | None) -> str | None:
-    """The bare postgresql:// URL from a pasted secret: tolerates surrounding quotes and whitespace and the
-    "psql '...'" / "DATABASE_URL=..." forms Neon's connection snippets copy."""
+    """The bare postgresql:// URL from a pasted secret, wherever it sits in the pasted text: tolerates quotes,
+    whitespace, invisible characters, extra lines and the "psql '...'" / "DATABASE_URL=..." snippet forms."""
     if not raw:
         return raw
-    s = raw.strip()
-    for prefix in ("DATABASE_URL=", "export DATABASE_URL=", "psql "):
-        if s.startswith(prefix):
-            s = s[len(prefix):].strip()
-    s = s.strip("'\"").strip()
-    return s
+    m = re.search(r"postgres(?:ql)?://[^\s'\"]+", raw)
+    return m.group(0) if m else raw.strip().strip("'\"").strip()
+
+
+def describe_secret(value: str) -> str:
+    """Harmless facts about a secret's shape for a log line -- never the value or any part of its credentials."""
+    scheme = value.split("://", 1)[0] if "://" in value and len(value.split("://", 1)[0]) <= 15 else None
+    return (f"length {len(value)}, scheme {scheme or 'none'}, has '@' {'@' in value}, lines {value.count(chr(10)) + 1}, "
+            f"mentions neon.tech {'neon.tech' in value}, first character {'letter' if value[:1].isalpha() else repr(value[:1]) if not value[:1].isalnum() else 'digit'}")
 
 
 def main() -> None:
@@ -134,7 +138,8 @@ def main() -> None:
     if os.environ.get("DATABASE_URL"):
         os.environ["DATABASE_URL"] = clean_database_url(os.environ["DATABASE_URL"])
         if not os.environ["DATABASE_URL"].startswith(("postgresql://", "postgres://")):
-            raise SystemExit("DATABASE_URL secret isn't a postgresql:// connection URL -- re-paste it from Render or Neon")
+            raise SystemExit("DATABASE_URL secret isn't a postgresql:// connection URL -- re-paste it from Render or Neon "
+                             f"({describe_secret(os.environ['DATABASE_URL'])})")
     ap = argparse.ArgumentParser()
     ap.add_argument("--season", type=int)
     ap.add_argument("--week", type=int)

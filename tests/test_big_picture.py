@@ -172,5 +172,12 @@ def test_grading_results():
 def test_clean_database_url():
     from app.big_picture.run import clean_database_url
     url = "postgresql://u:p@host/db?sslmode=require"
-    for raw in (url, f"'{url}'", f'"{url}"', f"  {url}\n", f"psql '{url}'", f"DATABASE_URL={url}", f"DATABASE_URL='{url}'"):
+    for raw in (url, f"'{url}'", f'"{url}"', f"  {url}\n", f"psql '{url}'", f"DATABASE_URL={url}", f"DATABASE_URL='{url}'",
+                f"\ufeff{url}", f"DATABASE_URL\n{url}\n", f"\u200b{url}"):
         assert clean_database_url(raw) == url
+
+
+def test_describe_secret_never_shows_the_value():
+    from app.big_picture.run import describe_secret
+    d = describe_secret("https://console.neon.tech/app/projects/secret-project-id")
+    assert "secret-project-id" not in d and "scheme https" in d and "mentions neon.tech True" in d
