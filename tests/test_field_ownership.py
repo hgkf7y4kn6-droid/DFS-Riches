@@ -60,13 +60,12 @@ def test_cash_field_is_more_concentrated_than_large_gpp():
     assert cash.max() > gpp.max()
 
 
-def test_bradley_terry_shares_sum_to_slots_and_pairwise_odds():
+def test_bradley_terry_shares_sum_to_slots():
     rows = fo.engineer(*_table())
     totals = {"QB": 1.0, "RB": 2.4, "WR": 3.5, "TE": 1.1, "DST": 1.0}
     bt = fo.bradley_terry(rows, "cash", 2.5, totals)
     for pos, total in totals.items():
         assert sum(bt[i] for i, r in enumerate(rows) if r["position"] == pos) == pytest.approx(total)
-    assert fo.bt_head_to_head(3.0, 1.0) == pytest.approx(0.75)
 
 
 def test_fractional_logit_recovers_a_bounded_relationship():

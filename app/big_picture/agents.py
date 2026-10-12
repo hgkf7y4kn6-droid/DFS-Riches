@@ -245,7 +245,7 @@ def build_crew(d: dict, tables: dict, llm) -> tuple[Crew, dict[str, Task], list[
     }
     editor = _agent(EDITOR, llm)
     editor_tasks = []
-    for numbers, briefs in EDITOR_GROUPS:
+    for _numbers, briefs in EDITOR_GROUPS:
         spec = "\n".join(f"## {n} -- then the section: {brief}" for n, brief in briefs.items())
         editor_tasks.append(Task(
             description=f"{RULES}\n\nFact sheet (JSON) -- the only numbers you may use:\n{facts}\n\nUsing the analysts' findings "

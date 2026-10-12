@@ -206,7 +206,6 @@ class CeilingDetail:
     reasons: dict[str, str] = field(default_factory=dict)
     flags: list[str] = field(default_factory=list)
     usage_l3: float | None = None
-    usage_l8: float | None = None
     matchup_vs_avg: float | None = None   # opponent's DK pts allowed to this position vs league, e.g. +0.42
 
 
@@ -293,7 +292,7 @@ def player_ceiling_detail(
             m = _shrunk(s3 / s8, 0.5, 0.9, 1.15)
             mult *= m
             d.factors["usage"] = m
-            d.usage_l3, d.usage_l8 = s3, s8
+            d.usage_l3 = s3
             trend = "up from" if s3 > s8 * 1.03 else "down from" if s3 < s8 * 0.97 else "steady vs"
             d.reasons["usage"] = f"{s3:.0%} of {team} targets+carries ({trend} {s8:.0%})"
             d.notes.append(f"Usage x{m:.2f}: {s3:.0%} of team targets+carries (L3) vs {s8:.0%} (L8)")

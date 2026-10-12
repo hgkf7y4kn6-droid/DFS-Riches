@@ -36,7 +36,6 @@ MIN_FETCH_SECONDS = 600          # at most one DraftKings fetch per 10 minutes
 _LAST: dict = {"at": 0.0, "status": None}
 
 NICKNAMES = {full.split()[-1].lower(): abbr for full, abbr in TEAM_NAMES.items()}
-CITIES = {" ".join(full.split()[:-1]).lower(): abbr for full, abbr in TEAM_NAMES.items()}
 
 
 def team_abbr(name: str | None) -> str | None:

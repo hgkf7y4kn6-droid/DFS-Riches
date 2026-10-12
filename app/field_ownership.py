@@ -294,10 +294,6 @@ def bradley_terry(rows: list[dict], contest: str, price_per_k: float, slot_total
     return out
 
 
-def bt_head_to_head(strength_a: float, strength_b: float) -> float:
-    return strength_a / (strength_a + strength_b)
-
-
 # ------------------------------------------------- trained models (history)
 def _matrix(rows: list[dict]) -> np.ndarray:
     return np.array([[float(r.get(k, 0.0)) for k in FEATURES] for r in rows])

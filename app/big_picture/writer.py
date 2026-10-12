@@ -24,8 +24,6 @@ SECTIONS = [
 ]
 CLASS_LABEL = {"strongest": "Strongest modeled edge", "price_sensitive": "Smaller / price-sensitive edge",
                "watchlist": "Watchlist pending news", "none": "No current edge"}
-MARKET_LABEL = {"spread": "Spread", "total": "Total", "team_total_home": "Team total", "team_total_away": "Team total",
-                "moneyline": "Moneyline"}
 
 
 # ------------------------------------------------------------------ formatting

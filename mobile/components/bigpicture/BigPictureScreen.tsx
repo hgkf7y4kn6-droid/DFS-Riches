@@ -143,7 +143,7 @@ function TrackRecord({ data }: { data: NonNullable<BigPictureResponse['report']>
 }
 
 /** One stored report: header, version picker, the 12 sections, track record, quality control, analyst notes. */
-export function ReportView({ data, onSelectVersion }: { data: BigPictureResponse; onSelectVersion: (id: number) => void }) {
+function ReportView({ data, onSelectVersion }: { data: BigPictureResponse; onSelectVersion: (id: number) => void }) {
   const [open, setOpen] = useState<Record<number, boolean>>({ 1: true });
   const [showMeta, setShowMeta] = useState(false);
   const [showNotes, setShowNotes] = useState(false);

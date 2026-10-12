@@ -10,7 +10,7 @@ type Block =
 const cells = (line: string) => line.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
 
 /** The report's markdown: headings, paragraphs, bullet and numbered lists, simple tables. */
-export function parseMarkdown(md: string): Block[] {
+function parseMarkdown(md: string): Block[] {
   const blocks: Block[] = [];
   let para: string[] = [];
   const flush = () => {
