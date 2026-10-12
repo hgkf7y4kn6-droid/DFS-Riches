@@ -167,3 +167,10 @@ def test_grading_results():
     assert history._result({"market": "spread", "side": "away", "line": 7.5}, fin) == "win"
     assert history._result({"market": "total", "side": "over", "line": 40.5}, fin) == "win"
     assert history._result({"market": "team_total_away", "side": "under", "line": 20.5}, fin) == "win"
+
+
+def test_clean_database_url():
+    from app.big_picture.run import clean_database_url
+    url = "postgresql://u:p@host/db?sslmode=require"
+    for raw in (url, f"'{url}'", f'"{url}"', f"  {url}\n", f"psql '{url}'", f"DATABASE_URL={url}", f"DATABASE_URL='{url}'"):
+        assert clean_database_url(raw) == url

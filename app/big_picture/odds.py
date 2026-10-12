@@ -226,6 +226,9 @@ def main() -> None:
     import json
     import os
     logging.basicConfig(level=logging.WARNING)
+    from app.big_picture.run import clean_database_url
+    if os.environ.get("DATABASE_URL"):
+        os.environ["DATABASE_URL"] = clean_database_url(os.environ["DATABASE_URL"])
     site = os.environ.get("BIG_PICTURE_SITE", "https://dfsriches.richesdigitalventures.com")
     print(json.dumps(asyncio.run(snapshot_via_runner(site))))
 

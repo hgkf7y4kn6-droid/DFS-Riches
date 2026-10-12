@@ -116,8 +116,25 @@ async def research(season: int | None = None, week: int | None = None, desk_only
     return {**saved, "season": season, "week": week, "kind": kind, "summary": summary, "usage": usage}
 
 
+def clean_database_url(raw: str | None) -> str | None:
+    """The bare postgresql:// URL from a pasted secret: tolerates surrounding quotes and whitespace and the
+    "psql '...'" / "DATABASE_URL=..." forms Neon's connection snippets copy."""
+    if not raw:
+        return raw
+    s = raw.strip()
+    for prefix in ("DATABASE_URL=", "export DATABASE_URL=", "psql "):
+        if s.startswith(prefix):
+            s = s[len(prefix):].strip()
+    s = s.strip("'\"").strip()
+    return s
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    if os.environ.get("DATABASE_URL"):
+        os.environ["DATABASE_URL"] = clean_database_url(os.environ["DATABASE_URL"])
+        if not os.environ["DATABASE_URL"].startswith(("postgresql://", "postgres://")):
+            raise SystemExit("DATABASE_URL secret isn't a postgresql:// connection URL -- re-paste it from Render or Neon")
     ap = argparse.ArgumentParser()
     ap.add_argument("--season", type=int)
     ap.add_argument("--week", type=int)
