@@ -58,6 +58,11 @@ from langchain_core.messages import HumanMessage  # noqa: E402
 from app.big_picture import llms  # noqa: E402
 
 
+@pytest.fixture(autouse=True)
+def _no_waits(monkeypatch):
+    monkeypatch.setattr(llms, "RATE_LIMIT_WAITS", (0, 0))
+
+
 class _Broken:
     def invoke(self, *a, **k):
         raise RuntimeError("429 rate limited")
@@ -103,3 +108,26 @@ def test_compact_prompts_for_the_local_model():
     llm = agents.LangChainLLM(model="x", chat=None, usage={})
     _crew, analyst_tasks, _editor, _review = agents.build_crew(d, writer.build_tables(d), llm, compact=True)
     assert all(len(t.description) < agents.LOCAL_SLICE_CHARS + 2000 for t in analyst_tasks.values())
+
+
+def test_rate_limit_is_retried_before_skipping():
+    calls = []
+
+    class Flaky:
+        def invoke(self, *a, **k):
+            calls.append(1)
+            if len(calls) == 1:
+                raise RuntimeError("Error code: 429 - temporarily rate-limited upstream")
+            return FakeListChatModel(responses=["ok"]).invoke("x")
+
+    chain = llms.ProviderChain([("free", Flaky, False), ("local", lambda: FakeListChatModel(responses=["no"]), True)])
+    assert chain.invoke([HumanMessage(content="hi")]).content == "ok" and chain.used == ["free"]
+
+
+def test_local_prompts_are_trimmed_to_fit():
+    count = lambda text: len(text) // 4                       # noqa: E731
+    msgs = [{"role": "system", "content": "rules " * 50}, {"role": "user", "content": "data " * 20000}]
+    out = llms.fit(msgs, 2000, count)
+    assert sum(count(m["content"]) for m in out) <= 2000
+    assert out[1]["content"].startswith("data ") and "trimmed for the local model" in out[1]["content"]
+    assert out[0]["content"] == msgs[0]["content"]            # the short rules message is untouched

@@ -26,7 +26,10 @@ from typing import Any
 log = logging.getLogger(__name__)
 
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
-OPENROUTER_DEFAULT = "google/gemma-4-31b-it:free,nvidia/nemotron-3-super-120b-a12b:free"
+OPENROUTER_DEFAULT = "google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free,nvidia/nemotron-3-super-120b-a12b:free"
+REASONING_MODELS = ("nemotron",)              # think before answering: low effort, more room so the answer isn't cut off
+RATE_LIMIT_WAITS = (20, 60)                  # a free model "temporarily rate-limited upstream" gets these retries first
+LOCAL_PROMPT_TOKENS = 6000                   # the CPU model reads ~40 tokens/s: prompts are trimmed to this
 LOCAL_REPO = "bartowski/Llama-3.2-3B-Instruct-GGUF"
 LOCAL_FILE = "Llama-3.2-3B-Instruct-Q4_K_M.gguf"
 MAX_TOKENS = 1800
@@ -36,9 +39,11 @@ MAX_TOKENS = 1800
 def openrouter(model: str):
     from langchain_openai import ChatOpenAI
 
+    reasoning = any(r in model for r in REASONING_MODELS)
     return ChatOpenAI(
         model=model, base_url=OPENROUTER_BASE, api_key=os.environ["OPENROUTER_API_KEY"],
-        max_tokens=MAX_TOKENS, temperature=0.2, timeout=240, max_retries=1,
+        max_tokens=MAX_TOKENS * 3 if reasoning else MAX_TOKENS, temperature=0.2, timeout=300, max_retries=1,
+        extra_body={"reasoning": {"effort": "low", "exclude": True}} if reasoning else None,
         default_headers={"HTTP-Referer": "https://dfsriches.richesdigitalventures.com", "X-Title": "DFSRiches Big Picture"},
     )
 
@@ -64,10 +69,13 @@ def local_llama():
     llm = Llama(model_path=path, n_ctx=int(os.environ.get("LOCAL_CTX", "16384")), n_threads=os.cpu_count() or 4, verbose=False)
     roles = {"system": "system", "ai": "assistant", "human": "user"}
 
+    budget = int(os.environ.get("LOCAL_PROMPT_TOKENS", LOCAL_PROMPT_TOKENS))
+
     def chat(messages) -> AIMessage:
         if hasattr(messages, "to_messages"):          # a ChatPromptValue from a LangChain prompt
             messages = messages.to_messages()
         msgs = [{"role": roles.get(getattr(m, "type", "human"), "user"), "content": str(m.content)} for m in messages]
+        msgs = fit(msgs, budget, lambda text: len(llm.tokenize(text.encode("utf-8", "ignore"), add_bos=False)))
         r = llm.create_chat_completion(messages=msgs, max_tokens=MAX_TOKENS, temperature=0.2)
         u = r.get("usage") or {}
         return AIMessage(content=r["choices"][0]["message"]["content"] or "",
@@ -75,6 +83,31 @@ def local_llama():
                                          "total_tokens": u.get("total_tokens", 0)})
 
     return RunnableLambda(chat)
+
+
+def fit(msgs: list[dict], budget: int, count) -> list[dict]:
+    """Trim the longest message's middle (keeping its start and end) until the prompt fits `budget` tokens."""
+    total = sum(count(m["content"]) for m in msgs)
+    while total > budget:
+        i = max(range(len(msgs)), key=lambda j: len(msgs[j]["content"]))
+        text = msgs[i]["content"]
+        excess_chars = int((total - budget) * len(text) / max(1, count(text))) + 200
+        if excess_chars >= len(text) - 400:
+            msgs[i] = {**msgs[i], "content": text[:400]}
+        else:
+            head = (len(text) - excess_chars) * 2 // 3
+            tail = len(text) - excess_chars - head
+            msgs[i] = {**msgs[i], "content": text[:head] + "\n...(trimmed for the local model)...\n" + text[len(text) - tail:]}
+        new_total = sum(count(m["content"]) for m in msgs)
+        if new_total >= total:
+            break
+        total = new_total
+    return msgs
+
+
+def _rate_limited(exc: Exception) -> bool:
+    text = f"{type(exc).__name__} {exc}".lower()
+    return "429" in text or "rate" in text and "limit" in text
 
 
 def providers() -> list[tuple[str, Any, bool]]:
@@ -115,13 +148,26 @@ class ProviderChain:
             self._models[self.index] = self.entries[self.index][1]()
         return self._models[self.index]
 
-    def invoke(self, messages, **kwargs):
-        while self.index < len(self.entries):
-            label = self.entries[self.index][0]
+    def _call(self, messages, **kwargs):
+        """The current provider, retrying a temporary rate limit before giving up on it."""
+        import time
+        for wait in (*RATE_LIMIT_WAITS, None):
             try:
                 resp = self._model().invoke(messages, **kwargs)
                 if not (getattr(resp, "content", None) or "").strip():
                     raise RuntimeError("empty response")
+                return resp
+            except Exception as exc:
+                if wait is None or not _rate_limited(exc) or self.local:
+                    raise
+                log.info("rate limited, retrying %s in %ss", self.label, wait)
+                time.sleep(wait)
+
+    def invoke(self, messages, **kwargs):
+        while self.index < len(self.entries):
+            label = self.entries[self.index][0]
+            try:
+                resp = self._call(messages, **kwargs)
                 if label not in self.used:
                     self.used.append(label)
                 return resp
@@ -138,10 +184,8 @@ class ProviderChain:
         while self.index < len(self.entries) and not self.local:
             label = self.entries[self.index][0]
             try:
-                resp = self._model().invoke([HumanMessage(content="Reply with OK.")])
-                if (getattr(resp, "content", None) or "").strip():
-                    return
-                raise RuntimeError("empty response")
+                self._call([HumanMessage(content="Reply with OK.")])
+                return
             except Exception as exc:
                 self.failures.append(f"{label}: {type(exc).__name__}: {str(exc)[:160]}")
                 log.warning("model provider unavailable, trying the next: %s", self.failures[-1])
