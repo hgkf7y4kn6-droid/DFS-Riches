@@ -34,7 +34,7 @@ from app import leverage as leverage_module
 from app import ownership_persist
 from app import trenches as trenches_module
 from app import dfs_model
-from app import accounts, guard, matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
+from app import accounts, contests, guard, matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
@@ -360,6 +360,21 @@ async def api_me_save(key: str, body: dict = Body(...), authorization: Annotated
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not save: {exc}") from exc
+
+
+@memoize_async(ttl_seconds=300)
+async def _best_contests() -> dict:
+    return await contests.best_contests()
+
+
+@app.get("/api/contests/best")
+async def api_best_contests():
+    """The 15 lowest-rake NFL GPPs in DraftKings' lobby (ties broken by share of field paid), for each
+    max-entries group and entry-fee range (app.contests)."""
+    try:
+        return await _best_contests()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not load DraftKings contests: {exc}") from exc
 
 
 @app.get("/api/defense-vs-position")

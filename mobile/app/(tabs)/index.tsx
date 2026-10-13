@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import BestContests from '@/components/BestContests';
 import BrandHeader from '@/components/BrandHeader';
 import BalanceStats from '@/components/BalanceStats';
 import ExpandableCard from '@/components/ExpandableCard';
@@ -175,6 +176,14 @@ export default function Home() {
             </View>
           </>
         ) : null}
+
+        {/* Best contests: lowest-rake GPPs by max entries and entry fee */}
+        <ExpandableCard
+          title={HOME_SECTIONS.contests.title}
+          subtitle={HOME_SECTIONS.contests.subtitle}
+          defaultExpanded={HOME_SECTIONS.contests.defaultExpanded}>
+          <BestContests />
+        </ExpandableCard>
 
         {/* Profit / loss by contest type */}
         <ExpandableCard

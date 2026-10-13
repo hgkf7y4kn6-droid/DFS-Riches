@@ -77,7 +77,7 @@ interface UpcomingGame {
 
 /** One Home section: what it's called and how it's laid out. */
 interface HomeSection {
-  id: 'profit' | 'upcoming' | 'slates' | 'lines';
+  id: 'profit' | 'upcoming' | 'slates' | 'contests' | 'lines';
   title: string;
   subtitle: string;
   /** Whether the section starts expanded. */
@@ -315,6 +315,34 @@ interface OptimalLineup {
 }
 
 /** live: recalculated until the last kickoff (players lock as their games start); saved: frozen; final: scored. */
+/** One DraftKings GPP from /api/contests/best. rake and paid_pct are 0-1 ratios. */
+interface BestContest {
+  id: number;
+  name: string;
+  game_type: string;
+  entry_fee: number;
+  max_entries: number;
+  field_size: number;
+  entries: number;
+  prize_pool: number;
+  rake: number;
+  guaranteed: boolean;
+  start_utc: string | null;
+  start_label: string;
+  draft_group_id: number;
+  template_id: number;
+  paid_places: number | null;
+  paid_pct: number | null;
+}
+
+interface BestContestsResponse {
+  entry_groups: { id: string; label: string; min: number; max: number }[];
+  fee_groups: { id: string; label: string }[];
+  /** contests[entryGroupId][feeGroupId]: up to 15, best first. */
+  contests: Record<string, Record<string, BestContest[]>>;
+  updated_at: string;
+}
+
 type OptimalStatus = 'live' | 'saved' | 'final' | 'none';
 
 interface OptimalResponse {
