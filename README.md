@@ -15,7 +15,7 @@ lines. The player table carries the same idea down to individual players:
 alongside DraftKings' season FPPG, an **L3/L6/L9 trailing DK-style FPPG**
 computed from real box-score history.
 
-Inspired by [dk.ff-dashboard.com](https://dk.ff-dashboard.com/).
+
 
 ## How it works
 
