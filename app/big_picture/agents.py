@@ -278,6 +278,13 @@ def split_sections(text: str, expected: list[int] | None = None) -> dict[int, st
     titles = _titles()
     marks = [(m.start(), m.end(), int(m.group(1))) for m in HEADING.finditer(text or "")]
     if expected:
+        # A line that is just a section's title ("**Executive Briefing**", "### Game Environment Rankings").
+        for m in re.finditer(r"^[ \t#*_>]*([A-Za-z][^\n]{2,80}?)[ \t*_:]*$", text or "", re.MULTILINE):
+            line = re.sub(r"[^a-z& ]", "", m.group(1).lower()).strip()
+            for n in expected:
+                title = re.sub(r"[^a-z& ]", "", titles.get(n, "").lower()).strip()
+                if title and (line == title or line.startswith(title)) and not any(a <= m.start() < b for a, b, _ in marks):
+                    marks.append((m.start(), m.end(), n))
         for m in LOOSE.finditer(text or ""):
             n, rest = int(m.group(1)), m.group(2).lower()
             first = titles.get(n, "").split()[0].lower() if titles.get(n) else None

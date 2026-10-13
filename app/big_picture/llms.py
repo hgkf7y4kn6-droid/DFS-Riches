@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 OPENROUTER_DEFAULT = ("google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free,nvidia/nemotron-3.5-lightning:free,"
                       "nvidia/nemotron-3-super-120b-a12b:free")
-REASONING_MODELS = ("nemotron-3-super",)      # thinks before answering: low effort, more room so the answer isn't cut off
+REASONING_MODELS = ("nemotron",)              # think before answering: low effort, more room so the answer isn't cut off
 RATE_LIMIT_WAITS = (20, 60)                  # a free model "temporarily rate-limited upstream" gets these retries first
 LOCAL_PROMPT_TOKENS = 6000                   # the CPU model reads ~40 tokens/s: prompts are trimmed to this
 LOCAL_REPO = "bartowski/Llama-3.2-3B-Instruct-GGUF"

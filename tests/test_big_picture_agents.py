@@ -140,3 +140,8 @@ def test_split_sections_accepts_small_model_headings_but_not_list_items():
     assert set(s) == {5, 6, 7}
     assert s[5].startswith("1. BUF@LV") and "2. ARI@LAR" in s[5]          # the ranking list stays inside section 5
     assert agents.split_sections(text) == {}                              # without expected numbers, only real headings count
+
+
+def test_split_sections_accepts_title_only_headings():
+    text = "**Executive Briefing**\nNo edges today.\n\n### Injury & Personnel Impact Report\nCHI QB Out.\n\nBest Betting Opportunities:\nNone."
+    assert agents.split_sections(text, [1, 3, 4]) == {1: "No edges today.", 4: "CHI QB Out.", 3: "None."}
