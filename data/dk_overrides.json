@@ -143,6 +143,24 @@
           "label": "Showdown - Sun Night (BAL @ ATL)"
         }
       }
+    },
+    "6": {
+      "classic_sunday": {
+        "draft_group_id": 154941,
+        "label": "Classic - Sunday Main (10 games)",
+        "first_kickoff": "2026-10-18T17:00:00+00:00",
+        "last_kickoff": "2026-10-18T20:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 154940,
+        "label": "Full Week 6 Slate (14 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 154947,
+          "label": "Showdown - Thu Night (SEA @ DEN)"
+        }
+      }
     }
   }
 }
