@@ -26,8 +26,9 @@ from typing import Any
 log = logging.getLogger(__name__)
 
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
-OPENROUTER_DEFAULT = "google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free,nvidia/nemotron-3-super-120b-a12b:free"
-REASONING_MODELS = ("nemotron",)              # think before answering: low effort, more room so the answer isn't cut off
+OPENROUTER_DEFAULT = ("google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free,nvidia/nemotron-3.5-lightning:free,"
+                      "nvidia/nemotron-3-super-120b-a12b:free")
+REASONING_MODELS = ("nemotron-3-super",)      # thinks before answering: low effort, more room so the answer isn't cut off
 RATE_LIMIT_WAITS = (20, 60)                  # a free model "temporarily rate-limited upstream" gets these retries first
 LOCAL_PROMPT_TOKENS = 6000                   # the CPU model reads ~40 tokens/s: prompts are trimmed to this
 LOCAL_REPO = "bartowski/Llama-3.2-3B-Instruct-GGUF"
@@ -42,7 +43,7 @@ def openrouter(model: str):
     reasoning = any(r in model for r in REASONING_MODELS)
     return ChatOpenAI(
         model=model, base_url=OPENROUTER_BASE, api_key=os.environ["OPENROUTER_API_KEY"],
-        max_tokens=MAX_TOKENS * 3 if reasoning else MAX_TOKENS, temperature=0.2, timeout=300, max_retries=1,
+        max_tokens=8000 if reasoning else MAX_TOKENS, temperature=0.2, timeout=300, max_retries=1,
         extra_body={"reasoning": {"effort": "low", "exclude": True}} if reasoning else None,
         default_headers={"HTTP-Referer": "https://dfsriches.richesdigitalventures.com", "X-Title": "DFSRiches Big Picture"},
     )

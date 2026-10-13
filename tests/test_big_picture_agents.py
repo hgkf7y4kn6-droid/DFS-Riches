@@ -131,3 +131,12 @@ def test_local_prompts_are_trimmed_to_fit():
     assert sum(count(m["content"]) for m in out) <= 2000
     assert out[1]["content"].startswith("data ") and "trimmed for the local model" in out[1]["content"]
     assert out[0]["content"] == msgs[0]["content"]            # the short rules message is untouched
+
+
+def test_split_sections_accepts_small_model_headings_but_not_list_items():
+    text = ("**5. Game Environment Rankings**\n1. BUF@LV -- 52.5 total\n2. ARI@LAR\n\n"
+            "Section 6: High-Total Traps\nCHI@ATL looks fragile.\n\n7) Public Betting & DFS Sentiment\nARI@LAR draws the public.")
+    s = agents.split_sections(text, [5, 6, 7])
+    assert set(s) == {5, 6, 7}
+    assert s[5].startswith("1. BUF@LV") and "2. ARI@LAR" in s[5]          # the ranking list stays inside section 5
+    assert agents.split_sections(text) == {}                              # without expected numbers, only real headings count

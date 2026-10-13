@@ -261,17 +261,34 @@ def build_crew(d: dict, tables: dict, llm, compact: bool = False) -> tuple[Crew,
     return crew, analyst_tasks, editor_tasks, review_task
 
 
-HEADING = re.compile(r"^\s*#{1,3}\s*(?:section\s*)?(\d{1,2})\b[^\n]*$", re.IGNORECASE | re.MULTILINE)
+HEADING = re.compile(r"^\s*#{1,4}\s*(?:\*\*)?\s*(?:section\s*)?(\d{1,2})\b[^\n]*$", re.IGNORECASE | re.MULTILINE)
+# What small models write instead of "## 3": "**3. Best Betting Opportunities**", "Section 3: Best Betting ...".
+LOOSE = re.compile(r"^\s*(?:\*\*\s*)?(?:section\s*)?(\d{1,2})\s*[.):\-\u2013\u2014]?\s*(?:\*\*\s*)?([^\n]*)$", re.IGNORECASE | re.MULTILINE)
 
 
-def split_sections(text: str) -> dict[int, str]:
-    marks = list(HEADING.finditer(text or ""))
+def _titles() -> dict[int, str]:
+    from app.big_picture.writer import SECTIONS
+    return dict(SECTIONS)
+
+
+def split_sections(text: str, expected: list[int] | None = None) -> dict[int, str]:
+    """Section bodies by number. Markdown headings ("## 3", "### Section 3 -- ...") always count; looser lines
+    ("**3. Best Betting Opportunities**", "Section 3: ...") only when the number is one this task asked for and
+    the line names that section -- so a numbered list inside a section is never mistaken for a heading."""
+    titles = _titles()
+    marks = [(m.start(), m.end(), int(m.group(1))) for m in HEADING.finditer(text or "")]
+    if expected:
+        for m in LOOSE.finditer(text or ""):
+            n, rest = int(m.group(1)), m.group(2).lower()
+            first = titles.get(n, "").split()[0].lower() if titles.get(n) else None
+            if n in expected and first and first in rest and not any(a <= m.start() < b for a, b, _ in marks):
+                marks.append((m.start(), m.end(), n))
+        marks.sort()
     out = {}
-    for i, m in enumerate(marks):
-        n = int(m.group(1))
-        body = text[m.end(): marks[i + 1].start() if i + 1 < len(marks) else len(text)].strip()
-        body = re.sub(r"^\s*#{1,3}[^\n]*\n", "", body).strip() if body.startswith("#") else body
-        if 1 <= n <= 12 and body:
+    for i, (_start, end, n) in enumerate(marks):
+        body = text[end: marks[i + 1][0] if i + 1 < len(marks) else len(text)].strip()
+        body = re.sub(r"^\s*#{1,4}[^\n]*\n", "", body).strip() if body.startswith("#") else body
+        if 1 <= n <= 12 and body and n not in out:
             out[n] = body
     return out
 
@@ -320,8 +337,8 @@ def run(d: dict, tables: dict, chat=None) -> dict:
     crew, analyst_tasks, editor_tasks, review_task = build_crew(d, tables, llm, compact)
     crew.kickoff()
     sections: dict[int, str] = {}
-    for t in editor_tasks:
-        sections.update(split_sections(t.output.raw if t.output else ""))
+    for t, (numbers, _briefs) in zip(editor_tasks, EDITOR_GROUPS):
+        sections.update({n: v for n, v in split_sections(t.output.raw if t.output else "", numbers).items() if n in numbers})
     review = parse_review(review_task.output.raw if review_task.output else "")
     if review["issues"]:
         facts = _cap(digest(d, tables), LOCAL_FACTS_CHARS if chain.local else None)

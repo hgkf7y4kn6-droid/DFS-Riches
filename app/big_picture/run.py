@@ -82,6 +82,7 @@ async def research(season: int | None = None, week: int | None = None, desk_only
             model_name, usage = out.get("model"), out.get("usage")
             usage = {**(usage or {}), "compact": out.get("compact"), "provider_failures": out.get("provider_failures")}
             notes, review = out.get("notes") or {}, out.get("review")
+            log.info("agents drafted sections %s", sorted(out.get("sections") or {}))
             for n, text in (out.get("sections") or {}).items():
                 if text and text.strip():
                     sections[n], authors[n] = text.strip(), "agents"
@@ -93,11 +94,16 @@ async def research(season: int | None = None, week: int | None = None, desk_only
     unverified = qc.check_sections(sections, d, tables)
     for n, bad in list(unverified.items()):
         if authors.get(n) == "agents" and len(bad) > MAX_UNVERIFIED:
+            log.info("section %d: agent draft had %d unverified figures -- using the desk's version", n, len(bad))
             sections[n], authors[n] = desk[n], "desk (agent draft failed the fact check)"
             unverified.pop(n)
             if (rest := qc.check(desk[n], qc.known_values(d))):
                 unverified[n] = rest
 
+    # Metadata only (the repository's logs are public): which sections the agents' drafts survived for.
+    for n, _t in writer.SECTIONS:
+        log.info("section %d: %s%s", n, authors.get(n, "desk"),
+                 f", {len(unverified[n])} unverified figure(s)" if unverified.get(n) else "")
     report = {
         "title": title(d), "header": header(d),
         "writer": "agents" if "agents" in authors.values() else "desk",
