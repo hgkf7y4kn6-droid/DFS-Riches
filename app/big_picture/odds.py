@@ -6,13 +6,20 @@ fetch is stored as a snapshot (app.big_picture.store, only quotes that
 changed), so the first quote we captured for a market is its "opening" line
 as far as this app knows, and every later move is kept with its timestamp.
 
-DraftKings sometimes refuses requests from cloud servers; then nothing is
-stored and the report says DraftKings prices are unavailable rather than
-guessing.
+DraftKings refuses requests from cloud servers (Render, GitHub Actions), so
+when an Odds API key is configured (ODDS_API_KEY, from the-odds-api.com) the
+same DraftKings prices are read through The Odds API instead -- filtered to
+the DraftKings book only. Its free tier allows 500 credits a month and a
+spread/total/moneyline pull costs 3, so those pulls are spaced
+ODDS_API_MIN_MINUTES apart (default 6 hours); team totals cost a credit per
+game and are only pulled when ODDS_API_TEAM_TOTALS=1. Without a key, or when
+neither source answers, nothing is stored and the report says DraftKings
+prices are unavailable rather than guessing.
 """
 from __future__ import annotations
 
 import logging
+import os
 import time
 
 import httpx
@@ -33,6 +40,8 @@ HEADERS = {
     "Referer": "https://sportsbook.draftkings.com/",
 }
 MIN_FETCH_SECONDS = 600          # at most one DraftKings fetch per 10 minutes
+ODDS_API = "https://api.the-odds-api.com/v4/sports/americanfootball_nfl"
+ODDS_API_KEY_NAMES = ("ODDS_API_KEY", "THE_ODDS_API_KEY", "ODDSAPI_KEY", "ODDS_API")
 _LAST: dict = {"at": 0.0, "status": None}
 
 NICKNAMES = {full.split()[-1].lower(): abbr for full, abbr in TEAM_NAMES.items()}
@@ -145,8 +154,76 @@ def _team_total_categories(league: dict) -> list[int]:
     return [i for i in dict.fromkeys(ids) if i]
 
 
+def odds_api_key() -> str | None:
+    return next((os.environ[k].strip() for k in ODDS_API_KEY_NAMES if os.environ.get(k, "").strip()), None)
+
+
+def parse_odds_api(events: list[dict]) -> list[dict]:
+    """The Odds API's /odds response (DraftKings book) -> quotes, same shape as parse()."""
+    quotes = []
+    for e in events or []:
+        home, away = TEAM_NAMES.get(e.get("home_team") or ""), TEAM_NAMES.get(e.get("away_team") or "")
+        if not home or not away:
+            continue
+        game = f"{away}@{home}"
+        book = next((b for b in e.get("bookmakers") or [] if b.get("key") == "draftkings"), None)
+        for m in (book or {}).get("markets") or []:
+            for o in m.get("outcomes") or []:
+                price = quant.american(o.get("price"))
+                if price is None:
+                    continue
+                if m["key"] in ("spreads", "h2h"):
+                    team = TEAM_NAMES.get(o.get("name") or "")
+                    side = "home" if team == home else "away" if team == away else None
+                    market = "spread" if m["key"] == "spreads" else "moneyline"
+                elif m["key"] == "totals":
+                    side, market = (o.get("name") or "").lower(), "total"
+                elif m["key"] == "team_totals":
+                    team = TEAM_NAMES.get(o.get("description") or "")
+                    whose = "home" if team == home else "away" if team == away else None
+                    side, market = (o.get("name") or "").lower(), f"team_total_{whose}" if whose else None
+                else:
+                    continue
+                if side not in ("home", "away", "over", "under") or not market:
+                    continue
+                if market != "moneyline" and o.get("point") is None:
+                    continue
+                quotes.append({"game": game, "market": market, "side": side,
+                               "line": float(o["point"]) if o.get("point") is not None else None,
+                               "price": price, "kickoff": e.get("commence_time")})
+    return quotes
+
+
+async def fetch_odds_api(key: str) -> tuple[list[dict], str, dict]:
+    """DraftKings prices through The Odds API: (quotes, status, credits)."""
+    params = {"apiKey": key, "regions": "us", "bookmakers": "draftkings", "oddsFormat": "american",
+              "markets": "h2h,spreads,totals"}
+    async with httpx.AsyncClient(timeout=30) as client:
+        r = await client.get(f"{ODDS_API}/odds", params=params)
+        credits = {"remaining": r.headers.get("x-requests-remaining"), "used": r.headers.get("x-requests-used")}
+        if r.status_code != 200:
+            return [], f"The Odds API answered HTTP {r.status_code}", credits
+        events = r.json()
+        quotes = parse_odds_api(events)
+        if os.environ.get("ODDS_API_TEAM_TOTALS") == "1":
+            for e in events:
+                t = await client.get(f"{ODDS_API}/events/{e['id']}/odds",
+                                     params={**params, "markets": "team_totals"})
+                if t.status_code == 200:
+                    quotes += parse_odds_api([t.json()])
+                credits["remaining"] = t.headers.get("x-requests-remaining", credits["remaining"])
+    return quotes, ("ok" if quotes else "The Odds API returned no DraftKings NFL lines"), credits
+
+
 async def fetch() -> tuple[list[dict], str]:
     """(quotes, status). Status "ok", or why DraftKings couldn't be read."""
+    key = odds_api_key()
+    if key:
+        quotes, status, credits = await fetch_odds_api(key)
+        _LAST["credits"] = credits
+        _LAST["via"] = "The Odds API"
+        return quotes, status
+    _LAST["via"] = "DraftKings direct"
     async with httpx.AsyncClient(timeout=20, headers=HEADERS, follow_redirects=True) as client:
         r = await client.get(f"{BASE}/{NFL_LEAGUE}/categories/{GAME_LINES}")
         if r.status_code != 200 or "json" not in r.headers.get("content-type", ""):
@@ -165,8 +242,12 @@ async def fetch() -> tuple[list[dict], str]:
 
 async def snapshot(season: int, week: int, games: list[tuple[str, str]], force: bool = False) -> dict:
     """Fetch DraftKings (at most every MIN_FETCH_SECONDS) and store this week's changed quotes."""
-    if not force and time.time() - _LAST["at"] < MIN_FETCH_SECONDS:
-        return {"status": _LAST["status"], "stored": 0, "fetched_at": _LAST.get("iso")}
+    # The Odds API's free credits are scarce: space those pulls out (and never let a forced run spend extra).
+    gap = float(os.environ.get("ODDS_API_MIN_MINUTES", "360")) * 60 if odds_api_key() and _LAST.get("status") == "ok" \
+        else MIN_FETCH_SECONDS                     # a failed pull retries after 10 minutes
+    if (not force or odds_api_key()) and time.time() - _LAST["at"] < gap and _LAST.get("status"):
+        return {"status": _LAST["status"], "stored": 0, "fetched_at": _LAST.get("iso"), "via": _LAST.get("via"),
+                "credits": _LAST.get("credits")}
     _LAST["at"] = time.time()
     try:
         quotes, status = await fetch()
@@ -182,7 +263,8 @@ async def snapshot(season: int, week: int, games: list[tuple[str, str]], force: 
     stored = await asyncio.to_thread(store.add_odds, rows) if rows else 0
     _LAST.update(status=status, iso=captured.isoformat())
     log.info("DraftKings odds snapshot: %s, %d quotes for week %d, %d new", status, len(rows), week, stored)
-    return {"status": status, "stored": stored, "quotes": len(rows), "fetched_at": captured.isoformat()}
+    return {"status": status, "stored": stored, "quotes": len(rows), "fetched_at": captured.isoformat(),
+            "via": _LAST.get("via"), "credits": _LAST.get("credits")}
 
 
 def summarize(history: list[dict]) -> dict:

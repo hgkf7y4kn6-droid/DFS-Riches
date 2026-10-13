@@ -584,6 +584,7 @@ async def api_odds(season: Annotated[int | None, Query(ge=2000, le=2100)] = None
         raise HTTPException(status_code=502, detail=f"Could not load odds: {exc}") from exc
     out = {"source": odds_module.SOURCE, "season": season, "week": week, "available": bool(history),
            "status": snap.get("status"), "captured_at": snap.get("fetched_at"), "stored": snap.get("stored"),
+           "via": snap.get("via"), "credits_remaining": (snap.get("credits") or {}).get("remaining"),
            "quotes_total": len(history)}
     if not summary:
         out["games"] = odds_module.summarize(history)

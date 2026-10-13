@@ -247,3 +247,32 @@ def test_coachs_decision_inactives_are_not_injuries():
 def test_status_normalization():
     assert [rosters.norm_status(x) for x in ("O", "Injured Reserve", "(-)", "Day-To-Day", "PUP-R", "q")] == \
         ["Out", "IR", None, "Day-to-day", "PUP", "Questionable"]
+
+
+ODDS_API_EVENTS = [{
+    "id": "e1", "commence_time": "2026-10-18T17:00:00Z", "home_team": "New England Patriots", "away_team": "New York Jets",
+    "bookmakers": [{"key": "fanduel", "markets": [{"key": "spreads", "outcomes": [
+        {"name": "New England Patriots", "price": -105, "point": -6.5}]}]},
+                   {"key": "draftkings", "markets": [
+        {"key": "spreads", "outcomes": [{"name": "New England Patriots", "price": -115, "point": -7.0},
+                                        {"name": "New York Jets", "price": -105, "point": 7.0}]},
+        {"key": "totals", "outcomes": [{"name": "Over", "price": -110, "point": 43.5}, {"name": "Under", "price": -110, "point": 43.5}]},
+        {"key": "h2h", "outcomes": [{"name": "New England Patriots", "price": -340}, {"name": "New York Jets", "price": 270}]},
+        {"key": "team_totals", "outcomes": [{"name": "Over", "description": "New England Patriots", "price": -115, "point": 25.5}]}]}],
+}]
+
+
+def test_parse_odds_api_draftkings_only():
+    q = {(r["market"], r["side"]): r for r in odds.parse_odds_api(ODDS_API_EVENTS)}
+    assert q[("spread", "home")]["line"] == -7.0 and q[("spread", "home")]["price"] == -115   # DraftKings, not FanDuel
+    assert q[("spread", "away")]["line"] == 7.0 and q[("total", "under")]["line"] == 43.5
+    assert q[("moneyline", "away")]["price"] == 270 and q[("team_total_home", "over")]["line"] == 25.5
+    assert {r["game"] for r in q.values()} == {"NYJ@NE"}
+
+
+def test_odds_api_key_names(monkeypatch):
+    for k in odds.ODDS_API_KEY_NAMES:
+        monkeypatch.delenv(k, raising=False)
+    assert odds.odds_api_key() is None
+    monkeypatch.setenv("THE_ODDS_API_KEY", " abc ")
+    assert odds.odds_api_key() == "abc"
