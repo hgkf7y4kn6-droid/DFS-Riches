@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import time
 
 import httpx
@@ -154,8 +155,21 @@ def _team_total_categories(league: dict) -> list[int]:
     return [i for i in dict.fromkeys(ids) if i]
 
 
+def odds_api_key_name() -> str | None:
+    """Which environment variable holds the Odds API key: a known name, else any name containing "ODDS"
+    whose value looks like an Odds API key (32 hex characters)."""
+    for k in ODDS_API_KEY_NAMES:
+        if os.environ.get(k, "").strip():
+            return k
+    for k, v in os.environ.items():
+        if "ODDS" in k.upper() and re.fullmatch(r"[0-9a-fA-F]{32}", v.strip().strip("'\"")):
+            return k
+    return None
+
+
 def odds_api_key() -> str | None:
-    return next((os.environ[k].strip() for k in ODDS_API_KEY_NAMES if os.environ.get(k, "").strip()), None)
+    name = odds_api_key_name()
+    return os.environ[name].strip().strip("'\"") if name else None
 
 
 def parse_odds_api(events: list[dict]) -> list[dict]:
@@ -221,7 +235,7 @@ async def fetch() -> tuple[list[dict], str]:
     if key:
         quotes, status, credits = await fetch_odds_api(key)
         _LAST["credits"] = credits
-        _LAST["via"] = "The Odds API"
+        _LAST["via"] = f"The Odds API (key from {odds_api_key_name()})"
         return quotes, status
     _LAST["via"] = "DraftKings direct"
     async with httpx.AsyncClient(timeout=20, headers=HEADERS, follow_redirects=True) as client:

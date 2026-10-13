@@ -276,3 +276,11 @@ def test_odds_api_key_names(monkeypatch):
     assert odds.odds_api_key() is None
     monkeypatch.setenv("THE_ODDS_API_KEY", " abc ")
     assert odds.odds_api_key() == "abc"
+
+
+def test_odds_api_key_found_under_another_name(monkeypatch):
+    for k in odds.ODDS_API_KEY_NAMES:
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setenv("MY_ODDS_TOKEN", "0123456789abcdef0123456789ABCDEF")
+    monkeypatch.setenv("ODDS_NOTE", "not a key")
+    assert odds.odds_api_key_name() == "MY_ODDS_TOKEN" and odds.odds_api_key() == "0123456789abcdef0123456789ABCDEF"
