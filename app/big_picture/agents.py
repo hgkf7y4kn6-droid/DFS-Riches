@@ -2,12 +2,14 @@
 
 Frameworks, each doing what it's good at:
 
-* Hugging Face -- Llama (default meta-llama/Llama-3.1-8B-Instruct) served
-  through Hugging Face Inference Providers (HF_TOKEN; BIG_PICTURE_MODEL and
-  BIG_PICTURE_PROVIDER choose the model and the provider).
-* LangChain -- the model interface (langchain-huggingface's ChatHuggingFace),
-  and the two non-agent steps: Agent J's review parsed with a JSON output
-  parser, and targeted revisions as a prompt | model | parser chain.
+* The models (app.big_picture.llms) -- OpenRouter's free models first, then
+  Llama 3.2 3B running on the GitHub runner itself (its weights from the
+  Hugging Face Hub, free), with Hugging Face's paid inference optional. A
+  provider that fails is skipped for the rest of the run.
+* LangChain -- the model interface (ChatOpenAI for OpenRouter, a Runnable
+  over llama.cpp, ChatHuggingFace), and the two non-agent steps: Agent J's
+  review parsed with a JSON output parser, and targeted revisions as a
+  prompt | model | parser chain.
 * CrewAI -- the desk itself: analysts A-H each work from their own slice of
   the dossier, Agent I (the editor) writes the report from their findings,
   Agent J checks it. CrewAI talks to the LangChain model through LangChainLLM.
@@ -30,8 +32,6 @@ os.environ.setdefault("CREWAI_TRACING_ENABLED", "false")
 from crewai import Agent, Crew, Process, Task  # noqa: E402
 from crewai.llms.base_llm import BaseLLM  # noqa: E402
 
-DEFAULT_MODEL = "meta-llama/Llama-3.1-8B-Instruct"    # small and cheap; BIG_PICTURE_MODEL overrides
-
 RULES = """Rules for everything you write:
 - Use ONLY facts and numbers from the data you are given. Never invent odds, prices, injuries, statistics,
   ownership, betting splits, sources or timestamps. If something isn't in the data, say it's unavailable.
@@ -43,22 +43,16 @@ RULES = """Rules for everything you write:
 - Be specific and concise. Markdown bullets and short paragraphs. No tables. No preamble."""
 
 
-# ------------------------------------------------------------------ the model (Hugging Face via LangChain)
-def chat_model(max_tokens: int = 1800):
-    """Llama through Hugging Face Inference Providers, as a LangChain chat model."""
-    from langchain_huggingface import ChatHuggingFace, HuggingFaceEndpoint
+# ------------------------------------------------------------------ the model
+LOCAL_SLICE_CHARS, LOCAL_FACTS_CHARS = 9_000, 14_000     # the CPU model reads compact data (~2-3.5k tokens a prompt)
 
-    model = os.environ.get("BIG_PICTURE_MODEL") or DEFAULT_MODEL
-    endpoint = HuggingFaceEndpoint(
-        repo_id=model, task="conversational", provider=os.environ.get("BIG_PICTURE_PROVIDER") or "auto",
-        max_new_tokens=max_tokens, temperature=0.2, timeout=240,
-        huggingfacehub_api_token=os.environ.get("HF_TOKEN"),
-    )
-    return ChatHuggingFace(llm=endpoint, model_id=model)
+
+def _cap(text: str, limit: int | None) -> str:
+    return text if not limit or len(text) <= limit else text[:limit] + " ...(trimmed for the local model)"
 
 
 class LangChainLLM(BaseLLM):
-    """A CrewAI LLM backed by any LangChain chat model; counts tokens for the run's cost note."""
+    """A CrewAI LLM backed by any LangChain chat model or llms.ProviderChain; counts tokens for the run's note."""
 
     chat: Any = None
     usage: dict = {}
@@ -234,9 +228,9 @@ def _agent(spec, llm) -> Agent:
     return Agent(role=role, goal=goal, backstory=backstory, llm=llm, allow_delegation=False, verbose=False, max_iter=2)
 
 
-def build_crew(d: dict, tables: dict, llm) -> tuple[Crew, dict[str, Task], list[Task], Task]:
-    data = slices(d)
-    facts = digest(d, tables)
+def build_crew(d: dict, tables: dict, llm, compact: bool = False) -> tuple[Crew, dict[str, Task], list[Task], Task]:
+    data = {k: _cap(v, LOCAL_SLICE_CHARS if compact else None) for k, v in slices(d).items()}
+    facts = _cap(digest(d, tables), LOCAL_FACTS_CHARS if compact else None)
     agents = {k: _agent(spec, llm) for k, spec in ANALYSTS.items()}
     analyst_tasks = {
         k: Task(description=f"{RULES}\n\nYour data (JSON):\n{data[k]}\n\nWrite your findings for the editor: the 5-10 most "
@@ -314,18 +308,26 @@ def revise(chat, sections: dict[int, str], issues: list[dict], facts: str) -> di
 
 def run(d: dict, tables: dict, chat=None) -> dict:
     """Run the desk; returns {"sections": {n: markdown}, "notes": {agent: findings}, "review": {...}, "model": ...}."""
-    chat = chat or chat_model()
-    llm = LangChainLLM(model=os.environ.get("BIG_PICTURE_MODEL") or DEFAULT_MODEL, chat=chat, usage={})
-    crew, analyst_tasks, editor_tasks, review_task = build_crew(d, tables, llm)
+    from app.big_picture.llms import ProviderChain
+
+    chain = ProviderChain([("supplied model", lambda: chat, False)]) if chat is not None else ProviderChain()
+    if chat is None:
+        chain.probe()                    # skip a capped or down free tier before building the big prompts
+    if chain.label is None:
+        raise RuntimeError("no language model provider is available: " + " | ".join(chain.failures))
+    compact = chain.local
+    llm = LangChainLLM(model=chain.label, chat=chain, usage={})
+    crew, analyst_tasks, editor_tasks, review_task = build_crew(d, tables, llm, compact)
     crew.kickoff()
     sections: dict[int, str] = {}
     for t in editor_tasks:
         sections.update(split_sections(t.output.raw if t.output else ""))
     review = parse_review(review_task.output.raw if review_task.output else "")
     if review["issues"]:
-        sections.update(revise(chat, sections, review["issues"], digest(d, tables)))
+        facts = _cap(digest(d, tables), LOCAL_FACTS_CHARS if chain.local else None)
+        sections.update(revise(chain.runnable(), sections, review["issues"], facts))
         review["revised"] = True
     notes = {k: (t.output.raw if t.output else "") for k, t in analyst_tasks.items()}
     return {"sections": sections, "notes": notes, "review": review,
-            "model": f"{llm.model} via Hugging Face ({os.environ.get('BIG_PICTURE_PROVIDER') or 'auto'})",
-            "usage": dict(llm.usage)}
+            "model": ", then ".join(chain.used) or chain.label, "compact": compact,
+            "provider_failures": chain.failures, "usage": dict(llm.usage)}

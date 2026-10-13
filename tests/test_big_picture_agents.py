@@ -50,3 +50,56 @@ def test_split_sections_and_review_parsing():
     assert s == {1: "One.", 3: "Three.", 12: "Twelve."}
     assert agents.parse_review("not json")["verdict"] == "unparsed"
     assert agents.parse_review('```json\n{"verdict":"pass","issues":[]}\n```')["verdict"] == "pass"
+
+
+# ------------------------------------------------------------------ provider chain (app.big_picture.llms)
+from langchain_core.messages import HumanMessage  # noqa: E402
+
+from app.big_picture import llms  # noqa: E402
+
+
+class _Broken:
+    def invoke(self, *a, **k):
+        raise RuntimeError("429 rate limited")
+
+
+def test_chain_skips_a_failing_provider_for_the_rest_of_the_run():
+    built = []
+    entries = [("free model", lambda: built.append("free") or _Broken(), False),
+               ("local", lambda: built.append("local") or FakeListChatModel(responses=["one", "two"]), True)]
+    chain = llms.ProviderChain(entries)
+    assert chain.invoke([HumanMessage(content="hi")]).content == "one"
+    assert chain.invoke([HumanMessage(content="again")]).content == "two"
+    assert built == ["free", "local"]                       # the broken provider is tried once, not per call
+    assert chain.used == ["local"] and chain.failures[0].startswith("free model: RuntimeError: 429")
+
+
+def test_probe_moves_to_the_local_model_when_the_free_tier_is_capped():
+    chain = llms.ProviderChain([("free model", _Broken, False), ("local", lambda: FakeListChatModel(responses=["x"]), True)])
+    chain.probe()
+    assert chain.local and chain.label == "local"
+
+
+def test_chain_raises_when_everything_fails():
+    chain = llms.ProviderChain([("a", _Broken, False)])
+    with pytest.raises(RuntimeError, match="every language model provider failed"):
+        chain.invoke([HumanMessage(content="hi")])
+
+
+def test_provider_order(monkeypatch):
+    monkeypatch.setenv("OPENROUTER_API_KEY", "k")
+    monkeypatch.setenv("OPENROUTER_MODELS", "a:free, b:free")
+    monkeypatch.delenv("BIG_PICTURE_USE_HF", raising=False)
+    labels = [label for label, _f, _l in llms.providers()]
+    assert labels == ["a:free via OpenRouter (free)", "b:free via OpenRouter (free)",
+                      "Llama 3.2 3B on the GitHub runner (llama.cpp)"]
+    monkeypatch.setenv("BIG_PICTURE_USE_HF", "1")
+    monkeypatch.setenv("HF_TOKEN", "t")
+    assert "Hugging Face Inference Providers" in [label for label, _f, _l in llms.providers()]
+
+
+def test_compact_prompts_for_the_local_model():
+    d = _dossier()
+    llm = agents.LangChainLLM(model="x", chat=None, usage={})
+    _crew, analyst_tasks, _editor, _review = agents.build_crew(d, writer.build_tables(d), llm, compact=True)
+    assert all(len(t.description) < agents.LOCAL_SLICE_CHARS + 2000 for t in analyst_tasks.values())

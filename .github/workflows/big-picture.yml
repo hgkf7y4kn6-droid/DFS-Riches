@@ -4,9 +4,13 @@
 # tab reads it. Runs here, not on the web server, for the memory the agent
 # frameworks need. Logs show only metadata: the report stays in the database.
 #
-# Repository secrets: DATABASE_URL (Neon, same as the server), HF_TOKEN
-# (Hugging Face access token with Inference Providers permission).
-# Optional repository variables: BIG_PICTURE_MODEL, BIG_PICTURE_PROVIDER.
+# Repository secrets: DATABASE_URL (Neon, same as the server),
+# OPENROUTER_API_KEY (free models, tried first), HF_TOKEN (optional: faster
+# model downloads; paid Hugging Face inference only with BIG_PICTURE_USE_HF=1).
+# Without a working hosted model the run falls back to Llama 3.2 3B on this
+# runner's CPU (free, slow -- hence the long timeout).
+# Optional repository variables: OPENROUTER_MODELS, BIG_PICTURE_USE_HF,
+# BIG_PICTURE_MODEL, BIG_PICTURE_PROVIDER.
 name: Big Picture research run
 
 on:
@@ -33,10 +37,13 @@ permissions:
 jobs:
   research:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 120
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      OPENROUTER_MODELS: ${{ vars.OPENROUTER_MODELS }}
+      BIG_PICTURE_USE_HF: ${{ vars.BIG_PICTURE_USE_HF }}
       BIG_PICTURE_MODEL: ${{ vars.BIG_PICTURE_MODEL }}
       BIG_PICTURE_PROVIDER: ${{ vars.BIG_PICTURE_PROVIDER }}
       BIG_PICTURE_WEEK: ${{ inputs.week }}
@@ -59,6 +66,6 @@ jobs:
       - name: Check configuration
         run: |
           if [ -z "$DATABASE_URL" ]; then echo "::error::Add the DATABASE_URL repository secret (Settings > Secrets and variables > Actions)"; exit 1; fi
-          if [ -z "$HF_TOKEN" ]; then echo "::warning::No HF_TOKEN secret: the report uses the desk's template writing, without the research agents"; fi
+          if [ -z "$OPENROUTER_API_KEY" ]; then echo "::warning::No OPENROUTER_API_KEY secret: the agents run on the runner's own Llama (slow)"; fi
       - name: Research run
         run: python -m app.big_picture.run ${{ inputs.desk_only && '--desk-only' || '' }}

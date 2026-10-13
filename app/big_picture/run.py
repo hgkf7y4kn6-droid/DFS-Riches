@@ -75,11 +75,12 @@ async def research(season: int | None = None, week: int | None = None, desk_only
 
     sections, notes, review, model_name, usage = dict(desk), {}, None, None, None
     authors = {n: "desk" for n in desk}
-    if not desk_only and os.environ.get("HF_TOKEN"):
+    if not desk_only and os.environ.get("BIG_PICTURE_AGENTS", "1") != "0":
         try:
             from app.big_picture import agents
             out = await asyncio.to_thread(agents.run, d, tables)
             model_name, usage = out.get("model"), out.get("usage")
+            usage = {**(usage or {}), "compact": out.get("compact"), "provider_failures": out.get("provider_failures")}
             notes, review = out.get("notes") or {}, out.get("review")
             for n, text in (out.get("sections") or {}).items():
                 if text and text.strip():
@@ -109,7 +110,7 @@ async def research(season: int | None = None, week: int | None = None, desk_only
         "agent_notes": notes,
         "elapsed_s": round(time.time() - t0, 1),
     }
-    summary = {"title": report["title"], "status": report["header"]["status"], "writer": report["writer"],
+    summary = {"title": report["title"], "status": report["header"]["status"], "writer": report["writer"], "model": model_name,
                "edges": sum(1 for r in tables["dashboard"] if r["class"] in ("strongest", "price_sensitive")),
                "games": len(d["games"]), "generated_et": d["meta"]["generated_et"]}
     kind = "agents" if report["writer"] == "agents" else "desk"
@@ -149,7 +150,8 @@ def main() -> None:
     # Only metadata: the report itself stays out of public logs.
     print(f"Stored Big Picture report #{out['id']} ({out['kind']}) for {out['season']} Week {out['week']}: "
           f"{out['summary']['games']} games, {out['summary']['edges']} rated edges, at {out['created_at']}"
-          f" ({datetime.now(timezone.utc).isoformat(timespec='seconds')}); language model usage: {out.get('usage')}")
+          f" ({datetime.now(timezone.utc).isoformat(timespec='seconds')}); written by: {out['summary'].get('model') or 'desk templates'}; "
+          f"language model usage: {out.get('usage')}")
 
 
 if __name__ == "__main__":
