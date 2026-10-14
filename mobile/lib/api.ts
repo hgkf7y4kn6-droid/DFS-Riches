@@ -68,6 +68,11 @@ export function getBestContests() {
   return getJson<BestContestsResponse>('/api/contests/best');
 }
 
+/** Free DraftKings NFL contests that pay cash. */
+export function getFreeContests() {
+  return getJson<FreeContestsResponse>('/api/contests/free');
+}
+
 /** The signed-in user's synced data (needs Clerk's session token). */
 export async function getAccount(token: string): Promise<AccountData> {
   const res = await fetch(`${API_BASE_URL}/api/me`, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } });

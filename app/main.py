@@ -377,6 +377,15 @@ async def api_best_contests():
         raise HTTPException(status_code=502, detail=f"Could not load DraftKings contests: {exc}") from exc
 
 
+@app.get("/api/contests/free")
+async def api_free_contests():
+    """Free NFL contests in DraftKings' lobby that pay cash (app.contests)."""
+    try:
+        return await contests.free_contests()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not load DraftKings contests: {exc}") from exc
+
+
 @app.get("/api/defense-vs-position")
 async def api_defense_vs_position(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
     """Every defense's rank against each position (DK points and efficiency allowed, last 8 games), raw and

@@ -119,13 +119,44 @@ def _row(c: dict, groups: dict[int, dict] | None = None) -> dict:
     }
 
 
-async def _lobby_gpps() -> list[dict]:
-    async def fetch() -> list[dict]:
+def is_free_cash(c: dict) -> bool:
+    """A free contest whose prizes include cash (not only tickets or crowns)."""
+    return (c.get("a") or 0) == 0 and (c.get("po") or 0) > 0 and "Cash" in (c.get("pd") or {})
+
+
+def _free_row(c: dict, groups: dict[int, dict]) -> dict:
+    return {
+        "id": c["id"],
+        "name": (c.get("n") or "").strip(),
+        "game_type": c.get("gameType"),
+        "prize_pool": float(c["po"]),
+        "cash": (c.get("pd") or {}).get("Cash"),
+        "field_size": int(c.get("m") or 0),
+        "entries": int(c.get("nt") or 0),
+        "max_entries": int(c.get("mec") or 1),
+        "slate": _slate(groups.get(c.get("dg")), c.get("gameType")),
+        "start_utc": _start_utc(c.get("sd")),
+    }
+
+
+async def _lobby() -> dict[str, list[dict]]:
+    """The lobby trimmed to what the cards use: {"gpps": [...], "free": [...]}."""
+    async def fetch() -> dict[str, list[dict]]:
         data = await _get_json(LOBBY_URL)
         groups = {g.get("DraftGroupId"): g for g in data.get("DraftGroups") or []}
-        return [_row(c, groups) for c in data.get("Contests", []) if is_gpp(c)]
+        lobby = data.get("Contests", [])
+        return {
+            "gpps": [_row(c, groups) for c in lobby if is_gpp(c)],
+            "free": [_free_row(c, groups) for c in lobby if is_free_cash(c)],
+        }
 
-    return await cached_fetch("dk_lobby_nfl_gpps_v2", TTL_LOBBY, fetch)
+    return await cached_fetch("dk_lobby_nfl_v3", TTL_LOBBY, fetch)
+
+
+async def free_contests() -> dict[str, Any]:
+    """Free NFL contests that pay cash, soonest first."""
+    rows = sorted((await _lobby())["free"], key=lambda r: (r["start_utc"] or "", -r["prize_pool"]))
+    return {"contests": rows, "updated_at": datetime.now(timezone.utc).isoformat()}
 
 
 def paid_places(detail: dict) -> int | None:
@@ -162,7 +193,7 @@ def group_contests(rows: list[dict]) -> dict[str, dict[str, list[dict]]]:
 
 
 async def best_contests() -> dict[str, Any]:
-    groups = group_contests(await _lobby_gpps())
+    groups = group_contests((await _lobby())["gpps"])
 
     # Payout tables for each group's lowest-rake candidates, one fetch per template.
     candidates = {

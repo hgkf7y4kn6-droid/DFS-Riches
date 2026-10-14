@@ -51,6 +51,12 @@ export const HOME_SECTIONS: Record<HomeSection['id'], HomeSection> = {
     subtitle: "Every DraftKings slate this week and its optimal lineups",
     defaultExpanded: true,
   },
+  free: {
+    id: 'free',
+    title: 'Free contests',
+    subtitle: 'Free DraftKings NFL contests that pay cash',
+    defaultExpanded: true,
+  },
   contests: {
     id: 'contests',
     title: 'Best contests',

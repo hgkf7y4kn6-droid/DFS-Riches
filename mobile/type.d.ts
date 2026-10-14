@@ -77,7 +77,7 @@ interface UpcomingGame {
 
 /** One Home section: what it's called and how it's laid out. */
 interface HomeSection {
-  id: 'profit' | 'upcoming' | 'slates' | 'contests' | 'lines';
+  id: 'profit' | 'upcoming' | 'slates' | 'free' | 'contests' | 'lines';
   title: string;
   subtitle: string;
   /** Whether the section starts expanded. */
@@ -337,6 +337,26 @@ interface BestContest {
   template_id: number;
   paid_places: number | null;
   paid_pct: number | null;
+}
+
+/** A free DraftKings NFL contest that pays cash, from /api/contests/free. */
+interface FreeContest {
+  id: number;
+  name: string;
+  game_type: string;
+  prize_pool: number;
+  /** DraftKings' cash prize text, e.g. "$2,000". */
+  cash: string | null;
+  field_size: number;
+  entries: number;
+  max_entries: number;
+  slate: string;
+  start_utc: string | null;
+}
+
+interface FreeContestsResponse {
+  contests: FreeContest[];
+  updated_at: string;
 }
 
 interface BestContestsResponse {

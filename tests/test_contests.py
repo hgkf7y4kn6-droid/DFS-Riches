@@ -63,3 +63,21 @@ async def test_ranks_by_rake_then_share_paid(monkeypatch):
     assert se[0]["slate"] == "Thu-Mon" and se[0]["kind"] == "Tournament"
     assert [(c["id"], c["kind"]) for c in result["contests"]["150"]["over25"]] == [(5, "Booster")]
     assert result["contests"]["2-10"]["1-4"] == []
+
+
+async def test_free_contests_keep_only_cash_prizes(monkeypatch):
+    cash = {**_contest(7, 0, 999999999, 2000), "pd": {"Cash": "$2,000"}}
+    no_prize = {**_contest(8, 0, 200, 0), "pd": {}}
+    ticket = {**_contest(9, 0, 100, 20), "pd": {"Ticket": "1 Ticket"}}
+    paid = {**_contest(10, 5, 100, 450), "pd": {"Cash": "$450"}}
+
+    async def fake_get_json(url):
+        return {"Contests": [ticket, cash, no_prize, paid], "DraftGroups": []}
+
+    async def no_cache(key, ttl, fetch):
+        return await fetch()
+
+    monkeypatch.setattr(contests, "_get_json", fake_get_json)
+    monkeypatch.setattr(contests, "cached_fetch", no_cache)
+    rows = (await contests.free_contests())["contests"]
+    assert [(r["id"], r["cash"]) for r in rows] == [(7, "$2,000")]

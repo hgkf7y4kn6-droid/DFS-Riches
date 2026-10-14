@@ -8,6 +8,7 @@ import BestContests from '@/components/BestContests';
 import BrandHeader from '@/components/BrandHeader';
 import BalanceStats from '@/components/BalanceStats';
 import ExpandableCard from '@/components/ExpandableCard';
+import FreeContests from '@/components/FreeContests';
 import LinesList from '@/components/LinesList';
 import ListHeading from '@/components/ListHeading';
 import OptimalLineups from '@/components/OptimalLineups';
@@ -116,6 +117,9 @@ export default function Home() {
           </View>
           <BalanceStats />
         </View>
+
+        {/* Free contests that pay cash: opens itself when there are any */}
+        <FreeContests />
 
         <StatusView loading={weekData.loading && !data} error={weekData.error} />
 
