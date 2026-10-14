@@ -42,6 +42,7 @@ from app import team_units
 from app.cache import memoize_async
 from app.config import BASE_DIR, DEFAULT_SEASON, DEFAULT_WEEK
 from app.models import GameDetail, SlatePlayers, WeekBreakdown, WeekData, WeekSchedule
+from app import sleeper_client
 from app.sleeper_client import get_nfl_state
 
 
@@ -129,7 +130,8 @@ async def healthz(request: Request):
 async def current_season_week() -> tuple[int, int]:
     """The current NFL season and week from Sleeper: week 1 before the regular
     season starts, week 18 once it's over; the configured default if Sleeper
-    can't be reached."""
+    can't be reached. Sleeper's display_week lags into midweek after a week's
+    last game, so a week whose games are all complete moves on to the next."""
     try:
         state = await get_nfl_state()
         season = int(state.get("season") or DEFAULT_SEASON)
@@ -141,7 +143,18 @@ async def current_season_week() -> tuple[int, int]:
         week = 1
     elif kind in ("post", "off"):
         week = 18
-    return season, max(1, min(18, week))
+    week = max(1, min(18, week))
+    if kind == "regular" and week < 18 and await _week_complete(season, week):
+        week += 1
+    return season, week
+
+
+async def _week_complete(season: int, week: int) -> bool:
+    try:
+        games = await sleeper_client.get_week_games(season, week)
+    except Exception:
+        return False
+    return bool(games) and all(g.get("status") == "complete" for g in games)
 
 
 def _int(value: str | None) -> int | None:
@@ -170,6 +183,10 @@ async def api_state():
         state = await get_nfl_state()
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not reach Sleeper: {exc}") from exc
+    # The app opens on display_week: use ours, which moves on once the week's games are all complete.
+    season, week = await current_season_week()
+    if str(state.get("season")) == str(season) and state.get("season_type") == "regular":
+        state = {**state, "display_week": week}
     return state
 
 

@@ -12,12 +12,16 @@ def client(monkeypatch):
     return TestClient(main.app)
 
 
-def _state(monkeypatch, state):
+def _state(monkeypatch, state, statuses=("in_progress",)):
     async def fake():
         if isinstance(state, Exception):
             raise state
         return state
+
+    async def games(season, week):
+        return [{"status": st} for st in statuses]
     monkeypatch.setattr(main, "get_nfl_state", fake)
+    monkeypatch.setattr(main.sleeper_client, "get_week_games", games)
     return main.current_season_week.__wrapped__   # bypass the 30-minute memo
 
 
@@ -30,6 +34,13 @@ def _state(monkeypatch, state):
 def test_current_week_follows_sleeper_state(monkeypatch, state, expected):
     fn = _state(monkeypatch, state)
     assert asyncio.run(fn()) == expected
+
+
+def test_current_week_moves_on_once_every_game_is_complete(monkeypatch):
+    # Sleeper keeps display_week on the finished week until midweek.
+    state = {"season": "2026", "season_type": "regular", "display_week": 5, "week": 6}
+    assert asyncio.run(_state(monkeypatch, state, ("complete", "complete"))()) == (2026, 6)
+    assert asyncio.run(_state(monkeypatch, state, ("complete", "pre_game"))()) == (2026, 5)
 
 
 def test_current_week_falls_back_to_config_when_sleeper_fails(monkeypatch):

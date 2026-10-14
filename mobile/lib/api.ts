@@ -17,7 +17,7 @@ async function getJson<T>(path: string): Promise<T> {
 
 const q = (season: number, week: number) => `season=${season}&week=${week}`;
 
-/** Sleeper's current NFL state: { season, week, display_week, season_type, ... }. */
+/** Sleeper's current NFL state: { season, week, display_week, season_type, ... }; display_week moves on once that week's games are all complete. */
 export function getNflState() {
   return getJson<{ season: string; week: number; display_week?: number; season_type: string }>('/api/state');
 }
