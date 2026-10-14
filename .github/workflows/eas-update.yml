@@ -1,0 +1,59 @@
+# Publishes the phone app's JavaScript as an over-the-air update (EAS Update)
+# on every push that changes mobile/, to the "production" channel that
+# installed builds (eas.json's preview and production profiles) listen on.
+# The app downloads it on its next launch or return to the foreground.
+# Needs the EXPO_TOKEN secret (expo.dev > Account settings > Access tokens)
+# and the project linked once with `npx eas-cli init` in mobile/; until both
+# exist the job only explains what's missing.
+name: EAS Update
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/dfsriches-explorer-t1pdh5]
+    paths: ["mobile/**", ".github/workflows/eas-update.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eas-update
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: mobile
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check setup
+        id: ready
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::notice::Skipped: add the EXPO_TOKEN repository secret to publish phone app updates."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          elif ! node -e "process.exit(require('./app.json').expo.extra?.eas?.projectId ? 0 : 1)"; then
+            echo "::notice::Skipped: run 'npx eas-cli init' in mobile/ and commit app.json to link the Expo project."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.ready.outputs.ok == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - if: steps.ready.outputs.ok == 'true'
+        run: npm ci
+      - name: Publish update
+        if: steps.ready.outputs.ok == 'true'
+        run: |
+          VERSION=$(node -p "require('./app.json').expo.version")
+          npx --yes eas-cli@latest update --channel production --platform all --non-interactive \
+            --message "v$VERSION: $(git log -1 --format=%s | cut -c1-200)"

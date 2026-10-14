@@ -20,6 +20,33 @@ repo root), set its address before starting:
 EXPO_PUBLIC_API_URL=http://<your-computer's-LAN-IP>:8000 npx expo start
 ```
 
+## Over-the-air updates (EAS Update)
+
+Installed builds update themselves: every push to `claude/dfsriches-explorer-t1pdh5`
+that touches `mobile/` publishes the app's JavaScript to EAS Update's `production`
+channel (`.github/workflows/eas-update.yml`), and the app downloads it when it
+launches or comes back to the foreground. Expo Go and the website don't use it.
+
+One-time setup:
+
+1. Link the Expo project (writes `extra.eas.projectId` and `updates.url` to
+   `app.json`; commit and push it):
+   ```bash
+   cd mobile && npx eas-cli login && npx eas-cli init && npx eas-cli update:configure
+   ```
+2. Add an Expo access token (expo.dev > Account settings > Access tokens) as the
+   `EXPO_TOKEN` repository secret on GitHub.
+3. Install a build that listens on `production`, once per phone:
+   - Android: `npx eas-cli build -p android --profile preview` and install the APK.
+   - iPhone (needs an Apple Developer account): `npx eas-cli build -p ios --profile preview`
+     after registering the phone with `npx eas-cli device:create`, or
+     `--profile production` and TestFlight.
+
+Updates only reach builds with the same runtime fingerprint
+(`runtimeVersion.policy: "fingerprint"`; `fingerprint.config.js` leaves the app
+version out, since every push bumps it). Adding or upgrading a package with
+native code changes the fingerprint and needs a new build.
+
 ## Layout
 
 | Path | What's there |

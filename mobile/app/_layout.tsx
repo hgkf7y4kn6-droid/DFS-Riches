@@ -16,6 +16,7 @@ import { FONTS } from '@/constants/fonts';
 import { darkColors, lightColors } from '@/constants/theme';
 import { AccountSyncProvider } from '@/lib/account-sync';
 import { AnalyticsProvider } from '@/lib/analytics';
+import { useAppUpdates } from '@/lib/app-updates';
 import '@/lib/clerk-diagnostics';
 import { DfsModelProvider } from '@/lib/dfs-model-context';
 import { LeverageProvider } from '@/lib/leverage-context';
@@ -41,6 +42,7 @@ const navTheme = (dark: boolean) => {
 export default function RootLayout() {
   const dark = useColorScheme() === 'dark';
   const [fontsLoaded, fontError] = useFonts(FONTS);
+  useAppUpdates();
 
   useEffect(() => {
     if (fontsLoaded || fontError) SplashScreen.hideAsync();

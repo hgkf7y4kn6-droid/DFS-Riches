@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import * as Updates from 'expo-updates';
 import { router } from 'expo-router';
 import { Alert, Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -128,7 +129,15 @@ export default function SettingsScreen() {
 
         <Text className="settings-group-title">About</Text>
         <View className="settings-group mt-0">
-          <Row label="DFSRiches" value={`Version ${Constants.expoConfig?.version ?? '1.0.0'}`} />
+          <Row
+            label="DFSRiches"
+            value={`Version ${Constants.expoConfig?.version ?? '1.0.0'}${
+              // An over-the-air update (EAS Update) rather than the JS the build shipped with.
+              Updates.isEnabled && !Updates.isEmbeddedLaunch && Updates.createdAt
+                ? ` · updated ${Updates.createdAt.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}`
+                : ''
+            }`}
+          />
           <Row label="Data" value="DraftKings, Sleeper, nflverse" />
           <Row label="Weather" value="Open-Meteo.com (CC BY 4.0), National Weather Service" last />
         </View>

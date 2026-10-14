@@ -1,7 +1,7 @@
 {
   "name": "mobile",
   "main": "expo-router/entry",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "dependencies": {
     "@clerk/expo": "^4.8.0",
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
@@ -24,6 +24,7 @@
     "expo-splash-screen": "~57.0.9",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.4",
+    "expo-updates": "~57.0.26",
     "expo-web-browser": "~57.0.3",
     "nativewind": "^4.2.7",
     "posthog-react-native": "^4.78.4",
