@@ -8,20 +8,22 @@ Two public (unauthenticated, undocumented) DraftKings endpoints:
   - GET api.draftkings.com/contests/v1/contests/{id}
         One contest's payout table (payoutSummary). Contests built from the
         same template share it, so it's fetched once per template and gives
-        the share of the field that gets paid.
+        the share of the field that gets paid and the first-place prize.
 
 GPPs here are salary-cap Classic and Showdown tournaments on any slate (main,
 early, Sun-Mon, full-week Thu-Mon, single-game Showdown), including boosters
 (multipliers), leagues and qualifiers (ticket and seat prizes count at face
 value, as DraftKings' prize pool does); no double-ups / 50-50s (cash games),
-head-to-heads or free contests. They're grouped by max entries per user and
-entry fee; each group lists its 15 lowest-rake contests, ties broken by the
-larger share of the field paid.
+head-to-heads or free contests. The user picks any mix of max-entries groups,
+fee groups and kinds; the 15 best of those are listed, scored on low rake, the
+share of the field paid and the first-place prize for the entry fee.
 """
 from __future__ import annotations
 
 import asyncio
+import math
 import re
+import time
 from datetime import datetime, timezone
 from typing import Any
 
@@ -39,10 +41,9 @@ NOT_GPP_ATTRS = {"IsDoubleUp", "IsFiftyfifty"}
 KINDS = [("IsQualifier", "Qualifier"), ("Multiplier", "Booster"), ("League", "League")]
 CONTEST_KINDS = ["Tournament", "Booster", "League", "Qualifier"]
 TOP_N = 15
-# Lowest-rake contests per group whose payout tables are looked up: enough to
-# rank the top 15 by share paid among the ones tied on rake.
-CANDIDATES = 40
 PAYOUT_CONCURRENCY = 8
+# How much each percentile counts in a contest's score (score_contests).
+WEIGHTS = {"rake": 0.4, "paid": 0.3, "payout": 0.3}
 
 # (id, label, lowest, highest max entries per user)
 ENTRY_GROUPS = [
@@ -160,67 +161,125 @@ async def free_contests() -> dict[str, Any]:
     return {"contests": rows, "updated_at": datetime.now(timezone.utc).isoformat()}
 
 
-def paid_places(detail: dict) -> int | None:
-    """The last paid finishing position in a contest's payout table."""
+def payout_summary(detail: dict) -> dict:
+    """The last paid finishing position and the first-place prize (cash plus tickets or
+    seats at face value) from a contest's payout table."""
     tiers = (detail.get("contestDetail") or {}).get("payoutSummary") or []
     places = [t.get("maxPosition") or 0 for t in tiers]
-    return max(places) if places else None
+    first = next((t for t in tiers if t.get("minPosition") == 1), None)
+    top = sum(p.get("value") or 0 for p in (first or {}).get("payoutDescriptions") or [])
+    return {"paid_places": max(places) if places else None, "top_prize": float(top) if top else None}
 
 
-async def _paid_places(contest_id: int, template_id: int, sem: asyncio.Semaphore) -> int | None:
+# Payout tables by template id: (fetched at, summary). Kept here rather than in
+# app.cache's small LRU, since a ranking reads hundreds of them.
+_PAYOUTS: dict[int, tuple[float, dict]] = {}
+
+
+async def _payout(contest_id: int, template_id: int, sem: asyncio.Semaphore) -> dict:
+    hit = _PAYOUTS.get(template_id)
+    if hit and time.time() - hit[0] < TTL_PAYOUTS:
+        return hit[1]
+
     async def fetch() -> dict:
         async with sem:
             detail = await _get_json(f"{DK_BASE}/contests/v1/contests/{contest_id}?format=json")
-        return {"paid_places": paid_places(detail)}
+        return payout_summary(detail)
 
     try:
-        return (await cached_fetch(f"dk_payout_tmpl_{template_id}", TTL_PAYOUTS, fetch))["paid_places"]
+        summary = await cached_fetch(f"dk_payout_v2_tmpl_{template_id}", TTL_PAYOUTS, fetch, memory=False)
     except Exception:
-        return None  # ranked on rake alone
+        return {"paid_places": None, "top_prize": None}  # ranked as the worst on these two
+    _PAYOUTS[template_id] = (time.time(), summary)
+    return summary
 
 
-def _rank_key(r: dict) -> tuple:
-    # Rake to the tenth of a percent, then share of field paid, then the bigger pool.
-    return (round(r["rake"], 3), -(r["paid_pct"] or 0), -r["prize_pool"])
-
-
-def group_contests(rows: list[dict]) -> dict[str, dict[str, list[dict]]]:
-    groups: dict[str, dict[str, list[dict]]] = {e[0]: {f[0]: [] for f in FEE_GROUPS} for e in ENTRY_GROUPS}
-    for r in rows:
-        eg, fg = entry_group(r["max_entries"]), fee_group(r["entry_fee"])
-        if eg and fg:
-            groups[eg][fg].append(r)
-    return groups
-
-
-async def best_contests(exclude: frozenset[str] = frozenset()) -> dict[str, Any]:
-    """exclude: contest kinds to leave out (Tournament, Booster, League, Qualifier)."""
-    groups = group_contests([r for r in (await _lobby())["gpps"] if r["kind"] not in exclude])
-
-    # Payout tables for each group's lowest-rake candidates, one fetch per template.
-    candidates = {
-        eg: {fg: sorted(rows, key=lambda r: (r["rake"], -r["prize_pool"]))[:CANDIDATES] for fg, rows in fees.items()}
-        for eg, fees in groups.items()
-    }
-    templates = {r["template_id"]: r["id"] for fees in candidates.values() for rows in fees.values() for r in rows}
+async def _with_payouts(rows: list[dict]) -> list[dict]:
+    templates = {r["template_id"]: r["id"] for r in rows}
     sem = asyncio.Semaphore(PAYOUT_CONCURRENCY)
-    paid = dict(zip(templates, await asyncio.gather(*(_paid_places(cid, t, sem) for t, cid in templates.items()))))
+    found = dict(zip(templates, await asyncio.gather(*(_payout(cid, t, sem) for t, cid in templates.items()))))
+    out = []
+    for r in rows:
+        p = found[r["template_id"]]
+        places, top = p["paid_places"], p["top_prize"]
+        out.append({**r, "paid_places": places, "top_prize": top,
+                    "paid_pct": round(min(places / r["field_size"], 1.0), 4) if places else None,
+                    "top_multiple": round(top / r["entry_fee"], 1) if top else None})
+    return out
 
-    out: dict[str, dict[str, list[dict]]] = {}
-    for eg, fees in candidates.items():
-        out[eg] = {}
-        for fg, rows in fees.items():
-            ranked = []
-            for r in rows:
-                places = paid.get(r["template_id"])
-                ranked.append({**r, "paid_places": places,
-                               "paid_pct": round(min(places / r["field_size"], 1.0), 4) if places else None})
-            out[eg][fg] = sorted(ranked, key=_rank_key)[:TOP_N]
+
+def _pct_ranks(values: list[float]) -> list[float]:
+    """Each value's percentile (0-1) among values, higher = better; ties share their average rank."""
+    if len(values) < 2:
+        return [1.0] * len(values)
+    order = sorted(range(len(values)), key=lambda i: values[i])
+    ranks = [0.0] * len(values)
+    i = 0
+    while i < len(order):
+        j = i
+        while j + 1 < len(order) and values[order[j + 1]] == values[order[i]]:
+            j += 1
+        for k in range(i, j + 1):
+            ranks[order[k]] = (i + j) / 2 / (len(values) - 1)
+        i = j + 1
+    return ranks
+
+
+def score_contests(rows: list[dict]) -> list[dict]:
+    """Ranks contests by WEIGHTS: low rake, a big share of the field paid and a big
+    first-place prize for the entry fee, each as a percentile among these contests.
+    Score is 0-100; ties go to the lower rake."""
+    if not rows:
+        return []
+    metrics = {
+        "rake": [-r["rake"] for r in rows],
+        "paid": [r["paid_pct"] or 0.0 for r in rows],
+        "payout": [math.log10(r["top_multiple"]) if r["top_multiple"] else 0.0 for r in rows],
+    }
+    ranks = {k: _pct_ranks(v) for k, v in metrics.items()}
+    scored = [{**r, "score": round(100 * sum(WEIGHTS[k] * ranks[k][i] for k in WEIGHTS), 1)}
+              for i, r in enumerate(rows)]
+    return sorted(scored, key=lambda r: (-r["score"], r["rake"], -r["prize_pool"]))
+
+
+def select(rows: list[dict], entries: frozenset[str], fees: frozenset[str], exclude: frozenset[str]) -> list[dict]:
+    """GPPs in the chosen max-entries and fee groups (empty = all), minus excluded kinds."""
+    return [r for r in rows
+            if r["kind"] not in exclude
+            and (eg := entry_group(r["max_entries"])) and (not entries or eg in entries)
+            and (fg := fee_group(r["entry_fee"])) and (not fees or fg in fees)]
+
+
+def collapse_copies(rows: list[dict]) -> list[dict]:
+    """DraftKings lists many identical copies of some contests (same name, template, fee, field
+    and start). Keeps one -- the fullest, so the closest to running -- with "copies" counting them."""
+    groups: dict[tuple, list[dict]] = {}
+    for r in rows:
+        key = (r["name"], r["template_id"], r["entry_fee"], r["field_size"], r["prize_pool"], r["start_utc"])
+        groups.setdefault(key, []).append(r)
+    return [{**max(g, key=lambda r: r["entries"]), "copies": len(g)} for g in groups.values()]
+
+
+async def warm_payouts() -> None:
+    """Fetches every listed GPP's payout table so the first ranking doesn't wait on them."""
+    try:
+        await _with_payouts((await _lobby())["gpps"])
+    except Exception:
+        pass
+
+
+async def best_contests(entries: frozenset[str] = frozenset(), fees: frozenset[str] = frozenset(),
+                        exclude: frozenset[str] = frozenset()) -> dict[str, Any]:
+    """The TOP_N best GPPs (score_contests) across the chosen max-entries groups, fee groups
+    and contest kinds."""
+    rows = await _with_payouts(collapse_copies(select((await _lobby())["gpps"], entries, fees, exclude)))
     return {
         "entry_groups": [{"id": gid, "label": label, "min": lo, "max": hi} for gid, label, lo, hi in ENTRY_GROUPS],
         "fee_groups": [{"id": gid, "label": label} for gid, label, _, _ in FEE_GROUPS],
         "kinds": CONTEST_KINDS,
-        "excluded": sorted(exclude),
-        "contests": out,
+        "weights": WEIGHTS,
+        "selected": {"entries": sorted(entries), "fees": sorted(fees), "excluded": sorted(exclude)},
+        "matching": len(rows),
+        "contests": score_contests(rows)[:TOP_N],
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }

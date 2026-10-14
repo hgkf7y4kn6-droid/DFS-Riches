@@ -9,39 +9,150 @@ import { formatEt, formatPercent } from '@/lib/utils';
 
 const cache = createFetchCache<BestContestsResponse>();
 
-/** Contest kinds the server tags (app.contests.CONTEST_KINDS), with chip labels. */
-const KINDS: { id: ContestKind; label: string }[] = [
+type Option<T extends string = string> = { id: T; label: string };
+
+// The server's groups and kinds (app.contests ENTRY_GROUPS, FEE_GROUPS, CONTEST_KINDS),
+// here so the filters show before the first response.
+const ENTRY_GROUPS: Option[] = [
+  { id: 'se', label: 'Single entry' },
+  { id: '2-10', label: '2–10 max' },
+  { id: '20', label: '20 max (11–20)' },
+  { id: '150', label: '150 max (21–150)' },
+];
+const FEE_GROUPS: Option[] = [
+  { id: 'under1', label: 'Under $1' },
+  { id: '1-4', label: '$1–$4' },
+  { id: '5-9', label: '$5–$9' },
+  { id: '10-25', label: '$10–$25' },
+  { id: 'over25', label: 'Over $25' },
+];
+const KINDS: Option<ContestKind>[] = [
   { id: 'Tournament', label: 'Tournaments' },
   { id: 'Booster', label: 'Boosters' },
   { id: 'League', label: 'Leagues' },
   { id: 'Qualifier', label: 'Qualifiers' },
 ];
-const HIDDEN_KEY = 'dfsriches:best-contests-hidden';
 
-/** The kinds this device hides, remembered between visits. */
-function useHiddenKinds() {
-  const [hidden, setHidden] = useState<ContestKind[]>([]);
+const STORAGE_KEY = 'dfsriches:best-contests-filters';
+const OLD_HIDDEN_KEY = 'dfsriches:best-contests-hidden';
+
+interface Filters {
+  /** Entry and fee group ids; empty = all. */
+  entries: string[];
+  fees: string[];
+  hidden: ContestKind[];
+}
+
+const only = <T extends string>(ids: unknown, options: Option<T>[]): T[] =>
+  Array.isArray(ids) ? options.map((o) => o.id).filter((id) => ids.includes(id)) : [];
+
+/** The card's filters, remembered on this device. */
+function useFilters() {
+  const [filters, setFilters] = useState<Filters>({ entries: [], fees: [], hidden: [] });
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
-    AsyncStorage.getItem(HIDDEN_KEY)
-      .then((raw) => {
-        const saved = raw ? (JSON.parse(raw) as ContestKind[]) : [];
-        setHidden(saved.filter((k) => KINDS.some((o) => o.id === k)));
+    Promise.all([AsyncStorage.getItem(STORAGE_KEY), AsyncStorage.getItem(OLD_HIDDEN_KEY)])
+      .then(([raw, oldHidden]) => {
+        const saved = raw ? JSON.parse(raw) : { hidden: oldHidden ? JSON.parse(oldHidden) : [] };
+        setFilters({
+          entries: only(saved.entries, ENTRY_GROUPS),
+          fees: only(saved.fees, FEE_GROUPS),
+          hidden: only(saved.hidden, KINDS),
+        });
       })
       .catch(() => {})
       .finally(() => setLoaded(true));
   }, []);
-  const toggle = (kind: ContestKind) =>
-    setHidden((h) => {
-      const next = h.includes(kind) ? h.filter((k) => k !== kind) : [...h, kind];
-      if (next.length === KINDS.length) return h; // keep at least one kind showing
-      AsyncStorage.setItem(HIDDEN_KEY, JSON.stringify(next)).catch(() => {});
+  const update = (patch: Partial<Filters>) =>
+    setFilters((f) => {
+      const next = { ...f, ...patch };
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => {});
       return next;
     });
-  return { hidden, loaded, toggle };
+  return { filters, loaded, update };
 }
 
-function KindChips({ hidden, onToggle }: { hidden: ContestKind[]; onToggle: (kind: ContestKind) => void }) {
+/** A dropdown of checkboxes; nothing checked means all. */
+function MultiSelect({
+  label,
+  allLabel,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  allLabel: string;
+  options: Option[];
+  value: string[];
+  onChange: (ids: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const summary = !value.length
+    ? allLabel
+    : value.length <= 2
+      ? options
+          .filter((o) => value.includes(o.id))
+          .map((o) => o.label.replace(/ \(.*\)$/, ''))
+          .join(', ')
+      : `${value.length} selected`;
+  const toggle = (id: string) => {
+    const next = value.includes(id) ? value.filter((v) => v !== id) : [...value, id];
+    // Everything checked is the same as all: keep "all" as the empty list.
+    onChange(next.length === options.length ? [] : options.map((o) => o.id).filter((o) => next.includes(o)));
+  };
+  return (
+    <View className="mb-2">
+      <View className="flex-row items-center gap-2">
+        <Text className="matchup-toggle-label w-14">{label}</Text>
+        <Pressable
+          className="filter-chip flex-row items-center"
+          onPress={() => setOpen((o) => !o)}
+          accessibilityRole="button"
+          aria-expanded={open}
+          accessibilityLabel={`${label}: ${summary}. Change`}>
+          <Text className="filter-chip-text">
+            {summary} {open ? '▴' : '▾'}
+          </Text>
+        </Pressable>
+      </View>
+      {open ? (
+        <View className="matchup-menu">
+          <Pressable
+            className={`matchup-menu-item ${!value.length ? 'matchup-menu-item-active' : ''}`}
+            onPress={() => onChange([])}
+            accessibilityRole="checkbox"
+            aria-checked={!value.length}>
+            <Text className="matchup-menu-label">
+              {!value.length ? '☑ ' : '☐ '}
+              {allLabel}
+            </Text>
+          </Pressable>
+          {options.map((o) => {
+            const checked = value.includes(o.id);
+            return (
+              <Pressable
+                key={o.id}
+                className={`matchup-menu-item ${checked ? 'matchup-menu-item-active' : ''}`}
+                onPress={() => toggle(o.id)}
+                accessibilityRole="checkbox"
+                aria-checked={checked}>
+                <Text className="matchup-menu-label">
+                  {checked ? '☑ ' : '☐ '}
+                  {o.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+          <Pressable className="matchup-menu-item" onPress={() => setOpen(false)} accessibilityRole="button">
+            <Text className="link-text text-xs">Done</Text>
+          </Pressable>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function KindChips({ hidden, onChange }: { hidden: ContestKind[]; onChange: (hidden: ContestKind[]) => void }) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
       <Text className="matchup-toggle-label mr-1 self-center">Show</Text>
@@ -51,7 +162,10 @@ function KindChips({ hidden, onToggle }: { hidden: ContestKind[]; onToggle: (kin
           <Pressable
             key={k.id}
             className={`filter-chip ${shown ? 'filter-chip-active' : ''}`}
-            onPress={() => onToggle(k.id)}
+            onPress={() => {
+              const next = shown ? [...hidden, k.id] : hidden.filter((h) => h !== k.id);
+              if (next.length < KINDS.length) onChange(next); // keep at least one kind showing
+            }}
             accessibilityRole="checkbox"
             aria-checked={shown}
             accessibilityLabel={`${k.label}, ${shown ? 'shown' : 'hidden'}`}>
@@ -70,36 +184,9 @@ function KindChips({ hidden, onToggle }: { hidden: ContestKind[]; onToggle: (kin
 const money = (n: number) =>
   `$${n.toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`;
 
-function ChipRow({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: { id: string; label: string }[];
-  value: string;
-  onChange: (id: string) => void;
-}) {
-  return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
-      <Text className="matchup-toggle-label mr-1 self-center">{label}</Text>
-      {options.map((o) => {
-        const active = o.id === value;
-        return (
-          <Pressable
-            key={o.id}
-            className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
-            onPress={() => onChange(o.id)}
-            accessibilityRole="button"
-            aria-pressed={active}>
-            <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{o.label}</Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
-  );
-}
+/** Big prizes short: 1000000 -> "$1M", 25000 -> "$25K". */
+const shortMoney = (n: number) =>
+  n >= 1_000_000 ? `$${+(n / 1_000_000).toFixed(2)}M` : n >= 10_000 ? `$${+(n / 1000).toFixed(1)}K` : money(n);
 
 function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }) {
   return (
@@ -107,7 +194,7 @@ function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }
       className="pl-row"
       onPress={() => Linking.openURL(`https://www.draftkings.com/draft/contest/${c.id}`)}
       accessibilityRole="link"
-      accessibilityLabel={`${c.name}, open on DraftKings`}>
+      accessibilityLabel={`${c.name}, score ${c.score}, open on DraftKings`}>
       <View className="pl-row-header">
         <Text className="pl-type flex-1 pr-2" numberOfLines={2}>
           {rank}. {c.name}
@@ -116,11 +203,11 @@ function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }
       </View>
       <View className="pl-stats">
         {[
+          ['Score', String(Math.round(c.score))],
           ['Rake', formatPercent(c.rake)],
           ['Paid', c.paid_pct == null ? '-' : formatPercent(c.paid_pct, 0)],
-          ['Prizes', money(c.prize_pool)],
+          ['1st', c.top_prize == null ? '-' : `${shortMoney(c.top_prize)} (${Math.round(c.top_multiple ?? 0).toLocaleString('en-US')}x)`],
           ['Field', `${c.entries.toLocaleString('en-US')}/${c.field_size.toLocaleString('en-US')}`],
-          ['Max', String(c.max_entries)],
         ].map(([label, value]) => (
           <View key={label}>
             <Text className="pl-stat-value">{value}</Text>
@@ -129,50 +216,55 @@ function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }
         ))}
       </View>
       <Text className="caption mt-1">
-        {[c.game_type === 'Classic' ? 'Classic' : 'Showdown', c.slate, c.kind === 'Tournament' ? '' : c.kind, formatEt(c.start_utc)]
+        {[
+          c.game_type === 'Classic' ? 'Classic' : 'Showdown',
+          c.slate,
+          c.kind === 'Tournament' ? '' : c.kind,
+          c.max_entries === 1 ? 'single entry' : `max ${c.max_entries}`,
+          formatEt(c.start_utc),
+          c.copies > 1 ? `${c.copies} copies` : '',
+          c.guaranteed ? '' : 'not guaranteed',
+        ]
           .filter(Boolean)
           .join(' · ')}
-        {c.guaranteed ? '' : ' · not guaranteed'}
       </Text>
     </Pressable>
   );
 }
 
 /**
- * DraftKings' lowest-rake NFL GPPs for a max-entries group and entry-fee range,
- * ties broken by the share of the field paid. Tapping one opens it on DraftKings.
+ * The 15 best DraftKings NFL GPPs for any mix of max-entries limits, entry fees and
+ * contest kinds: low rake, a big share of the field paid, and a big first prize for
+ * the fee. Tapping one opens it on DraftKings.
  */
 export default function BestContests() {
-  const { hidden, loaded, toggle } = useHiddenKinds();
-  // Sorted so the same set of hidden kinds shares one cached response.
-  const exclude = [...hidden].sort().join(',');
-  const { data, error, loading } = useCachedFetch(cache, loaded ? `best:${exclude}` : '', () => getBestContests(exclude));
-  const [entryGroup, setEntryGroup] = useState('se');
-  const [feeGroup, setFeeGroup] = useState('1-4');
-
-  const kinds = <KindChips hidden={hidden} onToggle={toggle} />;
-  if (!data)
-    return (
-      <View>
-        {kinds}
-        <StatusView loading={loading || !loaded} error={error} />
-      </View>
-    );
-  const rows = data.contests[entryGroup]?.[feeGroup] ?? [];
-  const range = data.entry_groups.find((g) => g.id === entryGroup);
+  const { filters, loaded, update } = useFilters();
+  const { entries, fees, hidden } = filters;
+  const exclude = [...hidden].sort();
+  const key = loaded ? JSON.stringify([entries, fees, exclude]) : '';
+  const { data, error, loading } = useCachedFetch(cache, key, () => getBestContests({ entries, fees, exclude }));
+  const w = data?.weights;
+  const pct = (n: number | undefined) => (n == null ? '' : ` (${Math.round(n * 100)}%)`);
   return (
     <View>
-      {kinds}
-      <ChipRow label="Entries" options={data.entry_groups} value={entryGroup} onChange={setEntryGroup} />
-      <ChipRow label="Fee" options={data.fee_groups} value={feeGroup} onChange={setFeeGroup} />
-      <Text className="caption mb-1">
-        Rake = share of entry fees DraftKings keeps · Paid = share of the field that cashes
-        {range && range.min !== range.max ? ` · ${range.min}–${range.max} entries per user` : ''}
-      </Text>
-      {rows.length ? (
-        rows.map((c, i) => <ContestRow key={c.id} contest={c} rank={i + 1} />)
+      <MultiSelect label="Entries" allLabel="All entry limits" options={ENTRY_GROUPS} value={entries} onChange={(v) => update({ entries: v })} />
+      <MultiSelect label="Fee" allLabel="All entry fees" options={FEE_GROUPS} value={fees} onChange={(v) => update({ fees: v })} />
+      <KindChips hidden={hidden} onChange={(v) => update({ hidden: v })} />
+      {!data ? (
+        <StatusView loading={loading || !loaded} error={error} />
       ) : (
-        <Text className="home-empty-state">No upcoming contests of the kinds shown in this range.</Text>
+        <>
+          <Text className="caption mb-1">
+            Best {data.contests.length} of {data.matching.toLocaleString('en-US')} matching. Score weighs low rake
+            {pct(w?.rake)}, share of the field paid{pct(w?.paid)} and first prize for the fee{pct(w?.payout)} against
+            the other matches.
+          </Text>
+          {data.contests.length ? (
+            data.contests.map((c, i) => <ContestRow key={c.id} contest={c} rank={i + 1} />)
+          ) : (
+            <Text className="home-empty-state">No upcoming contests match these filters.</Text>
+          )}
+        </>
       )}
     </View>
   );

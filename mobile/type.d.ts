@@ -318,7 +318,7 @@ interface OptimalLineup {
 /** Tournament, Booster (multiplier), League or Qualifier. */
 type ContestKind = 'Tournament' | 'Booster' | 'League' | 'Qualifier';
 
-/** One DraftKings GPP from /api/contests/best. rake and paid_pct are 0-1 ratios. */
+/** One DraftKings GPP from /api/contests/best. rake and paid_pct are 0-1 ratios; score is 0-100. */
 interface BestContest {
   id: number;
   name: string;
@@ -339,6 +339,12 @@ interface BestContest {
   template_id: number;
   paid_places: number | null;
   paid_pct: number | null;
+  /** First-place prize (cash plus tickets/seats at face value), and as a multiple of the entry fee. */
+  top_prize: number | null;
+  top_multiple: number | null;
+  score: number;
+  /** Identical copies DraftKings lists of this contest (this row is the fullest). */
+  copies: number;
 }
 
 /** A free DraftKings NFL contest that pays cash, from /api/contests/free. */
@@ -364,10 +370,14 @@ interface FreeContestsResponse {
 interface BestContestsResponse {
   entry_groups: { id: string; label: string; min: number; max: number }[];
   fee_groups: { id: string; label: string }[];
-  /** contests[entryGroupId][feeGroupId]: up to 15, best first. */
-  contests: Record<string, Record<string, BestContest[]>>;
   kinds: ContestKind[];
-  excluded: ContestKind[];
+  /** Score weights: rake, share of field paid, first-place prize for the fee. */
+  weights: { rake: number; paid: number; payout: number };
+  selected: { entries: string[]; fees: string[]; excluded: ContestKind[] };
+  /** Contests matching the selection (copies collapsed), of which up to 15 are listed. */
+  matching: number;
+  /** Best first. */
+  contests: BestContest[];
   updated_at: string;
 }
 

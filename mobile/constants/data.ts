@@ -60,7 +60,7 @@ export const HOME_SECTIONS: Record<HomeSection['id'], HomeSection> = {
   contests: {
     id: 'contests',
     title: 'Best contests',
-    subtitle: 'Lowest-rake DraftKings GPPs by max entries and entry fee',
+    subtitle: 'DraftKings GPPs with low rake, deep payouts and big first prizes',
     defaultExpanded: false,
   },
   lines: {

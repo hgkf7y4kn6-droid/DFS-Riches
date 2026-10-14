@@ -81,6 +81,13 @@ async def _restore_ownership() -> None:
     asyncio.get_running_loop().run_in_executor(None, ownership_persist.restore)
 
 
+@app.on_event("startup")
+async def _warm_contests() -> None:
+    """Payout tables for every listed GPP, so the first Best contests ranking doesn't wait on them."""
+    if os.environ.get("WARM_CONTESTS", "1") != "0":
+        asyncio.ensure_future(contests.warm_payouts())
+
+
 # Sign-in (Clerk production) only works on the site's own domain, so pages opened on
 # Render's address (e.g. an old bookmark) move there. The API stays reachable on both
 # (the native app calls it), and so does the health check.
@@ -379,21 +386,28 @@ async def api_me_save(key: str, body: dict = Body(...), authorization: Annotated
         raise HTTPException(status_code=502, detail=f"Could not save: {exc}") from exc
 
 
-@memoize_async(ttl_seconds=300)
-async def _best_contests(exclude: frozenset[str]) -> dict:
-    return await contests.best_contests(exclude)
+@memoize_async(ttl_seconds=300, max_entries=64)
+async def _best_contests(entries: frozenset[str], fees: frozenset[str], exclude: frozenset[str]) -> dict:
+    return await contests.best_contests(entries, fees, exclude)
+
+
+def _id_set(value: str, allowed: list[str], what: str) -> frozenset[str]:
+    ids = frozenset(v.strip() for v in value.split(",") if v.strip())
+    if unknown := ids - set(allowed):
+        raise HTTPException(status_code=400, detail=f"Unknown {what}: {', '.join(sorted(unknown))}")
+    return ids
 
 
 @app.get("/api/contests/best")
-async def api_best_contests(exclude: str = ""):
-    """The 15 lowest-rake NFL GPPs in DraftKings' lobby (ties broken by share of field paid), for each
-    max-entries group and entry-fee range (app.contests). exclude: comma-separated contest kinds to
-    leave out, e.g. "Qualifier,League"."""
-    kinds = frozenset(k.strip() for k in exclude.split(",") if k.strip())
-    if unknown := kinds - set(contests.CONTEST_KINDS):
-        raise HTTPException(status_code=400, detail=f"Unknown contest kinds: {', '.join(sorted(unknown))}")
+async def api_best_contests(entries: str = "", fees: str = "", exclude: str = ""):
+    """The 15 best NFL GPPs in DraftKings' lobby (app.contests): low rake, a big share of the field paid and
+    a big first-place prize for the fee. entries / fees: comma-separated max-entries and fee group ids (empty =
+    all); exclude: comma-separated contest kinds to leave out, e.g. "Qualifier,League"."""
+    chosen = (_id_set(entries, [g[0] for g in contests.ENTRY_GROUPS], "entry groups"),
+              _id_set(fees, [g[0] for g in contests.FEE_GROUPS], "fee groups"),
+              _id_set(exclude, contests.CONTEST_KINDS, "contest kinds"))
     try:
-        return await _best_contests(kinds)
+        return await _best_contests(*chosen)
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not load DraftKings contests: {exc}") from exc
 
