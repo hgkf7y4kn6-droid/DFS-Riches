@@ -188,16 +188,28 @@ const money = (n: number) =>
 const shortMoney = (n: number) =>
   n >= 1_000_000 ? `$${+(n / 1_000_000).toFixed(2)}M` : n >= 10_000 ? `$${+(n / 1000).toFixed(1)}K` : money(n);
 
+const OTHER_SLATES_SHOWN = 3;
+
+/** "25 copies on 9 slates · also SEA @ DEN, CHI @ ATL, HOU vs JAX +5"; the row is the fullest copy. */
+function copiesNote(c: BestContest) {
+  const others = c.slates.filter((s) => s !== c.slate);
+  const where = c.slates.length > 1 ? ` on ${c.slates.length} slates` : '';
+  const also = others.length
+    ? ` · also ${others.slice(0, OTHER_SLATES_SHOWN).join(', ')}${others.length > OTHER_SLATES_SHOWN ? ` +${others.length - OTHER_SLATES_SHOWN}` : ''}`
+    : '';
+  return `⧉ ${c.copies} copies${where}${also} · opens the fullest`;
+}
+
 function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }) {
   return (
     <Pressable
       className="pl-row"
       onPress={() => Linking.openURL(`https://www.draftkings.com/draft/contest/${c.id}`)}
       accessibilityRole="link"
-      accessibilityLabel={`${c.name}, score ${c.score}, open on DraftKings`}>
+      accessibilityLabel={`${c.name}, score ${c.score}${c.copies > 1 ? `, ${c.copies} copies` : ''}, open on DraftKings`}>
       <View className="pl-row-header">
         <Text className="pl-type flex-1 pr-2" numberOfLines={2}>
-          {rank}. {c.name}
+          {rank}. {c.title}
         </Text>
         <Text className="pl-net text-foreground">{money(c.entry_fee)}</Text>
       </View>
@@ -222,12 +234,12 @@ function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }
           c.kind === 'Tournament' ? '' : c.kind,
           c.max_entries === 1 ? 'single entry' : `max ${c.max_entries}`,
           formatEt(c.start_utc),
-          c.copies > 1 ? `${c.copies} copies` : '',
           c.guaranteed ? '' : 'not guaranteed',
         ]
           .filter(Boolean)
           .join(' · ')}
       </Text>
+      {c.copies > 1 ? <Text className="caption mt-0.5">{copiesNote(c)}</Text> : null}
     </Pressable>
   );
 }

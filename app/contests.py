@@ -250,14 +250,30 @@ def select(rows: list[dict], entries: frozenset[str], fees: frozenset[str], excl
             and (fg := fee_group(r["entry_fee"])) and (not fees or fg in fees)]
 
 
+def base_name(row: dict) -> str:
+    """The contest's name without its slate, e.g. "NFL Showdown Satellite to $20 ... (SEA @ DEN)"
+    -> "NFL Showdown Satellite to $20 ..."."""
+    suffix = f" ({row['slate']})"
+    name = row["name"]
+    return name[: -len(suffix)] if row["slate"] and name.endswith(suffix) else name
+
+
 def collapse_copies(rows: list[dict]) -> list[dict]:
-    """DraftKings lists many identical copies of some contests (same name, template, fee, field
-    and start). Keeps one -- the fullest, so the closest to running -- with "copies" counting them."""
+    """DraftKings lists many copies of some contests: the same contest (name, fee, field, prize
+    pool and payouts -- template ids can differ) repeated on one slate and offered again on others. Keeps one row per
+    contest -- the fullest copy, so the closest to running -- with "copies" counting them all and
+    "slates" naming every slate it's on, soonest first."""
     groups: dict[tuple, list[dict]] = {}
     for r in rows:
-        key = (r["name"], r["template_id"], r["entry_fee"], r["field_size"], r["prize_pool"], r["start_utc"])
+        key = (base_name(r), r["entry_fee"], r["field_size"], r["prize_pool"], r.get("paid_places"), r.get("top_prize"))
         groups.setdefault(key, []).append(r)
-    return [{**max(g, key=lambda r: r["entries"]), "copies": len(g)} for g in groups.values()]
+    out = []
+    for g in groups.values():
+        slates = list(dict.fromkeys(r["slate"] for r in sorted(g, key=lambda r: (r["start_utc"] or "", r["slate"]))))
+        best = max(g, key=lambda r: r["entries"])
+        out.append({**best, "title": base_name(best) if len(slates) > 1 else best["name"],
+                    "copies": len(g), "slates": slates})
+    return out
 
 
 async def warm_payouts() -> None:
@@ -272,7 +288,7 @@ async def best_contests(entries: frozenset[str] = frozenset(), fees: frozenset[s
                         exclude: frozenset[str] = frozenset()) -> dict[str, Any]:
     """The TOP_N best GPPs (score_contests) across the chosen max-entries groups, fee groups
     and contest kinds."""
-    rows = await _with_payouts(collapse_copies(select((await _lobby())["gpps"], entries, fees, exclude)))
+    rows = collapse_copies(await _with_payouts(select((await _lobby())["gpps"], entries, fees, exclude)))
     return {
         "entry_groups": [{"id": gid, "label": label, "min": lo, "max": hi} for gid, label, lo, hi in ENTRY_GROUPS],
         "fee_groups": [{"id": gid, "label": label} for gid, label, _, _ in FEE_GROUPS],

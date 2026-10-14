@@ -343,8 +343,12 @@ interface BestContest {
   top_prize: number | null;
   top_multiple: number | null;
   score: number;
-  /** Identical copies DraftKings lists of this contest (this row is the fullest). */
+  /** The name without its slate when the contest runs on several slates, else the name. */
+  title: string;
+  /** Copies DraftKings lists of this contest, on this and other slates (this row is the fullest copy). */
   copies: number;
+  /** Every slate a copy is on, soonest first. */
+  slates: string[];
 }
 
 /** A free DraftKings NFL contest that pays cash, from /api/contests/free. */

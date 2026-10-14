@@ -105,3 +105,24 @@ async def test_excluded_kinds_are_left_out(lobby):
     result = await contests.best_contests(exclude=frozenset({"Qualifier"}))
     assert [c["id"] for c in result["contests"]] == [2]
     assert result["selected"]["excluded"] == ["Qualifier"]
+
+
+def test_copies_on_other_slates_collapse_into_one_contest():
+    def row(cid, name, slate, entries, start="2026-10-18T17:00:00+00:00", tmpl=7, paid=1):
+        return {"id": cid, "name": name, "slate": slate, "entries": entries, "start_utc": start, "template_id": tmpl,
+                "entry_fee": 2.0, "field_size": 11, "prize_pool": 20.0, "paid_places": paid, "top_prize": 20.0}
+
+    rows = contests.collapse_copies([
+        row(1, "NFL Showdown Sat (SEA @ DEN)", "SEA @ DEN", 3, start="2026-10-16T00:15:00+00:00"),
+        row(2, "NFL Showdown Sat (SEA @ DEN)", "SEA @ DEN", 5, start="2026-10-16T00:15:00+00:00"),
+        row(3, "NFL Showdown Sat (CHI @ ATL)", "CHI @ ATL", 9, tmpl=9),   # another template, same payouts
+        row(4, "NFL Sat", "Main", 1),
+        row(5, "NFL Sat (Early Only)", "Early Only", 2),
+        row(6, "NFL Sat", "Main", 4, paid=2),           # different payouts: its own contest
+    ])
+    by_id = {r["id"]: r for r in rows}
+    assert set(by_id) == {3, 5, 6}
+    assert by_id[3]["copies"] == 3 and by_id[3]["slates"] == ["SEA @ DEN", "CHI @ ATL"]
+    assert by_id[3]["title"] == "NFL Showdown Sat" and by_id[6]["title"] == "NFL Sat"
+    assert by_id[5]["copies"] == 2 and by_id[5]["slates"] == ["Early Only", "Main"]
+    assert by_id[6]["copies"] == 1 and by_id[6]["slates"] == ["Main"]
