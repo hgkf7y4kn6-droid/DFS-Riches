@@ -81,3 +81,23 @@ async def test_free_contests_keep_only_cash_prizes(monkeypatch):
     monkeypatch.setattr(contests, "cached_fetch", no_cache)
     rows = (await contests.free_contests())["contests"]
     assert [(r["id"], r["cash"]) for r in rows] == [(7, "$2,000")]
+
+
+async def test_excluded_kinds_are_left_out(monkeypatch):
+    lobby = {"Contests": [
+        _contest(1, 3, 100, 270, attr={"IsQualifier": "true"}),
+        _contest(2, 3, 100, 255),
+    ], "DraftGroups": []}
+
+    async def fake_get_json(url):
+        return lobby if "lobby" in url else _payouts(20)
+
+    async def no_cache(key, ttl, fetch):
+        return await fetch()
+
+    monkeypatch.setattr(contests, "_get_json", fake_get_json)
+    monkeypatch.setattr(contests, "cached_fetch", no_cache)
+    assert [c["id"] for c in (await contests.best_contests())["contests"]["se"]["1-4"]] == [1, 2]
+    result = await contests.best_contests(frozenset({"Qualifier"}))
+    assert [c["id"] for c in result["contests"]["se"]["1-4"]] == [2]
+    assert result["excluded"] == ["Qualifier"]

@@ -37,6 +37,7 @@ GPP_GAME_TYPES = {"Classic", "Showdown Captain Mode"}
 NOT_GPP_ATTRS = {"IsDoubleUp", "IsFiftyfifty"}
 # Shown on each row: (attr flag, label), first match wins.
 KINDS = [("IsQualifier", "Qualifier"), ("Multiplier", "Booster"), ("League", "League")]
+CONTEST_KINDS = ["Tournament", "Booster", "League", "Qualifier"]
 TOP_N = 15
 # Lowest-rake contests per group whose payout tables are looked up: enough to
 # rank the top 15 by share paid among the ones tied on rake.
@@ -192,8 +193,9 @@ def group_contests(rows: list[dict]) -> dict[str, dict[str, list[dict]]]:
     return groups
 
 
-async def best_contests() -> dict[str, Any]:
-    groups = group_contests((await _lobby())["gpps"])
+async def best_contests(exclude: frozenset[str] = frozenset()) -> dict[str, Any]:
+    """exclude: contest kinds to leave out (Tournament, Booster, League, Qualifier)."""
+    groups = group_contests([r for r in (await _lobby())["gpps"] if r["kind"] not in exclude])
 
     # Payout tables for each group's lowest-rake candidates, one fetch per template.
     candidates = {
@@ -217,6 +219,8 @@ async def best_contests() -> dict[str, Any]:
     return {
         "entry_groups": [{"id": gid, "label": label, "min": lo, "max": hi} for gid, label, lo, hi in ENTRY_GROUPS],
         "fee_groups": [{"id": gid, "label": label} for gid, label, _, _ in FEE_GROUPS],
+        "kinds": CONTEST_KINDS,
+        "excluded": sorted(exclude),
         "contests": out,
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }

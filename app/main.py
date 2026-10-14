@@ -363,16 +363,20 @@ async def api_me_save(key: str, body: dict = Body(...), authorization: Annotated
 
 
 @memoize_async(ttl_seconds=300)
-async def _best_contests() -> dict:
-    return await contests.best_contests()
+async def _best_contests(exclude: frozenset[str]) -> dict:
+    return await contests.best_contests(exclude)
 
 
 @app.get("/api/contests/best")
-async def api_best_contests():
+async def api_best_contests(exclude: str = ""):
     """The 15 lowest-rake NFL GPPs in DraftKings' lobby (ties broken by share of field paid), for each
-    max-entries group and entry-fee range (app.contests)."""
+    max-entries group and entry-fee range (app.contests). exclude: comma-separated contest kinds to
+    leave out, e.g. "Qualifier,League"."""
+    kinds = frozenset(k.strip() for k in exclude.split(",") if k.strip())
+    if unknown := kinds - set(contests.CONTEST_KINDS):
+        raise HTTPException(status_code=400, detail=f"Unknown contest kinds: {', '.join(sorted(unknown))}")
     try:
-        return await _best_contests()
+        return await _best_contests(kinds)
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not load DraftKings contests: {exc}") from exc
 

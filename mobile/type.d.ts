@@ -315,6 +315,9 @@ interface OptimalLineup {
 }
 
 /** live: recalculated until the last kickoff (players lock as their games start); saved: frozen; final: scored. */
+/** Tournament, Booster (multiplier), League or Qualifier. */
+type ContestKind = 'Tournament' | 'Booster' | 'League' | 'Qualifier';
+
 /** One DraftKings GPP from /api/contests/best. rake and paid_pct are 0-1 ratios. */
 interface BestContest {
   id: number;
@@ -327,8 +330,7 @@ interface BestContest {
   prize_pool: number;
   rake: number;
   guaranteed: boolean;
-  /** Tournament, Booster (multiplier), League or Qualifier. */
-  kind: string;
+  kind: ContestKind;
   /** The slate: "Main", "Thu-Mon", "Early Only", "SEA @ DEN"... */
   slate: string;
   start_utc: string | null;
@@ -364,6 +366,8 @@ interface BestContestsResponse {
   fee_groups: { id: string; label: string }[];
   /** contests[entryGroupId][feeGroupId]: up to 15, best first. */
   contests: Record<string, Record<string, BestContest[]>>;
+  kinds: ContestKind[];
+  excluded: ContestKind[];
   updated_at: string;
 }
 

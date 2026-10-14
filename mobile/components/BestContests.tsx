@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
 import StatusView from '@/components/StatusView';
@@ -7,6 +8,63 @@ import { createFetchCache, useCachedFetch } from '@/lib/cached-fetch';
 import { formatEt, formatPercent } from '@/lib/utils';
 
 const cache = createFetchCache<BestContestsResponse>();
+
+/** Contest kinds the server tags (app.contests.CONTEST_KINDS), with chip labels. */
+const KINDS: { id: ContestKind; label: string }[] = [
+  { id: 'Tournament', label: 'Tournaments' },
+  { id: 'Booster', label: 'Boosters' },
+  { id: 'League', label: 'Leagues' },
+  { id: 'Qualifier', label: 'Qualifiers' },
+];
+const HIDDEN_KEY = 'dfsriches:best-contests-hidden';
+
+/** The kinds this device hides, remembered between visits. */
+function useHiddenKinds() {
+  const [hidden, setHidden] = useState<ContestKind[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    AsyncStorage.getItem(HIDDEN_KEY)
+      .then((raw) => {
+        const saved = raw ? (JSON.parse(raw) as ContestKind[]) : [];
+        setHidden(saved.filter((k) => KINDS.some((o) => o.id === k)));
+      })
+      .catch(() => {})
+      .finally(() => setLoaded(true));
+  }, []);
+  const toggle = (kind: ContestKind) =>
+    setHidden((h) => {
+      const next = h.includes(kind) ? h.filter((k) => k !== kind) : [...h, kind];
+      if (next.length === KINDS.length) return h; // keep at least one kind showing
+      AsyncStorage.setItem(HIDDEN_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  return { hidden, loaded, toggle };
+}
+
+function KindChips({ hidden, onToggle }: { hidden: ContestKind[]; onToggle: (kind: ContestKind) => void }) {
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
+      <Text className="matchup-toggle-label mr-1 self-center">Show</Text>
+      {KINDS.map((k) => {
+        const shown = !hidden.includes(k.id);
+        return (
+          <Pressable
+            key={k.id}
+            className={`filter-chip ${shown ? 'filter-chip-active' : ''}`}
+            onPress={() => onToggle(k.id)}
+            accessibilityRole="checkbox"
+            aria-checked={shown}
+            accessibilityLabel={`${k.label}, ${shown ? 'shown' : 'hidden'}`}>
+            <Text className={`filter-chip-text ${shown ? 'filter-chip-text-active' : ''}`}>
+              {shown ? '✓ ' : ''}
+              {k.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
+}
 
 /** Whole dollars when the amount is, cents otherwise: 1500 -> "$1,500", 0.25 -> "$0.25". */
 const money = (n: number) =>
@@ -85,15 +143,26 @@ function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }
  * ties broken by the share of the field paid. Tapping one opens it on DraftKings.
  */
 export default function BestContests() {
-  const { data, error, loading } = useCachedFetch(cache, 'best', getBestContests);
+  const { hidden, loaded, toggle } = useHiddenKinds();
+  // Sorted so the same set of hidden kinds shares one cached response.
+  const exclude = [...hidden].sort().join(',');
+  const { data, error, loading } = useCachedFetch(cache, loaded ? `best:${exclude}` : '', () => getBestContests(exclude));
   const [entryGroup, setEntryGroup] = useState('se');
   const [feeGroup, setFeeGroup] = useState('1-4');
 
-  if (!data) return <StatusView loading={loading} error={error} />;
+  const kinds = <KindChips hidden={hidden} onToggle={toggle} />;
+  if (!data)
+    return (
+      <View>
+        {kinds}
+        <StatusView loading={loading || !loaded} error={error} />
+      </View>
+    );
   const rows = data.contests[entryGroup]?.[feeGroup] ?? [];
   const range = data.entry_groups.find((g) => g.id === entryGroup);
   return (
     <View>
+      {kinds}
       <ChipRow label="Entries" options={data.entry_groups} value={entryGroup} onChange={setEntryGroup} />
       <ChipRow label="Fee" options={data.fee_groups} value={feeGroup} onChange={setFeeGroup} />
       <Text className="caption mb-1">
@@ -103,7 +172,7 @@ export default function BestContests() {
       {rows.length ? (
         rows.map((c, i) => <ContestRow key={c.id} contest={c} rank={i + 1} />)
       ) : (
-        <Text className="home-empty-state">No upcoming GPPs in this range.</Text>
+        <Text className="home-empty-state">No upcoming contests of the kinds shown in this range.</Text>
       )}
     </View>
   );

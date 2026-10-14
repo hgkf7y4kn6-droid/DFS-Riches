@@ -63,9 +63,9 @@ export function getDefenseVsPosition(season: number, week: number) {
   return getJson<DefenseVsPosition>(`/api/defense-vs-position?${q(season, week)}`);
 }
 
-/** The lowest-rake DraftKings NFL GPPs by max entries and entry fee. */
-export function getBestContests() {
-  return getJson<BestContestsResponse>('/api/contests/best');
+/** The lowest-rake DraftKings NFL GPPs by max entries and entry fee; exclude: comma-separated ContestKinds to leave out. */
+export function getBestContests(exclude = '') {
+  return getJson<BestContestsResponse>(`/api/contests/best${exclude ? `?exclude=${encodeURIComponent(exclude)}` : ''}`);
 }
 
 /** Free DraftKings NFL contests that pay cash. */
