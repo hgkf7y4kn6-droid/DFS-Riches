@@ -145,3 +145,32 @@ def test_split_sections_accepts_small_model_headings_but_not_list_items():
 def test_split_sections_accepts_title_only_headings():
     text = "**Executive Briefing**\nNo edges today.\n\n### Injury & Personnel Impact Report\nCHI QB Out.\n\nBest Betting Opportunities:\nNone."
     assert agents.split_sections(text, [1, 3, 4]) == {1: "No edges today.", 4: "CHI QB Out.", 3: "None."}
+
+
+def test_local_model_copy_edits_instead_of_running_the_crew():
+    d = _dossier()
+    desk = {1: "- NE is favored by 7 with a 0.75 win probability per the model and a 43.5 total.",
+            3: "- No side clears the thresholds this week, including NE -7 at -110 in a game totaling 43.5.",
+            4: "- NE RB Starter Back: Questionable, next up Next Back (2 of 3 depth charts), practice limited."}
+    replies = ["- The model makes NE a 7-point favorite (0.75 win probability), with the total at 43.5.",
+               "- Nothing clears the bar this week -- even NE -7 at -110 in a 44 total.",          # changed a number
+               "- NE RB Starter Back is Questionable; Next Back is next up (2 of 3 depth charts) after limited practice."]
+    chain_entries = [("local", lambda: FakeListChatModel(responses=replies), True)]
+    import app.big_picture.llms as L
+    orig = L.ProviderChain.__init__
+    try:
+        L.ProviderChain.__init__ = lambda self, entries=None: orig(self, chain_entries)
+        out = agents.run(d, writer.build_tables(d), desk=desk)
+    finally:
+        L.ProviderChain.__init__ = orig
+    assert out["mode"] == "copy-edit"
+    assert set(out["sections"]) == {1, 4}               # section 3's rewrite changed a figure, so the desk text stays
+    assert "7-point favorite" in out["sections"][1]
+
+
+def test_crew_stops_when_only_the_local_model_is_left():
+    chain = llms.ProviderChain([("free", _Broken, False), ("local", lambda: FakeListChatModel(responses=["x"]), True)])
+    chain.allow_local = False
+    with pytest.raises(llms.LocalOnly):
+        chain.invoke([HumanMessage(content="hi")])
+    assert chain.local and chain.failures                   # moved past the hosted model, didn't call the local one

@@ -126,6 +126,10 @@ def providers() -> list[tuple[str, Any, bool]]:
 
 
 # ------------------------------------------------------------------ the chain
+class LocalOnly(RuntimeError):
+    """Every hosted model failed and the caller asked not to use the local one."""
+
+
 class ProviderChain:
     """Invoke the first provider that works; one that fails is skipped for the rest of the run."""
 
@@ -135,6 +139,7 @@ class ProviderChain:
         self._models: dict[int, Any] = {}
         self.used: list[str] = []
         self.failures: list[str] = []
+        self.allow_local = True          # False while the research crew runs: the CPU model can't do that job
 
     @property
     def label(self) -> str | None:
@@ -167,6 +172,8 @@ class ProviderChain:
     def invoke(self, messages, **kwargs):
         while self.index < len(self.entries):
             label = self.entries[self.index][0]
+            if self.local and not self.allow_local:
+                raise LocalOnly("only the local model is left")
             try:
                 resp = self._call(messages, **kwargs)
                 if label not in self.used:
