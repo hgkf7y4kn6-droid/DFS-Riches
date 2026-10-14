@@ -327,6 +327,10 @@ interface BestContest {
   prize_pool: number;
   rake: number;
   guaranteed: boolean;
+  /** Tournament, Booster (multiplier), League or Qualifier. */
+  kind: string;
+  /** The slate: "Main", "Thu-Mon", "Early Only", "SEA @ DEN"... */
+  slate: string;
   start_utc: string | null;
   start_label: string;
   draft_group_id: number;

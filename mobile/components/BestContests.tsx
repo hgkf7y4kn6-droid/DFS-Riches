@@ -71,7 +71,9 @@ function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }
         ))}
       </View>
       <Text className="caption mt-1">
-        {c.game_type === 'Classic' ? 'Classic' : 'Showdown'} · {formatEt(c.start_utc)}
+        {[c.game_type === 'Classic' ? 'Classic' : 'Showdown', c.slate, c.kind === 'Tournament' ? '' : c.kind, formatEt(c.start_utc)]
+          .filter(Boolean)
+          .join(' · ')}
         {c.guaranteed ? '' : ' · not guaranteed'}
       </Text>
     </Pressable>

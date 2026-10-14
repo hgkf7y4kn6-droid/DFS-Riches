@@ -10,8 +10,10 @@ Two public (unauthenticated, undocumented) DraftKings endpoints:
         same template share it, so it's fetched once per template and gives
         the share of the field that gets paid.
 
-GPPs here are salary-cap Classic and Showdown tournaments: no double-ups /
-50-50s / multipliers (cash games), leagues, qualifiers (prizes are tickets),
+GPPs here are salary-cap Classic and Showdown tournaments on any slate (main,
+early, Sun-Mon, full-week Thu-Mon, single-game Showdown), including boosters
+(multipliers), leagues and qualifiers (ticket and seat prizes count at face
+value, as DraftKings' prize pool does); no double-ups / 50-50s (cash games),
 head-to-heads or free contests. They're grouped by max entries per user and
 entry fee; each group lists its 15 lowest-rake contests, ties broken by the
 larger share of the field paid.
@@ -32,7 +34,9 @@ TTL_LOBBY = 60 * 10
 TTL_PAYOUTS = 60 * 60 * 12  # a template's payout table doesn't change
 
 GPP_GAME_TYPES = {"Classic", "Showdown Captain Mode"}
-NOT_GPP_ATTRS = {"IsDoubleUp", "IsFiftyfifty", "Multiplier", "League", "IsQualifier"}
+NOT_GPP_ATTRS = {"IsDoubleUp", "IsFiftyfifty"}
+# Shown on each row: (attr flag, label), first match wins.
+KINDS = [("IsQualifier", "Qualifier"), ("Multiplier", "Booster"), ("League", "League")]
 TOP_N = 15
 # Lowest-rake contests per group whose payout tables are looked up: enough to
 # rank the top 15 by share paid among the ones tied on rake.
@@ -81,7 +85,17 @@ def fee_group(fee: float) -> str | None:
     return next((gid for gid, _, lo, hi in FEE_GROUPS if lo <= fee < hi), None)
 
 
-def _row(c: dict) -> dict:
+def _kind(attr: dict) -> str:
+    return next((label for flag, label in KINDS if flag in attr), "Tournament")
+
+
+def _slate(group: dict | None, game_type: str | None) -> str:
+    """The draft group's slate, e.g. "Main", "Thu-Mon", "Early Only", "SEA @ DEN"."""
+    suffix = ((group or {}).get("ContestStartTimeSuffix") or "").strip(" ()")
+    return suffix or ("Main" if game_type == "Classic" else "")
+
+
+def _row(c: dict, groups: dict[int, dict] | None = None) -> dict:
     fee, size, pool = float(c["a"]), int(c["m"]), float(c["po"])
     return {
         "id": c["id"],
@@ -94,6 +108,8 @@ def _row(c: dict) -> dict:
         "prize_pool": pool,
         "rake": round(1 - pool / (fee * size), 4),
         "guaranteed": (c.get("attr") or {}).get("IsGuaranteed") == "true",
+        "kind": _kind(c.get("attr") or {}),
+        "slate": _slate((groups or {}).get(c.get("dg")), c.get("gameType")),
         "start_utc": _start_utc(c.get("sd")),
         "start_label": c.get("sdstring") or "",
         "draft_group_id": c.get("dg"),
@@ -106,9 +122,10 @@ def _row(c: dict) -> dict:
 async def _lobby_gpps() -> list[dict]:
     async def fetch() -> list[dict]:
         data = await _get_json(LOBBY_URL)
-        return [_row(c) for c in data.get("Contests", []) if is_gpp(c)]
+        groups = {g.get("DraftGroupId"): g for g in data.get("DraftGroups") or []}
+        return [_row(c, groups) for c in data.get("Contests", []) if is_gpp(c)]
 
-    return await cached_fetch("dk_lobby_nfl_gpps", TTL_LOBBY, fetch)
+    return await cached_fetch("dk_lobby_nfl_gpps_v2", TTL_LOBBY, fetch)
 
 
 def paid_places(detail: dict) -> int | None:

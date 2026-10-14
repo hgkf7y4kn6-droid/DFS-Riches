@@ -15,12 +15,14 @@ def _payouts(paid):
     return {"contestDetail": {"payoutSummary": [{"minPosition": 1, "maxPosition": 1}, {"minPosition": 2, "maxPosition": paid}]}}
 
 
-def test_gpp_filter_drops_cash_leagues_h2h_and_other_game_types():
+def test_gpp_filter_keeps_boosters_leagues_qualifiers_but_drops_cash_h2h_and_other_game_types():
     assert contests.is_gpp(_contest(1, 5, 100, 450))
     assert contests.is_gpp(_contest(1, 5, 100, 450, game_type="Showdown Captain Mode"))
     assert not contests.is_gpp(_contest(1, 5, 100, 450, attr={"IsDoubleUp": "true"}))
-    assert not contests.is_gpp(_contest(1, 5, 100, 450, attr={"League": "true"}))
-    assert not contests.is_gpp(_contest(1, 5, 100, 450, attr={"IsQualifier": "true"}))
+    assert not contests.is_gpp(_contest(1, 5, 100, 450, attr={"IsFiftyfifty": "true", "League": "true"}))
+    assert contests.is_gpp(_contest(1, 5, 100, 450, attr={"League": "true"}))
+    assert contests.is_gpp(_contest(1, 5, 100, 450, attr={"IsQualifier": "true"}))
+    assert contests.is_gpp(_contest(1, 5, 100, 450, attr={"Multiplier": "true"}))
     assert not contests.is_gpp(_contest(1, 5, 2, 9))
     assert not contests.is_gpp(_contest(1, 0, 100, 50))
     assert not contests.is_gpp(_contest(1, 5, 100, 450, game_type="Snake"))
@@ -39,8 +41,8 @@ async def test_ranks_by_rake_then_share_paid(monkeypatch):
         _contest(2, 3, 100, 270, tmpl=20),    # 10% rake, 20% paid
         _contest(3, 3, 100, 270, tmpl=30),    # 10% rake, 25% paid
         _contest(4, 3, 100, 270, attr={"IsFiftyfifty": "true"}),
-        _contest(5, 50, 100, 4500, mec=150),
-    ]}
+        _contest(5, 50, 100, 4500, mec=150, attr={"Multiplier": "true"}),
+    ], "DraftGroups": [{"DraftGroupId": 1, "ContestStartTimeSuffix": " (Thu-Mon)"}]}
     paid = {2: 20, 3: 25, 1: 22, 5: 20}
 
     async def fake_get_json(url):
@@ -58,5 +60,6 @@ async def test_ranks_by_rake_then_share_paid(monkeypatch):
     se = result["contests"]["se"]["1-4"]
     assert [c["id"] for c in se] == [3, 2, 1]
     assert se[0]["rake"] == 0.1 and se[0]["paid_pct"] == 0.25 and se[0]["paid_places"] == 25
-    assert [c["id"] for c in result["contests"]["150"]["over25"]] == [5]
+    assert se[0]["slate"] == "Thu-Mon" and se[0]["kind"] == "Tournament"
+    assert [(c["id"], c["kind"]) for c in result["contests"]["150"]["over25"]] == [(5, "Booster")]
     assert result["contests"]["2-10"]["1-4"] == []
