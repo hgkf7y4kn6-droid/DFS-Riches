@@ -14,9 +14,10 @@ GPPs here are salary-cap Classic and Showdown tournaments on any slate (main,
 early, Sun-Mon, full-week Thu-Mon, single-game Showdown), including boosters
 (multipliers), leagues and qualifiers (ticket and seat prizes count at face
 value, as DraftKings' prize pool does); no double-ups / 50-50s (cash games),
-head-to-heads or free contests. The user picks any mix of max-entries groups,
-fee groups and kinds; the 15 best of those are listed, scored on low rake, the
-share of the field paid and the first-place prize for the entry fee.
+head-to-heads, free contests, or Beginner / Casual contests (closed to
+experienced players). The user picks any mix of max-entries groups, fee groups
+and kinds; the 15 best of those are listed, scored with the user's weights on
+low rake, share of the field paid, first prize for the fee and field size.
 """
 from __future__ import annotations
 
@@ -37,6 +38,8 @@ TTL_PAYOUTS = 60 * 60 * 12  # a template's payout table doesn't change
 
 GPP_GAME_TYPES = {"Classic", "Showdown Captain Mode"}
 NOT_GPP_ATTRS = {"IsDoubleUp", "IsFiftyfifty"}
+# Beginner and Casual contests: only newer / less experienced players can enter.
+RESTRICTED_ATTRS = {"IsBeginner", "IsCasual"}
 # Shown on each row: (attr flag, label), first match wins.
 KINDS = [("IsQualifier", "Qualifier"), ("Multiplier", "Booster"), ("League", "League")]
 CONTEST_KINDS = ["Tournament", "Booster", "League", "Qualifier"]
@@ -74,7 +77,7 @@ def _start_utc(value: str | None) -> str | None:
 def is_gpp(c: dict) -> bool:
     return (
         c.get("gameType") in GPP_GAME_TYPES
-        and not NOT_GPP_ATTRS & set(c.get("attr") or {})
+        and not (NOT_GPP_ATTRS | RESTRICTED_ATTRS) & set(c.get("attr") or {})
         and (c.get("m") or 0) > 2
         and (c.get("a") or 0) > 0
         and (c.get("po") or 0) > 0
@@ -125,7 +128,8 @@ def _row(c: dict, groups: dict[int, dict] | None = None) -> dict:
 
 def is_free_cash(c: dict) -> bool:
     """A free contest whose prizes include cash (not only tickets or crowns)."""
-    return (c.get("a") or 0) == 0 and (c.get("po") or 0) > 0 and "Cash" in (c.get("pd") or {})
+    return ((c.get("a") or 0) == 0 and (c.get("po") or 0) > 0 and "Cash" in (c.get("pd") or {})
+            and not RESTRICTED_ATTRS & set(c.get("attr") or {}))
 
 
 def _free_row(c: dict, groups: dict[int, dict]) -> dict:
@@ -154,7 +158,7 @@ async def _lobby() -> dict[str, list[dict]]:
             "free": [_free_row(c, groups) for c in lobby if is_free_cash(c)],
         }
 
-    return await cached_fetch("dk_lobby_nfl_v3", TTL_LOBBY, fetch)
+    return await cached_fetch("dk_lobby_nfl_v4", TTL_LOBBY, fetch)
 
 
 async def free_contests() -> dict[str, Any]:

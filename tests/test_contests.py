@@ -48,6 +48,8 @@ def test_gpp_filter_keeps_boosters_leagues_qualifiers_but_drops_cash_h2h_and_oth
     assert not contests.is_gpp(_contest(1, 5, 2, 9))
     assert not contests.is_gpp(_contest(1, 0, 100, 50))
     assert not contests.is_gpp(_contest(1, 5, 100, 450, game_type="Snake"))
+    assert not contests.is_gpp(_contest(1, 5, 100, 450, attr={"IsBeginner": "true", "League": "true"}))
+    assert not contests.is_gpp(_contest(1, 5, 100, 450, attr={"IsCasual": "true"}))
 
 
 def test_groups_cover_every_fee_and_entry_limit():
@@ -90,7 +92,8 @@ async def test_free_contests_keep_only_cash_prizes(lobby):
     no_prize = {**_contest(8, 0, 200, 0), "pd": {}}
     ticket = {**_contest(9, 0, 100, 20), "pd": {"Ticket": "1 Ticket"}}
     paid = {**_contest(10, 5, 100, 450), "pd": {"Cash": "$450"}}
-    lobby["lobby"] = {"Contests": [ticket, cash, no_prize, paid], "DraftGroups": []}
+    beginner = {**_contest(11, 0, 100, 50, attr={"IsBeginner": "true"}), "pd": {"Cash": "$50"}}
+    lobby["lobby"] = {"Contests": [ticket, cash, no_prize, paid, beginner], "DraftGroups": []}
     rows = (await contests.free_contests())["contests"]
     assert [(r["id"], r["cash"]) for r in rows] == [(7, "$2,000")]
 
