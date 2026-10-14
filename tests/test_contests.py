@@ -55,8 +55,8 @@ def test_gpp_filter_keeps_boosters_leagues_qualifiers_but_drops_cash_h2h_and_oth
 def test_groups_cover_every_fee_and_entry_limit():
     assert [contests.entry_group(n) for n in (1, 2, 10, 11, 20, 21, 150, 151)] == \
         ["se", "2-10", "2-10", "20", "20", "150", "150", None]
-    assert [contests.fee_group(f) for f in (0.1, 1, 3, 4, 5, 9, 10, 25, 27)] == \
-        ["under1", "1-4", "1-4", "1-4", "5-9", "5-9", "10-25", "10-25", "over25"]
+    assert [contests.fee_group(f) for f in (0.1, 0.5, 1, 4, 5, 5.5, 6, 10, 11, 12, 25, 27)] == \
+        ["under1", "under1", "1-5", "1-5", "1-5", "6-10", "6-10", "6-10", "11-25", "11-25", "11-25", "over25"]
 
 
 async def test_score_weighs_rake_share_paid_and_top_prize(lobby):
@@ -69,7 +69,7 @@ async def test_score_weighs_rake_share_paid_and_top_prize(lobby):
     ], "DraftGroups": [{"DraftGroupId": 1, "ContestStartTimeSuffix": " (Thu-Mon)"}]}
     lobby["payouts"] = {1: (22, 60.0), 2: (20, 60.0), 3: (25, 90.0), 5: (20, 500.0)}
 
-    result = await contests.best_contests(frozenset({"se"}), frozenset({"1-4"}))
+    result = await contests.best_contests(frozenset({"se"}), frozenset({"1-5"}))
     rows = result["contests"]
     assert [c["id"] for c in rows] == [3, 2, 1]
     assert rows[0]["score"] == 90.0 and rows[0]["paid_pct"] == 0.25 and rows[0]["top_multiple"] == 30.0
@@ -78,7 +78,7 @@ async def test_score_weighs_rake_share_paid_and_top_prize(lobby):
 
     everything = await contests.best_contests()
     assert {c["id"] for c in everything["contests"]} == {1, 2, 3, 5}
-    both = await contests.best_contests(frozenset({"se", "150"}), frozenset({"1-4", "over25"}))
+    both = await contests.best_contests(frozenset({"se", "150"}), frozenset({"1-5", "over25"}))
     assert {(c["id"], c["kind"]) for c in both["contests"]} >= {(5, "Booster")}
 
 

@@ -21,9 +21,9 @@ const ENTRY_GROUPS: Option[] = [
 ];
 const FEE_GROUPS: Option[] = [
   { id: 'under1', label: 'Under $1' },
-  { id: '1-4', label: '$1–$4' },
-  { id: '5-9', label: '$5–$9' },
-  { id: '10-25', label: '$10–$25' },
+  { id: '1-5', label: '$1–$5' },
+  { id: '6-10', label: '$6–$10' },
+  { id: '11-25', label: '$11–$25' },
   { id: 'over25', label: 'Over $25' },
 ];
 const KINDS: Option<ContestKind>[] = [
