@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 OPENROUTER_DEFAULT = ("google/gemma-4-31b-it:free,google/gemma-4-26b-a4b-it:free,nvidia/nemotron-3.5-lightning:free,"
                       "nvidia/nemotron-3-super-120b-a12b:free")
-REASONING_MODELS = ("nemotron-3-super",)      # thinks before answering: low effort, more room so the answer isn't cut off
+REASONING_MODELS = ("nemotron",)              # think before answering: low effort, more room so the answer isn't cut off
 RATE_LIMIT_WAITS = (20, 60)                  # a free model "temporarily rate-limited upstream" gets these retries first
 LOCAL_PROMPT_TOKENS = 6000                   # the CPU model reads ~40 tokens/s: prompts are trimmed to this
 LOCAL_REPO = "bartowski/Llama-3.2-3B-Instruct-GGUF"
@@ -126,6 +126,10 @@ def providers() -> list[tuple[str, Any, bool]]:
 
 
 # ------------------------------------------------------------------ the chain
+class LocalOnly(RuntimeError):
+    """Every hosted model failed and the caller asked not to use the local one."""
+
+
 class ProviderChain:
     """Invoke the first provider that works; one that fails is skipped for the rest of the run."""
 
@@ -135,6 +139,7 @@ class ProviderChain:
         self._models: dict[int, Any] = {}
         self.used: list[str] = []
         self.failures: list[str] = []
+        self.allow_local = True          # False while the research crew runs: the CPU model can't do that job
 
     @property
     def label(self) -> str | None:
@@ -167,6 +172,8 @@ class ProviderChain:
     def invoke(self, messages, **kwargs):
         while self.index < len(self.entries):
             label = self.entries[self.index][0]
+            if self.local and not self.allow_local:
+                raise LocalOnly("only the local model is left")
             try:
                 resp = self._call(messages, **kwargs)
                 if label not in self.used:

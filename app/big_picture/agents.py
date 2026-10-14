@@ -278,6 +278,13 @@ def split_sections(text: str, expected: list[int] | None = None) -> dict[int, st
     titles = _titles()
     marks = [(m.start(), m.end(), int(m.group(1))) for m in HEADING.finditer(text or "")]
     if expected:
+        # A line that is just a section's title ("**Executive Briefing**", "### Game Environment Rankings").
+        for m in re.finditer(r"^[ \t#*_>]*([A-Za-z][^\n]{2,80}?)[ \t*_:]*$", text or "", re.MULTILINE):
+            line = re.sub(r"[^a-z& ]", "", m.group(1).lower()).strip()
+            for n in expected:
+                title = re.sub(r"[^a-z& ]", "", titles.get(n, "").lower()).strip()
+                if title and (line == title or line.startswith(title)) and not any(a <= m.start() < b for a, b, _ in marks):
+                    marks.append((m.start(), m.end(), n))
         for m in LOOSE.finditer(text or ""):
             n, rest = int(m.group(1)), m.group(2).lower()
             first = titles.get(n, "").split()[0].lower() if titles.get(n) else None
@@ -323,8 +330,40 @@ def revise(chat, sections: dict[int, str], issues: list[dict], facts: str) -> di
     return out
 
 
-def run(d: dict, tables: dict, chat=None) -> dict:
-    """Run the desk; returns {"sections": {n: markdown}, "notes": {agent: findings}, "review": {...}, "model": ...}."""
+POLISH_PROMPT = """You are a sports-betting copy editor. Rewrite the report section below so it reads like a polished,
+professional briefing: smooth sentences, clear structure, markdown bullets where the original has them.
+Keep EVERY number, team, player, price, percentage and label exactly as written. Do not add facts, numbers,
+opinions or predictions. Do not drop any item. Return only the rewritten section, with no heading and no preamble."""
+
+
+def _numbers(text: str) -> set[str]:
+    return set(re.findall(r"\d+(?:\.\d+)?", text or ""))
+
+
+def polish(chat, desk: dict[int, str]) -> dict[int, str]:
+    """Copy-edit the desk's sections with the local model; a rewrite that loses or adds any figure is discarded."""
+    from langchain_core.messages import HumanMessage, SystemMessage
+
+    out = {}
+    for n, text in sorted(desk.items()):
+        if n in (2, 11) or not text or len(text) < 80:          # table captions and one-line notes stay as they are
+            continue
+        try:
+            resp = chat.invoke([SystemMessage(content=POLISH_PROMPT), HumanMessage(content=text)])
+        except Exception:
+            break
+        new = (getattr(resp, "content", "") or "").strip()
+        new = re.sub(r"^\s*#{1,4}[^\n]*\n", "", new).strip()
+        if new and _numbers(new) == _numbers(text):
+            out[n] = new
+    return out
+
+
+def run(d: dict, tables: dict, chat=None, desk: dict[int, str] | None = None) -> dict:
+    """Run the desk; returns {"sections": {n: markdown}, "notes": {agent: findings}, "review": {...}, "model": ...}.
+
+    With a hosted model the full crew researches and writes. When only the local CPU model is left (from the start
+    or mid-run), it copy-edits the desk's own sections instead."""
     from app.big_picture.llms import ProviderChain
 
     chain = ProviderChain([("supplied model", lambda: chat, False)]) if chat is not None else ProviderChain()
@@ -332,19 +371,41 @@ def run(d: dict, tables: dict, chat=None) -> dict:
         chain.probe()                    # skip a capped or down free tier before building the big prompts
     if chain.label is None:
         raise RuntimeError("no language model provider is available: " + " | ".join(chain.failures))
-    compact = chain.local
     llm = LangChainLLM(model=chain.label, chat=chain, usage={})
-    crew, analyst_tasks, editor_tasks, review_task = build_crew(d, tables, llm, compact)
-    crew.kickoff()
+    if not chain.local:
+        # The CPU model can't run the research crew (in testing it ignored the roles and invented figures):
+        # if every hosted model gives out mid-run, the crew stops and the local model copy-edits instead.
+        chain.allow_local = False
+        try:
+            crew, analyst_tasks, editor_tasks, review_task = build_crew(d, tables, llm)
+            crew.kickoff()
+        except Exception:
+            if not chain.local:
+                raise
+        chain.allow_local = True
+    if chain.local:
+        if desk is None:
+            raise RuntimeError("only the local model is available and there is no desk draft to copy-edit")
+        sections = polish(chain, desk)
+        return {"sections": sections, "notes": {}, "mode": "copy-edit",
+                "review": {"verdict": "copy-edit only",
+                           "issues": [{"section": 0, "problem": "Hosted models were unavailable: the local model copy-edited "
+                                                                "the desk's sections (every figure checked unchanged)."}]},
+                "model": ", then ".join(chain.used) or chain.label, "compact": True,
+                "provider_failures": chain.failures, "usage": dict(llm.usage)}
     sections: dict[int, str] = {}
     for t, (numbers, _briefs) in zip(editor_tasks, EDITOR_GROUPS):
         sections.update({n: v for n, v in split_sections(t.output.raw if t.output else "", numbers).items() if n in numbers})
     review = parse_review(review_task.output.raw if review_task.output else "")
     if review["issues"]:
-        facts = _cap(digest(d, tables), LOCAL_FACTS_CHARS if chain.local else None)
-        sections.update(revise(chain.runnable(), sections, review["issues"], facts))
-        review["revised"] = True
+        chain.allow_local = False
+        try:
+            sections.update(revise(chain.runnable(), sections, review["issues"], digest(d, tables)))
+            review["revised"] = True
+        except Exception:
+            review["revised"] = False
+        chain.allow_local = True
     notes = {k: (t.output.raw if t.output else "") for k, t in analyst_tasks.items()}
-    return {"sections": sections, "notes": notes, "review": review,
-            "model": ", then ".join(chain.used) or chain.label, "compact": compact,
+    return {"sections": sections, "notes": notes, "review": review, "mode": "research crew",
+            "model": ", then ".join(chain.used) or chain.label, "compact": False,
             "provider_failures": chain.failures, "usage": dict(llm.usage)}

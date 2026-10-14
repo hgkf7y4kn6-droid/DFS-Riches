@@ -78,14 +78,15 @@ async def research(season: int | None = None, week: int | None = None, desk_only
     if not desk_only and os.environ.get("BIG_PICTURE_AGENTS", "1") != "0":
         try:
             from app.big_picture import agents
-            out = await asyncio.to_thread(agents.run, d, tables)
+            out = await asyncio.to_thread(agents.run, d, tables, None, desk)
             model_name, usage = out.get("model"), out.get("usage")
             usage = {**(usage or {}), "compact": out.get("compact"), "provider_failures": out.get("provider_failures")}
             notes, review = out.get("notes") or {}, out.get("review")
             log.info("agents drafted sections %s", sorted(out.get("sections") or {}))
+            author = "agents" if out.get("mode") != "copy-edit" else "desk, copy-edited by the local model"
             for n, text in (out.get("sections") or {}).items():
                 if text and text.strip():
-                    sections[n], authors[n] = text.strip(), "agents"
+                    sections[n], authors[n] = text.strip(), author
         except Exception as exc:          # the desk version stands; say so in the report
             # The provider's error (e.g. auth, model access, context length) -- never report content.
             log.warning("agents failed: %s: %s", type(exc).__name__, str(exc)[:300])
