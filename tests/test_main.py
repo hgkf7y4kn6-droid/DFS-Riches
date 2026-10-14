@@ -154,3 +154,5 @@ def test_best_contests_rejects_unknown_kinds(client):
     resp = client.get("/api/contests/best?exclude=Qualifier,Bogus")
     assert resp.status_code == 400 and "Bogus" in resp.json()["detail"]
     assert client.get("/api/contests/best?fees=1-4,cheap").status_code == 400
+    assert client.get("/api/contests/best?weights=rake:11").status_code == 400
+    assert client.get("/api/contests/best?weights=luck:3").status_code == 400

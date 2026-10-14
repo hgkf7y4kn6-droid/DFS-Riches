@@ -42,8 +42,10 @@ KINDS = [("IsQualifier", "Qualifier"), ("Multiplier", "Booster"), ("League", "Le
 CONTEST_KINDS = ["Tournament", "Booster", "League", "Qualifier"]
 TOP_N = 15
 PAYOUT_CONCURRENCY = 8
-# How much each percentile counts in a contest's score (score_contests).
-WEIGHTS = {"rake": 0.4, "paid": 0.3, "payout": 0.3}
+# How much each percentile counts in a contest's score (score_contests), in points the user
+# can set from 0 to MAX_WEIGHT; each counts for its share of the total. Field size starts off.
+WEIGHTS = {"rake": 4, "paid": 3, "payout": 3, "field": 0}
+MAX_WEIGHT = 10
 
 # (id, label, lowest, highest max entries per user)
 ENTRY_GROUPS = [
@@ -225,19 +227,30 @@ def _pct_ranks(values: list[float]) -> list[float]:
     return ranks
 
 
-def score_contests(rows: list[dict]) -> list[dict]:
-    """Ranks contests by WEIGHTS: low rake, a big share of the field paid and a big
-    first-place prize for the entry fee, each as a percentile among these contests.
-    Score is 0-100; ties go to the lower rake."""
+def normalize_weights(weights: dict[str, float] | None) -> dict[str, float]:
+    """Each factor's share (0-1) of the user's points; WEIGHTS when none are given or all are 0."""
+    points = {k: max(0.0, float((weights or {}).get(k, 0))) for k in WEIGHTS}
+    if not any(points.values()):
+        points = {k: float(v) for k, v in WEIGHTS.items()}
+    total = sum(points.values())
+    return {k: v / total for k, v in points.items()}
+
+
+def score_contests(rows: list[dict], weights: dict[str, float] | None = None) -> list[dict]:
+    """Ranks contests on low rake, a big share of the field paid, a big first-place prize
+    for the entry fee and a small field, each as a percentile among these contests, weighted
+    by weights (points per factor; WEIGHTS by default). Score is 0-100; ties go to the lower rake."""
     if not rows:
         return []
+    shares = normalize_weights(weights)
     metrics = {
         "rake": [-r["rake"] for r in rows],
         "paid": [r["paid_pct"] or 0.0 for r in rows],
         "payout": [math.log10(r["top_multiple"]) if r["top_multiple"] else 0.0 for r in rows],
+        "field": [-r["field_size"] for r in rows],
     }
-    ranks = {k: _pct_ranks(v) for k, v in metrics.items()}
-    scored = [{**r, "score": round(100 * sum(WEIGHTS[k] * ranks[k][i] for k in WEIGHTS), 1)}
+    ranks = {k: _pct_ranks(v) for k, v in metrics.items() if shares[k]}
+    scored = [{**r, "score": round(100 * sum(shares[k] * ranks[k][i] for k in ranks), 1)}
               for i, r in enumerate(rows)]
     return sorted(scored, key=lambda r: (-r["score"], r["rake"], -r["prize_pool"]))
 
@@ -285,17 +298,19 @@ async def warm_payouts() -> None:
 
 
 async def best_contests(entries: frozenset[str] = frozenset(), fees: frozenset[str] = frozenset(),
-                        exclude: frozenset[str] = frozenset()) -> dict[str, Any]:
-    """The TOP_N best GPPs (score_contests) across the chosen max-entries groups, fee groups
-    and contest kinds."""
+                        exclude: frozenset[str] = frozenset(), weights: dict[str, float] | None = None) -> dict[str, Any]:
+    """The TOP_N best GPPs (score_contests, with the user's weights) across the chosen
+    max-entries groups, fee groups and contest kinds."""
     rows = collapse_copies(await _with_payouts(select((await _lobby())["gpps"], entries, fees, exclude)))
     return {
         "entry_groups": [{"id": gid, "label": label, "min": lo, "max": hi} for gid, label, lo, hi in ENTRY_GROUPS],
         "fee_groups": [{"id": gid, "label": label} for gid, label, _, _ in FEE_GROUPS],
         "kinds": CONTEST_KINDS,
-        "weights": WEIGHTS,
+        "default_weights": WEIGHTS,
+        "max_weight": MAX_WEIGHT,
+        "weights": normalize_weights(weights),
         "selected": {"entries": sorted(entries), "fees": sorted(fees), "excluded": sorted(exclude)},
         "matching": len(rows),
-        "contests": score_contests(rows)[:TOP_N],
+        "contests": score_contests(rows, weights)[:TOP_N],
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }

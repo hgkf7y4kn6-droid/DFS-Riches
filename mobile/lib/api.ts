@@ -63,11 +63,18 @@ export function getDefenseVsPosition(season: number, week: number) {
   return getJson<DefenseVsPosition>(`/api/defense-vs-position?${q(season, week)}`);
 }
 
-/** The 15 best DraftKings NFL GPPs for a mix of max-entries groups, fee groups (empty = all) and kinds to leave out. */
-export function getBestContests(sel: { entries: string[]; fees: string[]; exclude: string[] }) {
-  const query = (['entries', 'fees', 'exclude'] as const)
-    .filter((k) => sel[k].length)
-    .map((k) => `${k}=${encodeURIComponent(sel[k].join(','))}`)
+/** The 15 best DraftKings NFL GPPs for a mix of max-entries groups, fee groups (empty = all) and kinds to leave out, scored with the user's weights. */
+export function getBestContests(sel: {
+  entries: string[];
+  fees: string[];
+  exclude: string[];
+  /** Points (0-10) per factor; null = the server's defaults. */
+  weights: Record<ContestFactor, number> | null;
+}) {
+  const lists = { ...sel, weights: sel.weights ? Object.entries(sel.weights).map(([k, v]) => `${k}:${v}`) : [] };
+  const query = (['entries', 'fees', 'exclude', 'weights'] as const)
+    .filter((k) => lists[k].length)
+    .map((k) => `${k}=${encodeURIComponent(lists[k].join(','))}`)
     .join('&');
   return getJson<BestContestsResponse>(`/api/contests/best${query ? `?${query}` : ''}`);
 }

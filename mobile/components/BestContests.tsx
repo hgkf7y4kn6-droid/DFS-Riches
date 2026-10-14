@@ -33,6 +33,16 @@ const KINDS: Option<ContestKind>[] = [
   { id: 'Qualifier', label: 'Qualifiers' },
 ];
 
+/** Score factors, with the server's default points (app.contests.WEIGHTS). */
+const FACTORS: { id: ContestFactor; label: string; hint: string }[] = [
+  { id: 'rake', label: 'Low rake', hint: 'Less of the entry fees kept by DraftKings' },
+  { id: 'paid', label: 'Payout %', hint: 'More of the field gets paid' },
+  { id: 'payout', label: 'First prize', hint: '1st place prize for the entry fee' },
+  { id: 'field', label: 'Small field', hint: 'Fewer entries to beat' },
+];
+const DEFAULT_WEIGHTS: Record<ContestFactor, number> = { rake: 4, paid: 3, payout: 3, field: 0 };
+const MAX_WEIGHT = 10;
+
 const STORAGE_KEY = 'dfsriches:best-contests-filters';
 const OLD_HIDDEN_KEY = 'dfsriches:best-contests-hidden';
 
@@ -41,14 +51,26 @@ interface Filters {
   entries: string[];
   fees: string[];
   hidden: ContestKind[];
+  /** Points (0-MAX_WEIGHT) per score factor. */
+  weights: Record<ContestFactor, number>;
 }
+
+const savedWeights = (w: unknown): Record<ContestFactor, number> => {
+  if (!w || typeof w !== 'object') return DEFAULT_WEIGHTS;
+  const out = { ...DEFAULT_WEIGHTS };
+  for (const f of FACTORS) {
+    const v = (w as Record<string, unknown>)[f.id];
+    if (typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= MAX_WEIGHT) out[f.id] = v;
+  }
+  return Object.values(out).some(Boolean) ? out : DEFAULT_WEIGHTS;
+};
 
 const only = <T extends string>(ids: unknown, options: Option<T>[]): T[] =>
   Array.isArray(ids) ? options.map((o) => o.id).filter((id) => ids.includes(id)) : [];
 
 /** The card's filters, remembered on this device. */
 function useFilters() {
-  const [filters, setFilters] = useState<Filters>({ entries: [], fees: [], hidden: [] });
+  const [filters, setFilters] = useState<Filters>({ entries: [], fees: [], hidden: [], weights: DEFAULT_WEIGHTS });
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     Promise.all([AsyncStorage.getItem(STORAGE_KEY), AsyncStorage.getItem(OLD_HIDDEN_KEY)])
@@ -58,6 +80,7 @@ function useFilters() {
           entries: only(saved.entries, ENTRY_GROUPS),
           fees: only(saved.fees, FEE_GROUPS),
           hidden: only(saved.hidden, KINDS),
+          weights: savedWeights(saved.weights),
         });
       })
       .catch(() => {})
@@ -70,6 +93,91 @@ function useFilters() {
       return next;
     });
   return { filters, loaded, update };
+}
+
+/** The latest value once it has stopped changing for ms, so quick taps make one request. */
+function useSettled<T>(value: T, ms: number): T {
+  const [settled, setSettled] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setSettled(value), ms);
+    return () => clearTimeout(t);
+  }, [value, ms]);
+  return settled;
+}
+
+/** A collapsible panel of 0-10 steppers, one per score factor, with each one's share of the score. */
+function WeightsPanel({ weights, onChange }: { weights: Record<ContestFactor, number>; onChange: (w: Record<ContestFactor, number>) => void }) {
+  const [open, setOpen] = useState(false);
+  const total = Object.values(weights).reduce((a, b) => a + b, 0);
+  const isDefault = FACTORS.every((f) => weights[f.id] === DEFAULT_WEIGHTS[f.id]);
+  const set = (id: ContestFactor, v: number) => {
+    const next = { ...weights, [id]: Math.max(0, Math.min(MAX_WEIGHT, v)) };
+    if (Object.values(next).some(Boolean)) onChange(next); // at least one factor counts
+  };
+  const summary = FACTORS.filter((f) => weights[f.id])
+    .map((f) => `${f.label} ${Math.round((weights[f.id] / total) * 100)}%`)
+    .join(' · ');
+  return (
+    <View className="mb-2">
+      <View className="flex-row items-center gap-2">
+        <Text className="matchup-toggle-label w-14">Sort</Text>
+        <Pressable
+          className="filter-chip flex-row items-center shrink"
+          onPress={() => setOpen((o) => !o)}
+          accessibilityRole="button"
+          aria-expanded={open}
+          accessibilityLabel={`Sort weights: ${summary}. Change`}>
+          <Text className="filter-chip-text" numberOfLines={1}>
+            {isDefault ? 'Default weights' : 'Custom weights'} {open ? '▴' : '▾'}
+          </Text>
+        </Pressable>
+      </View>
+      {open ? (
+        <View className="matchup-menu self-stretch">
+          {FACTORS.map((f) => {
+            const v = weights[f.id];
+            return (
+              <View key={f.id} className="matchup-menu-item flex-row items-center">
+                <View className="flex-1 pr-2">
+                  <Text className="matchup-menu-label">
+                    {f.label} <Text className="caption">{total ? `${Math.round((v / total) * 100)}%` : ''}</Text>
+                  </Text>
+                  <Text className="matchup-menu-hint">{f.hint}</Text>
+                </View>
+                <Pressable
+                  className="filter-chip"
+                  onPress={() => set(f.id, v - 1)}
+                  disabled={v === 0}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Less weight on ${f.label}`}>
+                  <Text className="filter-chip-text">−</Text>
+                </Pressable>
+                <Text className="pl-stat-value w-6 text-center" accessibilityLabel={`${f.label} weight ${v} of ${MAX_WEIGHT}`}>
+                  {v}
+                </Text>
+                <Pressable
+                  className="filter-chip"
+                  onPress={() => set(f.id, v + 1)}
+                  disabled={v === MAX_WEIGHT}
+                  accessibilityRole="button"
+                  accessibilityLabel={`More weight on ${f.label}`}>
+                  <Text className="filter-chip-text">+</Text>
+                </Pressable>
+              </View>
+            );
+          })}
+          <View className="matchup-menu-item flex-row justify-between">
+            <Pressable onPress={() => onChange(DEFAULT_WEIGHTS)} disabled={isDefault} accessibilityRole="button">
+              <Text className={`text-xs ${isDefault ? 'caption' : 'link-text'}`}>Reset to default</Text>
+            </Pressable>
+            <Pressable onPress={() => setOpen(false)} accessibilityRole="button">
+              <Text className="link-text text-xs">Done</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
+    </View>
+  );
 }
 
 /** A dropdown of checkboxes; nothing checked means all. */
@@ -251,25 +359,31 @@ function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }
  */
 export default function BestContests() {
   const { filters, loaded, update } = useFilters();
-  const { entries, fees, hidden } = filters;
+  // Nothing until the saved filters load; then the filters once they stop changing.
+  const settled = useSettled(loaded ? filters : null, 400);
+  const { entries, fees, hidden, weights } = settled ?? filters;
   const exclude = [...hidden].sort();
-  const key = loaded ? JSON.stringify([entries, fees, exclude]) : '';
-  const { data, error, loading } = useCachedFetch(cache, key, () => getBestContests({ entries, fees, exclude }));
+  const key = settled ? JSON.stringify([entries, fees, exclude, weights]) : '';
+  const { data, error, loading } = useCachedFetch(cache, key, () => getBestContests({ entries, fees, exclude, weights }));
   const w = data?.weights;
-  const pct = (n: number | undefined) => (n == null ? '' : ` (${Math.round(n * 100)}%)`);
+  const weighs = w
+    ? FACTORS.filter((f) => w[f.id])
+        .map((f) => `${f.label.toLowerCase()} ${Math.round(w[f.id] * 100)}%`)
+        .join(', ')
+    : '';
   return (
     <View>
-      <MultiSelect label="Entries" allLabel="All entry limits" options={ENTRY_GROUPS} value={entries} onChange={(v) => update({ entries: v })} />
-      <MultiSelect label="Fee" allLabel="All entry fees" options={FEE_GROUPS} value={fees} onChange={(v) => update({ fees: v })} />
-      <KindChips hidden={hidden} onChange={(v) => update({ hidden: v })} />
+      <MultiSelect label="Entries" allLabel="All entry limits" options={ENTRY_GROUPS} value={filters.entries} onChange={(v) => update({ entries: v })} />
+      <MultiSelect label="Fee" allLabel="All entry fees" options={FEE_GROUPS} value={filters.fees} onChange={(v) => update({ fees: v })} />
+      <WeightsPanel weights={filters.weights} onChange={(v) => update({ weights: v })} />
+      <KindChips hidden={filters.hidden} onChange={(v) => update({ hidden: v })} />
       {!data ? (
-        <StatusView loading={loading || !loaded} error={error} />
+        <StatusView loading={loading || !settled} error={error} />
       ) : (
         <>
           <Text className="caption mb-1">
-            Best {data.contests.length} of {data.matching.toLocaleString('en-US')} matching. Score weighs low rake
-            {pct(w?.rake)}, share of the field paid{pct(w?.paid)} and first prize for the fee{pct(w?.payout)} against
-            the other matches.
+            Best {data.contests.length} of {data.matching.toLocaleString('en-US')} matching. Score ranks each against the
+            other matches on {weighs}.
           </Text>
           {data.contests.length ? (
             data.contests.map((c, i) => <ContestRow key={c.id} contest={c} rank={i + 1} />)

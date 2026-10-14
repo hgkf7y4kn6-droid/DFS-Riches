@@ -387,8 +387,21 @@ async def api_me_save(key: str, body: dict = Body(...), authorization: Annotated
 
 
 @memoize_async(ttl_seconds=300, max_entries=64)
-async def _best_contests(entries: frozenset[str], fees: frozenset[str], exclude: frozenset[str]) -> dict:
-    return await contests.best_contests(entries, fees, exclude)
+async def _best_contests(entries: frozenset[str], fees: frozenset[str], exclude: frozenset[str],
+                         weights: tuple[tuple[str, int], ...]) -> dict:
+    return await contests.best_contests(entries, fees, exclude, dict(weights))
+
+
+def _weights(value: str) -> tuple[tuple[str, int], ...]:
+    """"rake:4,paid:3,payout:3,field:2" -> sorted (factor, points) pairs; empty = the defaults."""
+    out: dict[str, int] = {}
+    for part in filter(None, (p.strip() for p in value.split(","))):
+        name, _, points = part.partition(":")
+        if name not in contests.WEIGHTS or not points.isdigit() or int(points) > contests.MAX_WEIGHT:
+            raise HTTPException(status_code=400, detail=f"Bad weight {part!r}: use factor:0-{contests.MAX_WEIGHT} "
+                                                        f"with factors {', '.join(contests.WEIGHTS)}")
+        out[name] = int(points)
+    return tuple(sorted(out.items()))
 
 
 def _id_set(value: str, allowed: list[str], what: str) -> frozenset[str]:
@@ -399,13 +412,15 @@ def _id_set(value: str, allowed: list[str], what: str) -> frozenset[str]:
 
 
 @app.get("/api/contests/best")
-async def api_best_contests(entries: str = "", fees: str = "", exclude: str = ""):
+async def api_best_contests(entries: str = "", fees: str = "", exclude: str = "", weights: str = ""):
     """The 15 best NFL GPPs in DraftKings' lobby (app.contests): low rake, a big share of the field paid and
     a big first-place prize for the fee. entries / fees: comma-separated max-entries and fee group ids (empty =
-    all); exclude: comma-separated contest kinds to leave out, e.g. "Qualifier,League"."""
+    all); exclude: comma-separated contest kinds to leave out, e.g. "Qualifier,League"; weights: points (0-10)
+    per factor, e.g. "rake:4,paid:3,payout:3,field:2" (factors left out count 0; none = the defaults)."""
     chosen = (_id_set(entries, [g[0] for g in contests.ENTRY_GROUPS], "entry groups"),
               _id_set(fees, [g[0] for g in contests.FEE_GROUPS], "fee groups"),
-              _id_set(exclude, contests.CONTEST_KINDS, "contest kinds"))
+              _id_set(exclude, contests.CONTEST_KINDS, "contest kinds"),
+              _weights(weights))
     try:
         return await _best_contests(*chosen)
     except Exception as exc:

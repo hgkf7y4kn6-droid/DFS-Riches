@@ -315,6 +315,9 @@ interface OptimalLineup {
 }
 
 /** live: recalculated until the last kickoff (players lock as their games start); saved: frozen; final: scored. */
+/** What a Best contests score weighs: low rake, share of the field paid, first prize for the fee, small field. */
+type ContestFactor = 'rake' | 'paid' | 'payout' | 'field';
+
 /** Tournament, Booster (multiplier), League or Qualifier. */
 type ContestKind = 'Tournament' | 'Booster' | 'League' | 'Qualifier';
 
@@ -375,8 +378,11 @@ interface BestContestsResponse {
   entry_groups: { id: string; label: string; min: number; max: number }[];
   fee_groups: { id: string; label: string }[];
   kinds: ContestKind[];
-  /** Score weights: rake, share of field paid, first-place prize for the fee. */
-  weights: { rake: number; paid: number; payout: number };
+  /** Each factor's share (0-1) of the score: low rake, share of field paid, first prize for the fee, small field. */
+  weights: Record<ContestFactor, number>;
+  /** Points per factor when the user sets none, and the most a factor can have. */
+  default_weights: Record<ContestFactor, number>;
+  max_weight: number;
   selected: { entries: string[]; fees: string[]; excluded: ContestKind[] };
   /** Contests matching the selection (copies collapsed), of which up to 15 are listed. */
   matching: number;

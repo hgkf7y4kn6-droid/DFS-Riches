@@ -126,3 +126,20 @@ def test_copies_on_other_slates_collapse_into_one_contest():
     assert by_id[3]["title"] == "NFL Showdown Sat" and by_id[6]["title"] == "NFL Sat"
     assert by_id[5]["copies"] == 2 and by_id[5]["slates"] == ["Early Only", "Main"]
     assert by_id[6]["copies"] == 1 and by_id[6]["slates"] == ["Main"]
+
+
+def test_weights_change_the_order():
+    rows = [
+        {"id": 1, "rake": 0.05, "paid_pct": 0.20, "top_multiple": 100.0, "field_size": 5000, "prize_pool": 1.0},
+        {"id": 2, "rake": 0.15, "paid_pct": 0.40, "top_multiple": 3.0, "field_size": 5, "prize_pool": 1.0},
+    ]
+    assert [r["id"] for r in contests.score_contests(rows)] == [1, 2]
+    assert [r["id"] for r in contests.score_contests(rows, {"field": 5})] == [2, 1]
+    assert [r["id"] for r in contests.score_contests(rows, {"rake": 1, "paid": 9})] == [2, 1]
+    assert contests.score_contests(rows, {"rake": 10})[0]["score"] == 100.0
+
+
+def test_weights_normalize_and_fall_back_to_defaults():
+    assert contests.normalize_weights({"rake": 2, "field": 2}) == {"rake": 0.5, "paid": 0.0, "payout": 0.0, "field": 0.5}
+    assert contests.normalize_weights({"rake": 0}) == contests.normalize_weights(None)
+    assert contests.normalize_weights(None)["rake"] == 0.4
