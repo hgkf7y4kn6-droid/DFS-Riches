@@ -303,8 +303,10 @@ def player_ceiling_detail(
     value = base * capped
 
     # Past-season history but no game this season: a backup, inactive, or
-    # returning from injury -- last year's role can't be assumed.
-    if not is_dst and ctx.week > 1 and entries and not any(e[0] == ctx.season for e in entries):
+    # returning from injury -- last year's role can't be assumed. Not when this
+    # week's projection already says he's stepping into a bigger role (a backup
+    # quarterback named the starter).
+    if not is_dst and not expanded and ctx.week > 1 and entries and not any(e[0] == ctx.season for e in entries):
         value *= NO_GAMES_THIS_SEASON
         d.factors["role"] = NO_GAMES_THIS_SEASON
         d.notes.append(f"Role x{NO_GAMES_THIS_SEASON:.2f}: no games played this season (backup, inactive, or returning from injury)")

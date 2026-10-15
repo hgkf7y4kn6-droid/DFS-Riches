@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from app import ceiling, dk_client, matching, nflverse_client, player_games, projections, roles, sleeper_client, weather
+from app import ceiling, dk_client, injury_news, matching, nflverse_client, player_games, projections, roles, sleeper_client, weather
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
 from app.models import Player, Slate, SlatePlayers, WeekSchedule
@@ -221,6 +221,21 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
                 dk_draftable_id=row["draftable_id"],
             )
         )
+
+    injury_news.apply_news(players, await injury_news.espn_statuses())
+    for rows, starter in injury_news.replacement_qbs(players):
+        base = round((starter.trend_season or starter.dk_fppg) * injury_news.REPLACEMENT_SHARE, 2)
+        for p in rows:
+            captain = p.roster_slot == "CPT"
+            p.proj_points = round(base * 1.5, 2) if captain else base
+            p.proj_notes = [f"{starter.name} is out and Sleeper hasn't projected the next-up quarterback yet: "
+                            f"{injury_news.REPLACEMENT_SHARE:.0%} of {starter.name}'s {base / injury_news.REPLACEMENT_SHARE:.1f} "
+                            f"DK points per game = {base:.1f}"] + (["Captain x1.50"] if captain else [])
+            p.value_per_1k = round(p.proj_points / (p.salary / 1000.0), 2) if p.salary > 0 else 0.0
+            ceil, notes = ceiling.player_ceiling(ceiling_ctx, name=p.name, position=p.position, team=p.team,
+                                                 opponent=p.opponent, fallback_mean=base, projection=base)
+            if ceil is not None:
+                p.ceiling, p.ceiling_notes = (round(ceil * 1.5, 1), notes + ["Captain x1.50"]) if captain else (ceil, notes)
 
     await _assign_roles(players, season, week)
     players.sort(key=lambda p: p.salary, reverse=True)
