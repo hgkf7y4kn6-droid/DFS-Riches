@@ -42,6 +42,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}      # backup: used only when the site's own pull failed
       OPENROUTER_MODELS: ${{ vars.OPENROUTER_MODELS }}
       BIG_PICTURE_USE_HF: ${{ vars.BIG_PICTURE_USE_HF }}
       BIG_PICTURE_MODEL: ${{ vars.BIG_PICTURE_MODEL }}

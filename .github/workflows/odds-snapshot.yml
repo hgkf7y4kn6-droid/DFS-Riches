@@ -20,6 +20,7 @@ jobs:
     timeout-minutes: 10
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}      # backup: used only when the site's own pull failed
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
