@@ -60,6 +60,19 @@ def apply_news(players, news: dict) -> None:
             p.proj_notes = p.proj_notes + [f"ESPN lists him {n['status']} (DraftKings still shows Healthy)"]
 
 
+def zero_out(players) -> None:
+    """Players who won't play (Out, IR, Doubtful -- the statuses app.roles treats as out) project to zero:
+    no points, no ceiling, no value, so neither the optimizer nor the tables count on them."""
+    from app.roles import PLAYABLE
+    for p in players:
+        if p.injury in PLAYABLE:
+            continue
+        if p.proj_points or p.ceiling or p.value_per_1k:
+            p.proj_notes = p.proj_notes + [f"{p.injury}: projection zeroed (was {p.proj_points:.1f})"]
+            p.ceiling_notes = p.ceiling_notes + [f"{p.injury}: ceiling zeroed"]
+        p.proj_points, p.ceiling, p.value_per_1k = 0.0, 0.0, 0.0
+
+
 def replacement_qbs(players) -> list[tuple]:
     """(replacement rows, injured starter) for each team whose quarterback is out and whose
     healthy quarterbacks have no projection yet."""

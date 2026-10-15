@@ -33,3 +33,12 @@ def test_replacement_covers_showdown_rows():
             _p("Tanner McKee", 6000, slot="CPT"), _p("Tanner McKee", 4000, slot="FLEX")]
     [(got, _)] = injury_news.replacement_qbs(rows)
     assert sorted(p.roster_slot for p in got) == ["CPT", "FLEX"]
+
+
+def test_zero_out_players_who_wont_play():
+    out, doubtful, q = _p("A", 6000, injury="OUT", proj=12.0), _p("B", 5000, injury="D", proj=8.0), _p("C", 4000, injury="Q", proj=9.0)
+    out.ceiling, q.ceiling, out.value_per_1k = 20.0, 15.0, 2.0
+    injury_news.zero_out([out, doubtful, q])
+    assert (out.proj_points, out.ceiling, out.value_per_1k) == (0.0, 0.0, 0.0) and "zeroed (was 12.0)" in out.proj_notes[-1]
+    assert doubtful.proj_points == 0.0
+    assert (q.proj_points, q.ceiling) == (9.0, 15.0)
