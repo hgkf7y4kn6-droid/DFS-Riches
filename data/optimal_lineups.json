@@ -7240,7 +7240,7 @@
     },
     "6": {
       "classic_sunday": {
-        "saved_at": "2026-10-18T18:44:00+00:00",
+        "saved_at": "2026-10-18T19:04:39+00:00",
         "draft_group_id": 154941,
         "lineups": [
           {
@@ -7487,19 +7487,19 @@
               },
               {
                 "slot": "WR",
-                "name": "DJ Moore",
+                "name": "Keon Coleman",
                 "position": "WR",
                 "team": "BUF",
                 "opponent": "LV",
                 "roster_slot": "",
-                "salary": 5600,
-                "proj_points": 13.43,
-                "ceiling": 29.8,
-                "sleeper_proj": 13.28,
+                "salary": 4900,
+                "proj_points": 8.2,
+                "ceiling": 24.4,
+                "sleeper_proj": 8.11,
                 "game_info": "BUF @ LV",
-                "injury": "Q",
-                "dk_draftable_id": 44476002,
-                "dk_fppg": 9.8
+                "injury": "Healthy",
+                "dk_draftable_id": 44476026,
+                "dk_fppg": 10.5
               },
               {
                 "slot": "TE",
@@ -7552,14 +7552,14 @@
                 "locked": true
               }
             ],
-            "salary": 50000,
-            "proj_points": 138.18,
-            "ceiling": 313.1
+            "salary": 49300,
+            "proj_points": 132.95,
+            "ceiling": 307.7
           }
         ]
       },
       "classic": {
-        "saved_at": "2026-10-18T18:44:13+00:00",
+        "saved_at": "2026-10-18T19:04:56+00:00",
         "draft_group_id": 154940,
         "lineups": [
           {
@@ -7803,19 +7803,19 @@
               },
               {
                 "slot": "WR",
-                "name": "DJ Moore",
+                "name": "Keon Coleman",
                 "position": "WR",
                 "team": "BUF",
                 "opponent": "LV",
                 "roster_slot": "",
-                "salary": 5600,
-                "proj_points": 13.43,
-                "ceiling": 29.8,
-                "sleeper_proj": 13.28,
+                "salary": 4900,
+                "proj_points": 8.2,
+                "ceiling": 24.4,
+                "sleeper_proj": 8.11,
                 "game_info": "BUF @ LV",
-                "injury": "Q",
-                "dk_draftable_id": 44483088,
-                "dk_fppg": 9.8
+                "injury": "Healthy",
+                "dk_draftable_id": 44483118,
+                "dk_fppg": 10.5
               },
               {
                 "slot": "TE",
@@ -7868,9 +7868,9 @@
                 "locked": true
               }
             ],
-            "salary": 50000,
-            "proj_points": 138.18,
-            "ceiling": 313.1
+            "salary": 49300,
+            "proj_points": 132.95,
+            "ceiling": 307.7
           }
         ]
       },
