@@ -275,11 +275,12 @@ def base_name(row: dict) -> str:
     return name[: -len(suffix)] if row["slate"] and name.endswith(suffix) else name
 
 
-def collapse_copies(rows: list[dict]) -> list[dict]:
+def collapse_copies(rows: list[dict], draft_group_id: int | None = None) -> list[dict]:
     """DraftKings lists many copies of some contests: the same contest (name, fee, field, prize
     pool and payouts -- template ids can differ) repeated on one slate and offered again on others. Keeps one row per
     contest -- the fullest copy, so the closest to running -- with "copies" counting them all and
-    "slates" naming every slate it's on, soonest first."""
+    "slates" naming every slate it's on, soonest first. With draft_group_id (the slate picked in the app),
+    a contest with a copy on that slate keeps that slate's fullest copy and is flagged "on_selected_slate"."""
     groups: dict[tuple, list[dict]] = {}
     for r in rows:
         key = (base_name(r), r["entry_fee"], r["field_size"], r["prize_pool"], r.get("paid_places"), r.get("top_prize"))
@@ -287,9 +288,10 @@ def collapse_copies(rows: list[dict]) -> list[dict]:
     out = []
     for g in groups.values():
         slates = list(dict.fromkeys(r["slate"] for r in sorted(g, key=lambda r: (r["start_utc"] or "", r["slate"]))))
-        best = max(g, key=lambda r: r["entries"])
+        on_slate = [r for r in g if draft_group_id is not None and r.get("draft_group_id") == draft_group_id]
+        best = max(on_slate or g, key=lambda r: r["entries"])
         out.append({**best, "title": base_name(best) if len(slates) > 1 else best["name"],
-                    "copies": len(g), "slates": slates})
+                    "copies": len(g), "slates": slates, "on_selected_slate": bool(on_slate)})
     return out
 
 
@@ -301,11 +303,30 @@ async def warm_payouts() -> None:
         pass
 
 
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def upcoming(rows: list[dict]) -> list[dict]:
+    """Contests that haven't locked: the lobby is cached for minutes, so a slate that just kicked off drops out here."""
+    now = _now()
+    return [r for r in rows if not r["start_utc"] or datetime.fromisoformat(r["start_utc"]) > now]
+
+
+def prioritize(scored: list[dict]) -> list[dict]:
+    """The selected slate's contests first (best first), then the rest -- a stable sort keeps each part's order."""
+    return sorted(scored, key=lambda r: not r.get("on_selected_slate"))
+
+
 async def best_contests(entries: frozenset[str] = frozenset(), fees: frozenset[str] = frozenset(),
-                        exclude: frozenset[str] = frozenset(), weights: dict[str, float] | None = None) -> dict[str, Any]:
+                        exclude: frozenset[str] = frozenset(), weights: dict[str, float] | None = None,
+                        draft_group_id: int | None = None) -> dict[str, Any]:
     """The TOP_N best GPPs (score_contests, with the user's weights) across the chosen
-    max-entries groups, fee groups and contest kinds."""
-    rows = collapse_copies(await _with_payouts(select((await _lobby())["gpps"], entries, fees, exclude)))
+    max-entries groups, fee groups and contest kinds, on slates that haven't started. With
+    draft_group_id (the slate picked in the app), that slate's contests come first."""
+    rows = collapse_copies(await _with_payouts(select(upcoming((await _lobby())["gpps"]), entries, fees, exclude)),
+                           draft_group_id)
+    on_slate = sum(1 for r in rows if r["on_selected_slate"])
     return {
         "entry_groups": [{"id": gid, "label": label, "min": lo, "max": hi} for gid, label, lo, hi in ENTRY_GROUPS],
         "fee_groups": [{"id": gid, "label": label} for gid, label, _, _ in FEE_GROUPS],
@@ -315,6 +336,7 @@ async def best_contests(entries: frozenset[str] = frozenset(), fees: frozenset[s
         "weights": normalize_weights(weights),
         "selected": {"entries": sorted(entries), "fees": sorted(fees), "excluded": sorted(exclude)},
         "matching": len(rows),
-        "contests": score_contests(rows, weights)[:TOP_N],
+        "selected_slate": {"draft_group_id": draft_group_id, "matching": on_slate} if draft_group_id is not None else None,
+        "contests": prioritize(score_contests(rows, weights))[:TOP_N],
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }

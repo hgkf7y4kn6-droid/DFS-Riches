@@ -308,7 +308,7 @@ function copiesNote(c: BestContest) {
   return `⧉ ${c.copies} copies${where}${also} · opens the fullest`;
 }
 
-function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }) {
+function ContestRow({ contest: c, rank, pinned }: { contest: BestContest; rank: number; pinned: boolean }) {
   return (
     <Pressable
       className="pl-row"
@@ -337,6 +337,7 @@ function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }
       </View>
       <Text className="caption mt-1">
         {[
+          pinned ? '★ Your slate' : '',
           c.game_type === 'Classic' ? 'Classic' : 'Showdown',
           c.slate,
           c.kind === 'Tournament' ? '' : c.kind,
@@ -355,16 +356,25 @@ function ContestRow({ contest: c, rank }: { contest: BestContest; rank: number }
 /**
  * The 15 best DraftKings NFL GPPs for any mix of max-entries limits, entry fees and
  * contest kinds: low rake, a big share of the field paid, and a big first prize for
- * the fee. Tapping one opens it on DraftKings.
+ * the fee. Only slates that haven't started; the slate selected above (Sunday Main, Full Week, a
+ * Showdown) is listed first. Tapping one opens it on DraftKings.
  */
-export default function BestContests() {
+export default function BestContests({ slate }: { slate?: Slate | null }) {
   const { filters, loaded, update } = useFilters();
   // Nothing until the saved filters load; then the filters once they stop changing.
   const settled = useSettled(loaded ? filters : null, 400);
   const { entries, fees, hidden, weights } = settled ?? filters;
   const exclude = [...hidden].sort();
-  const key = settled ? JSON.stringify([entries, fees, exclude, weights]) : '';
-  const { data, error, loading } = useCachedFetch(cache, key, () => getBestContests({ entries, fees, exclude, weights }));
+  const dg = slate?.draft_group_id ?? null;
+  const key = settled ? JSON.stringify([entries, fees, exclude, weights, dg]) : '';
+  const { data, error, loading } = useCachedFetch(cache, key, () => getBestContests({ entries, fees, exclude, weights, slate: dg }));
+  const onSlate = data?.selected_slate?.matching ?? 0;
+  const slateNote =
+    data?.selected_slate && slate
+      ? onSlate
+        ? ` ${slate.label}: ${Math.min(onSlate, data.contests.length)} listed first.`
+        : ` No upcoming ${slate.label} contests match, so every remaining slate is shown.`
+      : '';
   const w = data?.weights;
   const weighs = w
     ? FACTORS.filter((f) => w[f.id])
@@ -383,10 +393,10 @@ export default function BestContests() {
         <>
           <Text className="caption mb-1">
             Best {data.contests.length} of {data.matching.toLocaleString('en-US')} matching. Score ranks each against the
-            other matches on {weighs}.
+            other matches on {weighs}.{slateNote}
           </Text>
           {data.contests.length ? (
-            data.contests.map((c, i) => <ContestRow key={c.id} contest={c} rank={i + 1} />)
+            data.contests.map((c, i) => <ContestRow key={c.id} contest={c} rank={i + 1} pinned={c.on_selected_slate} />)
           ) : (
             <Text className="home-empty-state">No upcoming contests match these filters.</Text>
           )}

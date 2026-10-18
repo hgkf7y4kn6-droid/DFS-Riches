@@ -186,7 +186,7 @@ export default function Home() {
           title={HOME_SECTIONS.contests.title}
           subtitle={HOME_SECTIONS.contests.subtitle}
           defaultExpanded={HOME_SECTIONS.contests.defaultExpanded}>
-          <BestContests />
+          <BestContests slate={selectedSlate} />
         </ExpandableCard>
 
         {/* Profit / loss by contest type */}

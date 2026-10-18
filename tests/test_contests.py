@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import pytest
 
 import app.contests as contests
@@ -5,10 +7,10 @@ import app.contests as contests
 pytestmark = pytest.mark.anyio
 
 
-def _contest(cid, fee, size, pool, mec=1, tmpl=None, game_type="Classic", attr=None):
+def _contest(cid, fee, size, pool, mec=1, tmpl=None, game_type="Classic", attr=None, dg=1, sd=1792342800000):
     return {"id": cid, "n": f"Contest {cid}", "a": fee, "m": size, "po": pool, "mec": mec, "nt": 3,
             "tmpl": tmpl or cid, "gameType": game_type, "attr": attr or {"IsGuaranteed": "true"},
-            "sd": "/Date(1792342800000)/", "sdstring": "Sun 1:00PM", "dg": 1}
+            "sd": f"/Date({sd})/", "sdstring": "Sun 1:00PM", "dg": dg}
 
 
 def _payouts(paid, top=100.0):
@@ -34,6 +36,7 @@ def lobby(monkeypatch):
     monkeypatch.setattr(contests, "_get_json", fake_get_json)
     monkeypatch.setattr(contests, "cached_fetch", no_cache)
     monkeypatch.setattr(contests, "_PAYOUTS", {})
+    monkeypatch.setattr(contests, "_now", lambda: datetime(2026, 10, 18, 12, tzinfo=timezone.utc))
     return state
 
 
@@ -146,3 +149,30 @@ def test_weights_normalize_and_fall_back_to_defaults():
     assert contests.normalize_weights({"rake": 2, "field": 2}) == {"rake": 0.5, "paid": 0.0, "payout": 0.0, "field": 0.5}
     assert contests.normalize_weights({"rake": 0}) == contests.normalize_weights(None)
     assert contests.normalize_weights(None)["rake"] == 0.4
+
+
+async def test_selected_slate_first_and_started_slates_dropped(lobby):
+    sunday_night = 1792372800000                                   # 2026-10-19 01:20 UTC
+    lobby["lobby"] = {"Contests": [
+        _contest(1, 3, 100, 270, tmpl=10),                         # Main, 10% rake: the best overall
+        _contest(2, 3, 100, 255, tmpl=20, dg=2, sd=sunday_night),  # Sunday night, 15% rake
+        _contest(3, 3, 100, 240, tmpl=30, dg=2, sd=sunday_night),  # Sunday night, 20% rake
+        _contest(4, 3, 100, 285, tmpl=40, dg=3, sd=1792256400000), # 2026-10-17: already started
+    ], "DraftGroups": []}
+    lobby["payouts"] = {1: (20, 100.0), 2: (20, 100.0), 3: (20, 100.0), 4: (20, 100.0)}
+
+    plain = await contests.best_contests()
+    assert [c["id"] for c in plain["contests"]] == [1, 2, 3] and plain["selected_slate"] is None
+    picked = await contests.best_contests(draft_group_id=2)
+    assert [c["id"] for c in picked["contests"]] == [2, 3, 1]
+    assert [c["on_selected_slate"] for c in picked["contests"]] == [True, True, False]
+    assert picked["selected_slate"] == {"draft_group_id": 2, "matching": 2}
+
+
+def test_collapsed_contest_opens_the_selected_slates_copy():
+    def row(cid, dg, entries):
+        return {"id": cid, "name": "NFL Sat", "slate": f"S{dg}", "entries": entries, "start_utc": None, "template_id": 7,
+                "entry_fee": 2.0, "field_size": 11, "prize_pool": 20.0, "paid_places": 1, "top_prize": 20.0,
+                "draft_group_id": dg}
+    [r] = contests.collapse_copies([row(1, 1, 9), row(2, 2, 3)], draft_group_id=2)
+    assert r["id"] == 2 and r["on_selected_slate"] and r["copies"] == 2

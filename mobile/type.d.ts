@@ -352,6 +352,8 @@ interface BestContest {
   copies: number;
   /** Every slate a copy is on, soonest first. */
   slates: string[];
+  /** A copy runs on the slate selected in the app (this row is that slate's fullest copy). */
+  on_selected_slate: boolean;
 }
 
 /** A free DraftKings NFL contest that pays cash, from /api/contests/free. */
@@ -386,7 +388,9 @@ interface BestContestsResponse {
   selected: { entries: string[]; fees: string[]; excluded: ContestKind[] };
   /** Contests matching the selection (copies collapsed), of which up to 15 are listed. */
   matching: number;
-  /** Best first. */
+  /** The slate selected in the app and how many matching contests run on it (listed first); null when none is. */
+  selected_slate: { draft_group_id: number; matching: number } | null;
+  /** The selected slate's contests first, then the rest; best first within each. Started slates are left out. */
   contests: BestContest[];
   updated_at: string;
 }

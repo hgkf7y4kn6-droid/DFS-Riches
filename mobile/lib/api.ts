@@ -70,12 +70,16 @@ export function getBestContests(sel: {
   exclude: string[];
   /** Points (0-10) per factor; null = the server's defaults. */
   weights: Record<ContestFactor, number> | null;
+  /** The selected slate's DraftKings draft group id: its contests are listed first. */
+  slate?: number | null;
 }) {
   const lists = { ...sel, weights: sel.weights ? Object.entries(sel.weights).map(([k, v]) => `${k}:${v}`) : [] };
-  const query = (['entries', 'fees', 'exclude', 'weights'] as const)
-    .filter((k) => lists[k].length)
-    .map((k) => `${k}=${encodeURIComponent(lists[k].join(','))}`)
-    .join('&');
+  const query = [
+    ...(['entries', 'fees', 'exclude', 'weights'] as const)
+      .filter((k) => lists[k].length)
+      .map((k) => `${k}=${encodeURIComponent(lists[k].join(','))}`),
+    ...(sel.slate ? [`slate=${sel.slate}`] : []),
+  ].join('&');
   return getJson<BestContestsResponse>(`/api/contests/best${query ? `?${query}` : ''}`);
 }
 
