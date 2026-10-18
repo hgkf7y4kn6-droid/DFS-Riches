@@ -7240,7 +7240,7 @@
     },
     "6": {
       "classic_sunday": {
-        "saved_at": "2026-10-18T15:38:53+00:00",
+        "saved_at": "2026-10-18T18:44:00+00:00",
         "draft_group_id": 154941,
         "lineups": [
           {
@@ -7271,9 +7271,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 6800,
-                "proj_points": 20.23,
+                "proj_points": 20.08,
                 "ceiling": 41.1,
-                "sleeper_proj": 21.29,
+                "sleeper_proj": 21.14,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44475748,
@@ -7287,9 +7287,9 @@
                 "opponent": "LAR",
                 "roster_slot": "",
                 "salary": 4800,
-                "proj_points": 13.52,
-                "ceiling": 18.9,
-                "sleeper_proj": 13.47,
+                "proj_points": 13.46,
+                "ceiling": 18.8,
+                "sleeper_proj": 13.41,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44475806,
@@ -7303,9 +7303,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 8100,
-                "proj_points": 23.96,
+                "proj_points": 23.72,
                 "ceiling": 56.8,
-                "sleeper_proj": 22.82,
+                "sleeper_proj": 22.59,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44475972,
@@ -7325,7 +7325,8 @@
                 "game_info": "CHI @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44475980,
-                "dk_fppg": 16.4
+                "dk_fppg": 16.4,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -7341,7 +7342,8 @@
                 "game_info": "TEN @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44476024,
-                "dk_fppg": 10.5
+                "dk_fppg": 10.5,
+                "locked": true
               },
               {
                 "slot": "TE",
@@ -7357,7 +7359,8 @@
                 "game_info": "NO @ NYG",
                 "injury": "Healthy",
                 "dk_draftable_id": 44476358,
-                "dk_fppg": 17.1
+                "dk_fppg": 17.1,
+                "locked": true
               },
               {
                 "slot": "FLEX",
@@ -7367,9 +7370,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 3400,
-                "proj_points": 10.0,
+                "proj_points": 9.88,
                 "ceiling": 24.4,
-                "sleeper_proj": 9.52,
+                "sleeper_proj": 9.41,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44476382,
@@ -7389,12 +7392,13 @@
                 "game_info": "CAR @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44476599,
-                "dk_fppg": 7.8
+                "dk_fppg": 7.8,
+                "locked": true
               }
             ],
             "salary": 49900,
-            "proj_points": 147.48,
-            "ceiling": 293.6
+            "proj_points": 146.91,
+            "ceiling": 293.5
           },
           {
             "metric": "ceiling",
@@ -7424,9 +7428,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 6800,
-                "proj_points": 20.23,
+                "proj_points": 20.08,
                 "ceiling": 41.1,
-                "sleeper_proj": 21.29,
+                "sleeper_proj": 21.14,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44475748,
@@ -7446,7 +7450,8 @@
                 "game_info": "CHI @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44475800,
-                "dk_fppg": 10.0
+                "dk_fppg": 10.0,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -7456,9 +7461,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 8100,
-                "proj_points": 23.96,
+                "proj_points": 23.72,
                 "ceiling": 56.8,
-                "sleeper_proj": 22.82,
+                "sleeper_proj": 22.59,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44475972,
@@ -7472,9 +7477,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 6600,
-                "proj_points": 17.6,
+                "proj_points": 17.44,
                 "ceiling": 41.0,
-                "sleeper_proj": 16.76,
+                "sleeper_proj": 16.61,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44475988,
@@ -7510,7 +7515,8 @@
                 "game_info": "NO @ NYG",
                 "injury": "Healthy",
                 "dk_draftable_id": 44476358,
-                "dk_fppg": 17.1
+                "dk_fppg": 17.1,
+                "locked": true
               },
               {
                 "slot": "FLEX",
@@ -7520,9 +7526,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 3400,
-                "proj_points": 10.0,
+                "proj_points": 9.88,
                 "ceiling": 24.4,
-                "sleeper_proj": 9.52,
+                "sleeper_proj": 9.41,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44476382,
@@ -7542,17 +7548,18 @@
                 "game_info": "CAR @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44476599,
-                "dk_fppg": 7.8
+                "dk_fppg": 7.8,
+                "locked": true
               }
             ],
             "salary": 50000,
-            "proj_points": 138.85,
+            "proj_points": 138.18,
             "ceiling": 313.1
           }
         ]
       },
       "classic": {
-        "saved_at": "2026-10-18T15:39:05+00:00",
+        "saved_at": "2026-10-18T18:44:13+00:00",
         "draft_group_id": 154940,
         "lineups": [
           {
@@ -7567,9 +7574,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 6400,
-                "proj_points": 23.07,
+                "proj_points": 22.81,
                 "ceiling": 39.2,
-                "sleeper_proj": 21.97,
+                "sleeper_proj": 21.72,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44482620,
@@ -7583,9 +7590,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 6800,
-                "proj_points": 20.23,
+                "proj_points": 20.08,
                 "ceiling": 41.1,
-                "sleeper_proj": 21.29,
+                "sleeper_proj": 21.14,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44482724,
@@ -7599,9 +7606,9 @@
                 "opponent": "LAR",
                 "roster_slot": "",
                 "salary": 4800,
-                "proj_points": 13.52,
-                "ceiling": 18.9,
-                "sleeper_proj": 13.47,
+                "proj_points": 13.46,
+                "ceiling": 18.8,
+                "sleeper_proj": 13.41,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44482794,
@@ -7615,9 +7622,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 8100,
-                "proj_points": 23.96,
+                "proj_points": 23.72,
                 "ceiling": 56.8,
-                "sleeper_proj": 22.82,
+                "sleeper_proj": 22.59,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44483044,
@@ -7679,9 +7686,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 3400,
-                "proj_points": 10.0,
+                "proj_points": 9.88,
                 "ceiling": 24.4,
-                "sleeper_proj": 9.52,
+                "sleeper_proj": 9.41,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44483628,
@@ -7701,12 +7708,13 @@
                 "game_info": "CAR @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44483938,
-                "dk_fppg": 7.8
+                "dk_fppg": 7.8,
+                "locked": true
               }
             ],
             "salary": 50000,
-            "proj_points": 149.51,
-            "ceiling": 297.6
+            "proj_points": 148.68,
+            "ceiling": 297.5
           },
           {
             "metric": "ceiling",
@@ -7736,9 +7744,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 6800,
-                "proj_points": 20.23,
+                "proj_points": 20.08,
                 "ceiling": 41.1,
-                "sleeper_proj": 21.29,
+                "sleeper_proj": 21.14,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44482724,
@@ -7758,7 +7766,8 @@
                 "game_info": "CHI @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44482802,
-                "dk_fppg": 10.0
+                "dk_fppg": 10.0,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -7768,9 +7777,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 8100,
-                "proj_points": 23.96,
+                "proj_points": 23.72,
                 "ceiling": 56.8,
-                "sleeper_proj": 22.82,
+                "sleeper_proj": 22.59,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44483044,
@@ -7784,9 +7793,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 6600,
-                "proj_points": 17.6,
+                "proj_points": 17.44,
                 "ceiling": 41.0,
-                "sleeper_proj": 16.76,
+                "sleeper_proj": 16.61,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44483066,
@@ -7822,7 +7831,8 @@
                 "game_info": "NO @ NYG",
                 "injury": "Healthy",
                 "dk_draftable_id": 44483598,
-                "dk_fppg": 17.1
+                "dk_fppg": 17.1,
+                "locked": true
               },
               {
                 "slot": "FLEX",
@@ -7832,9 +7842,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 3400,
-                "proj_points": 10.0,
+                "proj_points": 9.88,
                 "ceiling": 24.4,
-                "sleeper_proj": 9.52,
+                "sleeper_proj": 9.41,
                 "game_info": "ARI @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44483628,
@@ -7854,11 +7864,12 @@
                 "game_info": "CAR @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44483938,
-                "dk_fppg": 7.8
+                "dk_fppg": 7.8,
+                "locked": true
               }
             ],
             "salary": 50000,
-            "proj_points": 138.85,
+            "proj_points": 138.18,
             "ceiling": 313.1
           }
         ]
