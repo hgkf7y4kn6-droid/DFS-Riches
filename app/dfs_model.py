@@ -47,7 +47,7 @@ import statistics
 import time
 from datetime import datetime, timezone
 
-from app import breakdown as breakdown_module
+from app import advanced_env, breakdown as breakdown_module
 from app import consensus, dfs_strategy, ownership_report, projections, sources, usage, weather
 from app import slates as slates_module
 from app.cache import _cache_path
@@ -382,7 +382,13 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
     _label_uncertainty(pool)
     _popularity(pool)
 
-    strategy = dfs_strategy.run(pool, rows, slate, wd, profiles, True, season, week)
+    try:
+        adv = await advanced_env.for_games(season, week, tuple(
+            (g.away, g.home, g.context.total_line if g.context else None) for g in slate.games))
+        adv_bt = await advanced_env.backtest(season, week)
+    except Exception:
+        adv, adv_bt = {}, None
+    strategy = dfs_strategy.run(pool, rows, slate, wd, profiles, True, season, week, adv, adv_bt)
     lineup_ids = {lu["label"]: [p["id"] for p in lu["players"]]
                   for grp in ("cash", "gpp", "contrarian") for lu in strategy["lineups"][grp]}
     tournament_ids = {k: v for k, v in lineup_ids.items() if not k.startswith(("Recommended", "Cash"))}

@@ -654,6 +654,20 @@ interface DfsGameEnv {
   ownership_vs_quality?: string;
   tempo_ranks: Record<string, number>;
   pass_rate_ranks: Record<string, number>;
+  /** Drive velocity, run funnels, four-man pressure, playcaller pace and separation (app.advanced_env). */
+  advanced_env?: AdvancedEnv | null;
+  /** Pass-funnel, pressure-fragility and lean flags from advanced_env. */
+  advanced_notes?: string[];
+}
+
+interface AdvancedEnv {
+  /** 0.7 x total + adj. */
+  score: number | null;
+  /** The index's adjustment: positive = faster, more explosive, less pressure-prone than the total implies. */
+  adj: number;
+  parts: { drive_velocity: number; funnel: number; playcaller_pace: number; separation: number; trench_penalty: number };
+  lean?: 'Over' | 'Under' | 'Neutral';
+  vs_slate?: number;
 }
 
 interface DfsStack {

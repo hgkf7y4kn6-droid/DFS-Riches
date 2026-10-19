@@ -172,8 +172,9 @@ def neutral_stats_from_pbp(rows: Iterable[dict]) -> dict[str, dict]:
 async def get_pbp_aggregates(season: int, current_season: int | None = None) -> dict:
     """One parse of a season's play-by-play feeds every per-play aggregate:
     {"neutral": neutral_stats_from_pbp(...), "trenches": app.trenches
-    TrenchAccumulator counts (joined to FTN charting when published)}."""
-    from app import trenches
+    TrenchAccumulator counts (joined to FTN charting when published), "environment": app.advanced_env
+    EnvAccumulator counts}."""
+    from app import advanced_env, trenches
 
     async def fetch() -> dict:
         ftn = await trenches.get_ftn_index(season)
@@ -185,12 +186,15 @@ async def get_pbp_aggregates(season: int, current_season: int | None = None) -> 
         def parse() -> dict:
             text = io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(raw)), encoding="utf-8")
             acc = trenches.TrenchAccumulator(ftn)
+            env = advanced_env.EnvAccumulator(ftn)
 
             def tap(rows):
                 for r in rows:
                     acc.add(r)
+                    env.add(r)
                     yield r
-            return {"neutral": neutral_stats_from_pbp(tap(csv.DictReader(text))), "trenches": acc.result()}
+            return {"neutral": neutral_stats_from_pbp(tap(csv.DictReader(text))), "trenches": acc.result(),
+                    "environment": env.result()}
 
         # ~50k plays x ~370 columns for a full season: keep it off the event loop.
         return await asyncio.to_thread(parse)
@@ -198,9 +202,9 @@ async def get_pbp_aggregates(season: int, current_season: int | None = None) -> 
     current = current_season if current_season is not None else DEFAULT_SEASON
     ttl = TTL_NFLVERSE_TEAM_STATS if season >= current else TTL_NFLVERSE_PBP_PAST
     try:
-        return await cached_fetch(f"nflverse_pbp_aggregates_v2_{season}", ttl, fetch)
+        return await cached_fetch(f"nflverse_pbp_aggregates_v3_{season}", ttl, fetch)
     except Exception:
-        return {"neutral": {"offense": {}, "defense": {}}, "trenches": {}}
+        return {"neutral": {"offense": {}, "defense": {}}, "trenches": {}, "environment": {}}
 
 
 async def _team_week_neutral(season: int, current_season: int) -> dict[str, dict]:

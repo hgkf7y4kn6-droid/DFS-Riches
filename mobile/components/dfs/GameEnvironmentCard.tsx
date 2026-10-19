@@ -39,7 +39,11 @@ function Matchups({ env, gameId }: { env: DfsGameEnv; gameId: string | null }) {
     .filter((r) => (r.vs_avg ?? 0) > 0)
     .sort((a, b) => (b.vs_avg ?? 0) - (a.vs_avg ?? 0))
     .slice(0, 5);
-  const notes = [...env.trench_notes, ...(env.weather?.impact ? [`Weather: ${env.weather.impact}`] : [])];
+  const notes = [
+    ...env.trench_notes,
+    ...(env.advanced_notes ?? []).filter((n) => !n.startsWith('Advanced environment leans')),
+    ...(env.weather?.impact ? [`Weather: ${env.weather.impact}`] : []),
+  ];
   if (!rows.length && !notes.length) return <Text className="home-empty-state">No standout matchups in this game.</Text>;
   return (
     <View>
@@ -135,6 +139,13 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
         <Text className="dfs-meta">
           Popularity #{env.pop_rank} · {formatPercent(env.pop_share, 0)} of the field · env score {env.env_score.toFixed(2)}
         </Text>
+        {env.advanced_env ? (
+          <Text className="dfs-meta">
+            Advanced env {env.advanced_env.lean ?? 'Neutral'} lean ({formatSigned(env.advanced_env.adj, 2)}): pace{' '}
+            {formatSigned(env.advanced_env.parts.playcaller_pace, 2)} · drive velocity {env.advanced_env.parts.drive_velocity.toFixed(2)} ·
+            pressure {formatSigned(env.advanced_env.parts.trench_penalty, 2)}
+          </Text>
+        ) : null}
         {tags.length ? <Text className="slate-card-status mt-1">{tags.join(' · ')}</Text> : null}
         <Text className="dfs-reason mt-1">{env.script}</Text>
       </Pressable>

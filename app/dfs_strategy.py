@@ -32,7 +32,7 @@ from __future__ import annotations
 
 import statistics
 
-from app import lineup_builder
+from app import advanced_env, lineup_builder
 from app import nflverse_client as nc
 from app import trenches
 from app import usage as usage_mod
@@ -59,6 +59,8 @@ MISSING_DATA = [
     ("Individual lineman / defender grades", "no open source; line strength is graded at the unit level from play-by-play "
                                             "(sack, QB-hit, stuff and success rates) and FTN charting"),
     ("Historical winning-lineup salary tendencies", "no contest-results data is connected"),
+    ("Quick pressure (< 2.5 s), pass-block win rate, personnel groupings and WR open rate",
+     "proprietary; the advanced environment uses four-man-rush sack/hit rates (FTN), neutral pass rate and CPOE instead"),
 ]
 
 
@@ -222,7 +224,7 @@ def _weather_brief(w: dict | None) -> dict | None:
     return {k: w.get(k) for k in keys}
 
 
-def analyze_games(pool: list[dict], slate, wd, has_own: bool) -> list[dict]:
+def analyze_games(pool: list[dict], slate, wd, has_own: bool, adv: dict | None = None, adv_bt: dict | None = None) -> list[dict]:
     games = []
     for g in slate.games:
         c = g.context
@@ -242,6 +244,7 @@ def analyze_games(pool: list[dict], slate, wd, has_own: bool) -> list[dict]:
             "top10_final": round(sum(r["final"] for r in sorted(players, key=lambda r: -r["final"])[:10]), 1),
             "top10_ceiling": round(sum(r["ceiling"] for r in top), 1), "pop_raw": pop,
             "weather": _weather_brief(getattr(g, "weather", None)),
+            "advanced_env": (adv or {}).get(f"{g.away}@{g.home}"),
         })
     if not games:
         return []
@@ -252,10 +255,17 @@ def analyze_games(pool: list[dict], slate, wd, has_own: bool) -> list[dict]:
     passing = [-statistics.fmean([r or 16 for r in x["pass_rate_ranks"].values()]) for x in games]
     pop_total = sum(x["pop_raw"] for x in games) or 1
     med_total = statistics.median(totals)
+    # The advanced environment (app.advanced_env) counts in the score only while its out-of-sample backtest
+    # shows it ranking past games better than the score without it.
+    use_adv = bool(adv_bt and adv_bt.get("weighted_in_dfs_env"))
+    adjs = [(x["advanced_env"] or {}).get("adj", 0.0) for x in games]
     for i, x in enumerate(games):
         parts = {"total": 0.40 * _z(totals, totals[i]), "closeness": 0.20 * _z(closeness, closeness[i]),
                  "ceiling": 0.20 * _z(ceils, ceils[i]), "pace": 0.10 * _z(pace, pace[i]),
                  "pass_rate": 0.10 * _z(passing, passing[i])}
+        if use_adv:
+            parts["advanced"] = 0.20 * _z(adjs, adjs[i])
+        x["advanced_notes"] = advanced_env.notes(x["advanced_env"])
         x["env_score"] = round(sum(parts.values()), 2)
         x["env_parts"] = {k: round(v, 2) for k, v in parts.items()}
         x["pop_share"] = round(x["pop_raw"] / pop_total, 3)
@@ -374,6 +384,7 @@ def qb_pool(pool: list[dict], games_by_team: dict) -> dict:
             reasons.append(f"Ceiling {r['ceiling']:.1f} can anchor a first-place lineup")
         if tr := _trench_reason(r, ("protection", "pass", "blitz", "coverage")):
             reasons.append(tr)
+        reasons += _advanced_reasons(r, g)
         metrics = {"proj_rush_yd": round(rush_yd, 1), "pass_edge": _edge_metric(r, "pass"),
                    "protection_edge": _edge_metric(r, "protection"), "rush_share": r.get("rush_share"), "ypa": u.get("ypa"),
                    "td_rate": u.get("td_rate"), "pass_att_l4": u.get("pass_att"), "implied": r.get("implied"),
@@ -595,6 +606,23 @@ def _tough_trenches(r: dict) -> str | None:
     return None
 
 
+def _advanced_reasons(r: dict, g: dict) -> list[str]:
+    """This player's flags from the game's advanced environment: a pass funnel his offense is in, or front-4
+    pressure his quarterback faces (QB / WR / TE only)."""
+    adv = g.get("advanced_env") or {}
+    if r["position"] not in ("QB", "WR", "TE") or not adv:
+        return []
+    out = []
+    if r["team"] in adv.get("pass_attempt_floor", {}):
+        out.append(f"Pass funnel: {r['team']} can't lean on the run against {r.get('opponent')}'s run defense -- "
+                   f"{adv['pass_attempt_floor'][r['team']]}+ pass attempts expected")
+    for f in adv.get("fragile", []):
+        if f["offense"] == r["team"]:
+            out.append(f"Pressure fragility: {f['defense']}'s four-man rush vs {r['team']}'s protection "
+                       f"(+{f['index']:.0%} over league) -- ceiling risk")
+    return out
+
+
 def chalk_table(pool: list[dict], games_by_team: dict, has_own: bool) -> list[dict]:
     if has_own:
         chalk = [r for r in pool if (r.get("ownership") or 0) >= 15]
@@ -635,6 +663,9 @@ def chalk_table(pool: list[dict], games_by_team: dict, has_own: bool) -> list[di
             fail.append("defense has held this position under projection")
         if tough := _tough_trenches(r):
             fail.append(tough)
+        adv_notes = _advanced_reasons(r, g)
+        why += [n for n in adv_notes if n.startswith("Pass funnel")]
+        fail += [n for n in adv_notes if n.startswith("Pressure fragility")]
         fail = fail or ["Needs his usual role to hold; nothing specific flagged"]
         cheap_value = r["salary"] <= CHEAP[r["position"]] and vrank <= 3
         if cheap_value:
@@ -1252,10 +1283,11 @@ def _trench_gaps(tw: dict | None, season: int) -> list[dict]:
     return gaps
 
 
-def run(pool: list[dict], rows: list[dict], slate, wd, usage: dict, has_own: bool, season: int, week: int) -> dict:
+def run(pool: list[dict], rows: list[dict], slate, wd, usage: dict, has_own: bool, season: int, week: int,
+        adv: dict | None = None, adv_bt: dict | None = None) -> dict:
     trench_week = getattr(wd, "trenches", None) if wd else None
     ctx = enrich(pool, rows, slate, usage, trench_week)
-    games = analyze_games(pool, slate, wd, has_own)
+    games = analyze_games(pool, slate, wd, has_own, adv, adv_bt)
     games_by_team = {}
     for g in games:
         games_by_team[g["away"]] = g
@@ -1282,6 +1314,7 @@ def run(pool: list[dict], rows: list[dict], slate, wd, usage: dict, has_own: boo
         "stacks": _shown_stacks(stacks),
         "lineups": lineups,
         "fades": fades(pool, chalk_rows, pools, games_by_team),
+        "advanced_env_backtest": adv_bt,
         "missing_data": [{"item": a, "why": b} for a, b in MISSING_DATA] + _trench_gaps(trench_week, season)
                         + [{"item": "Ownership sources", "why": "no free projected-ownership feed exists; the Bayesian ownership model "
                                                                 "uses its behavioral prior until sources, crowd submissions or actual results are added "

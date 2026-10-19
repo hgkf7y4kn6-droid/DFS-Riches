@@ -19,6 +19,7 @@ from datetime import datetime, timezone
 
 import httpx
 
+from app import advanced_env
 from app.big_picture import odds as odds_module
 from app.big_picture import quant, rosters, store
 from app.config import ET
@@ -277,6 +278,16 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
     trust = {"spread": backtest.get("games", 0) >= 30 and backtest["spread_mae_model"] <= backtest["spread_mae_market"] + 0.25,
              "total": backtest.get("games", 0) >= 30 and backtest["total_mae_model"] <= backtest["total_mae_market"] + 0.25}
 
+    adv_games = tuple((gb.game.away, gb.game.home,
+                       _cur(market_view(f"{gb.game.away}@{gb.game.home}", dk, gb.game.context), "total", "over").get("line"))
+                      for gb in wb.games)
+    try:
+        adv = await advanced_env.for_games(season, week, adv_games)
+        adv_bt = await advanced_env.backtest(season, week)
+    except Exception as exc:
+        log.warning("advanced environment failed: %s", exc)
+        adv, adv_bt = {}, None
+
     table = model.get("table") or []
     strategy = model.get("strategy") or {}
     env_by_game = {g["game"]: g for g in strategy.get("games") or []}
@@ -325,6 +336,7 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
                                "implied_away": _r((cur_total + cur_spread) / 2) if cur_total is not None and cur_spread is not None else None},
             "movement": movement,
             "model": mdl,
+            "advanced_env": {**adv[key], "notes": advanced_env.notes(adv[key])} if adv.get(key) else None,
             "model_vs_market": {"spread_gap": _r(cur_spread - mdl["fair_home_spread"]) if cur_spread is not None else None,
                                 "total_gap": _r(mdl["fair_total"] - cur_total) if cur_total is not None else None},
             "candidates": cands,
@@ -418,7 +430,7 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
                                             "watchlist: model likes it but the blend doesn't, or key injury news is unresolved; none."},
                  "league": {"points_per_team": _r(league_points), "plays_per_team": _r(league_plays),
                             "epa_play": league.get("off", {}).get("epa_play")}},
-        "calibration": {"backtest": backtest, "trusted": trust},
+        "calibration": {"backtest": backtest, "trusted": trust, "advanced_env": adv_bt},
         "market_status": {"available": bool(dk.get("available")), "status": dk.get("status"), "captured_at": dk.get("captured_at")},
         "games": games,
         "dfs": dfs,

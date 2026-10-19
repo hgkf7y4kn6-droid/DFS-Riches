@@ -226,15 +226,29 @@ def desk_sections(d: dict) -> dict[int, str]:
                      f"{num(m['fair_total'])} vs posted {num(g['market_summary']['total'])}; 50+ points {pct(m['p_shootout'])}, both teams 24+ "
                      f"{pct(m['p_both_24'])}, one-score game {pct(m['p_one_score'])}"
                      + (f"; DFS environment rank #{e['env_rank']}" if e.get("env_rank") else "") + ".")
+    adv_games = sorted((g for g in games if g.get("advanced_env")), key=lambda g: -g["advanced_env"]["adj"])
+    if adv_games:
+        abt = (d.get("calibration") or {}).get("advanced_env") or {}
+        rec = abt.get("ou_picks") or {}
+        lines.append("\n**Advanced environment** (drive velocity, run funnels, four-man pressure, playcaller pace, separation; "
+                     + (f"Over/Under calls vs the closing total {rec['right']}-{rec['n'] - rec['right']} in past weeks" if rec.get("n") else "no record yet")
+                     + "):")
+        for g in adv_games:
+            a = g["advanced_env"]
+            lines.append(f"- {g['game']}: {a.get('lean', 'Neutral')} lean ({a['adj']:+.2f}; drive velocity {a['parts']['drive_velocity']:+.2f}, "
+                         f"funnel {a['parts']['funnel']:+.2f}, pace {a['parts']['playcaller_pace']:+.2f}, separation {a['parts']['separation']:+.2f}, "
+                         f"pressure {a['parts']['trench_penalty']:+.2f})"
+                         + "".join(f"; {n}" for n in a["notes"] if not n.startswith("Advanced environment leans")))
     s[5] = "\n".join(lines)
 
     # 6 -- traps
     traps = [g for g in games if (g["market_summary"]["total"] or 0) >= 46 and
              (g["model"]["p_blowout"] >= 0.3 or g["model"]["fair_total"] < (g["market_summary"]["total"] or 0) - 2 or
-              (g["weather"].get("severity") in ("poor", "bad")))]
+              (g["weather"].get("severity") in ("poor", "bad")) or (g.get("advanced_env") or {}).get("fragile"))]
     s[6] = "\n".join(
         f"- **{g['game']}** (total {num(g['market_summary']['total'])}): model total {num(g['model']['fair_total'])}, blowout (17+) "
         f"{pct(g['model']['p_blowout'])}" + (f", weather {g['weather'].get('summary')}" if g['weather'].get('severity') in ('poor', 'bad') else "")
+        + "".join(f", {n[0].lower() + n[1:]}" for n in (g.get("advanced_env") or {}).get("notes", []) if n.startswith("Pressure fragility"))
         + ". A high total isn't an over bet unless the price beats the model's number." for g in traps) \
         or "No high total (46+) carries an obvious blowout, weather or efficiency red flag this week."
 
