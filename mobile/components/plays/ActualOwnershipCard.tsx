@@ -4,12 +4,15 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { useAccountSync } from '@/lib/account-sync';
-import { postActualOwnership } from '@/lib/api';
+import { postActualOwnership, postOwnershipVideo, type VideoUploadResult } from '@/lib/api';
 import { formatEt } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
 
 const HELP =
   "On DraftKings, open a contest after lock and export its standings (CSV), then upload it here. Mid-slate, DraftKings hides players whose games haven't started (shown as LOCKED) -- upload again after later kickoffs to fill them in. Players with actual ownership use it for leverage.";
+const VIDEO_HELP =
+  "No CSV? Screen-record the contest's GameCenter Players tab (sorted by Ownership), scrolling slowly through the whole list, and upload the recording or a screenshot. Each player's ownership, salary and fantasy points are read from it -- this takes up to a couple of minutes.";
+const READ_SHOWN = 8;
 
 type UploadContest = 'gpp' | 'se' | 'cash';
 const CONTESTS: { id: UploadContest; label: string; field: OwnershipContest }[] = [
@@ -23,14 +26,17 @@ const CONTESTS: { id: UploadContest; label: string; field: OwnershipContest }[] 
  * after lock -> export) as actual ownership for this slate. Actual
  * ownership then shows on each player next to the projection, leverage uses
  * it, and the ownership models learn from it. Re-upload after later
- * kickoffs: DraftKings hides players whose games haven't started.
+ * kickoffs: DraftKings hides players whose games haven't started. Or upload a
+ * screen recording / screenshot of the contest's GameCenter Players tab: the
+ * server reads ownership, salary and fantasy points from it.
  */
 export default function ActualOwnershipCard({ contest, plays, onUploaded }: { contest: PlayContest; plays: PlaysResponse; onUploaded: () => void }) {
   const { master, userId } = useAccountSync();
   const { getToken } = useAuth();
   const { season, week } = useWeek();
   const [type, setType] = useState<UploadContest>(contest === 'cash' ? 'cash' : 'gpp');
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<'csv' | 'video' | null>(null);
+  const [read, setRead] = useState<VideoUploadResult['players'] | null>(null);
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
   const summaries = plays.actual_ownership ?? {};
   const shown = CONTESTS.filter((c) => summaries[c.field]);
@@ -40,7 +46,8 @@ export default function ActualOwnershipCard({ contest, plays, onUploaded }: { co
     setMessage(null);
     const picked = await DocumentPicker.getDocumentAsync({ type: ['text/csv', 'text/comma-separated-values', 'text/plain', '*/*'], copyToCacheDirectory: true });
     if (picked.canceled || !picked.assets?.[0]) return;
-    setBusy(true);
+    setBusy('csv');
+    setRead(null);
     try {
       const text = await (await fetch(picked.assets[0].uri)).text();
       if (!text.includes('%Drafted')) throw new Error("That file doesn't look like a DraftKings contest standings export (no %Drafted column).");
@@ -58,7 +65,36 @@ export default function ActualOwnershipCard({ contest, plays, onUploaded }: { co
     } catch (e) {
       setMessage({ text: e instanceof Error ? e.message : String(e), error: true });
     } finally {
-      setBusy(false);
+      setBusy(null);
+    }
+  };
+
+  const uploadVideo = async () => {
+    setMessage(null);
+    const picked = await DocumentPicker.getDocumentAsync({ type: ['video/*', 'image/*'], copyToCacheDirectory: true });
+    const asset = picked.canceled ? null : picked.assets?.[0];
+    if (!asset) return;
+    setBusy('video');
+    setRead(null);
+    try {
+      const token = await getToken();
+      if (!token || !season || !week) throw new Error('Sign in first.');
+      const res = await postOwnershipVideo(token, { season, week, slate_id: plays.slate.slate_id, contest: type }, asset.uri,
+        asset.mimeType ?? 'application/octet-stream');
+      const mismatched = res.players.filter((p) => p.salary_mismatch).length;
+      setMessage({
+        text:
+          `Read ${res.added} players from ${res.frames} frame${res.frames === 1 ? '' : 's'}` +
+          (res.unmatched.length ? ` · ${res.unmatched.length} names not matched on this slate` : '') +
+          (mismatched ? ` · ${mismatched} salaries differ from this slate's (is it this slate's contest?)` : '') +
+          (res.persisted === false ? ' · not saved to the database (kept until the next deploy)' : ''),
+      });
+      setRead(res.players);
+      onUploaded();
+    } catch (e) {
+      setMessage({ text: e instanceof Error ? e.message : String(e), error: true });
+    } finally {
+      setBusy(null);
     }
   };
 
@@ -109,10 +145,36 @@ export default function ActualOwnershipCard({ contest, plays, onUploaded }: { co
               );
             })}
           </View>
-          <Pressable className={`btn-accent mt-2 ${busy ? 'opacity-60' : ''}`} onPress={upload} disabled={busy} accessibilityRole="button">
-            {busy ? <ActivityIndicator /> : <Text className="btn-text">Upload contest standings CSV</Text>}
+          <Pressable className={`btn-accent mt-2 ${busy ? 'opacity-60' : ''}`} onPress={upload} disabled={!!busy} accessibilityRole="button">
+            {busy === 'csv' ? <ActivityIndicator /> : <Text className="btn-text">Upload contest standings CSV</Text>}
           </Pressable>
-          {message ? <Text className={`actual-help mt-1.5 ${message.error ? 'text-negative' : ''}`}>{message.text}</Text> : null}
+          <Text className="actual-help mt-3">{VIDEO_HELP}</Text>
+          <Pressable
+            className={`btn-accent mt-2 ${busy ? 'opacity-60' : ''}`}
+            onPress={uploadVideo}
+            disabled={!!busy}
+            accessibilityRole="button"
+            accessibilityLabel={busy === 'video' ? 'Reading the screen recording' : undefined}>
+            {busy === 'video' ? <ActivityIndicator /> : <Text className="btn-text">Upload screen recording</Text>}
+          </Pressable>
+          {message ? (
+            <Text className={`actual-help mt-1.5 ${message.error ? 'text-negative' : ''}`} accessibilityLiveRegion="polite">
+              {message.text}
+            </Text>
+          ) : null}
+          {read?.length ? (
+            <View className="mt-1.5">
+              <Text className="actual-miss-head">Read from the recording</Text>
+              {read.slice(0, READ_SHOWN).map((p) => (
+                <Text key={`${p.name}-${p.team}`} className="actual-miss">
+                  {p.name} <Text className="dfs-meta">{p.position} · {p.team}</Text> {p.pct.toFixed(2)}%
+                  {p.salary != null ? ` · $${p.salary.toLocaleString()}` : ''}
+                  {p.points != null ? ` · ${p.points.toFixed(2)} pts` : ''}
+                </Text>
+              ))}
+              {read.length > READ_SHOWN ? <Text className="dfs-meta">+{read.length - READ_SHOWN} more</Text> : null}
+            </View>
+          ) : null}
         </View>
       ) : null}
     </View>

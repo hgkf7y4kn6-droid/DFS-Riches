@@ -226,6 +226,8 @@ def add_observations(season: int, week: int, slate_id: str, kind: str, contest: 
                 "source": source[:60], "user_id": user_id[:64], "display_name": display_name[:40],
                 "confidence": confidence, "reasoning": e.get("reasoning", "")[:300], "platform": platform,
                 "slate": slate_id, "timestamp": ts,
+                # read from a contest screen (app.ownership_video): the player's salary and DK fantasy points
+                **{f: e[f] for f in ("salary", "fpts") if e.get(f) is not None},
             })
             added += 1
         save(data)

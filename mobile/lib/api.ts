@@ -1,3 +1,6 @@
+import { uploadAsync, FileSystemUploadType } from 'expo-file-system/legacy';
+import { Platform } from 'react-native';
+
 import { API_BASE_URL } from '@/constants/config';
 
 async function getJson<T>(path: string): Promise<T> {
@@ -106,6 +109,22 @@ export async function putAccountDoc(token: string, key: SyncKey, value: unknown,
   return (await res.json()) as SyncedDoc;
 }
 
+export interface VideoUploadResult extends ActualUploadResult {
+  /** Frames read from the recording. */
+  frames: number;
+  /** What was read for each matched player, highest ownership first. */
+  players: {
+    name: string;
+    team: string;
+    position: string;
+    pct: number;
+    salary: number | null;
+    points: number | null;
+    /** The salary read doesn't match this slate's DraftKings salary (a contest from a different slate?). */
+    salary_mismatch: boolean;
+  }[];
+}
+
 interface ActualUploadResult {
   added: number;
   unmatched: string[];
@@ -113,6 +132,39 @@ interface ActualUploadResult {
   field_lineups?: number;
   players_with_ownership?: number;
   persisted?: boolean;
+}
+
+/**
+ * Master accounts: uploads a screen recording (or screenshot) of a DraftKings contest's GameCenter Players tab; the
+ * server reads each player's ownership, salary and fantasy points from it. Native streams the file from disk.
+ */
+export async function postOwnershipVideo(
+  token: string,
+  args: { season: number; week: number; slate_id: string; contest: 'gpp' | 'se' | 'cash' },
+  uri: string,
+  mimeType: string,
+): Promise<VideoUploadResult> {
+  const url = `${API_BASE_URL}/api/ownership/actual/video?season=${args.season}&week=${args.week}&slate_id=${encodeURIComponent(args.slate_id)}&contest=${args.contest}`;
+  const headers = { 'Content-Type': mimeType || 'application/octet-stream', Accept: 'application/json', Authorization: `Bearer ${token}` };
+  let status: number;
+  let text: string;
+  if (Platform.OS === 'web') {
+    const res = await fetch(url, { method: 'POST', headers, body: await (await fetch(uri)).blob() });
+    status = res.status;
+    text = await res.text();
+  } else {
+    const res = await uploadAsync(url, uri, { httpMethod: 'POST', uploadType: FileSystemUploadType.BINARY_CONTENT, headers });
+    status = res.status;
+    text = res.body;
+  }
+  let body: unknown = null;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    // not JSON
+  }
+  if (status < 200 || status >= 300) throw new Error((body as { detail?: string } | null)?.detail ?? `${status}`);
+  return body as VideoUploadResult;
 }
 
 /** Master accounts: uploads a DraftKings contest-standings CSV as actual ownership for a slate and contest type. */

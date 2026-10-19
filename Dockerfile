@@ -24,7 +24,8 @@ WORKDIR /app
 
 # Dependencies first so this layer is cached across code-only changes.
 # libgomp1: LightGBM's OpenMP runtime (field-ownership model, app/field_ownership.py)
-RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+# ffmpeg + tesseract-ocr: reading contest ownership from screen recordings (app/ownership_video.py)
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 ffmpeg tesseract-ocr && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

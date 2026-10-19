@@ -156,3 +156,34 @@ def test_best_contests_rejects_unknown_kinds(client):
     assert client.get("/api/contests/best?fees=1-5,cheap").status_code == 400
     assert client.get("/api/contests/best?weights=rake:11").status_code == 400
     assert client.get("/api/contests/best?weights=luck:3").status_code == 400
+
+
+def test_actual_ownership_from_a_screen_recording(client, monkeypatch, tmp_path):
+    async def master(authorization):
+        return "user_master"
+
+    async def players(season, week, slate_id):
+        return [{"key": "Keenan Allen|TEN|WR", "name": "Keenan Allen", "team": "TEN", "position": "WR", "roster_slot": "",
+                 "salary": 4300, "slate_type": "classic"},
+                {"key": "Josh Allen|BUF|QB", "name": "Josh Allen", "team": "BUF", "position": "QB", "roster_slot": "",
+                 "salary": 7500, "slate_type": "classic"}]
+    read = {"frames": 12, "rows": [{"name": "K. Allen", "pct": 16.73, "salary": 4300, "points": 16.2, "game": "TEN 26 @ IND 20"},
+                                   {"name": "T. Nobody", "pct": 2.0, "salary": None, "points": None, "game": None}]}
+    monkeypatch.setattr(main, "_require_master", master)
+    monkeypatch.setattr(main, "_resolver_players", players)
+    monkeypatch.setattr(main.ownership_video, "available", lambda: True)
+    monkeypatch.setattr(main.ownership_video, "read_video", lambda path: read)
+    monkeypatch.setattr(main.ownership_persist, "save_upload", lambda *a: False)
+    monkeypatch.setattr(main.ownership_learning, "relearn", lambda: {"slates_with_actuals": 1})
+    monkeypatch.setattr(ownership_store, "OWN_DIR", tmp_path)
+    url = "/api/ownership/actual/video?season=2026&week=6&slate_id=classic_sunday&contest=cash"
+    r = client.post(url, content=b"fake video bytes", headers={"Content-Type": "video/mp4"})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["added"] == 1 and body["unmatched"] == ["T. Nobody"] and body["frames"] == 12
+    assert body["players"][0] == {"name": "Keenan Allen", "team": "TEN", "position": "WR", "pct": 16.73, "salary": 4300,
+                                  "points": 16.2, "salary_mismatch": False}
+    obs = ownership_store.load(2026, 6, "classic_sunday")["observations"]
+    assert obs[0]["kind"] == "actual" and obs[0]["contest"] == "cash" and obs[0]["fpts"] == 16.2 and obs[0]["salary"] == 4300
+    assert client.post(url, content=b"", headers={"Content-Type": "video/mp4"}).status_code == 400
+    assert client.post(url.replace("cash", "bogus"), content=b"x").status_code == 400
