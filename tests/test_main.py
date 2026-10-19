@@ -187,3 +187,30 @@ def test_actual_ownership_from_a_screen_recording(client, monkeypatch, tmp_path)
     assert obs[0]["kind"] == "actual" and obs[0]["contest"] == "cash" and obs[0]["fpts"] == 16.2 and obs[0]["salary"] == 4300
     assert client.post(url, content=b"", headers={"Content-Type": "video/mp4"}).status_code == 400
     assert client.post(url.replace("cash", "bogus"), content=b"x").status_code == 400
+
+
+def test_an_upload_without_a_slate_goes_to_the_slate_its_data_matches(client, monkeypatch, tmp_path):
+    async def master(authorization):
+        return "user_master"
+    roster = [{"key": "Keenan Allen|IND|WR", "name": "Keenan Allen", "team": "IND", "position": "WR", "roster_slot": "",
+               "salary": 4300, "slate_type": "classic"}]
+
+    async def detect(entries, season, week):
+        assert (season, week) == (2026, 7) and entries[0]["fpts"] == 16.2
+        return {"season": 2026, "week": 6, "slate_id": "classic_sunday", "label": "Main", "slate_type": "classic",
+                "score": {"week_evidence": 1.0, "players": 1.0, "coverage": 0.9}}
+
+    async def players_for(season, week, slate_id):
+        assert (season, week, slate_id) == (2026, 6, "classic_sunday")
+        return roster, {}
+    monkeypatch.setattr(main, "_require_master", master)
+    monkeypatch.setattr(main.ownership_slate, "for_names", detect)
+    monkeypatch.setattr(main.ownership_slate, "players_for", players_for)
+    monkeypatch.setattr(main.ownership_persist, "save_upload", lambda *a: False)
+    monkeypatch.setattr(main.ownership_learning, "relearn", lambda: {"slates_with_actuals": 1})
+    monkeypatch.setattr(ownership_store, "OWN_DIR", tmp_path)
+    csv = "Rank,EntryId,EntryName,TimeRemaining,Points,Lineup,,Player,Roster Position,%Drafted,FPTS\n,,,,,,,Keenan Allen,WR,16.73%,16.2\n"
+    r = client.post("/api/ownership/actual", json={"season": 2026, "week": 7, "slate_id": "auto", "contest": "cash", "text": csv})
+    assert r.status_code == 200, r.text
+    assert r.json()["slate"]["week"] == 6 and r.json()["added"] == 1
+    assert ownership_store.load(2026, 6, "classic_sunday")["observations"][0]["pct"] == 16.73

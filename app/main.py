@@ -34,7 +34,7 @@ from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
 from app import leverage as leverage_module
-from app import ownership_persist, ownership_video
+from app import ownership_persist, ownership_slate, ownership_video
 from app import trenches as trenches_module
 from app import dfs_model
 from app import accounts, contests, guard, matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
@@ -519,6 +519,9 @@ async def api_dfs_model(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WE
     return Response(body, media_type="application/json")
 
 
+AUTO_SLATE = "auto"        # an actual-ownership upload's slate, detected from its data
+
+
 def _slate_args(body: dict) -> tuple[int, int, str]:
     season, week, slate_id = int(body["season"]), int(body["week"]), str(body["slate_id"])
     if not (2000 <= season <= 2100 and 1 <= week <= 22 and re.fullmatch(r"[a-z_]{1,40}", slate_id)):
@@ -527,15 +530,21 @@ def _slate_args(body: dict) -> tuple[int, int, str]:
 
 
 async def _resolver_players(season: int, week: int, slate_id: str) -> list[dict]:
-    sp = await slates.get_slate_players(season, week, slate_id)
-    out = []
-    for p in sp.players:
-        key = ownership_store.player_key(p.name, p.team, p.position)
-        if sp.slate.slate_type == "showdown":
-            key += "|CPT" if p.roster_slot == "CPT" else "|FLEX"
-        out.append({"key": key, "name": p.name, "team": p.team, "position": p.position, "roster_slot": p.roster_slot,
-                    "salary": p.salary, "slate_type": sp.slate.slate_type})
-    return out
+    return (await ownership_slate.players_for(season, week, slate_id))[0]
+
+
+async def _upload_slate(season: int, week: int, slate_id: str, detect) -> tuple[int, int, str, list[dict], dict | None]:
+    """The slate an actual-ownership upload goes to: the one named, or with slate_id "auto" the one the upload's own
+    data points to (app.ownership_slate; `detect` runs it), searching this week and last from (season, week)."""
+    if slate_id != AUTO_SLATE:
+        return season, week, slate_id, await _resolver_players(season, week, slate_id), None
+    found = await detect()
+    if not found:
+        raise HTTPException(status_code=400, detail="Couldn't tell which slate this contest is from: too few of its players "
+                                                    "are on this week's or last week's slates")
+    players, _ = await ownership_slate.players_for(found["season"], found["week"], found["slate_id"])
+    applied = {k: found[k] for k in ("season", "week", "slate_id", "label", "slate_type", "score")}
+    return found["season"], found["week"], found["slate_id"], players, applied
 
 
 @app.post("/api/ownership/source")
@@ -581,14 +590,19 @@ async def api_ownership_actual(body: dict = Body(...), authorization: Annotated[
     field lineup) or "Name, pct" lines. {season, week, slate_id, contest, text}. Triggers relearning."""
     await _require_master(authorization)
     try:
-        season, week, slate_id = _slate_args(body)
+        season, week, slate_id = _slate_args({**body, "slate_id": body.get("slate_id") or AUTO_SLATE})
         contest = str(body.get("contest") or "gpp")
         text = str(body.get("text") or "")[:30_000_000]
-        players = await _resolver_players(season, week, slate_id)
-        if "%Drafted" in text[:5000]:
+        standings = "%Drafted" in text[:5000]
+        if standings:
             parsed = ownership_store.parse_dk_standings(text)
-            entries = [{"name": name, "pct": pct, "slot": slot if slot in ("CPT",) else ""}
+            entries = [{"name": name, "pct": pct, "slot": slot if slot in ("CPT",) else "", "fpts": parsed["fpts"].get((name, slot))}
                        for (name, slot), pct in parsed["ownership"].items()]
+        else:
+            entries = ownership_store.parse_lines(text)
+        season, week, slate_id, players, applied = await _upload_slate(
+            season, week, slate_id, lambda: ownership_slate.for_names(entries, season, week))
+        if standings:
             result = ownership_store.add_observations(season, week, slate_id, "actual", contest, entries, players,
                                                       source="dk_standings")
             result["players_with_ownership"] = len(entries)
@@ -605,8 +619,9 @@ async def api_ownership_actual(body: dict = Body(...), authorization: Annotated[
             result["field_lineups"] = len(lineups)
             result["entries"] = parsed["entries"]
         else:
-            result = ownership_store.add_observations(season, week, slate_id, "actual", contest,
-                                                      ownership_store.parse_lines(text), players, source="pasted")
+            result = ownership_store.add_observations(season, week, slate_id, "actual", contest, entries, players,
+                                                      source="pasted")
+        result["slate"] = applied
         return await _save_actual(result, season, week, slate_id, contest)
     except (KeyError, ValueError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -627,10 +642,11 @@ MAX_VIDEO_BYTES = 400_000_000      # a few minutes of phone screen recording
 
 
 @app.post("/api/ownership/actual/video")
-async def api_ownership_actual_video(request: Request, season: int, week: int, slate_id: str, contest: str = "gpp",
-                                     authorization: Annotated[str | None, Header()] = None):
+async def api_ownership_actual_video(request: Request, season: int, week: int, slate_id: str = AUTO_SLATE,
+                                     contest: str = "gpp", authorization: Annotated[str | None, Header()] = None):
     """Actual contest ownership read from a screen recording (or screenshot) of DraftKings' GameCenter Players tab
-    (app.ownership_video): ownership, salary and fantasy points per player. The file is the raw request body."""
+    (app.ownership_video): ownership, salary and fantasy points per player. The file is the raw request body.
+    slate_id "auto" (the default) applies it to the slate its games and salaries match."""
     await _require_master(authorization)
     try:
         season, week, slate_id = _slate_args({"season": season, "week": week, "slate_id": slate_id})
@@ -640,9 +656,6 @@ async def api_ownership_actual_video(request: Request, season: int, week: int, s
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     if not ownership_video.available():
         raise HTTPException(status_code=503, detail="Video reading isn't available on this server (ffmpeg / tesseract missing)")
-    players = await _resolver_players(season, week, slate_id)
-    if players and players[0]["slate_type"] == "showdown":
-        raise HTTPException(status_code=400, detail="Screen recordings are read for Classic slates only")
     with tempfile.NamedTemporaryFile(suffix=".upload") as tmp:
         size = 0
         async for chunk in request.stream():
@@ -657,6 +670,10 @@ async def api_ownership_actual_video(request: Request, season: int, week: int, s
             read = await asyncio.to_thread(ownership_video.read_video, Path(tmp.name))
         except (subprocess.SubprocessError, ValueError) as exc:
             raise HTTPException(status_code=400, detail=f"Couldn't read that recording: {exc}") from exc
+    season, week, slate_id, players, applied = await _upload_slate(
+        season, week, slate_id, lambda: ownership_slate.for_rows(read["rows"], season, week))
+    if players and players[0]["slate_type"] == "showdown":
+        raise HTTPException(status_code=400, detail="Screen recordings are read for Classic slates only")
     matched, unmatched = ownership_video.match(read["rows"], players)
     if not matched:
         raise HTTPException(status_code=400, detail="No players on this slate were read from that recording -- record the "
@@ -667,6 +684,7 @@ async def api_ownership_actual_video(request: Request, season: int, week: int, s
                                               source="dk_gamecenter_video")
     result["unmatched"] = (result["unmatched"] + unmatched)[:50]
     result["frames"] = read["frames"]
+    result["slate"] = applied
     result["players"] = [{"name": m["player"]["name"], "team": m["player"]["team"], "position": m["player"]["position"],
                           "pct": m["pct"], "salary": m["salary"], "points": m["points"],
                           "salary_mismatch": bool(m["salary"] and m["player"].get("salary") and m["salary"] != m["player"]["salary"])}

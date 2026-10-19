@@ -145,7 +145,7 @@ LINEUP_SLOT_RE = re.compile(r"(?:^|\s)(QB|RB|WR|TE|FLEX|DST|CPT)\s+")
 
 
 def parse_dk_standings(text: str) -> dict:
-    """DraftKings contest-standings CSV -> {"ownership": {name: pct},
+    """DraftKings contest-standings CSV -> {"ownership": {(name, slot): pct}, "fpts": {(name, slot): fantasy points},
     "lineups": [[(slot, name), ...]], "entries": n}. The right-hand columns
     (Player, Roster Position, %Drafted) carry each player's actual ownership;
     the Lineup column carries every entry's roster. Mid-slate (late swap)
@@ -155,10 +155,11 @@ def parse_dk_standings(text: str) -> dict:
     reader = csv.reader(io.StringIO(text))
     rows = list(reader)
     if not rows:
-        return {"ownership": {}, "lineups": [], "entries": 0}
+        return {"ownership": {}, "fpts": {}, "lineups": [], "entries": 0}
     head = [h.strip() for h in rows[0]]
     idx = {h: i for i, h in enumerate(head) if h}
-    own: dict[str, tuple[str, float]] = {}
+    own: dict[tuple[str, str], float] = {}
+    fpts: dict[tuple[str, str], float] = {}
     lineups = []
     entries = 0
     for r in rows[1:]:
@@ -179,7 +180,11 @@ def parse_dk_standings(text: str) -> dict:
                 continue
             slot = r[idx["Roster Position"]].strip() if "Roster Position" in idx and len(r) > idx["Roster Position"] else ""
             own[(r[idx["Player"]].strip(), slot)] = pct
-    return {"ownership": own, "lineups": lineups, "entries": entries}
+            try:
+                fpts[(r[idx["Player"]].strip(), slot)] = float(r[idx["FPTS"]])
+            except (KeyError, IndexError, ValueError):
+                pass
+    return {"ownership": own, "fpts": fpts, "lineups": lineups, "entries": entries}
 
 
 # ------------------------------------------------------------------ writing

@@ -9,10 +9,13 @@ import { formatEt } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
 
 const HELP =
-  "On DraftKings, open a contest after lock and export its standings (CSV), then upload it here. Mid-slate, DraftKings hides players whose games haven't started (shown as LOCKED) -- upload again after later kickoffs to fill them in. Players with actual ownership use it for leverage.";
+  "On DraftKings, open a contest after lock and export its standings (CSV), then upload it here -- it's applied to the slate its players and points match (this week's or last week's). Mid-slate, DraftKings hides players whose games haven't started (shown as LOCKED) -- upload again after later kickoffs to fill them in. Players with actual ownership use it for leverage.";
 const VIDEO_HELP =
   "No CSV? Screen-record the contest's GameCenter Players tab (sorted by Ownership), scrolling slowly through the whole list, and upload the recording or a screenshot. Each player's ownership, salary and fantasy points are read from it -- this takes up to a couple of minutes.";
 const READ_SHOWN = 8;
+
+/** "Applied to Week 6 · Classic - Sunday Main: " -- the slate the server matched the upload to. */
+const appliedTo = (slate?: { week: number; label: string } | null) => (slate ? `Applied to Week ${slate.week} · ${slate.label}: ` : 'Uploaded: ');
 
 type UploadContest = 'gpp' | 'se' | 'cash';
 const CONTESTS: { id: UploadContest; label: string; field: OwnershipContest }[] = [
@@ -53,10 +56,11 @@ export default function ActualOwnershipCard({ contest, plays, onUploaded }: { co
       if (!text.includes('%Drafted')) throw new Error("That file doesn't look like a DraftKings contest standings export (no %Drafted column).");
       const token = await getToken();
       if (!token || !season || !week) throw new Error('Sign in first.');
-      const res = await postActualOwnership(token, { season, week, slate_id: plays.slate.slate_id, contest: type, text });
+      const res = await postActualOwnership(token, { season, week, slate_id: 'auto', contest: type, text });
       setMessage({
         text:
-          `Uploaded: ${res.added} players with actual ownership` +
+          appliedTo(res.slate) +
+          `${res.added} players with actual ownership` +
           (res.entries ? ` from ${res.entries.toLocaleString()} entries` : '') +
           (res.unmatched.length ? ` · ${res.unmatched.length} names not on this slate` : '') +
           (res.persisted === false ? ' · not saved to the database (kept until the next deploy)' : ''),
@@ -79,12 +83,13 @@ export default function ActualOwnershipCard({ contest, plays, onUploaded }: { co
     try {
       const token = await getToken();
       if (!token || !season || !week) throw new Error('Sign in first.');
-      const res = await postOwnershipVideo(token, { season, week, slate_id: plays.slate.slate_id, contest: type }, asset.uri,
+      const res = await postOwnershipVideo(token, { season, week, slate_id: 'auto', contest: type }, asset.uri,
         asset.mimeType ?? 'application/octet-stream');
       const mismatched = res.players.filter((p) => p.salary_mismatch).length;
       setMessage({
         text:
-          `Read ${res.added} players from ${res.frames} frame${res.frames === 1 ? '' : 's'}` +
+          appliedTo(res.slate) +
+          `read ${res.added} players from ${res.frames} frame${res.frames === 1 ? '' : 's'}` +
           (res.unmatched.length ? ` · ${res.unmatched.length} names not matched on this slate` : '') +
           (mismatched ? ` · ${mismatched} salaries differ from this slate's (is it this slate's contest?)` : '') +
           (res.persisted === false ? ' · not saved to the database (kept until the next deploy)' : ''),

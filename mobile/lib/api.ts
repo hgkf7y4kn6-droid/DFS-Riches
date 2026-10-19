@@ -125,6 +125,15 @@ export interface VideoUploadResult extends ActualUploadResult {
   }[];
 }
 
+/** Where an upload was applied when its slate was detected from the data (slate_id "auto"). */
+interface AppliedSlate {
+  season: number;
+  week: number;
+  slate_id: string;
+  label: string;
+  slate_type: string;
+}
+
 interface ActualUploadResult {
   added: number;
   unmatched: string[];
@@ -132,6 +141,7 @@ interface ActualUploadResult {
   field_lineups?: number;
   players_with_ownership?: number;
   persisted?: boolean;
+  slate?: AppliedSlate | null;
 }
 
 /**
@@ -170,6 +180,7 @@ export async function postOwnershipVideo(
 /** Master accounts: uploads a DraftKings contest-standings CSV as actual ownership for a slate and contest type. */
 export async function postActualOwnership(
   token: string,
+  /** slate_id "auto": the server applies it to the slate the standings' players and points match. */
   body: { season: number; week: number; slate_id: string; contest: 'gpp' | 'se' | 'cash'; text: string },
 ): Promise<ActualUploadResult> {
   const res = await fetch(`${API_BASE_URL}/api/ownership/actual`, {
