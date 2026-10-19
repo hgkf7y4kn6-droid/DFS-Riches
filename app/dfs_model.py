@@ -47,7 +47,7 @@ import statistics
 import time
 from datetime import datetime, timezone
 
-from app import advanced_env, breakdown as breakdown_module
+from app import advanced_env, breakdown as breakdown_module, game_model
 from app import consensus, dfs_strategy, ownership_report, projections, sources, usage, weather
 from app import slates as slates_module
 from app.cache import _cache_path
@@ -133,6 +133,10 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
                         f"Matchup: {pos}s vs {p.opponent} have scored {actual / projected - 1:+.0%} vs projections "
                         f"this season ({games} game{'s' if games != 1 else ''}) -> x{m:.2f}")})
                     final = base * m
+            if role_adj := getattr(p, "role_adj", None):
+                adjustments.append({"kind": "model", "source": "Role & script", "delta": role_adj,
+                                    "text": f"Role & script model: {role_adj:+.1f} (target, carry and snap share trends; team total and spread)"})
+                final = max(0.0, final + role_adj)
             wx = team_weather.get(p.team)
             factor = weather.player_factor(wx, pos, c.line, projections.dk_points_from_line)
             if abs(factor - 1) >= 0.01:
@@ -305,7 +309,7 @@ def news_changes(rows: list[dict], n: int = 5) -> list[dict]:
     for r in rows:
         for adj in r["adjustments"]:
             if adj["kind"] == "model" and r["final"]:
-                delta = (r["consensus"] or 0) * (adj["factor"] - 1)
+                delta = adj["delta"] if "delta" in adj else (r["consensus"] or 0) * (adj["factor"] - 1)
                 if abs(delta) >= 0.5:
                     items.append({"impact": round(abs(delta), 1), "kind": "model", "source": adj.get("source", "Model matchup adjustment"),
                                   "text": f"{r['name']} ({r['team']} {r['position']}) {delta:+.1f}: {adj['text']}"})
@@ -388,6 +392,17 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
         adv_bt = await advanced_env.backtest(season, week)
     except Exception:
         adv, adv_bt = {}, None
+    try:
+        v2 = await game_model.week_games(season, week, {
+            f"{g.away}@{g.home}": (g.context.total_line if g.context else None,
+                                   -g.context.home_spread if g.context and g.context.home_spread is not None else None)
+            for g in slate.games})
+    except Exception:
+        v2 = {}
+    for k, v in (adv or {}).items():
+        if v is not None and v2.get(k):
+            v["model_v2"] = {x: v2[k][x] for x in ("fair_total", "total_adj", "fair_home_margin", "margin_adj", "qbs", "ol_out")}
+            v["checklist"] = v2[k]["checklist"]
     strategy = dfs_strategy.run(pool, rows, slate, wd, profiles, True, season, week, adv, adv_bt)
     lineup_ids = {lu["label"]: [p["id"] for p in lu["players"]]
                   for grp in ("cash", "gpp", "contrarian") for lu in strategy["lineups"][grp]}

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from app import ceiling, dk_client, injury_news, matching, nflverse_client, player_games, projections, roles, sleeper_client, weather
+from app import ceiling, dk_client, injury_news, matching, player_model, nflverse_client, player_games, projections, roles, sleeper_client, weather
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
 from app.models import Player, Slate, SlatePlayers, WeekSchedule
@@ -144,6 +144,16 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
 
     players: list[Player] = []
     unmatched: list[str] = []
+    try:
+        role_ctx = await player_model.context(season, week)
+    except Exception:
+        role_ctx = None
+    team_lines = {}         # team -> (implied total, expected margin)
+    for g in slate.games:
+        c = g.context
+        if c and c.home_spread is not None:
+            team_lines[g.home] = (c.home_implied_total, -c.home_spread)
+            team_lines[g.away] = (c.away_implied_total, c.home_spread)
 
     for row in rows:
         sleeper_id = index.find(row["name"], row["team"], row["position"])
@@ -159,6 +169,18 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         base_proj, proj_notes = projections.project(
             projection_ctx, sleeper_id=sleeper_id, position=row["position"], opponent=row["opponent"], fallback=row["dk_fppg"],
             game_weather=team_wx.get(row["team"]))
+
+        role_adj = None
+        line_pts = projections.dk_points_from_line(line["stats"], row["position"]) if line and line.get("stats") else 0.0
+        if role_ctx and row["position"] in player_model.POSITIONS and line_pts >= 3:
+            k = player_model.key(row["name"], row["position"])
+            imp, spr = team_lines.get(row["team"], (None, None))
+            role_adj = player_model.adjustment(row["position"], player_model.features(
+                role_ctx["hist"].get(k), week, line_pts, row["position"], imp, spr, role_ctx["proj_hist"].get(k)))
+            if role_adj:
+                base_proj = round(max(0.0, base_proj + role_adj), 2)
+                proj_notes = proj_notes + [f"Role & script model: {role_adj:+.1f} (target, carry and snap share trends; "
+                                           f"team total and spread)"]
 
         is_captain = row["roster_slot"] == "CPT"
         if is_captain and sleeper_proj is not None:
@@ -219,6 +241,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
                 injury=row["injury"],
                 sleeper_player_id=sleeper_id,
                 dk_draftable_id=row["draftable_id"],
+                role_adj=role_adj,
             )
         )
 

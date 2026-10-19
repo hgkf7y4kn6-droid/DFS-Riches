@@ -25,6 +25,7 @@ from __future__ import annotations
 import statistics
 from typing import Any
 
+from app import game_model
 from app import nflverse_client as nc
 from app.cache import memoize_async
 
@@ -283,6 +284,7 @@ async def backtest(season: int, week: int) -> dict:
         "games": len(resid), "ou_picks": {"right": right, "n": picks, "pct": round(right / picks, 3) if picks else None},
         "spearman_vs_total": {"index": s_ix, "dfs_env_current": s_cur, "dfs_env_with_index": s_comb},
         "weighted_in_dfs_env": helps,
+        "history_2023_2025": (game_model.load() or {}).get("advanced_index_record"),
         "note": ("Index picks Over for games above the week's median index, Under below, against the closing total. "
                  "It is weighted into the DFS environment score only while adding it ranks past games better."),
     }

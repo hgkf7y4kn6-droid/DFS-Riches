@@ -658,6 +658,27 @@ interface DfsGameEnv {
   advanced_env?: AdvancedEnv | null;
   /** Pass-funnel, pressure-fragility and lean flags from advanced_env. */
   advanced_notes?: string[];
+  /** The weekly audit checklist (app.game_model): which items fire and each item's 2023-2025 record. */
+  checklist?: ChecklistItem[] | null;
+  /** Game model v2: the market line plus a correction fit on 2023-2025. */
+  model_v2?: {
+    fair_total: number;
+    total_adj: number;
+    fair_home_margin: number;
+    margin_adj: number;
+    qbs: Record<string, { name: string | null; dropback_epa: number; dropbacks: number }>;
+    ol_out: Record<string, number>;
+  } | null;
+}
+
+interface ChecklistItem {
+  id: string;
+  label: string;
+  /** true = fires, false = doesn't, null = no data. */
+  flag: boolean | null;
+  /** The direction the item points when it fires. */
+  call: 'Over' | 'Under' | null;
+  record: { hit: number; n: number; pct: number | null } | null;
 }
 
 interface AdvancedEnv {

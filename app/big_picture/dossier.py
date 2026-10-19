@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 
 import httpx
 
-from app import advanced_env
+from app import advanced_env, game_model
 from app.big_picture import odds as odds_module
 from app.big_picture import quant, rosters, store
 from app.config import ET
@@ -275,8 +275,24 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
     dk = await fetch_odds(season, week)
     from app.big_picture import history
     backtest = await history.backtest(season, week)
-    trust = {"spread": backtest.get("games", 0) >= 30 and backtest["spread_mae_model"] <= backtest["spread_mae_market"] + 0.25,
-             "total": backtest.get("games", 0) >= 30 and backtest["total_mae_model"] <= backtest["total_mae_market"] + 0.25}
+    # Game model v2 (app.game_model): the market line plus a correction fit on 2023-2025. A market type is rated
+    # beyond watchlist only while the model's out-of-sample picks beat break-even.
+    v2_lines = {}
+    for gb in wb.games:
+        k = f"{gb.game.away}@{gb.game.home}"
+        mk = market_view(k, dk, gb.game.context)
+        t, sp = _cur(mk, "total", "over").get("line"), _cur(mk, "spread", "home").get("line")
+        v2_lines[k] = (t, -sp if sp is not None else None)
+    try:
+        v2 = await game_model.week_games(season, week, v2_lines,
+                                         wind={f"{gb.game.away}@{gb.game.home}": (gb.game.weather or {}).get("wind_mph") for gb in wb.games})
+        v2_season = await game_model.season_record(season, week)
+    except Exception as exc:
+        log.warning("game model v2 failed: %s", exc)
+        v2, v2_season = {}, None
+    trust = game_model.trusted() if v2 else {
+        "spread": backtest.get("games", 0) >= 30 and backtest["spread_mae_model"] <= backtest["spread_mae_market"] + 0.25,
+        "total": backtest.get("games", 0) >= 30 and backtest["total_mae_model"] <= backtest["total_mae_market"] + 0.25}
 
     adv_games = tuple((gb.game.away, gb.game.home,
                        _cur(market_view(f"{gb.game.away}@{gb.game.home}", dk, gb.game.context), "total", "over").get("line"))
@@ -309,6 +325,12 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
         wx = g.weather or {}
         mdl = model_game(gb, hp, ap, league, league_points, league_plays)
         mkt = market_view(key, dk, g.context)
+        if v2.get(key):
+            f = v2[key]
+            mdl = quant.from_points((f["fair_total"] + f["fair_home_margin"]) / 2, (f["fair_total"] - f["fair_home_margin"]) / 2,
+                                    inputs={"model": "v2: market line + fitted correction", "total_adj": f["total_adj"],
+                                            "margin_adj": f["margin_adj"], "qbs": f["qbs"], "ol_out": f["ol_out"],
+                                            "epa_model": {k: mdl[k] for k in ("home_points", "away_points", "fair_total", "fair_home_spread")}})
         (home_inj, home_cov), (away_inj, away_cov) = team_injuries(g.home, roster_data, table), team_injuries(g.away, roster_data, table)
         inj = {"home": home_inj, "away": away_inj}
         open_news = unresolved(inj["home"]) or unresolved(inj["away"])
@@ -337,6 +359,7 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
             "movement": movement,
             "model": mdl,
             "advanced_env": {**adv[key], "notes": advanced_env.notes(adv[key])} if adv.get(key) else None,
+            "checklist": (v2.get(key) or {}).get("checklist"),
             "model_vs_market": {"spread_gap": _r(cur_spread - mdl["fair_home_spread"]) if cur_spread is not None else None,
                                 "total_gap": _r(mdl["fair_total"] - cur_total) if cur_total is not None else None},
             "candidates": cands,
@@ -430,7 +453,8 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
                                             "watchlist: model likes it but the blend doesn't, or key injury news is unresolved; none."},
                  "league": {"points_per_team": _r(league_points), "plays_per_team": _r(league_plays),
                             "epa_play": league.get("off", {}).get("epa_play")}},
-        "calibration": {"backtest": backtest, "trusted": trust, "advanced_env": adv_bt},
+        "calibration": {"backtest": backtest, "trusted": trust, "advanced_env": adv_bt,
+                        "game_model": {**(game_model.records_summary() or {}), "this_season": v2_season}},
         "market_status": {"available": bool(dk.get("available")), "status": dk.get("status"), "captured_at": dk.get("captured_at")},
         "games": games,
         "dfs": dfs,

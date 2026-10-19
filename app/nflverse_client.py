@@ -173,8 +173,8 @@ async def get_pbp_aggregates(season: int, current_season: int | None = None) -> 
     """One parse of a season's play-by-play feeds every per-play aggregate:
     {"neutral": neutral_stats_from_pbp(...), "trenches": app.trenches
     TrenchAccumulator counts (joined to FTN charting when published), "environment": app.advanced_env
-    EnvAccumulator counts}."""
-    from app import advanced_env, trenches
+    EnvAccumulator counts, "game": app.game_model GameAccumulator counts (nflverse team codes)}."""
+    from app import advanced_env, game_model, trenches
 
     async def fetch() -> dict:
         ftn = await trenches.get_ftn_index(season)
@@ -187,14 +187,16 @@ async def get_pbp_aggregates(season: int, current_season: int | None = None) -> 
             text = io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(raw)), encoding="utf-8")
             acc = trenches.TrenchAccumulator(ftn)
             env = advanced_env.EnvAccumulator(ftn)
+            game = game_model.GameAccumulator(ftn={k: v[-1] for k, v in ftn.items()})
 
             def tap(rows):
                 for r in rows:
                     acc.add(r)
                     env.add(r)
+                    game.add(r)
                     yield r
             return {"neutral": neutral_stats_from_pbp(tap(csv.DictReader(text))), "trenches": acc.result(),
-                    "environment": env.result()}
+                    "environment": env.result(), "game": game.result()}
 
         # ~50k plays x ~370 columns for a full season: keep it off the event loop.
         return await asyncio.to_thread(parse)
@@ -202,13 +204,23 @@ async def get_pbp_aggregates(season: int, current_season: int | None = None) -> 
     current = current_season if current_season is not None else DEFAULT_SEASON
     ttl = TTL_NFLVERSE_TEAM_STATS if season >= current else TTL_NFLVERSE_PBP_PAST
     try:
-        return await cached_fetch(f"nflverse_pbp_aggregates_v3_{season}", ttl, fetch)
+        return await cached_fetch(f"nflverse_pbp_aggregates_v4_{season}", ttl, fetch)
     except Exception:
-        return {"neutral": {"offense": {}, "defense": {}}, "trenches": {}, "environment": {}}
+        return {"neutral": {"offense": {}, "defense": {}}, "trenches": {}, "environment": {}, "game": {}}
 
 
 async def _team_week_neutral(season: int, current_season: int) -> dict[str, dict]:
     return (await get_pbp_aggregates(season, current_season))["neutral"]
+
+
+async def get_games_raw(season: int) -> list[dict]:
+    """nflverse's games file rows for one season, as published (nflverse team codes; starting QB ids, rest
+    days, roof and wind included, upcoming games too)."""
+    async def fetch() -> list[dict]:
+        text = await _fetch_csv_text(NFLVERSE_GAMES_CSV_URL)
+        return [row for row in csv.DictReader(io.StringIO(text)) if row.get("season") == str(season)]
+
+    return await cached_fetch(f"nflverse_games_{season}", TTL_NFLVERSE_GAMES, fetch)
 
 
 async def get_games(season: int) -> dict[tuple[int, str, str], dict[str, Any]]:

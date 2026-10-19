@@ -189,6 +189,21 @@ def project_game(home_off: dict, home_def: dict, away_off: dict, away_def: dict,
     }
 
 
+def from_points(h: float, a: float, inputs: dict | None = None, se: float = 2.5) -> dict:
+    """The same fields as project_game for given home / away means (game model v2: market line + correction)."""
+    h, a = max(h, 3.0), max(a, 3.0)
+    margin = h - a
+    m = margin_dist(margin)
+    p_home = sum(p for k, p in m.items() if k > 0) / max(1e-9, 1 - m.get(0, 0.0))
+    return {
+        "home_points": round(h, 1), "away_points": round(a, 1),
+        "fair_home_spread": round(-margin, 1), "fair_total": round(h + a, 1),
+        "fair_home_ml": fair_american(p_home), "fair_away_ml": fair_american(1 - p_home),
+        "p_home_win": round(p_home, 3), "spread_se": se, "total_se": se, "inputs": inputs or {},
+        **joint(h, a),
+    }
+
+
 # ------------------------------------------------------------------ market comparison
 def _prob_pair(model_dist, line, sign, kind):
     return cover(model_dist, line, sign) if kind == "spread" else over(model_dist, line) if sign > 0 else _under(model_dist, line)

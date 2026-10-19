@@ -11,3 +11,4 @@ web/
 .neon
 .env.local
 node_modules/
+data/cache/train/

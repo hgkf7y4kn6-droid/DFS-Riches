@@ -102,6 +102,7 @@ class Player(BaseModel):
     snap_pct: float | None = None     # offensive snap % over his last 3 games, weighted toward the latest
     usage_trend: dict | None = None   # {"direction": "up" | "down", "text": ...} when his role just shifted
     team_share: dict | None = None    # RB/WR/TE: share + team rank of skill touches and DK points (app.roles.team_shares)
+    role_adj: float | None = None     # DK points added by the role & script model (app.player_model), already in proj_points
 
 
 class Slate(BaseModel):

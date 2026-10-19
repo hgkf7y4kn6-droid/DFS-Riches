@@ -70,6 +70,29 @@ function Matchups({ env, gameId }: { env: DfsGameEnv; gameId: string | null }) {
   );
 }
 
+/** The weekly audit: each item, whether it fires for this game, and how often it called the total right in 2023-2025. */
+function Checklist({ items }: { items: ChecklistItem[] }) {
+  return (
+    <View>
+      {items.map((c) => (
+        <View key={c.id} className="env-matchup">
+          <Text className="dfs-rank">{c.flag == null ? '–' : c.flag ? '✓' : '·'}</Text>
+          <View className="flex-1">
+            <Text className="dfs-name">{c.label}</Text>
+            <Text className="dfs-meta">
+              {c.flag == null
+                ? 'No public data (proprietary)'
+                : c.record?.n
+                  ? `When it fires: ${c.call} ${c.record.hit}-${c.record.n - c.record.hit} (${formatPercent(c.record.pct ?? 0, 0)}) vs the closing total, 2023-2025`
+                  : 'No record yet'}
+            </Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function StackCard({ stack, rank }: { stack: DfsStack; rank: number }) {
   const own = stack.players.reduce((s, p) => s + (p.ownership ?? 0), 0);
   const value = stack.salary > 0 ? stack.final / (stack.salary / 1000) : 0;
@@ -146,6 +169,12 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
             pressure {formatSigned(env.advanced_env.parts.trench_penalty, 2)}
           </Text>
         ) : null}
+        {env.model_v2 ? (
+          <Text className="dfs-meta">
+            Game model: total {env.model_v2.fair_total.toFixed(1)} ({formatSigned(env.model_v2.total_adj, 1)} vs the line) · {env.home}{' '}
+            {formatSigned(env.model_v2.fair_home_margin, 1)}
+          </Text>
+        ) : null}
         {tags.length ? <Text className="slate-card-status mt-1">{tags.join(' · ')}</Text> : null}
         <Text className="dfs-reason mt-1">{env.script}</Text>
       </Pressable>
@@ -156,6 +185,12 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
           {best.length ? best.map((s, i) => <StackCard key={`${s.team}-${s.type}-${i}`} stack={s} rank={i + 1} />) : (
             <Text className="home-empty-state">No stacks for this game.</Text>
           )}
+          {env.checklist ? (
+            <>
+              <Text className="detail-title mt-4">Weekly audit checklist</Text>
+              <Checklist items={env.checklist} />
+            </>
+          ) : null}
           <Text className="detail-title mt-4">Matchups to exploit</Text>
           <Matchups env={env} gameId={gameId} />
           <Text className="detail-title mt-4">Players to target (by ceiling)</Text>

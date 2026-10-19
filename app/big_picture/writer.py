@@ -177,7 +177,15 @@ def desk_sections(d: dict) -> dict[int, str]:
     if qs:
         pts.append("Key injury questions: " + "; ".join(f"{r['name']} ({g[ 'home' if r in g['injuries']['home'] else 'away']}, {r['position']}, {r['status']})"
                                                       for g, r in qs[:4]) + ".")
-    if not trusted.get("total", True):
+    gmr = ((d.get("calibration") or {}).get("game_model") or {}).get("records") or {}
+    if gmr:
+        cv = lambda k: (gmr.get(k) or {}).get("cv") or {}  # noqa: E731
+        untrusted = [name for name, k in (("totals", "total"), ("spreads", "spread")) if not trusted.get(k, True)]
+        if untrusted:
+            pts.append(f"{' and '.join(untrusted).capitalize()} are watchlist-only: the game model (the market line plus a correction "
+                       f"fit on 2023-2025) picked {pct(cv('total').get('pct'))} of totals and {pct(cv('margin').get('pct'))} of spreads "
+                       "correctly out of sample, under the 52.4% a -110 bet needs.")
+    elif not trusted.get("total", True):
         pts.append(f"Totals are watchlist-only this week: in the backtest the model's totals missed by {bt.get('total_mae_model')} points "
                    f"on average vs {bt.get('total_mae_market')} for the closing line.")
     s[1] = "\n".join(f"- {p}" for p in pts)
@@ -231,7 +239,9 @@ def desk_sections(d: dict) -> dict[int, str]:
         abt = (d.get("calibration") or {}).get("advanced_env") or {}
         rec = abt.get("ou_picks") or {}
         lines.append("\n**Advanced environment** (drive velocity, run funnels, four-man pressure, playcaller pace, separation; "
-                     + (f"Over/Under calls vs the closing total {rec['right']}-{rec['n'] - rec['right']} in past weeks" if rec.get("n") else "no record yet")
+                     + (f"Over/Under calls vs the closing total {rec['right']}-{rec['n'] - rec['right']} this season" if rec.get("n") else "no record yet")
+                     + (f", {abt['history_2023_2025']['right']}-{abt['history_2023_2025']['n'] - abt['history_2023_2025']['right']} over 2023-2025"
+                        if abt.get("history_2023_2025") else "")
                      + "):")
         for g in adv_games:
             a = g["advanced_env"]
@@ -239,6 +249,14 @@ def desk_sections(d: dict) -> dict[int, str]:
                          f"funnel {a['parts']['funnel']:+.2f}, pace {a['parts']['playcaller_pace']:+.2f}, separation {a['parts']['separation']:+.2f}, "
                          f"pressure {a['parts']['trench_penalty']:+.2f})"
                          + "".join(f"; {n}" for n in a["notes"] if not n.startswith("Advanced environment leans")))
+    with_list = [g for g in games if g.get("checklist")]
+    if with_list:
+        lines.append("\n**Weekly audit checklist** (items that fire; each item's 2023-2025 record against the closing total):")
+        for g in with_list:
+            fired = [f"{c['label'].split(':')[0]} ({c['call']} {pct((c.get('record') or {}).get('pct'))})"
+                     for c in g["checklist"] if c["flag"]]
+            if fired:
+                lines.append(f"- {g['game']}: " + "; ".join(fired))
     s[5] = "\n".join(lines)
 
     # 6 -- traps

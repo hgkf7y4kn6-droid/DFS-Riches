@@ -188,7 +188,8 @@ def enrich(pool: list[dict], rows: list[dict], slate, usage: dict, trench_week: 
         r["floor_ratio"] = round(r["floor"] / r["final"], 2) if r["final"] else None
         r["ceiling_pct"] = _pct(ceil_by_pos[r["position"]], r["ceiling"])
         r["final_pct"] = _pct(final_by_pos[r["position"]], r["final"])
-        r["matchup_factor"] = next((a["factor"] for a in r["adjustments"] if a["kind"] == "model" and a.get("source") != "Weather"), 1.0)
+        r["matchup_factor"] = next((a["factor"] for a in r["adjustments"] if a["kind"] == "model" and a.get("source") != "Weather"
+                                    and a.get("factor") is not None), 1.0)
         r["weather_factor"] = next((a["factor"] for a in r["adjustments"] if a.get("source") == "Weather"), 1.0)
         mates_out = [o for o in out_by_team.get(r["team"], []) if o["position"] == r["position"]
                      or (r["position"] in ("WR", "TE") and o["position"] in ("WR", "TE"))]
@@ -266,6 +267,8 @@ def analyze_games(pool: list[dict], slate, wd, has_own: bool, adv: dict | None =
         if use_adv:
             parts["advanced"] = 0.20 * _z(adjs, adjs[i])
         x["advanced_notes"] = advanced_env.notes(x["advanced_env"])
+        x["checklist"] = (x["advanced_env"] or {}).get("checklist")
+        x["model_v2"] = (x["advanced_env"] or {}).get("model_v2")
         x["env_score"] = round(sum(parts.values()), 2)
         x["env_parts"] = {k: round(v, 2) for k, v in parts.items()}
         x["pop_share"] = round(x["pop_raw"] / pop_total, 3)
