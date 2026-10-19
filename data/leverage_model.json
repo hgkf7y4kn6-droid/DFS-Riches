@@ -1,0 +1,307 @@
+{
+ "trained_on": [
+  2023,
+  2024,
+  2025
+ ],
+ "coef": [
+  0.544053945305569,
+  0.23109442118732718,
+  0.007952399743142383
+ ],
+ "bands": [
+  {
+   "lo": 0,
+   "hi": 41,
+   "games": 142,
+   "over_by_10": 0.246,
+   "points_50": 0.239
+  },
+  {
+   "lo": 41,
+   "hi": 44,
+   "games": 164,
+   "over_by_10": 0.244,
+   "points_50": 0.305
+  },
+  {
+   "lo": 44,
+   "hi": 47,
+   "games": 150,
+   "over_by_10": 0.227,
+   "points_50": 0.367
+  },
+  {
+   "lo": 47,
+   "hi": 50,
+   "games": 105,
+   "over_by_10": 0.286,
+   "points_50": 0.505
+  },
+  {
+   "lo": 50,
+   "hi": 99,
+   "games": 36,
+   "over_by_10": 0.278,
+   "points_50": 0.5
+  }
+ ],
+ "cv_log_score": {
+  "2023": {
+   "model": -778.4,
+   "even": -789.9
+  },
+  "2024": {
+   "model": -780.9,
+   "even": -788.2
+  },
+  "2025": {
+   "model": -774.7,
+   "even": -786.2
+  }
+ },
+ "games": 597,
+ "ownership_backtest": {
+  "games": 25,
+  "weeks": [
+   4,
+   5,
+   6
+  ],
+  "top_third": {
+   "top_scorers_per_ownership": 1.36,
+   "avg_total": 45.9
+  },
+  "bottom_third": {
+   "top_scorers_per_ownership": 0.67,
+   "avg_total": 42.6
+  },
+  "rows": [
+   {
+    "week": 5,
+    "game": "2026_05_DEN_LAC",
+    "total_line": 42.5,
+    "own_share": 0.0659,
+    "expected_share": 0.081,
+    "leverage": 1.229,
+    "top_share": 0.0
+   },
+   {
+    "week": 4,
+    "game": "2026_04_DEN_SF",
+    "total_line": 48.5,
+    "own_share": 0.2636,
+    "expected_share": 0.3092,
+    "leverage": 1.173,
+    "top_share": 0.2857
+   },
+   {
+    "week": 5,
+    "game": "2026_05_SF_SEA",
+    "total_line": 46.5,
+    "own_share": 0.088,
+    "expected_share": 0.102,
+    "leverage": 1.158,
+    "top_share": 0.1053
+   },
+   {
+    "week": 5,
+    "game": "2026_05_MIN_NO",
+    "total_line": 41.5,
+    "own_share": 0.0664,
+    "expected_share": 0.0763,
+    "leverage": 1.148,
+    "top_share": 0.0526
+   },
+   {
+    "week": 6,
+    "game": "2026_06_BUF_LV",
+    "total_line": 53.5,
+    "own_share": 0.1377,
+    "expected_share": 0.1567,
+    "leverage": 1.138,
+    "top_share": 0.125
+   },
+   {
+    "week": 5,
+    "game": "2026_05_LV_NE",
+    "total_line": 45.5,
+    "own_share": 0.0849,
+    "expected_share": 0.0964,
+    "leverage": 1.136,
+    "top_share": 0.2105
+   },
+   {
+    "week": 5,
+    "game": "2026_05_NYG_WAS",
+    "total_line": 41.5,
+    "own_share": 0.069,
+    "expected_share": 0.0765,
+    "leverage": 1.109,
+    "top_share": 0.2105
+   },
+   {
+    "week": 4,
+    "game": "2026_04_KC_LV",
+    "total_line": 47.5,
+    "own_share": 0.2686,
+    "expected_share": 0.293,
+    "leverage": 1.091,
+    "top_share": 0.4286
+   },
+   {
+    "week": 6,
+    "game": "2026_06_CHI_ATL",
+    "total_line": 51.5,
+    "own_share": 0.1267,
+    "expected_share": 0.1381,
+    "leverage": 1.09,
+    "top_share": 0.1875
+   },
+   {
+    "week": 6,
+    "game": "2026_06_NYJ_NE",
+    "total_line": 43.5,
+    "own_share": 0.0838,
+    "expected_share": 0.0884,
+    "leverage": 1.055,
+    "top_share": 0.125
+   },
+   {
+    "week": 5,
+    "game": "2026_05_CHI_GB",
+    "total_line": 46.5,
+    "own_share": 0.0994,
+    "expected_share": 0.1016,
+    "leverage": 1.021,
+    "top_share": 0.1053
+   },
+   {
+    "week": 6,
+    "game": "2026_06_BAL_CLE",
+    "total_line": 39.5,
+    "own_share": 0.0684,
+    "expected_share": 0.0693,
+    "leverage": 1.014,
+    "top_share": 0.0
+   },
+   {
+    "week": 6,
+    "game": "2026_06_TEN_IND",
+    "total_line": 43.5,
+    "own_share": 0.0873,
+    "expected_share": 0.0882,
+    "leverage": 1.011,
+    "top_share": 0.0625
+   },
+   {
+    "week": 6,
+    "game": "2026_06_NO_NYG",
+    "total_line": 46.5,
+    "own_share": 0.1033,
+    "expected_share": 0.1035,
+    "leverage": 1.002,
+    "top_share": 0.1875
+   },
+   {
+    "week": 6,
+    "game": "2026_06_LAC_KC",
+    "total_line": 41.5,
+    "own_share": 0.0808,
+    "expected_share": 0.0788,
+    "leverage": 0.974,
+    "top_share": 0.0625
+   },
+   {
+    "week": 5,
+    "game": "2026_05_CIN_MIA",
+    "total_line": 44.5,
+    "own_share": 0.0957,
+    "expected_share": 0.0918,
+    "leverage": 0.96,
+    "top_share": 0.0526
+   },
+   {
+    "week": 4,
+    "game": "2026_04_LAC_SEA",
+    "total_line": 42.5,
+    "own_share": 0.2374,
+    "expected_share": 0.221,
+    "leverage": 0.931,
+    "top_share": 0.1429
+   },
+   {
+    "week": 5,
+    "game": "2026_05_HOU_TEN",
+    "total_line": 37.5,
+    "own_share": 0.0668,
+    "expected_share": 0.0612,
+    "leverage": 0.917,
+    "top_share": 0.0
+   },
+   {
+    "week": 6,
+    "game": "2026_06_CAR_PHI",
+    "total_line": 39.5,
+    "own_share": 0.0765,
+    "expected_share": 0.0693,
+    "leverage": 0.907,
+    "top_share": 0.125
+   },
+   {
+    "week": 6,
+    "game": "2026_06_PIT_TB",
+    "total_line": 38.5,
+    "own_share": 0.0721,
+    "expected_share": 0.0654,
+    "leverage": 0.907,
+    "top_share": 0.125
+   },
+   {
+    "week": 5,
+    "game": "2026_05_IND_PIT",
+    "total_line": 41.5,
+    "own_share": 0.0849,
+    "expected_share": 0.0764,
+    "leverage": 0.9,
+    "top_share": 0.0526
+   },
+   {
+    "week": 5,
+    "game": "2026_05_CLE_NYJ",
+    "total_line": 38.5,
+    "own_share": 0.0715,
+    "expected_share": 0.0642,
+    "leverage": 0.897,
+    "top_share": 0.1053
+   },
+   {
+    "week": 6,
+    "game": "2026_06_ARI_LA",
+    "total_line": 51.5,
+    "own_share": 0.1634,
+    "expected_share": 0.1422,
+    "leverage": 0.871,
+    "top_share": 0.0
+   },
+   {
+    "week": 5,
+    "game": "2026_05_DET_ARI",
+    "total_line": 55.5,
+    "own_share": 0.2075,
+    "expected_share": 0.1727,
+    "leverage": 0.832,
+    "top_share": 0.1053
+   },
+   {
+    "week": 4,
+    "game": "2026_04_MIA_MIN",
+    "total_line": 38.5,
+    "own_share": 0.2305,
+    "expected_share": 0.1768,
+    "leverage": 0.767,
+    "top_share": 0.1429
+   }
+  ]
+ }
+}

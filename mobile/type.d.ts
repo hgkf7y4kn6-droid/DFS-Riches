@@ -658,6 +658,17 @@ interface DfsGameEnv {
   advanced_env?: AdvancedEnv | null;
   /** Pass-funnel, pressure-fragility and lean flags from advanced_env. */
   advanced_notes?: string[];
+  /** Shootout leverage (app.shootout_leverage): expected share of the slate's top scorers vs the field's share. */
+  shootout_leverage?: {
+    expected_share: number;
+    own_share: number;
+    leverage: number;
+    rank: number;
+    flag: boolean;
+    over_by_10: number | null;
+    points_50: number | null;
+  } | null;
+  shootout_note?: string;
   /** The weekly audit checklist (app.game_model): which items fire and each item's 2023-2025 record. */
   checklist?: ChecklistItem[] | null;
   /** Game model v2: the market line plus a correction fit on 2023-2025. */

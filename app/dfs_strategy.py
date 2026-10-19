@@ -32,7 +32,7 @@ from __future__ import annotations
 
 import statistics
 
-from app import advanced_env, lineup_builder
+from app import advanced_env, lineup_builder, shootout_leverage
 from app import nflverse_client as nc
 from app import trenches
 from app import usage as usage_mod
@@ -281,6 +281,10 @@ def analyze_games(pool: list[dict], slate, wd, has_own: bool, adv: dict | None =
         x["live_dog"] = bool(margin >= 3 and dog_imp is not None and dog_imp >= 21.5)
         x["script"] = game_script(x)
         x["trench_notes"] = trenches.game_notes(getattr(wd, "trenches", None) if wd else None, x["away"], x["home"])
+    shootout_leverage.rate(games)
+    for x in games:
+        if n_ := shootout_leverage.note(x):
+            x["shootout_note"] = n_
     games.sort(key=lambda x: -x["env_score"])
     by_pop = sorted(games, key=lambda x: -x["pop_share"])
     env_rank = {x["game"]: i + 1 for i, x in enumerate(games)}
@@ -289,7 +293,8 @@ def analyze_games(pool: list[dict], slate, wd, has_own: bool, adv: dict | None =
     for x in games:
         x["env_rank"], x["pop_rank"] = env_rank[x["game"]], pop_rank[x["game"]]
         x["popular"] = x["pop_rank"] <= max(2, n // 5)
-        x["leverage_game"] = x["env_rank"] <= (n + 1) // 2 and x["pop_rank"] > (n + 1) // 2
+        x["leverage_game"] = (x["env_rank"] <= (n + 1) // 2 and x["pop_rank"] > (n + 1) // 2) \
+            or bool((x.get("shootout_leverage") or {}).get("flag"))
         gap = x["pop_rank"] - x["env_rank"]
         if gap >= 3:
             x["ownership_vs_quality"] = f"Under-owned for its environment (#{x['env_rank']} environment, #{x['pop_rank']} in popularity)"
@@ -715,12 +720,12 @@ def leverage_analysis(pool: list[dict], games: list[dict], has_own: bool) -> dic
                 same_team.append(card(o, reason=f"If {o['name']} hits, {c['name']} (chalk) likely didn't -- they compete for "
                                                 f"{c['team']}'s {'targets' if c['position'] in ('WR', 'TE') else 'touches'}"))
     popular = [g for g in games if g["popular"]]
-    alt = [g for g in games if g["leverage_game"]]
+    alt = sorted([g for g in games if g["leverage_game"]], key=lambda g: -(g.get("shootout_leverage") or {}).get("leverage", 0))
     game_lev = []
     for g in alt[:3]:
         vs = popular[0]["game"] if popular else None
         game_lev.append({"game": g["game"], "vs": vs, "script": g["script"],
-                         "reason": f"#{g['env_rank']} environment but #{g['pop_rank']} in popularity"
+                         "reason": (g.get("shootout_note") or f"#{g['env_rank']} environment but #{g['pop_rank']} in popularity")
                                    + (f"; the field is on {vs}" if vs else "")})
     own_lev = []
     for r in sorted(pool, key=lambda r: -r["ceiling_pct"]):
@@ -1059,7 +1064,9 @@ def build_lineups(pool: list[dict], games: list[dict], games_by_team: dict, stac
 
     constructions = []
     primary = by_env[0]["game"] if by_env else None
-    contrarian_game = next((g["game"] for g in games if g["leverage_game"] and g["game"] != primary), None) \
+    contrarian_game = next((g["game"] for g in sorted(games, key=lambda g: -(g.get("shootout_leverage") or {}).get("leverage", 0))
+                            if (g.get("shootout_leverage") or {}).get("flag") and g["game"] != primary), None) \
+        or next((g["game"] for g in games if g["leverage_game"] and g["game"] != primary), None) \
         or next((g["game"] for g in sorted(games, key=lambda g: g["pop_share"]) if g["env_rank"] <= max(3, len(games) // 2)
                  and g["game"] != primary), None)
     strong_chalk = [c for c in chalk_rows if c["classification"] in ("Strong chalk", "Necessary / value chalk",
@@ -1085,8 +1092,10 @@ def build_lineups(pool: list[dict], games: list[dict], games_by_team: dict, stac
                               dict(stack=(2, 1), stack_game=primary, bring_back_pos=("WR",))))
     if contrarian_game:
         g = next(x for x in games if x["game"] == contrarian_game)
-        constructions.append(("Contrarian game stack", f"{contrarian_game}: #{g['env_rank']} environment but #{g['pop_rank']} in "
-                              f"popularity. {g['script']}.", dict(stack=(2, 1), stack_game=contrarian_game)))
+        why = g.get("shootout_note") if (g.get("shootout_leverage") or {}).get("flag") else \
+            f"#{g['env_rank']} environment but #{g['pop_rank']} in popularity"
+        constructions.append(("Contrarian game stack", f"{contrarian_game}: {why}. {g['script']}.",
+                              dict(stack=(2, 1), stack_game=contrarian_game)))
     if strong_chalk:
         force = {c["id"] for c in strong_chalk[:2] if c["position"] != "QB"}
         alt_games = [g for g in games if g["game"] not in popular_games]

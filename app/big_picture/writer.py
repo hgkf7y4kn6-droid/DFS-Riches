@@ -290,6 +290,11 @@ def desk_sections(d: dict) -> dict[int, str]:
     # 9 -- stacks
     s[9] = "\n".join(f"- **{st['team']} ({st['game']})** -- {st['type']}: " + ", ".join(
         f"{p['name']} {p['pos']} ({num(p['own'])}%)" for p in st["players"]) for st in dfs["stacks"][:4]) or "No stacks available."
+    lev = sorted((g for g in games if (g["environment"].get("shootout_leverage") or {}).get("flag")),
+                 key=lambda g: -g["environment"]["shootout_leverage"]["leverage"])
+    if lev:
+        s[9] += "\n\n**Shootout leverage** (expected share of the slate's top DFS scorers vs the field's share of ownership):\n" + \
+            "\n".join(f"- {g['game']} (total {num(g['market_summary']['total'])}): {g['environment']['shootout_note']}" for g in lev[:4])
 
     # 10 -- watchlist
     items = [f"{r['name']} ({r['position']}, {r['status']}) -- if ruled out, re-price {g['game']}"

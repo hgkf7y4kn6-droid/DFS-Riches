@@ -130,9 +130,12 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
     .filter((p) => PLAYABLE_STATUSES.has(p.injury ?? 'Healthy') && p.final > 0)
     .sort((a, b) => (b.ceiling ?? 0) - (a.ceiling ?? 0) || b.final - a.final)
     .slice(0, 8);
-  const tags = [env.shootout && 'Shootout', env.negative_script && 'Negative script', env.live_dog && `Live dog: ${env.underdog}`].filter(
-    Boolean,
-  ) as string[];
+  const tags = [
+    env.shootout && 'Shootout',
+    env.shootout_leverage?.flag && `Shootout leverage ${env.shootout_leverage.leverage.toFixed(2)}x`,
+    env.negative_script && 'Negative script',
+    env.live_dog && `Live dog: ${env.underdog}`,
+  ].filter(Boolean) as string[];
 
   return (
     <View className={`env-card ${expanded ? 'slate-card-active' : ''}`}>
@@ -167,6 +170,12 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
             Advanced env {env.advanced_env.lean ?? 'Neutral'} lean ({formatSigned(env.advanced_env.adj, 2)}): pace{' '}
             {formatSigned(env.advanced_env.parts.playcaller_pace, 2)} · drive velocity {env.advanced_env.parts.drive_velocity.toFixed(2)} ·
             pressure {formatSigned(env.advanced_env.parts.trench_penalty, 2)}
+          </Text>
+        ) : null}
+        {env.shootout_leverage ? (
+          <Text className="dfs-meta">
+            Top-scorer odds {formatPercent(env.shootout_leverage.expected_share, 0)} vs {formatPercent(env.shootout_leverage.own_share, 0)}{' '}
+            of the field · leverage {env.shootout_leverage.leverage.toFixed(2)}x (#{env.shootout_leverage.rank})
           </Text>
         ) : null}
         {env.model_v2 ? (

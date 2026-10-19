@@ -371,7 +371,7 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
             "environment": {**{k: env.get(k) for k in ("env_rank", "env_score", "pop_rank", "pop_share", "shootout",
                                                        "negative_script", "favorite", "underdog", "live_dog", "script",
                                                        "ownership_vs_quality", "tempo_ranks", "pass_rate_ranks",
-                                                       "top10_ceiling") if env.get(k) is not None},
+                                                       "top10_ceiling", "shootout_leverage", "shootout_note") if env.get(k) is not None},
                             **{k: mdl[k] for k in ("p_shootout", "p_both_24", "p_one_score", "p_blowout")},
                             "on_main_slate": bool(env)},
             "teams": {
