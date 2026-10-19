@@ -100,6 +100,17 @@ def ol_out(snaps: dict, team: str, week: int) -> int:
     return sum(1 for p in starters if (played.get(p) or 0) <= 0)
 
 
+def snap_def(d: Path, year: int) -> dict[str, dict[tuple[int, str], dict[str, float]]]:
+    """{unit: {(week, team): {player: defensive snaps}}} for defensive linemen, linebackers and backs."""
+    out: dict[str, dict] = {u: {} for u in gm.DEF_UNITS}
+    path = fetch(f"{REL}/snap_counts/snap_counts_{year}.csv", d / f"snap_counts_{year}.csv")
+    for r in csv.DictReader(open(path, newline="")):
+        u = gm.def_unit(r.get("position"))
+        if r.get("game_type") == "REG" and u:
+            out[u].setdefault((int(r["week"]), r["team"]), {})[r["pfr_player_id"]] = gm._f(r.get("defense_snaps")) or 0.0
+    return out
+
+
 def build_rows(d: Path, seasons: list[int]) -> list[dict]:
     games_path = fetch(GAMES_URL, d / "games.csv")
     games = [g for g in csv.DictReader(open(games_path, newline="")) if g["game_type"] == "REG"]
@@ -107,7 +118,7 @@ def build_rows(d: Path, seasons: list[int]) -> list[dict]:
     rows = []
     for y in seasons:
         prior = gm.priors_from_season(gm.season_totals(aggs[y - 1]))
-        snaps = snap_ol(d, y)
+        snaps, dsnaps = snap_ol(d, y), snap_def(d, y)
         pts: dict[tuple[int, str], int] = {}
         prev_pts: dict[str, list[int]] = {}
         for g in games:
@@ -128,11 +139,13 @@ def build_rows(d: Path, seasons: list[int]) -> list[dict]:
             hist = gm.qb_history(aggs[y - 1], aggs[y], before_week=w)
             lg = prior["league"]
             qb = {t: gm.qb_estimate(hist, g[f"{side}_qb_id"], lg["pass_epa"]) for t, side in ((a, "away"), (h, "home"))}
+            dout = {t: gm.def_out_played(dsnaps, t, w) for t in (a, h)}
             feats = gm.game_features(
                 a, h, est, lg, total_line=float(g["total_line"]), spread_line=float(g["spread_line"]), qb=qb,
                 ol_out={a: ol_out(snaps, a, w), h: ol_out(snaps, h, w)}, wind=gm._f(g.get("wind")),
                 indoor=g.get("roof") in ("dome", "closed"), rest=(gm._f(g.get("away_rest")), gm._f(g.get("home_rest"))),
-                floor24={t: gm.floor_share(pts, floor_prior, t, w) for t in (a, h)})
+                floor24={t: gm.floor_share(pts, floor_prior, t, w) for t in (a, h)},
+                def_out={t: sum(v.values()) for t, v in dout.items()})
             if not feats:
                 continue
             total = int(g["home_score"]) + int(g["away_score"])
@@ -140,7 +153,7 @@ def build_rows(d: Path, seasons: list[int]) -> list[dict]:
             rows.append({"season": y, "week": w, "game": f"{a}@{h}", "tot": feats[0], "mar": feats[1],
                          "total": total, "margin": margin, "total_line": float(g["total_line"]),
                          "spread_line": float(g["spread_line"]), "est": {a: est[a], h: est[h]}, "league": lg,
-                         "qb": {a: qb[a], h: qb[h]}})
+                         "qb": {a: qb[a], h: qb[h]}, "def_out": dout})
     return rows
 
 
@@ -149,8 +162,8 @@ def _target(r, kind):
     return r["total"] - r["total_line"] if kind == "total" else r["margin"] - r["spread_line"]
 
 
-def fit(rows, kind, alpha):
-    feats = gm.TOTAL_FEATURES if kind == "total" else gm.MARGIN_FEATURES
+def fit(rows, kind, alpha, feats=None):
+    feats = feats or (gm.TOTAL_FEATURES if kind == "total" else gm.MARGIN_FEATURES)
     key = "tot" if kind == "total" else "mar"
     X = [[r[key][f] for f in feats] for r in rows]
     w, m, s, b = gm.fit_ridge(X, [_target(r, kind) for r in rows], alpha)
@@ -168,14 +181,14 @@ def evaluate(model, rows, kind, edge=0.0) -> dict:
             "rmse": round(rmse, 3), "rmse_line": round(base, 3)}
 
 
-def choose_alpha(rows, kind, seasons):
+def choose_alpha(rows, kind, seasons, feats=None):
     best = None
     for a in ALPHAS:
         res = []
         for s in seasons:
             train = [r for r in rows if r["season"] != s and r["season"] in seasons]
             test = [r for r in rows if r["season"] == s]
-            res.append(evaluate(fit(train, kind, a), test, kind))
+            res.append(evaluate(fit(train, kind, a, feats), test, kind))
         rmse = statistics.fmean(x["rmse"] for x in res)
         right, n = sum(x["right"] for x in res), sum(x["n"] for x in res)
         print(f"  {kind} alpha {a:5d}: CV rmse {rmse:.3f} (line {statistics.fmean(x['rmse_line'] for x in res):.3f})  picks {right}/{n} = {right / n:.1%}")
@@ -260,6 +273,14 @@ def main():
         ts = evaluate(model, test, kind)
         out["records"][kind] = {"cv": cv, "cv_rmse": rmse, "test": ts}
         print(f"{kind}: alpha {alpha}; CV {cv}; {args.test_season} weeks 2+: {ts}")
+    # Defensive starters out (away minus home) as a spread input: kept only if it beats the model without it on the
+    # test season. It didn't (2026 weeks 2-6), so it's recorded here and left out of MARGIN_FEATURES.
+    trial = gm.MARGIN_FEATURES + ("def_out",)
+    alpha, rmse, cv = choose_alpha(rows, "margin", train_seasons, trial)
+    m = fit(train, "margin", alpha, trial)
+    out["records"]["margin_def_out_trial"] = {"cv": cv, "cv_rmse": rmse, "test": evaluate(m, test, "margin"),
+                                              "weight": round(m["weights"][-1] / m["sds"][-1], 3)}
+    print("margin + def_out trial:", out["records"]["margin_def_out_trial"])
     out["advanced_index_record"] = advanced_index_record([r for r in train if r["week"] >= 2])
     print("advanced index (weekly-audit formula) 2023-2025:", out["advanced_index_record"])
     cuts = checklist_cuts(train)

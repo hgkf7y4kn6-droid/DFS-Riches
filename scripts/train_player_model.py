@@ -57,7 +57,7 @@ def rows_for(d: Path, season: int, weeks) -> list[dict]:
     ln = lines(d, season)
     agg, prev = tgm.season_agg(d, season), tgm.season_agg(d, season - 1)
     priors = gm.priors_from_season(gm.season_totals(prev))
-    ol = tgm.snap_ol(d, season)
+    ol, dsnaps = tgm.snap_ol(d, season), tgm.snap_def(d, season)
     pressure: dict[int, dict[str, float]] = {}
 
     def opp_pressure(week: int, team: str) -> float:
@@ -87,7 +87,8 @@ def rows_for(d: Path, season: int, weeks) -> list[dict]:
                 continue            # didn't play (no stat row) or no line: not a projection miss we can learn from
             ph = {x: proj_by_week[x][k] for x in proj_by_week if x < w and k in proj_by_week[x]}
             opp = TEAM_FIX.get(e.get("opponent") or "", e.get("opponent") or "")
-            f = pm.features(h, w, p, pos, imp, spr, ph, opp_pressure=opp_pressure(w, opp), ol_out=tgm.ol_out(ol, team, w))
+            f = pm.features(h, w, p, pos, imp, spr, ph, opp_pressure=opp_pressure(w, opp), ol_out=tgm.ol_out(ol, team, w),
+                            front7_out=sum(n for u, n in gm.def_out_played(dsnaps, opp, w).items() if u in gm.FRONT7))
             out.append({"season": season, "week": w, "key": k, "pos": pos, "f": f, "proj": p, "actual": h[w]["pts"]})
     return out
 
@@ -182,13 +183,17 @@ def main():
     train = [r for s in seasons for r in rows_for(d, s, range(1, 19)) if r["week"] >= 2]
     test = [r for r in rows_for(d, args.test_season, range(1, args.test_weeks + 1)) if r["week"] >= 2]
     print(f"train player-weeks {len(train)} ({seasons}), test {len(test)}")
-    base_feats = tuple(f for f in pm.FEATURES if f not in ("opp_pressure", "ol_out"))
+    base_feats = tuple(f for f in pm.FEATURES if f not in ("opp_pressure", "ol_out", "front7_out"))
     print("-- role & script only")
     base = fit_all(train, base_feats, seasons)
     print("-- plus opponent pressure and offensive-line starters out")
+    no_f7 = fit_all(train, tuple(f for f in pm.FEATURES if f != "front7_out"), seasons)
+    print("-- plus the opponent's front-seven starters out (running backs)")
     models = fit_all(train, pm.FEATURES, seasons)
+    rb = [r for r in test if r["pos"] == "RB"]
     rec = {"train": evaluate(train, models), "test": evaluate(test, models),
-           "test_role_script_only": evaluate(test, base)}
+           "test_role_script_only": evaluate(test, base), "test_without_front7_out": evaluate(test, no_f7),
+           "test_rb": evaluate(rb, models), "test_rb_without_front7_out": evaluate(rb, no_f7)}
     previous = json.loads(pm.MODEL_FILE.read_text()).get("records") if pm.MODEL_FILE.exists() else None
     if previous:
         rec["test_previous_model"] = previous.get("test")

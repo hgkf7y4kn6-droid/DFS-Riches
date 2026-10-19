@@ -34,6 +34,22 @@
     "rmse": 11.667,
     "rmse_line": 11.545
    }
+  },
+  "margin_def_out_trial": {
+   "cv": {
+    "right": 403,
+    "n": 797,
+    "pct": 0.506
+   },
+   "cv_rmse": 12.612333333333334,
+   "test": {
+    "n": 71,
+    "right": 31,
+    "pct": 0.437,
+    "rmse": 11.68,
+    "rmse_line": 11.545
+   },
+   "weight": 0.23
   }
  },
  "total": {
