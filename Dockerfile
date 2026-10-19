@@ -36,6 +36,11 @@ COPY templates/ templates/
 COPY --from=web /web web/
 COPY data/dk_overrides.json data/name_aliases.json data/optimal_lineups.json data/source_accuracy.json data/weather_effects.json data/game_model.json data/player_model.json data/leverage_model.json data/ceiling_model.json data/dst_model.json data/
 
+# Build this week's data into the image's disk cache (app/prewarm.py): the first visit after a deploy reads it
+# instead of downloading and parsing play-by-play, stats and projections. Files keep their build-time timestamps,
+# so each refreshes on its usual schedule; a failure here only means a cold start, never a failed build.
+RUN python -m app.prewarm --dfs || true
+
 # Run as non-root. app/config.py creates data/cache/ on import; give the
 # app user ownership so that succeeds.
 RUN useradd --create-home --uid 1000 appuser \

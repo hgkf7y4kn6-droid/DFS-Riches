@@ -12,18 +12,6 @@
     "mae": 6.57,
     "sleeper_mae": 6.6,
     "games": 479
-   },
-   "fftoday": {
-    "ratio": 1.007,
-    "mae": 6.63,
-    "sleeper_mae": 6.59,
-    "games": 480
-   },
-   "fantasypros": {
-    "ratio": 0.987,
-    "mae": 6.54,
-    "sleeper_mae": 6.63,
-    "games": 160
    }
   },
   "RB": {
@@ -38,18 +26,6 @@
     "mae": 5.66,
     "sleeper_mae": 5.59,
     "games": 893
-   },
-   "fftoday": {
-    "ratio": 1.008,
-    "mae": 5.87,
-    "sleeper_mae": 5.82,
-    "games": 816
-   },
-   "fantasypros": {
-    "ratio": 0.983,
-    "mae": 8.0,
-    "sleeper_mae": 8.13,
-    "games": 160
    }
   },
   "WR": {
@@ -64,18 +40,6 @@
     "mae": 5.48,
     "sleeper_mae": 5.44,
     "games": 1401
-   },
-   "fftoday": {
-    "ratio": 1.006,
-    "mae": 5.62,
-    "sleeper_mae": 5.59,
-    "games": 1255
-   },
-   "fantasypros": {
-    "ratio": 1.001,
-    "mae": 8.12,
-    "sleeper_mae": 8.11,
-    "games": 160
    }
   },
   "TE": {
@@ -90,18 +54,6 @@
     "mae": 4.8,
     "sleeper_mae": 4.84,
     "games": 622
-   },
-   "fftoday": {
-    "ratio": 1.029,
-    "mae": 5.19,
-    "sleeper_mae": 5.04,
-    "games": 545
-   },
-   "fantasypros": {
-    "ratio": 0.993,
-    "mae": 6.19,
-    "sleeper_mae": 6.23,
-    "games": 160
    }
   },
   "DST": {
@@ -116,12 +68,6 @@
     "mae": 4.02,
     "sleeper_mae": 4.02,
     "games": 471
-   },
-   "fantasypros": {
-    "ratio": 1.012,
-    "mae": 4.32,
-    "sleeper_mae": 4.27,
-    "games": 160
    }
   }
  },

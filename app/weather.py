@@ -45,6 +45,7 @@ FORECAST_PAST_DAYS = 80        # the forecast API keeps ~3 months of past hours;
 FULL_WEIGHT_DAYS = 7           # beyond a week out, forecasts are shaky: adjustments at half strength
 WINDOW_HOURS = 3
 TTL_FUTURE = 60 * 60           # forecasts update hourly
+FORECAST_TIMEOUT = 10          # seconds per forecast attempt (one retry follows a failure)
 TTL_PAST = 60 * 60 * 24 * 30
 
 # stadium_id -> (name, lat, lon, roof): roof is "dome", "retractable" or "outdoors"
@@ -142,7 +143,8 @@ async def fetch_open_meteo(points: list[tuple[float, float]], start: str, end: s
         "temperature_unit": "fahrenheit", "wind_speed_unit": "mph", "precipitation_unit": "inch",
         "timezone": "UTC", "start_date": start, "end_date": end,
     }
-    async with httpx.AsyncClient(headers=HEADERS, timeout=120 if archive else 30) as client:
+    # A forecast request that hangs is retried quickly rather than held for 30 s: the schedule waits on it.
+    async with httpx.AsyncClient(headers=HEADERS, timeout=120 if archive else FORECAST_TIMEOUT) as client:
         for attempt in range(2):          # one retry: the free tier occasionally 429s/5xxs under load
             try:
                 resp = await client.get(OPEN_METEO_ARCHIVE if archive else OPEN_METEO_FORECAST, params=params)
@@ -396,15 +398,14 @@ async def _hourly_for(games_venues: list[tuple], now: datetime) -> tuple[dict, d
         except Exception:
             if kind != "forecast":
                 continue
-            for g, v in items:          # NWS fallback: US venues, next 7 days
-                if not (-125 < v["lon"] < -66 and 24 < v["lat"] < 50):
-                    continue
-                try:
-                    hourly[g.game_id] = await cached_fetch(f"weather_nws_{v['lat']:.2f},{v['lon']:.2f}", TTL_FUTURE,
-                                                           lambda v=v: fetch_nws(v["lat"], v["lon"]))
+            us = [(g, v) for g, v in items if -125 < v["lon"] < -66 and 24 < v["lat"] < 50]   # NWS: US venues, 7 days
+            got = await asyncio.gather(*(cached_fetch(f"weather_nws_{v['lat']:.2f},{v['lon']:.2f}", TTL_FUTURE,
+                                                      lambda v=v: fetch_nws(v["lat"], v["lon"])) for _, v in us),
+                                       return_exceptions=True)
+            for (g, _v), series in zip(us, got):
+                if not isinstance(series, BaseException):
+                    hourly[g.game_id] = series
                     source[g.game_id] = "National Weather Service forecast"
-                except Exception:
-                    continue
     return hourly, source
 
 

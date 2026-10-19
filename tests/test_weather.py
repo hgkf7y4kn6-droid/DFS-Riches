@@ -100,3 +100,28 @@ def test_projection_and_breakdown_show_the_weather():
     assert "Projections adjusted: passing yards -8%" in breakdown.weather_takeaway(g)
     g.weather = {"available": True, "indoor": True, "roof": "dome", "severity": "good", "summary": "Dome"}
     assert breakdown.weather_takeaway(g) is None
+
+
+def test_nws_fills_in_for_us_venues_when_open_meteo_fails(monkeypatch, tmp_path):
+    import asyncio
+
+    from app import cache
+    monkeypatch.setattr(cache, "CACHE_DIR", tmp_path)
+    now = KICK - timedelta(days=2)
+
+    async def down(*a, **k):
+        raise weather.httpx.ConnectTimeout("open-meteo down")
+
+    async def nws(lat, lon):
+        return {"time": [], "lat": lat}
+    monkeypatch.setattr(weather, "fetch_open_meteo", down)
+    monkeypatch.setattr(weather, "fetch_nws", nws)
+
+    def game(gid):
+        return Game(game_id=gid, season=2026, week=15, away="A", home="B", kickoff_utc=KICK, kickoff_et="", day_part="SUN_EARLY")
+    venues = [(game("us1"), {"lat": 41.86, "lon": -87.62, "roof": "outdoors"}),
+              (game("us2"), {"lat": 39.28, "lon": -76.62, "roof": "outdoors"}),
+              (game("abroad"), {"lat": 51.56, "lon": -0.28, "roof": "outdoors"})]
+    hourly, source = asyncio.run(weather._hourly_for(venues, now))
+    assert set(hourly) == {"us1", "us2"} and hourly["us2"]["lat"] == 39.28
+    assert source["us1"] == "National Weather Service forecast"

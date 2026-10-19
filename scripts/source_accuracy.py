@@ -38,7 +38,7 @@ OUT = DATA_DIR / "source_accuracy.json"
 MIN_GRADE = 3.0
 POSITIONS = ("QB", "RB", "WR", "TE", "DST")
 BUCKETS = [(0, 8), (8, 12), (12, 16), (16, 20), (20, 99)]
-HISTORY_SOURCES = ("sleeper", "espn", "fftoday", "fantasypros")   # CBS keeps no past weeks
+HISTORY_SOURCES = ("sleeper", "espn")   # CBS keeps no past weeks
 
 
 def bucket_label(proj: float) -> str:

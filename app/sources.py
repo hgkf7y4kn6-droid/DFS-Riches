@@ -13,15 +13,12 @@ Sources used (all public pages, fetched at most every PAGE_TTL and cached):
   CBS Sports   /fantasy/football/stats/{POS}/{season}/{week}/projections/ppr/
                -- only ever serves the current week, so it is used only when
                the page says it's the requested week
-  FFToday      /rankings/playerwkproj.php -- no DST stat lines, no fumbles
-  FantasyPros  /nfl/projections/{pos}.php -- the public page lists only the
-               top 10 at each position (the rest needs a premium account, which
-               this app doesn't bypass), so it covers few players
-
 Not used, and why: NFL.com (its API's robots.txt disallows all crawling),
 FantasySharks (returns 403 to non-browser clients), NumberFire (shut down;
 redirects to FanDuel Research), Fantasy Football Analytics (an R tool that
-scrapes these same sites, not a source of its own).
+scrapes these same sites, not a source of its own), FFToday (returns 403 to the
+app since October 2026), FantasyPros (its projections now load in the browser
+from a private API instead of the page).
 
 A source that doesn't list a player simply has no projection for him; that
 absence is reported, never filled in.
@@ -45,14 +42,14 @@ SOURCES = {
     "sleeper": "Sleeper",
     "espn": "ESPN",
     "cbs": "CBS Sports",
-    "fftoday": "FFToday",
-    "fantasypros": "FantasyPros",
 }
 UNAVAILABLE = {
     "NFL.com": "robots.txt disallows automated access to its fantasy API",
     "FantasySharks": "blocks non-browser clients (HTTP 403)",
     "NumberFire": "shut down (now redirects to FanDuel Research)",
     "Fantasy Football Analytics": "aggregates the sources above rather than publishing its own",
+    "FFToday": "blocks the app (HTTP 403) since October 2026",
+    "FantasyPros": "projections now load from a private API in the browser, not the page",
 }
 
 TEAM_FIX = {"JAC": "JAX", "WSH": "WAS", "LA": "LAR", "LVR": "LV", "OAK": "LV", "SD": "LAC", "STL": "LAR"}
@@ -110,66 +107,6 @@ async def _get(url: str, **kw) -> httpx.Response:
 
 def _stat_row(values: dict[str, float | None], mapping: dict[str, str]) -> dict[str, float]:
     return {dst: float(values[src]) for src, dst in mapping.items() if values.get(src) is not None}
-
-
-# ---------------------------------------------------------------- FantasyPros
-FP_MAP = {
-    "PASSING_ATT": "pass_att", "PASSING_CMP": "pass_cmp", "PASSING_YDS": "pass_yd", "PASSING_TDS": "pass_td",
-    "PASSING_INTS": "pass_int", "RUSHING_ATT": "rush_att", "RUSHING_YDS": "rush_yd", "RUSHING_TDS": "rush_td",
-    "RECEIVING_REC": "rec", "RECEIVING_YDS": "rec_yd", "RECEIVING_TDS": "rec_td", "MISC_FL": "fum_lost",
-    "SACK": "sack", "INT": "int", "FR": "fum_rec", "TD": "def_td", "SAFETY": "safe", "PA": "pts_allow",
-}
-
-
-def parse_fantasypros(page: str, position: str) -> list[dict]:
-    start = page.find('id="data"')
-    if start < 0:
-        return []
-    table = page[start:page.find("</table>", start)]
-    head, _, body = table.partition("</thead>")
-    trs = re.findall(r"<tr[^>]*>(.*?)</tr>", head, re.S)
-    groups: list[str] = []
-    if len(trs) == 2:
-        for attrs, cell in re.findall(r"<t[hd]([^>]*)>(.*?)</t[hd]>", trs[0], re.S):
-            span = re.search(r'colspan="(\d+)"', attrs)
-            groups += [_text(cell).upper()] * (int(span.group(1)) if span else 1)
-    labels = [_text(c).upper() for c in re.findall(r"<th[^>]*>(.*?)</th>", trs[-1], re.S)]
-    cols = [(f"{groups[i]}_{lab}" if i < len(groups) and groups[i] and groups[i] != "\xa0" and groups[i].strip() else lab)
-            for i, lab in enumerate(labels)]
-    out = []
-    for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", body, re.S):
-        cells = re.findall(r"<td[^>]*>(.*?)</td>", tr, re.S)
-        if len(cells) != len(cols):
-            continue
-        name_m = re.search(r'fp-player-name="([^"]+)"', cells[0])
-        label = _text(cells[0])
-        if position == "DST":
-            team = TEAM_NAMES.get(label)
-            name = label
-        else:
-            if not name_m:
-                continue
-            name = htmllib.unescape(name_m.group(1))
-            team = team_code(label.rsplit(" ", 1)[-1]) if " " in label else ""
-        if not team:
-            continue
-        values = {c: _num(_text(v)) for c, v in zip(cols, cells)}
-        out.append({"name": name, "team": team, "position": position, "stats": _stat_row(values, FP_MAP)})
-    return out
-
-
-async def fantasypros(season: int, week: int, current: bool) -> list[dict]:
-    params = {"week": week, "scoring": "PPR", **({} if current else {"year": season})}
-    positions = ("QB", "RB", "WR", "TE", "DST")
-    pages = await asyncio.gather(*(_get(f"https://www.fantasypros.com/nfl/projections/{pos.lower()}.php", params=params)
-                                   for pos in positions))
-    rows = []
-    for pos, resp in zip(positions, pages):
-        page = resp.text
-        if not re.search(rf"Week {week}\b", page[:5000] + page[page.find("<title"):page.find("</title>")]):
-            continue
-        rows += parse_fantasypros(page, pos)
-    return rows
 
 
 # ------------------------------------------------------------------------ CBS
@@ -237,64 +174,6 @@ async def cbs(season: int, week: int, current: bool) -> list[dict]:
     return rows
 
 
-# -------------------------------------------------------------------- FFToday
-FFT_POS = {"QB": 10, "RB": 20, "WR": 30, "TE": 40}
-FFT_MAP = {
-    "PASSING_COMP": "pass_cmp", "PASSING_ATT": "pass_att", "PASSING_YARD": "pass_yd", "PASSING_TD": "pass_td",
-    "PASSING_INT": "pass_int", "RUSHING_ATT": "rush_att", "RUSHING_YARD": "rush_yd", "RUSHING_TD": "rush_td",
-    "RECEIVING_REC": "rec", "RECEIVING_YARD": "rec_yd", "RECEIVING_TD": "rec_td",
-}
-
-
-def parse_fftoday(page: str, position: str, season: int, week: int) -> list[dict]:
-    if not re.search(rf"<title>[^<]*{season} Week {week}\b", page):
-        return []
-    i = page.find("tableclmhdr")
-    if i < 0:
-        return []
-    grp_html = page[page.rfind("tablehdr", 0, i):i]
-    groups: list[str] = []
-    for attrs, cell in re.findall(r"<TD([^>]*)>(.*?)</TD>", grp_html, re.S | re.I):
-        span = re.search(r"COLSPAN=.?(\d+)", attrs, re.I)
-        groups += [_text(cell).upper()] * (int(span.group(1)) if span else 1)
-    j = page.find("</TR>", i)
-    labels = [_text(re.sub(r"Sort First.*", "", c, flags=re.S)).upper()
-              for c in re.findall(r"<TD[^>]*>(.*?)</TD>", page[i:j], re.S | re.I)]
-    cols = [f"{groups[k]}_{lab}" if k < len(groups) and groups[k] else lab for k, lab in enumerate(labels)]
-    out = []
-    for tr in re.findall(r'<TR>\s*<TD class="bodycontent".*?</TR>', page[j:], re.S):
-        cells = [_text(c) for c in re.findall(r"<TD[^>]*>(.*?)</TD>", tr, re.S)]
-        if len(cells) != len(cols):
-            continue
-        row = dict(zip(labels, cells))
-        name, team = row.get("PLAYER", "").strip(), team_code(row.get("TEAM", ""))
-        if not name or not team:
-            continue
-        values = {c: _num(v) for c, v in zip(cols, cells)}
-        out.append({"name": name, "team": team, "position": position, "stats": _stat_row(values, FFT_MAP)})
-    return out
-
-
-async def fftoday(season: int, week: int, current: bool) -> list[dict]:
-    by_pos = await asyncio.gather(*(_fftoday_position(season, week, pos, pos_id) for pos, pos_id in FFT_POS.items()))
-    return [r for rows in by_pos for r in rows]
-
-
-async def _fftoday_position(season: int, week: int, pos: str, pos_id: int) -> list[dict]:
-    """One position's pages, in order (each page says whether there's another)."""
-    rows = []
-    for page_no in range(4):
-        params = {"Season": season, "GameWeek": week, "PosID": pos_id, "LeagueID": 1}
-        if page_no:
-            params["cur_page"] = page_no
-        page = (await _get("https://www.fftoday.com/rankings/playerwkproj.php", params=params)).content.decode("latin-1")
-        got = parse_fftoday(page, pos, season, week)
-        rows += got
-        if not got or f"cur_page={page_no + 1}" not in page:
-            break
-    return rows
-
-
 # ----------------------------------------------------------------------- ESPN
 def parse_espn(payload: dict, season: int, week: int) -> list[dict]:
     stat_id = f"11{season}{week}"
@@ -337,7 +216,7 @@ async def sleeper(season: int, week: int, current: bool) -> list[dict]:
     return out
 
 
-FETCHERS = {"sleeper": sleeper, "espn": espn, "cbs": cbs, "fftoday": fftoday, "fantasypros": fantasypros}
+FETCHERS = {"sleeper": sleeper, "espn": espn, "cbs": cbs}
 
 
 async def get_source(source: str, season: int, week: int, *, current: bool) -> list[dict]:

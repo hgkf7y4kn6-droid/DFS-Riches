@@ -22,6 +22,7 @@ import os
 import re
 import subprocess
 import tempfile
+import time
 
 from pathlib import Path
 from typing import Annotated
@@ -35,7 +36,7 @@ from fastapi.templating import Jinja2Templates
 
 from app import breakdown as breakdown_module
 from app import leverage as leverage_module
-from app import ownership_persist, ownership_slate, ownership_video
+from app import metrics, ownership_persist, ownership_slate, ownership_video
 from app import trenches as trenches_module
 from app import dfs_model
 from app import accounts, contests, guard, matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
@@ -76,7 +77,7 @@ class _CachedStaticFiles(StaticFiles):
 Season = Annotated[int, Query(ge=2000, le=2100)]
 Week = Annotated[int, Query(ge=1, le=22)]
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("dfsriches.main")
 app = FastAPI(title="DFSRiches", description="DraftKings DFS explorer")
 
 
@@ -102,11 +103,11 @@ async def _warm_slates() -> None:
 
 
 async def _warm_current_slates() -> None:
+    from app import prewarm
+
     await asyncio.sleep(5)             # let the server answer its health check first
     try:
-        season, week = await current_season_week()
-        for slate_id in ("classic_sunday", "classic"):
-            await slates.get_slate_players(season, week, slate_id)
+        log.info("slate warm-up: %s", await prewarm.warm())
     except Exception as exc:           # warming is best effort; requests still build everything on demand
         log.warning("slate warm-up failed: %s", exc)
 
@@ -115,6 +116,35 @@ async def _warm_current_slates() -> None:
 # Render's address (e.g. an old bookmark) move there. The API stays reachable on both
 # (the native app calls it), and so does the health check.
 CANONICAL_HOST = os.environ.get("CANONICAL_HOST", "dfsriches.richesdigitalventures.com")
+
+
+@app.middleware("http")
+async def _timing(request: Request, call_next):
+    """API latency per route template (app.metrics); slow requests are logged as they happen."""
+    if not request.url.path.startswith("/api/"):
+        return await call_next(request)
+    started = time.perf_counter()
+    status = 500
+    try:
+        response = await call_next(request)
+        status = response.status_code
+        return response
+    finally:
+        route = getattr(request.scope.get("route"), "path", None) or "unmatched"
+        metrics.request_done(f"{request.method} {route}", time.perf_counter() - started, status)
+
+
+@app.on_event("startup")
+async def _metrics_summary() -> None:
+    """A one-line performance summary in the log every metrics.SUMMARY_INTERVAL (METRICS_LOG=0 turns it off)."""
+    if os.environ.get("METRICS_LOG", "1") == "0":
+        return
+
+    async def loop() -> None:
+        while True:
+            await asyncio.sleep(metrics.SUMMARY_INTERVAL)
+            log.info(metrics.summary_line())
+    asyncio.ensure_future(loop())
 
 
 @app.middleware("http")
@@ -142,6 +172,13 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 # The website is the mobile app's web build (mobile/, `expo export --platform web`,
 # built into web/ by the Dockerfile). The original pages live under /classic.
 WEB_DIR = BASE_DIR / "web"
+
+
+@app.get("/api/metrics")
+async def api_metrics(authorization: Annotated[str | None, Header()] = None):
+    """Cache hit rates, fetch / compute times and API latency since this process started (app.metrics)."""
+    await _require_master(authorization)
+    return metrics.snapshot()
 
 
 @app.get("/healthz")

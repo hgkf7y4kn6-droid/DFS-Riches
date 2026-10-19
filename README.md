@@ -641,12 +641,12 @@ scored with DraftKings rules, so every source is on the same scoring:
 | Sleeper | Everyone | the app's existing line source |
 | ESPN | ~400 players incl. DST | ESPN Fantasy's public player feed |
 | CBS Sports | ~400 players incl. DST | current week only |
-| FFToday | ~250 players | no DST lines, no fumbles |
-| FantasyPros | top 10 per position | the rest of the page needs a premium account, which the app doesn't bypass |
 
 Not used: NFL.com (its robots.txt disallows its fantasy API), FantasySharks
 (HTTP 403), NumberFire (shut down), Fantasy Football Analytics (it scrapes
-the sources above rather than publishing its own). A source that doesn't
+the sources above rather than publishing its own), FFToday (HTTP 403 since
+October 2026) and FantasyPros (its projections now load from a private API in
+the browser). A source that doesn't
 list a player is shown as "missing". Nothing is filled in for it.
 
 **Consensus, then final.** The Projections table shows the consensus first:
@@ -917,6 +917,18 @@ field and the page reloads on its own. The choice travels with you through
 the nav links (`?season=&week=` in the URL) and stays for the rest of the
 browser session. Any past or future week works the same way.
 
+### Warm starts and performance logging
+
+- **Prebuilt data.** The Docker build runs `python -m app.prewarm --dfs`, so the image ships with this week's
+  schedule, lines, play-by-play aggregates (the team trends on every game card), nflverse indexes, projections,
+  DraftKings slates and DFS model inputs already in the disk cache. Files keep their build-time timestamps and
+  refresh on their usual schedules (`app/config.py` `TTL_*`). On startup the server re-warms the current week's
+  Classic slates in the background (`WARM_SLATES=0` turns that off).
+- **Metrics** (`app/metrics.py`). Cache hit rates and fetch times per data family, memoized-computation hit
+  rates, and p50/p95/p99 latency per API route since the process started. Requests over 3 s are logged as they
+  happen, a one-line summary is logged every 15 minutes (`METRICS_LOG=0` turns it off), and master accounts can
+  read the full snapshot at `GET /api/metrics`.
+
 ## Deploying behind Cloudflare
 
 DFSRiches is a normal long-running ASGI app (FastAPI on Uvicorn) with a
@@ -1028,7 +1040,7 @@ app/
   postgame.py       postgame summaries: result vs lines, game flow, matchups exploited/held, predictability, DFS results
   trenches.py       OL/DL strength, success rates, coverage and scheme tendencies (pbp + FTN + participation), matchup edges
   game_detail.py    the advanced matchup view: chart data + "What it means" notes
-  sources.py        projected stat lines from Sleeper, ESPN, CBS, FFToday, FantasyPros
+  sources.py        projected stat lines from Sleeper, ESPN, CBS
   consensus.py      per-player consensus (mean/median/range/SD/count) + accuracy weighting
   dfs_model.py      the DFS Model: final projections, floor/ceiling, value, uncertainty, summary
   dfs_strategy.py   the Cash/GPP lineup-construction framework (slate, pools, chalk, leverage, stacks, lineups, audits)

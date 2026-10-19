@@ -18,6 +18,7 @@ import time
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
+from app import metrics
 from app.config import CACHE_DIR
 
 # In-memory layer, least recently used first; capped at MAX_MEMORY_ENTRIES
@@ -65,14 +66,18 @@ def _write_disk(key: str, value: Any) -> None:
 
 
 async def _fetch_and_store(key: str, fetch_fn: Callable[[], Awaitable[Any]], memory: bool = True) -> Any:
+    started = time.perf_counter()
     try:
         value = await fetch_fn()
     except Exception:
         stale = _read_disk(key, ttl_seconds=None)
         if stale is not None:
+            metrics.cache_event(key, "stale")
             _remember(key, stale, memory)
             return stale
+        metrics.cache_event(key, "error")
         raise
+    metrics.cache_event(key, "fetch", time.perf_counter() - started)
     _write_disk(key, value)
     _remember(key, value, memory)
     return value
@@ -99,10 +104,12 @@ async def cached_fetch(
     hit = _memory.get(key)
     if hit is not None and now - hit[0] < ttl_seconds:
         _memory[key] = _memory.pop(key)          # most recently used
+        metrics.cache_event(key, "memory")
         return hit[1]
 
     disk = _read_disk(key, ttl_seconds)
     if disk is not None:
+        metrics.cache_event(key, "disk")
         _remember(key, disk, memory)
         return disk
 
@@ -129,6 +136,7 @@ def memoize_async(ttl_seconds: float, max_entries: int = 32):
     def decorator(fn: Callable[..., Awaitable[Any]]) -> Callable[..., Awaitable[Any]]:
         store: dict[tuple, tuple[float, Any]] = {}
         in_flight: dict[tuple, asyncio.Task] = {}
+        name = f"{fn.__module__.removeprefix('app.')}.{fn.__qualname__}"
 
         @functools.wraps(fn)
         async def wrapper(*args, **kwargs):
@@ -137,13 +145,16 @@ def memoize_async(ttl_seconds: float, max_entries: int = 32):
 
             hit = store.get(key)
             if hit is not None and now - hit[0] < ttl_seconds:
+                metrics.memo_event(name, True)
                 return hit[1]
 
             task = in_flight.get(key)
             if task is None:
 
                 async def run() -> Any:
+                    started = time.perf_counter()
                     value = await fn(*args, **kwargs)
+                    metrics.memo_event(name, False, time.perf_counter() - started)
                     store.pop(key, None)
                     store[key] = (time.time(), value)
                     while len(store) > max_entries:
