@@ -48,7 +48,10 @@ def lines(d: Path, season: int) -> dict[tuple[int, str], tuple[float, float]]:
     return out
 
 
-def rows_for(d: Path, season: int, weeks) -> list[dict]:
+def player_weeks(d: Path, season: int, weeks):
+    """The model inputs shared by the player and ceiling trainers, one dict per Sleeper-projected QB/RB/WR/TE
+    player-week that played, had 3+ projected DK points and a closing line: {week, key, pos, proj (Sleeper),
+    f (app.player_model.features), actual, line (Sleeper's stat line), implied, spread}. Inputs use only earlier games."""
     stats = list(csv.DictReader(open(fetch(f"{REL}/stats_player/stats_player_week_{season}.csv",
                                            d / f"stats_player_week_{season}.csv"), newline="")))
     snaps = list(csv.DictReader(open(fetch(f"{REL}/snap_counts/snap_counts_{season}.csv", d / f"snap_counts_{season}.csv"), newline="")))
@@ -65,31 +68,40 @@ def rows_for(d: Path, season: int, weeks) -> list[dict]:
             pressure[week] = {t: e["d_pressure4"] - priors["league"]["d_pressure4"] for t, e in est.items()}
         return pressure[week].get(team, 0.0)
 
+    weeks = set(weeks)
     proj_by_week: dict[int, dict[str, float]] = {}
-    out = []
-    for w in weeks:
+    for w in range(1, max(weeks) + 1):
         proj_by_week[w] = {}
-        for e in sleeper_week(d, season, w):
+        entries = sleeper_week(d, season, w)
+        for e in entries:     # every projected line, team or not -- as app.player_model.context reads them live
+            pl, pos = e.get("player") or {}, (e.get("player") or {}).get("position")
+            if pos in pm.POSITIONS:
+                name = f"{pl.get('first_name', '')} {pl.get('last_name', '')}".strip()
+                proj_by_week[w][pm.key(name, pos)] = projections.dk_points_from_line(e.get("stats") or {}, pos)
+        if w not in weeks:
+            continue
+        for e in entries:
             pl, pos = e.get("player") or {}, (e.get("player") or {}).get("position")
             if pos not in pm.POSITIONS or not e.get("team"):
                 continue
-            p = projections.dk_points_from_line(e.get("stats") or {}, pos)
-            name = f"{pl.get('first_name', '')} {pl.get('last_name', '')}".strip()
-            proj_by_week[w][pm.key(name, pos)] = p
-            if p < 3:
-                continue
-            k = pm.key(name, pos)
+            k = pm.key(f"{pl.get('first_name', '')} {pl.get('last_name', '')}".strip(), pos)
+            p = proj_by_week[w][k]
             h = hist.get(k, {})
             team = TEAM_FIX.get(e["team"], e["team"])
             imp, spr = ln.get((w, team), (None, None))
-            if w not in h or imp is None:
-                continue            # didn't play (no stat row) or no line: not a projection miss we can learn from
+            if p < 3 or w not in h or imp is None:
+                continue            # no real role, didn't play (no stat row), or no line: not a miss we can learn from
             ph = {x: proj_by_week[x][k] for x in proj_by_week if x < w and k in proj_by_week[x]}
             opp = TEAM_FIX.get(e.get("opponent") or "", e.get("opponent") or "")
             f = pm.features(h, w, p, pos, imp, spr, ph, opp_pressure=opp_pressure(w, opp), ol_out=tgm.ol_out(ol, team, w),
                             front7_out=sum(n for u, n in gm.def_out_played(dsnaps, opp, w).items() if u in gm.FRONT7))
-            out.append({"season": season, "week": w, "key": k, "pos": pos, "f": f, "proj": p, "actual": h[w]["pts"]})
-    return out
+            yield {"week": w, "key": k, "pos": pos, "proj": p, "f": f, "actual": h[w]["pts"], "line": e.get("stats") or {},
+                   "implied": imp, "spread": spr}
+
+
+def rows_for(d: Path, season: int, weeks) -> list[dict]:
+    return [{"season": season, "week": r["week"], "key": r["key"], "pos": r["pos"], "f": r["f"], "proj": r["proj"],
+             "actual": r["actual"]} for r in player_weeks(d, season, weeks)]
 
 
 def fit(rows, alpha, features=pm.FEATURES):

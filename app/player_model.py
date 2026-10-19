@@ -10,6 +10,7 @@ data/player_model.json with its out-of-sample record. Every input comes from gam
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import statistics
 from pathlib import Path
@@ -114,10 +115,10 @@ async def context(season: int, week: int) -> dict:
     snaps = await player_games._snap_rows(season)
     hist = history(rows, snaps, team_of=nc.to_app_team, points=dk_scoring.dk_offense_points)
     proj_hist: dict[str, dict[int, float]] = {}
-    for w in range(max(1, week - 3), week):
-        try:
-            lines = await sleeper_client.get_projection_lines(season, w)
-        except Exception:
+    weeks = list(range(max(1, week - 3), week))
+    by_week = await asyncio.gather(*(sleeper_client.get_projection_lines(season, w) for w in weeks), return_exceptions=True)
+    for w, lines in zip(weeks, by_week):
+        if isinstance(lines, BaseException):
             continue
         for ln in lines.values():
             if ln.get("position") in POSITIONS and ln.get("name"):

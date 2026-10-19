@@ -127,15 +127,11 @@ async def attach_game_context(schedule: WeekSchedule) -> None:
     which shares the same Game objects) in place, adding real context.
     Failures degrade to no context for that game rather than breaking the
     schedule -- this is enrichment, not a hard dependency."""
-    try:
-        lines = await nflverse_client.get_games(schedule.season)
-    except Exception:
-        lines = {}
-
-    try:
-        trend_index = await nflverse_client.get_team_context_trailing_index(schedule.season)
-    except Exception:
-        trend_index = {}
+    lines, trend_index = await asyncio.gather(nflverse_client.get_games(schedule.season),
+                                              nflverse_client.get_team_context_trailing_index(schedule.season),
+                                              return_exceptions=True)
+    lines = {} if isinstance(lines, BaseException) else lines
+    trend_index = {} if isinstance(trend_index, BaseException) else trend_index
 
     async def enrich(game: Game) -> None:
         line_row = lines.get((game.week, game.away, game.home))

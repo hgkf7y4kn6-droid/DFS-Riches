@@ -7,6 +7,8 @@ DraftKings builds single-game Showdown contests around.
 """
 from __future__ import annotations
 
+import asyncio
+
 from collections import Counter
 from datetime import datetime, timezone
 
@@ -99,10 +101,14 @@ async def get_week_schedule(season: int, week: int, season_type: str = "regular"
     isolated_games = [g for g in games if g.isolated]
 
     schedule = WeekSchedule(season=season, week=week, games=games, isolated_games=isolated_games)
-    await attach_game_context(schedule)
-    try:
-        lines = await nflverse_client.get_games(season)
-    except Exception:
-        lines = {}
-    await weather.attach_weather(schedule, lines)
+
+    async def add_weather() -> None:
+        try:
+            lines = await nflverse_client.get_games(season)
+        except Exception:
+            lines = {}
+        await weather.attach_weather(schedule, lines)
+
+    # Context (lines, team trends) and weather fill different fields of each game: fetch both at once.
+    await asyncio.gather(attach_game_context(schedule), add_weather())
     return schedule

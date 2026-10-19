@@ -33,6 +33,7 @@ fall back to DraftKings' season FPPG.
 """
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass
 
 from app import dk_scoring, weather
@@ -92,8 +93,10 @@ async def defense_vs_expectation(season: int, week: int) -> dict[str, list]:
             actual[(w, nc.player_key(r["player_display_name"], r["position"]))] = (
                 dk_scoring.dk_offense_points(r), nc.to_app_team(r.get("opponent_team", "")))
         out: dict[str, list] = {}
-        for w in range(1, week):
-            for line in (await sleeper_client.get_projection_lines(season, w)).values():
+        weeks = list(range(1, week))
+        by_week = await asyncio.gather(*(sleeper_client.get_projection_lines(season, w) for w in weeks))
+        for w, lines in zip(weeks, by_week):
+            for line in lines.values():
                 pos = line.get("position")
                 if pos not in SKILL or not line.get("name"):
                     continue

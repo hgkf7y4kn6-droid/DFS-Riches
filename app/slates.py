@@ -10,6 +10,7 @@ island game: the lone game in a window outside the Sunday main slate
 """
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime
 
 from app import ceiling, ceiling_model, dk_client, dst_model, game_model, injury_news, matching, player_model, nflverse_client, player_games, projections, roles, sleeper_client, weather
@@ -117,6 +118,14 @@ async def list_slates(season: int, week: int) -> tuple[WeekSchedule, list[Slate]
     return schedule, slates
 
 
+async def _optional(coro, default):
+    """An input the slate can do without: its value, or `default` if it fails."""
+    try:
+        return await coro
+    except Exception:
+        return default
+
+
 def _recent_points(ctx, name: str, position: str, season: int, week: int) -> list[float]:
     """DK points of a player's regular-season games (last season and this one) before `week`, oldest first."""
     entries = ctx.players.get(nflverse_client.player_key(name, position), [])
@@ -133,35 +142,31 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
     if not slate.available or slate.draft_group_id is None:
         return SlatePlayers(slate=slate, players=[], unmatched_dk_names=[], match_count=0, total_count=0)
 
-    raw = await dk_client.fetch_draftables(slate.draft_group_id)
+    # The slate's inputs are independent of each other: load them concurrently (shared files are fetched once --
+    # app.cache dedupes in-flight requests). The last three are optional and fall back to no adjustment.
+    (raw, sleeper_points, index, player_trailing_index, team_dst_trailing_index, ceiling_ctx, projection_ctx,
+     role_ctx, team_ctx, dst_rates) = await asyncio.gather(
+        dk_client.fetch_draftables(slate.draft_group_id),
+        sleeper_client.get_projections(season, week),
+        _get_sleeper_index(),
+        nflverse_client.get_player_trailing_index(season),
+        nflverse_client.get_team_dst_trailing_index(season),
+        ceiling.context_for(season, week),
+        projections.build_context(season, week),
+        _optional(player_model.context(season, week), None),
+        _optional(game_model.team_context(season, week), {}),
+        _optional(dst_model.context(season, week), {}) if dst_model.load() else asyncio.sleep(0, result={}),
+    )
     # Only the slate's own games: a no-op for its own draft group, and how a Sunday
     # Main DraftKings no longer serves is rebuilt from that week's Full Week group
     # (same players, salaries and ids -- data/dk_overrides.json).
     slate_teams = {t for g in slate.games for t in (g.away, g.home)}
     rows = [r for r in dk_client.parse_draftables(raw, slate.slate_type) if r["team"] in slate_teams]
 
-    sleeper_points = await sleeper_client.get_projections(season, week)
-    index = await _get_sleeper_index()
-    player_trailing_index = await nflverse_client.get_player_trailing_index(season)
-    team_dst_trailing_index = await nflverse_client.get_team_dst_trailing_index(season)
-    ceiling_ctx = await ceiling.context_for(season, week)
-    projection_ctx = await projections.build_context(season, week)
     team_wx = weather.team_weather(_schedule)
 
     players: list[Player] = []
     unmatched: list[str] = []
-    try:
-        role_ctx = await player_model.context(season, week)
-    except Exception:
-        role_ctx = None
-    try:
-        team_ctx = await game_model.team_context(season, week)
-    except Exception:
-        team_ctx = {}
-    try:
-        dst_rates = await dst_model.context(season, week) if dst_model.load() else {}
-    except Exception:
-        dst_rates = {}
     team_lines = {}         # team -> (implied total, expected margin)
     for g in slate.games:
         c = g.context

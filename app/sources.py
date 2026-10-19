@@ -28,6 +28,7 @@ absence is reported, never filled in.
 """
 from __future__ import annotations
 
+import asyncio
 import html as htmllib
 import re
 
@@ -158,12 +159,13 @@ def parse_fantasypros(page: str, position: str) -> list[dict]:
 
 
 async def fantasypros(season: int, week: int, current: bool) -> list[dict]:
+    params = {"week": week, "scoring": "PPR", **({} if current else {"year": season})}
+    positions = ("QB", "RB", "WR", "TE", "DST")
+    pages = await asyncio.gather(*(_get(f"https://www.fantasypros.com/nfl/projections/{pos.lower()}.php", params=params)
+                                   for pos in positions))
     rows = []
-    for pos in ("QB", "RB", "WR", "TE", "DST"):
-        params = {"week": week, "scoring": "PPR"}
-        if not current:
-            params["year"] = season
-        page = (await _get(f"https://www.fantasypros.com/nfl/projections/{pos.lower()}.php", params=params)).text
+    for pos, resp in zip(positions, pages):
+        page = resp.text
         if not re.search(rf"Week {week}\b", page[:5000] + page[page.find("<title"):page.find("</title>")]):
             continue
         rows += parse_fantasypros(page, pos)
@@ -224,12 +226,14 @@ def parse_cbs(page: str, position: str) -> list[dict]:
 async def cbs(season: int, week: int, current: bool) -> list[dict]:
     if not current:
         return []   # CBS only serves the current week's projections
+    positions = ("QB", "RB", "WR", "TE", "DST")
+    pages = await asyncio.gather(*(_get(f"https://www.cbssports.com/fantasy/football/stats/{pos}/{season}/{week}/projections/ppr/")
+                                   for pos in positions))
     rows = []
-    for pos in ("QB", "RB", "WR", "TE", "DST"):
-        page = (await _get(f"https://www.cbssports.com/fantasy/football/stats/{pos}/{season}/{week}/projections/ppr/")).text
-        if cbs_week(page) != week:
+    for pos, resp in zip(positions, pages):
+        if cbs_week(resp.text) != week:
             return []
-        rows += parse_cbs(page, pos)
+        rows += parse_cbs(resp.text, pos)
     return rows
 
 
@@ -272,17 +276,22 @@ def parse_fftoday(page: str, position: str, season: int, week: int) -> list[dict
 
 
 async def fftoday(season: int, week: int, current: bool) -> list[dict]:
+    by_pos = await asyncio.gather(*(_fftoday_position(season, week, pos, pos_id) for pos, pos_id in FFT_POS.items()))
+    return [r for rows in by_pos for r in rows]
+
+
+async def _fftoday_position(season: int, week: int, pos: str, pos_id: int) -> list[dict]:
+    """One position's pages, in order (each page says whether there's another)."""
     rows = []
-    for pos, pos_id in FFT_POS.items():
-        for page_no in range(4):
-            params = {"Season": season, "GameWeek": week, "PosID": pos_id, "LeagueID": 1}
-            if page_no:
-                params["cur_page"] = page_no
-            page = (await _get("https://www.fftoday.com/rankings/playerwkproj.php", params=params)).content.decode("latin-1")
-            got = parse_fftoday(page, pos, season, week)
-            rows += got
-            if not got or f"cur_page={page_no + 1}" not in page:
-                break
+    for page_no in range(4):
+        params = {"Season": season, "GameWeek": week, "PosID": pos_id, "LeagueID": 1}
+        if page_no:
+            params["cur_page"] = page_no
+        page = (await _get("https://www.fftoday.com/rankings/playerwkproj.php", params=params)).content.decode("latin-1")
+        got = parse_fftoday(page, pos, season, week)
+        rows += got
+        if not got or f"cur_page={page_no + 1}" not in page:
+            break
     return rows
 
 

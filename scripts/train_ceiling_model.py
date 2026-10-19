@@ -19,8 +19,8 @@ import numpy as np
 from scipy import sparse
 from scipy.optimize import linprog
 
-from app import ceiling_model as cm, dk_scoring, game_model as gm, player_model as pm, projections
-from scripts import train_game_model as tgm, train_player_model as tpm
+from app import ceiling_model as cm, dk_scoring, player_model as pm
+from scripts import train_player_model as tpm
 from scripts.train_game_model import REL, fetch
 
 TAU = 0.85
@@ -36,51 +36,18 @@ def _stats(d: Path, year: int) -> list[dict]:
 
 
 def rows_for(d: Path, year: int, weeks) -> list[dict]:
-    cur, prev = _stats(d, year), _stats(d, year - 1)
-    snaps = list(csv.DictReader(open(fetch(f"{REL}/snap_counts/snap_counts_{year}.csv", d / f"snap_counts_{year}.csv"), newline="")))
-    hist = pm.history(cur, snaps, points=dk_scoring.dk_offense_points)
+    """The player trainer's player-weeks (scripts.train_player_model.player_weeks) with the projection the app
+    shows (plus the role & script adjustment) and each player's last 12 games before the week."""
     games: dict[str, list] = {}
-    for s in prev + cur:
+    for s in _stats(d, year - 1) + _stats(d, year):
         games.setdefault(pm.key(s["player_display_name"], s["position"]), []).append(
             (int(s["season"]), int(s["week"]), dk_scoring.dk_offense_points(s)))
-    ln = tpm.lines(d, year)
-    agg, agg_prev = tgm.season_agg(d, year), tgm.season_agg(d, year - 1)
-    pri = gm.priors_from_season(gm.season_totals(agg_prev))
-    ol, dsnaps = tgm.snap_ol(d, year), tgm.snap_def(d, year)
-    proj_by_week: dict[int, dict[str, float]] = {}
     out = []
-    for w in range(1, max(weeks) + 1):
-        entries = tpm.sleeper_week(d, year, w)
-        proj_by_week[w] = {}
-        for e in entries:
-            pl = e.get("player") or {}
-            if pl.get("position") in pm.POSITIONS:
-                proj_by_week[w][pm.key(f"{pl.get('first_name', '')} {pl.get('last_name', '')}".strip(), pl["position"])] = \
-                    projections.dk_points_from_line(e.get("stats") or {}, pl["position"])
-        if w not in weeks or w < 2:
-            continue
-        est = gm.team_estimates(gm.season_totals(agg, before_week=w), pri)
-        press = {t: x["d_pressure4"] - pri["league"]["d_pressure4"] for t, x in est.items()}
-        for e in entries:
-            pl, pos = e.get("player") or {}, (e.get("player") or {}).get("position")
-            if pos not in pm.POSITIONS or not e.get("team"):
-                continue
-            k = pm.key(f"{pl.get('first_name', '')} {pl.get('last_name', '')}".strip(), pos)
-            p = proj_by_week[w].get(k, 0.0)
-            h = hist.get(k, {})
-            team = tpm.TEAM_FIX.get(e["team"], e["team"])
-            opp = tpm.TEAM_FIX.get(e.get("opponent") or "", e.get("opponent") or "")
-            imp, spr = ln.get((w, team), (None, None))
-            if p < 3 or w not in h or imp is None:
-                continue
-            ph = {x: proj_by_week[x][k] for x in proj_by_week if x < w and k in proj_by_week[x]}
-            f = pm.features(h, w, p, pos, imp, spr, ph, opp_pressure=press.get(opp, 0.0), ol_out=tgm.ol_out(ol, team, w),
-                            front7_out=sum(n for u, n in gm.def_out_played(dsnaps, opp, w).items() if u in gm.FRONT7))
-            proj = p + (pm.adjustment(pos, f) or 0.0)
-            past = [g[2] for g in sorted(games.get(k, [])) if (g[0], g[1]) < (year, w)]
-            out.append({"season": year, "week": w, "key": k, "pos": pos, "actual": h[w]["pts"], "proj": proj, "history": past[-12:],
-                        "line": e.get("stats") or {}, "implied": imp, "spread": spr,
-                        "ts_l3": f["ts_l3"], "snap_l3": f["snap_l3"]})
+    for r in tpm.player_weeks(d, year, [w for w in weeks if w >= 2]):
+        past = [g[2] for g in sorted(games.get(r["key"], [])) if (g[0], g[1]) < (year, r["week"])]
+        out.append({"season": year, "week": r["week"], "key": r["key"], "pos": r["pos"], "actual": r["actual"],
+                    "proj": r["proj"] + (pm.adjustment(r["pos"], r["f"]) or 0.0), "history": past[-12:], "line": r["line"],
+                    "implied": r["implied"], "spread": r["spread"], "ts_l3": r["f"]["ts_l3"], "snap_l3": r["f"]["snap_l3"]})
     return out
 
 

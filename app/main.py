@@ -17,6 +17,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import logging
 import os
 import re
 import subprocess
@@ -75,6 +76,7 @@ class _CachedStaticFiles(StaticFiles):
 Season = Annotated[int, Query(ge=2000, le=2100)]
 Week = Annotated[int, Query(ge=1, le=22)]
 
+log = logging.getLogger(__name__)
 app = FastAPI(title="DFSRiches", description="DraftKings DFS explorer")
 
 
@@ -89,6 +91,24 @@ async def _warm_contests() -> None:
     """Payout tables for every listed GPP, so the first Best contests ranking doesn't wait on them."""
     if os.environ.get("WARM_CONTESTS", "1") != "0":
         asyncio.ensure_future(contests.warm_payouts())
+
+
+@app.on_event("startup")
+async def _warm_slates() -> None:
+    """The current week's Classic slates (schedule, lines, projections, every index and model input behind the
+    player table), so the first visit after a deploy -- when the disk cache starts empty -- doesn't wait on them."""
+    if os.environ.get("WARM_SLATES", "1") != "0":
+        asyncio.ensure_future(_warm_current_slates())
+
+
+async def _warm_current_slates() -> None:
+    await asyncio.sleep(5)             # let the server answer its health check first
+    try:
+        season, week = await current_season_week()
+        for slate_id in ("classic_sunday", "classic"):
+            await slates.get_slate_players(season, week, slate_id)
+    except Exception as exc:           # warming is best effort; requests still build everything on demand
+        log.warning("slate warm-up failed: %s", exc)
 
 
 # Sign-in (Clerk production) only works on the site's own domain, so pages opened on
