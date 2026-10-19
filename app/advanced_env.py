@@ -23,7 +23,6 @@ Every team stat uses only the weeks before the game, so the backtest (backtest()
 from __future__ import annotations
 
 import statistics
-from typing import Any
 
 from app import game_model
 from app import nflverse_client as nc
@@ -138,7 +137,7 @@ def team_features(env: dict, week: int) -> tuple[dict[str, dict], dict[str, floa
     if not feats:
         return {}, {}
     league = {k: statistics.fmean(v[k] for v in feats.values()) for k in next(iter(feats.values())) if k != "charted"}
-    rank = lambda key, reverse: {t: i + 1 for i, t in enumerate(sorted(feats, key=lambda t: feats[t][key], reverse=reverse))}
+    rank = lambda key, reverse: {t: i + 1 for i, t in enumerate(sorted(feats, key=lambda t: feats[t][key], reverse=reverse))}  # noqa: E731
     for t, r in rank("neutral_pass_rate", True).items():
         feats[t]["pass_rate_rank"] = r
     for t, r in rank("rush_epa_allowed", False).items():
@@ -277,7 +276,10 @@ async def backtest(season: int, week: int) -> dict:
                 right += (ix["adj"] > med) == (r > 0)
             base = (0.40 * _z(cols["total"], cols["total"][i]) + 0.20 * _z(cols["close"], cols["close"][i])
                     + 0.10 * _z(cols["pace"], cols["pace"][i]) + 0.10 * _z(cols["pass"], cols["pass"][i]))
-            sig.append(ix["adj"]); cur.append(base); comb.append(base + 0.20 * _z(cols["adj"], cols["adj"][i])); resid.append(r)
+            sig.append(ix["adj"])
+            cur.append(base)
+            comb.append(base + 0.20 * _z(cols["adj"], cols["adj"][i]))
+            resid.append(r)
     s_ix, s_cur, s_comb = _spearman(sig, resid), _spearman(cur, resid), _spearman(comb, resid)
     helps = s_comb is not None and s_cur is not None and s_comb > s_cur
     return {

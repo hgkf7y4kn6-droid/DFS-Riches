@@ -5,7 +5,7 @@ projection may lag: target share and carry share over the last three games and t
 season so far, snap share and its trend, recent production against the projection, the team's implied total
 and spread (game script), for running backs the opponent's front-seven starters out (they beat their
 projections against a depleted front), and the projection itself (to correct over- or under-dispersed projections). One
-ridge regression per position, fit on 2025 by scripts/train_player_model.py and stored in
+ridge regression per position, fit on 2023-2025 by scripts/train_player_model.py and stored in
 data/player_model.json with its out-of-sample record. Every input comes from games before the one projected.
 """
 from __future__ import annotations

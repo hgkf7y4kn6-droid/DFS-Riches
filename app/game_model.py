@@ -72,9 +72,6 @@ class GameAccumulator:
     codes; ftn maps 'game_id|play_id' to pass rushers; part maps 'game_id|play_id' to (rushers, time to throw,
     pressure) from participation data."""
 
-    OFF = ("plays", "succ", "db", "db_epa", "rush", "rush_epa", "expl", "drives", "drive_secs", "drive_plays",
-           "neutral", "neutral_db", "proe", "proe_n", "db4", "hit4", "qp_db", "qp")
-
     def __init__(self, team_of=None, ftn: dict | None = None, part: dict | None = None):
         self.team_of = team_of or (lambda t: t)
         self.ftn, self.part = ftn or {}, part or {}
@@ -597,12 +594,16 @@ async def season_record(season: int, week: int) -> dict:
             if not f:
                 continue
             yt, ym = f["total"] - g["total_line"], f["home_margin"] - g["home_margin_line"]
-            e_line_t.append(abs(yt)); e_mod_t.append(abs(yt - g["total_adj"]))
-            e_line_m.append(abs(ym)); e_mod_m.append(abs(ym - g["margin_adj"]))
+            e_line_t.append(abs(yt))
+            e_mod_t.append(abs(yt - g["total_adj"]))
+            e_line_m.append(abs(ym))
+            e_mod_m.append(abs(ym - g["margin_adj"]))
             if yt and g["total_adj"]:
-                tot += 1; rt += (g["total_adj"] > 0) == (yt > 0)
+                tot += 1
+                rt += (g["total_adj"] > 0) == (yt > 0)
             if ym and g["margin_adj"]:
-                mar += 1; rm += (g["margin_adj"] > 0) == (ym > 0)
+                mar += 1
+                rm += (g["margin_adj"] > 0) == (ym > 0)
     mean = lambda xs: round(statistics.fmean(xs), 2) if xs else None  # noqa: E731
     return {"games": len(e_line_t),
             "totals": {"right": rt, "n": tot, "pct": round(rt / tot, 3) if tot else None,

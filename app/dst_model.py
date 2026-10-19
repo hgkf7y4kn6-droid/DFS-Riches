@@ -14,8 +14,9 @@ data/dst_model.json with its out-of-sample record. Inputs, all known before the 
                  count shrunk toward last season's rate (regressed halfway to the league)
 
 DSTs are the noisiest position: no model gets far below a 3.8-point average miss. What the model improves is the
-ranking that picks a DST: on 2026 Weeks 1-6 its top three per week averaged 8.7 DK points vs 7.6 for Sleeper's
-line (2023-2025 seasons held out one at a time: 9.4 vs 9.0).
+ranking that picks a DST: on 2026 Weeks 1-6 its top three per week averaged 8.5 DK points vs 7.6 for Sleeper's
+line, and its within-week rank correlation was 0.25 vs 0.22 (2023-2025 seasons held out one at a time: 0.33 vs
+0.30, top three tied at 8.8).
 """
 from __future__ import annotations
 

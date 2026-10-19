@@ -82,22 +82,7 @@ def snap_ol(d: Path, year: int) -> dict[tuple[int, str], dict[str, float]]:
     return out
 
 
-def ol_starters(snaps: dict, team: str, week: int) -> list[str]:
-    """The five linemen with the most snaps over the team's last three games before `week`."""
-    tot: dict[str, float] = {}
-    weeks = sorted({w for (w, t) in snaps if t == team and w < week})[-3:]
-    for w in weeks:
-        for p, s in snaps[(w, team)].items():
-            tot[p] = tot.get(p, 0.0) + s
-    return sorted(tot, key=lambda p: -tot[p])[:5]
-
-
-def ol_out(snaps: dict, team: str, week: int) -> int:
-    starters = ol_starters(snaps, team, week)
-    played = snaps.get((week, team))
-    if not starters or played is None:
-        return 0
-    return sum(1 for p in starters if (played.get(p) or 0) <= 0)
+ol_out = gm.ol_out_played   # starting linemen (top 5 by snaps, last 3 games) who played no snaps
 
 
 def snap_def(d: Path, year: int) -> dict[str, dict[tuple[int, str], dict[str, float]]]:

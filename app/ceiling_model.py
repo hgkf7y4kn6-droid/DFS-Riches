@@ -15,7 +15,7 @@ record. Inputs, all known before the game:
   ts_l3, snap_l3  target share and snap share over the last three games
 
 On 2026 Weeks 4-6 it beat the formula ceiling it replaced (history x matchup x environment multipliers) on
-pinball loss (1.81 vs 1.91) and caught more of each week's top-10% scorers in its top 20% (60% vs 53%).
+pinball loss (1.81 vs 1.91) and caught more of each week's top-10% scorers in its top 20% (59% vs 53%).
 DSTs keep app.ceiling's formula.
 """
 from __future__ import annotations

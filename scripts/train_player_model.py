@@ -17,7 +17,6 @@ import urllib.request
 from pathlib import Path
 
 from app import dk_scoring, game_model as gm, player_model as pm, projections
-from app.matching import normalize_name
 from scripts import train_game_model as tgm
 from scripts.train_game_model import GAMES_URL, REL, fetch
 
