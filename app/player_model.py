@@ -19,7 +19,7 @@ from app.matching import normalize_name
 
 MODEL_FILE = Path(__file__).resolve().parent.parent / "data" / "player_model.json"
 FEATURES = ("proj", "ts_l3", "ts_trend", "cs_l3", "cs_trend", "snap_l3", "snap_trend", "form", "implied", "spread",
-            "spread_x_rb", "games")
+            "spread_x_rb", "games", "opp_pressure", "ol_out")
 POSITIONS = ("QB", "RB", "WR", "TE")
 MAX_ADJ = 0.35          # never move a projection by more than this share (or 3 points, whichever is larger)
 
@@ -56,8 +56,10 @@ def history(player_rows: list[dict], snap_rows: list[dict], team_of=lambda t: t,
 
 
 def features(h: dict[int, dict] | None, week: int, proj: float, position: str, implied: float | None,
-             spread: float | None, proj_hist: dict[int, float] | None = None) -> dict:
-    """spread: the team's expected margin (positive = favored)."""
+             spread: float | None, proj_hist: dict[int, float] | None = None, opp_pressure: float = 0.0,
+             ol_out: float = 0.0) -> dict:
+    """spread: the team's expected margin (positive = favored); opp_pressure: the opponent's four-man sack + QB-hit
+    rate above the league (app.game_model, shrunk toward last season); ol_out: own offensive-line starters out."""
     games = sorted(w for w in (h or {}) if w < week)
     g = [h[w] for w in games]
     l3 = g[-3:]
@@ -73,6 +75,7 @@ def features(h: dict[int, dict] | None, week: int, proj: float, position: str, i
         "snap_l3": mean(snaps[-3:]), "snap_trend": mean(snaps[-3:]) - mean(snaps),
         "form": form, "implied": implied or 22.0, "spread": spread or 0.0,
         "spread_x_rb": (spread or 0.0) if position == "RB" else 0.0, "games": float(len(g)),
+        "opp_pressure": opp_pressure or 0.0, "ol_out": float(ol_out or 0),
     }
 
 

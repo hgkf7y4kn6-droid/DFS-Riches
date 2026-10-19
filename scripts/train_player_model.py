@@ -1,8 +1,8 @@
-"""Fit the player projection correction (app.player_model) on 2025 and test it on 2026.
+"""Fit the player projection correction (app.player_model) on 2023-2025 and test it on 2026.
 
     python -m scripts.train_player_model [--data DIR]
 
-Sleeper's weekly projections (2025 and this season) are scored with DraftKings rules and compared to actual DK
+Sleeper's weekly projections (2023-2025 and this season) are scored with DraftKings rules and compared to actual DK
 points from nflverse weekly stats; features use only earlier games. Writes data/player_model.json.
 """
 from __future__ import annotations
@@ -18,6 +18,7 @@ from pathlib import Path
 
 from app import dk_scoring, game_model as gm, player_model as pm, projections
 from app.matching import normalize_name
+from scripts import train_game_model as tgm
 from scripts.train_game_model import GAMES_URL, REL, fetch
 
 SLEEPER = "https://api.sleeper.com/projections/nfl/{season}/{week}?season_type=regular" + "".join(
@@ -54,6 +55,17 @@ def rows_for(d: Path, season: int, weeks) -> list[dict]:
     snaps = list(csv.DictReader(open(fetch(f"{REL}/snap_counts/snap_counts_{season}.csv", d / f"snap_counts_{season}.csv"), newline="")))
     hist = pm.history(stats, snaps, points=dk_scoring.dk_offense_points)
     ln = lines(d, season)
+    agg, prev = tgm.season_agg(d, season), tgm.season_agg(d, season - 1)
+    priors = gm.priors_from_season(gm.season_totals(prev))
+    ol = tgm.snap_ol(d, season)
+    pressure: dict[int, dict[str, float]] = {}
+
+    def opp_pressure(week: int, team: str) -> float:
+        if week not in pressure:
+            est = gm.team_estimates(gm.season_totals(agg, before_week=week), priors)
+            pressure[week] = {t: e["d_pressure4"] - priors["league"]["d_pressure4"] for t, e in est.items()}
+        return pressure[week].get(team, 0.0)
+
     proj_by_week: dict[int, dict[str, float]] = {}
     out = []
     for w in weeks:
@@ -74,27 +86,39 @@ def rows_for(d: Path, season: int, weeks) -> list[dict]:
             if w not in h or imp is None:
                 continue            # didn't play (no stat row) or no line: not a projection miss we can learn from
             ph = {x: proj_by_week[x][k] for x in proj_by_week if x < w and k in proj_by_week[x]}
-            f = pm.features(h, w, p, pos, imp, spr, ph)
+            opp = TEAM_FIX.get(e.get("opponent") or "", e.get("opponent") or "")
+            f = pm.features(h, w, p, pos, imp, spr, ph, opp_pressure=opp_pressure(w, opp), ol_out=tgm.ol_out(ol, team, w))
             out.append({"season": season, "week": w, "key": k, "pos": pos, "f": f, "proj": p, "actual": h[w]["pts"]})
     return out
 
 
-def fit(rows, alpha):
-    X = [[r["f"][k] for k in pm.FEATURES] for r in rows]
+def fit(rows, alpha, features=pm.FEATURES):
+    X = [[r["f"][k] for k in features] for r in rows]
     w, m, s, b = gm.fit_ridge(X, [r["actual"] - r["proj"] for r in rows], alpha)
-    return {"features": list(pm.FEATURES), "weights": w, "means": m, "sds": s, "intercept": b, "alpha": alpha}
+    return {"features": list(features), "weights": w, "means": m, "sds": s, "intercept": b, "alpha": alpha}
+
+
+def _ranks(v):
+    """Average ranks (ties share their mean rank)."""
+    order = sorted(range(len(v)), key=lambda i: v[i])
+    r = [0.0] * len(v)
+    i = 0
+    while i < len(order):
+        j = i
+        while j + 1 < len(order) and v[order[j + 1]] == v[order[i]]:
+            j += 1
+        for k in range(i, j + 1):
+            r[order[k]] = (i + j) / 2
+        i = j + 1
+    return r
 
 
 def spearman(x, y):
-    def rank(v):
-        o = sorted(range(len(v)), key=lambda i: v[i]); r = [0.0] * len(v)
-        for k, i in enumerate(o):
-            r[i] = k
-        return r
-    rx, ry = rank(x), rank(y)
+    rx, ry = _ranks(x), _ranks(y)
     mx, my = statistics.fmean(rx), statistics.fmean(ry)
     num = sum((a - mx) * (b - my) for a, b in zip(rx, ry))
-    return num / math.sqrt(sum((a - mx) ** 2 for a in rx) * sum((b - my) ** 2 for b in ry))
+    den = math.sqrt(sum((a - mx) ** 2 for a in rx) * sum((b - my) ** 2 for b in ry))
+    return num / den if den else 0.0
 
 
 def evaluate(rows, models) -> dict:
@@ -120,6 +144,32 @@ def evaluate(rows, models) -> dict:
             "bottom_third_boom": round(boom(bot), 3), "bottom_third_bust": round(bust(bot), 3)}
 
 
+def center(model, rows):
+    """Shift the intercept so the training adjustments average zero: the model re-ranks players against Sleeper's
+    projection rather than moving every projection toward the (right-skewed) mean, which raises absolute error."""
+    adj = [gm.apply(model, r["f"]) for r in rows]
+    return {**model, "intercept": model["intercept"] - statistics.fmean(adj)}
+
+
+def fit_all(rows, features=pm.FEATURES, seasons=None):
+    """One model per position, the penalty chosen by leaving one training season out (mean absolute error)."""
+    models = {}
+    for pos in pm.POSITIONS:
+        tr = [r for r in rows if r["pos"] == pos]
+        def cv(a):
+            errs = []
+            for s in seasons:
+                rest = [r for r in tr if r["season"] != s]
+                m = center(fit(rest, a, features), rest)
+                errs += [abs(r["actual"] - r["proj"] - (pm.adjustment(pos, r["f"], {"positions": {pos: m}}) or 0))
+                         for r in tr if r["season"] == s]
+            return statistics.fmean(errs)
+        best = min(ALPHAS, key=cv)
+        models[pos] = center(fit(tr, best, features), tr)
+        print(pos, "alpha", best, [(f, round(w, 2)) for f, w in zip(features, models[pos]["weights"])])
+    return models
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default="data/cache/train")
@@ -128,24 +178,23 @@ def main():
     args = ap.parse_args()
     d = Path(args.data)
     d.mkdir(parents=True, exist_ok=True)
-    train = [r for r in rows_for(d, args.test_season - 1, range(1, 19)) if r["week"] >= 2]
+    seasons = [args.test_season - 3, args.test_season - 2, args.test_season - 1]
+    train = [r for s in seasons for r in rows_for(d, s, range(1, 19)) if r["week"] >= 2]
     test = [r for r in rows_for(d, args.test_season, range(1, args.test_weeks + 1)) if r["week"] >= 2]
-    print(f"train player-weeks {len(train)}, test {len(test)}")
-    models = {}
-    for pos in pm.POSITIONS:
-        tr = [r for r in train if r["pos"] == pos]
-        # choose the penalty on the second half of 2025 (fit on the first half)
-        first, second = [r for r in tr if r["week"] <= 9], [r for r in tr if r["week"] > 9]
-        best = min(ALPHAS, key=lambda a: statistics.fmean(
-            abs(r["actual"] - r["proj"] - (pm.adjustment(pos, r["f"], {"positions": {pos: fit(first, a)}}) or 0)) for r in second))
-        models[pos] = fit(tr, best)
-        print(pos, "alpha", best, [(f, round(w, 2)) for f, w in zip(pm.FEATURES, models[pos]["weights"])])
-    rec_train = evaluate(train, models)
-    rec_test = evaluate(test, models)
-    print("2025 (in sample):", rec_train)
-    print(f"{args.test_season} weeks 2-{args.test_weeks} (out of sample):", rec_test)
-    pm.MODEL_FILE.write_text(json.dumps({"trained_on": [args.test_season - 1], "positions": models,
-                                         "records": {"train": rec_train, "test": rec_test}}, indent=1))
+    print(f"train player-weeks {len(train)} ({seasons}), test {len(test)}")
+    base_feats = tuple(f for f in pm.FEATURES if f not in ("opp_pressure", "ol_out"))
+    print("-- role & script only")
+    base = fit_all(train, base_feats, seasons)
+    print("-- plus opponent pressure and offensive-line starters out")
+    models = fit_all(train, pm.FEATURES, seasons)
+    rec = {"train": evaluate(train, models), "test": evaluate(test, models),
+           "test_role_script_only": evaluate(test, base)}
+    previous = json.loads(pm.MODEL_FILE.read_text()).get("records") if pm.MODEL_FILE.exists() else None
+    if previous:
+        rec["test_previous_model"] = previous.get("test")
+    for k, v in rec.items():
+        print(k, v)
+    pm.MODEL_FILE.write_text(json.dumps({"trained_on": seasons, "positions": models, "records": rec}, indent=1))
 
 
 if __name__ == "__main__":

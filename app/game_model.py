@@ -508,11 +508,35 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
             "qbs": {nc.to_app_team(t): {"name": r.get(f"{side}_qb_name"), "dropback_epa": round(qb[t][0], 3),
                                         "dropbacks": int(qb[t][1])} for t, side in ((a, "away"), (h, "home"))},
             "ol_out": {nc.to_app_team(t): n for t, n in ol.items()},
+            # each offense's opponent: four-man sack + QB-hit rate above the league (shrunk toward last season)
+            "opp_pressure": {nc.to_app_team(a): round(est[h]["d_pressure4"] - lg["d_pressure4"], 4),
+                             nc.to_app_team(h): round(est[a]["d_pressure4"] - lg["d_pressure4"], 4)},
             "checklist": checklist(est[a], est[h], lg, feats[0], m),
             "final": None if r.get("home_score") in (None, "") else
             {"total": int(r["home_score"]) + int(r["away_score"]), "home_margin": int(r["home_score"]) - int(r["away_score"])},
         }
     return out
+
+
+async def team_context(season: int, week: int) -> dict[str, dict]:
+    """{app team: {"opp_pressure", "ol_out"}} for this week's offenses (app.player_model inputs)."""
+    out = {}
+    for g in (await _week_games_cached(season, week)).values():
+        for t, n in g["ol_out"].items():
+            out[t] = {"ol_out": n, "opp_pressure": g["opp_pressure"].get(t, 0.0)}
+    return out
+
+
+async def _week_games_impl(season: int, week: int) -> dict:
+    return await week_games(season, week)
+
+
+def _cached():
+    from app.cache import memoize_async
+    return memoize_async(600)(_week_games_impl)
+
+
+_week_games_cached = _cached()
 
 
 async def season_record(season: int, week: int) -> dict:

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from app import ceiling, dk_client, injury_news, matching, player_model, nflverse_client, player_games, projections, roles, sleeper_client, weather
+from app import ceiling, dk_client, game_model, injury_news, matching, player_model, nflverse_client, player_games, projections, roles, sleeper_client, weather
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
 from app.models import Player, Slate, SlatePlayers, WeekSchedule
@@ -148,6 +148,10 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         role_ctx = await player_model.context(season, week)
     except Exception:
         role_ctx = None
+    try:
+        team_ctx = await game_model.team_context(season, week)
+    except Exception:
+        team_ctx = {}
     team_lines = {}         # team -> (implied total, expected margin)
     for g in slate.games:
         c = g.context
@@ -175,8 +179,10 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         if role_ctx and row["position"] in player_model.POSITIONS and line_pts >= 3:
             k = player_model.key(row["name"], row["position"])
             imp, spr = team_lines.get(row["team"], (None, None))
+            tc = team_ctx.get(row["team"]) or {}
             role_adj = player_model.adjustment(row["position"], player_model.features(
-                role_ctx["hist"].get(k), week, line_pts, row["position"], imp, spr, role_ctx["proj_hist"].get(k)))
+                role_ctx["hist"].get(k), week, line_pts, row["position"], imp, spr, role_ctx["proj_hist"].get(k),
+                opp_pressure=tc.get("opp_pressure", 0.0), ol_out=tc.get("ol_out", 0)))
             if role_adj:
                 base_proj = round(max(0.0, base_proj + role_adj), 2)
                 proj_notes = proj_notes + [f"Role & script model: {role_adj:+.1f} (target, carry and snap share trends; "
