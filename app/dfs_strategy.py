@@ -19,8 +19,10 @@ Steps (numbered as in the framework):
   8  Leverage          player-vs-player, same-team, salary, game, ownership
   9-10 Stacks          basic / double / full-game stacks; the bring-back
                        compares the opposing WR1 with WR2
-  11-17 Lineups        Cash (floor, volume, stability) and GPP (ceiling,
-                       correlation, leverage) built as integer programs,
+  11-17 Lineups        Cash (floor, volume, stability) and GPP (projection
+                       discounted by ownership, QB stacks; tuned on how
+                       often lineups reached the field's top 1% on past
+                       DraftKings slates) built as integer programs,
                        each audited against the framework's checklists,
                        scored, and explained
   18 Output            fades by type, and what data is missing
@@ -44,6 +46,19 @@ GPP_EXPOSURE_CAP = 6
 TOURNAMENT_EXPOSURE_CAP = 8
 Q_DISCOUNT = 0.90
 WR_FLEX_BONUS = 0.5   # GPP: lean toward WRs for FLEX (ceiling + stacking flexibility)
+# GPP lineups maximize projection x (1 - GPP_OWN_DISCOUNT x projected ownership). Tournament backtest: 56 DraftKings
+# Sunday main slates (2023 Week 2 - 2026 Week 6, real salaries and actual points), each against 10,000 simulated
+# large-field entries; 20 lineups per slate under the app's stacking rules. Share of lineups at or above the
+# field's top-1% score -- 2023-2025 / 2026:
+#   maximize ceiling (formula ceiling, the old objective)         2.3% / 3.0%
+#   maximize projection                                           3.8% / 1.0%
+#   projection x (1 - 0.4 x ownership)                            5.0% / 3.0%
+#   projection x (1 - 0.8 x ownership)                            6.0% / 6.0%
+#   projection + half the ceiling model's upside, x (1 - 0.8 own) 4.1% / 7.0%
+# Stacking rules held: QB double stack + bring-back 3.8% / 6.0%, QB + 2 3.9% / 4.0%, QB + 1 3.6% / 4.0%,
+# no stack 2.8% / 2.0%. Locking in the best points-per-$1K player first never helped (0 top-0.1% lineups).
+GPP_OWN_DISCOUNT = 0.8
+POP_OWN = {"High": 0.25, "Medium": 0.12, "Low": 0.04}   # ownership fraction assumed from popularity when not projected
 POS = ("QB", "RB", "WR", "TE", "DST")
 SLOTS = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
 CHEAP = {"QB": 5200, "RB": 5000, "WR": 4200, "TE": 4000, "DST": 2800}
@@ -95,6 +110,13 @@ def _z(values: list[float], v: float) -> float:
         return 0.0
     sd = statistics.pstdev(values)
     return (v - statistics.fmean(values)) / sd if sd else 0.0
+
+
+def _own_frac(r: dict) -> float:
+    """Projected large-field ownership as a fraction (estimated from popularity when there's no projection)."""
+    if r.get("ownership") is not None:
+        return r["ownership"] / 100
+    return POP_OWN.get(r.get("popularity"), 0.08)
 
 
 def has_role(r: dict) -> bool:
@@ -1045,13 +1067,11 @@ def build_lineups(pool: list[dict], games: list[dict], games_by_team: dict, stac
     # --- GPP (Steps 14 and 16)
     gpp_pool = [r for r in pool if r["ceiling_path"] and has_role(r)]
     lev_ids = {r["id"] for r in gpp_pool if _meaningful_leverage(r)}
-    fragile = {r["id"] for r in pool if r.get("chalk_class") in ("Fragile chalk", "Overpriced chalk", "Cash chalk, GPP fade")}
-    env_z = {g["game"]: g["env_score"] for g in games}
 
     def gpp_value(r, extra=0.0):
-        v = r["ceiling"] * _q(r) * (1 + 0.04 * env_z.get(r["game"], 0))
-        v += 1.5 if r["id"] in lev_ids else 0
-        v -= 2.0 if r["id"] in fragile else 0
+        # Projection discounted by projected field ownership: the objective that reached the field's top 1% most
+        # often on 2023-2026 DraftKings main slates (see GPP_OWN_DISCOUNT); maximizing ceiling did worst.
+        v = r["final"] * _q(r) * (1 - min(0.6, GPP_OWN_DISCOUNT * _own_frac(r)))
         v += WR_FLEX_BONUS if r["position"] == "WR" else 0
         return v + extra
 

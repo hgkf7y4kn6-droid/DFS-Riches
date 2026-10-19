@@ -16,12 +16,21 @@ Strength of play is scored within each position from z-scored components:
   GPP   (same counts)
     P(ceiling outcome)         P(points >= the position's tournament-
                                winning score: QB 28, RB/WR 24, TE 18,
-                               DST 14)                                  x 0.40
+                               DST 14)                                  x 0.10
     ownership leverage         fair minus projected large-field
                                ownership (app.leverage: efficiency-
                                adjusted ceiling odds)                 x 0.25
-    salary                     ceiling per $1k                         x 0.15
-    game environment                                                   x 0.20
+    salary                     ceiling per $1k                         x 0.55
+    game environment                                                   x 0.10
+
+  GPP weights come from 56 DraftKings Sunday main slates (2023 Week 2 -
+  2026 Week 6): a play "hits" at 4x+ its salary per $1k (a top-1% lineup's
+  pace). Ceiling per $1k is what picks hits; ceiling odds and environment
+  add a little and leverage nothing -- but lineups discounted by ownership
+  reach the field's top 1% far more often (app.dfs_strategy), so leverage
+  keeps its 0.25. Top plays that hit: 17.8% on 2023-2025 (16.0% with the
+  old 0.40/0.25/0.15/0.20) and 23.0% on 2026 (19.4%); hits at under 10%
+  field ownership 11.1% (10.2%) and 10.9% (10.3%).
 
 Tags (per player, per contest), among the position's relevant players
 (projected 5+ points, DST 3+):
@@ -52,6 +61,7 @@ from app import leverage as lv
 from app import ownership_store
 
 TOP_N = {"QB": 5, "RB": 10, "WR": 10, "TE": 5}
+GPP_WEIGHTS = {"p_hit": 0.10, "leverage": 0.25, "salary": 0.55, "env": 0.10}
 CASH_TARGET_X = 2.5
 GPP_CEILING_SCORE = {"QB": 28.0, "RB": 24.0, "WR": 24.0, "TE": 18.0, "DST": 14.0}
 TAG_TOP = {**TOP_N, "DST": 3}
@@ -197,7 +207,7 @@ def build(table: list[dict], games: list[dict], contest: str, season: int, week:
                 "salary": _z([r["ceiling_value"] for r in grp]),
                 "env": env_z,
             }
-            w = {"p_hit": 0.40, "leverage": 0.25, "salary": 0.15, "env": 0.20}
+            w = GPP_WEIGHTS
         for j, r in enumerate(grp):
             score = sum(w[k] * parts[k][j] for k in w)
             if contest == "cash" and r.get("injury") == "Q":

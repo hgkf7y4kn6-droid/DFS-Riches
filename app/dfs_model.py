@@ -133,6 +133,11 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
                         f"Matchup: {pos}s vs {p.opponent} have scored {actual / projected - 1:+.0%} vs projections "
                         f"this season ({games} game{'s' if games != 1 else ''}) -> x{m:.2f}")})
                     final = base * m
+            if dst_adj := getattr(p, "dst_adj", None):
+                adjustments.append({"kind": "model", "source": "DST model", "delta": dst_adj,
+                                    "text": f"DST model: {dst_adj:+.1f} (points-allowed odds from the line, opposing quarterback, "
+                                            f"sack and turnover rates)"})
+                final = max(0.0, final + dst_adj)
             if role_adj := getattr(p, "role_adj", None):
                 adjustments.append({"kind": "model", "source": "Role & script", "delta": role_adj,
                                     "text": f"Role & script model: {role_adj:+.1f} (target, carry and snap share trends; team total and spread)"})
@@ -153,7 +158,11 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
             floor = round(final * cal["q15"], 1)
             median = round(final * cal["q50"], 1)
             proj_ceiling = final * cal["q85"]
-            ceil = round((proj_ceiling + p.ceiling) / 2 if p.ceiling else proj_ceiling, 1)
+            if getattr(p, "ceiling_model", False) and p.ceiling and p.proj_points:
+                # the ceiling model's 85th percentile, moved with the consensus projection
+                ceil = round(p.ceiling * final / p.proj_points, 1)
+            else:
+                ceil = round((proj_ceiling + p.ceiling) / 2 if p.ceiling else proj_ceiling, 1)
             ceil = max(ceil, round(final, 1))
 
         unc_reasons: list[str] = []

@@ -560,14 +560,17 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
 
 
 async def team_context(season: int, week: int) -> dict[str, dict]:
-    """{app team: {"opp_pressure", "ol_out", "opp_front7_out"}} for this week's offenses (app.player_model inputs)."""
+    """{app team: {"opp_pressure", "ol_out", "opp_front7_out", "qb_epa", "qb_dropbacks"}} for this week's offenses
+    (app.player_model and app.dst_model inputs)."""
     out = {}
     for key, g in (await _week_games_cached(season, week)).items():
         away, home = key.split("@")
         for t, n in g["ol_out"].items():
             opp = (g.get("def_out") or {}).get(home if t == away else away) or {}
+            qb = (g.get("qbs") or {}).get(t) or {}
             out[t] = {"ol_out": n, "opp_pressure": g["opp_pressure"].get(t, 0.0),
-                      "opp_front7_out": sum(opp.get(u, 0) for u in FRONT7)}
+                      "opp_front7_out": sum(opp.get(u, 0) for u in FRONT7),
+                      "qb_epa": qb.get("dropback_epa"), "qb_dropbacks": qb.get("dropbacks", 0)}
     return out
 
 
