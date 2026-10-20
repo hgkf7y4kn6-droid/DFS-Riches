@@ -161,6 +161,42 @@ class TrenchAccumulator:
         return {"off": rnd(self.off), "def": rnd(self.de), "game": rnd(self.game)}
 
 
+class PenaltyDriveAccumulator:
+    """Per offense team-week drive counts for the penalty-drive luck monitor (scripts.late_down_monitor):
+    drives (not ending the half), drives on which the defense committed an accepted penalty (not declined or
+    offsetting, yards assessed), and how many of those ended in points. Feed every play-by-play row."""
+
+    SCORED = ("Touchdown", "Field goal")
+
+    def __init__(self):
+        self.drives: dict[tuple[str, str], dict] = {}
+
+    def add(self, r: dict) -> None:
+        if r.get("season_type", "REG") != "REG" or not r.get("fixed_drive") or not r.get("posteam") \
+                or r.get("play_type") in ("kickoff", "extra_point", "", None):
+            return
+        d = self.drives.setdefault((r.get("game_id", ""), r["fixed_drive"]), {
+            "week": nc._to_int(r.get("week")), "off": r["posteam"], "def": r.get("defteam"),
+            "result": r.get("fixed_drive_result") or "", "flag": False})
+        desc = (r.get("desc") or "").lower()
+        if (r.get("penalty") == "1" and r["posteam"] == d["off"] and r.get("penalty_team") == d["def"]
+                and (_f(r.get("penalty_yards")) or 0) > 0 and "declined" not in desc and "offsetting" not in desc):
+            d["flag"] = True
+
+    def result(self) -> dict[str, dict[str, float]]:
+        out: dict[str, dict[str, float]] = {}
+        for d in self.drives.values():
+            team = nc.to_app_team(d["off"])
+            if d["week"] is None or not team or d["result"] in ("End of half", ""):
+                continue
+            c = out.setdefault(f"{d['week']}|{team}", {"drives": 0, "flag_drives": 0, "flag_scored": 0})
+            c["drives"] += 1
+            if d["flag"]:
+                c["flag_drives"] += 1
+                c["flag_scored"] += d["result"] in self.SCORED
+        return out
+
+
 def coverage_counts(rows) -> dict:
     """Per team-game counts from nflverse participation rows: the defense's
     man/zone and shell on charted dropbacks, pressure rates, time to throw."""

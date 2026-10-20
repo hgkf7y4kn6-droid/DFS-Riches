@@ -1,3 +1,5 @@
+import pytest
+
 from app import dfs_strategy, trenches
 
 
@@ -126,3 +128,33 @@ def test_late_down_gap_is_measured_against_the_early_down_pace_and_flags_outlier
     teams["NEW"] = _profile(None, 0.4, 0.45, 0.36)
     trenches.late_downs(teams)
     assert "late_downs" not in teams["NEW"]
+
+
+def _drive_play(drive, result, **kw):
+    base = {"season_type": "REG", "game_id": "2026_02_BUF_MIA", "week": "2", "posteam": "BUF", "defteam": "MIA",
+            "play_type": "pass", "fixed_drive": str(drive), "fixed_drive_result": result, "penalty": "0", "desc": ""}
+    base.update(kw)
+    return base
+
+
+def test_penalty_drive_accumulator_counts_accepted_defensive_flags_per_drive():
+    acc = trenches.PenaltyDriveAccumulator()
+    acc.add(_drive_play(1, "Touchdown", play_type="kickoff", penalty="1", penalty_team="MIA", penalty_yards="5"))  # kickoff: ignored
+    acc.add(_drive_play(1, "Touchdown", play_type="no_play", penalty="1", penalty_team="MIA", penalty_yards="5",
+                        desc="Defensive Offside"))
+    acc.add(_drive_play(1, "Touchdown"))
+    acc.add(_drive_play(2, "Punt", penalty="1", penalty_team="MIA", penalty_yards="10", desc="holding, declined"))
+    acc.add(_drive_play(3, "Punt", penalty="1", penalty_team="BUF", penalty_yards="10"))               # offense's own flag
+    acc.add(_drive_play(4, "Field goal", penalty="1", penalty_team="MIA", penalty_yards="15"))
+    acc.add(_drive_play(5, "End of half", penalty="1", penalty_team="MIA", penalty_yards="15"))        # not counted
+    acc.add(_drive_play(6, "Touchdown", season_type="POST", penalty="1", penalty_team="MIA", penalty_yards="5"))
+    assert acc.result() == {"2|BUF": {"drives": 4, "flag_drives": 2, "flag_scored": 2}}
+
+
+def test_penalty_luck_needs_four_recent_games_and_shrinks_to_the_league():
+    from scripts import late_down_monitor as mon
+    pen = {f"{w}|BUF": {"drives": 10, "flag_drives": 2, "flag_scored": 2} for w in (1, 2, 3, 5)}
+    assert mon.penalty_luck(pen, "BUF", 5, 0.6) is None                     # only 3 games before Week 5
+    luck = mon.penalty_luck(pen, "BUF", 6, 0.6)                            # 8 of 8 scored, plus 10 drives at 60%
+    assert luck == pytest.approx((8 + 6) / 18 - 0.6)
+    assert mon.league_flag_score_rate({2025: pen}) == 1.0

@@ -623,7 +623,11 @@ tendency tools, but every number is computed here from open data:
   didn't repeat from one half of a season to the other, and fading it was
   52.2% against the closing spread, so no model uses it.
   `python -m scripts.late_down_monitor` rechecks this season against the
-  2023-2025 baseline.
+  2023-2025 baseline, along with **penalty-drive luck**: over a team's last
+  4 games, the share of drives with an accepted defensive penalty that ended
+  in points, above the league rate (shrunk by 10 drives). Fading it went
+  53.6% against the spread in 2023-2025 (597 games), short of
+  significance, so it is monitored rather than used.
 
 **Sharp Football Analysis is referenced, not ingested or weighted.** Its
 Terms of Service prohibit automated access and copying, so the app never
@@ -1069,7 +1073,7 @@ scripts/record_draft_groups.py   records the current week's live ids into dk_ove
 scripts/save_optimal_lineups.py  records the current week's open slates' optimal lineups
 scripts/source_accuracy.py       grades each projection source vs actual DK points -> data/source_accuracy.json
 scripts/weather_effects.py       fits weather effects on 2016-2025 games -> data/weather_effects.json
-scripts/late_down_monitor.py     checks whether fading late-down over-performance beats the closing spread
+scripts/late_down_monitor.py     checks whether fading late-down over-performance or penalty-drive luck beats the closing spread
   name_aliases.json manual DK-name -> Sleeper-name bridge, empty by default
   cache/            runtime API response cache (gitignored)
 templates/_base.html      shared head, header, nav and season/week selector
