@@ -1,9 +1,10 @@
 # Captures DraftKings Sportsbook lines every two hours so the Big Picture has
-# opening lines and line-movement history. First through the site's
-# /api/odds (its server stores each changed quote); DraftKings refuses some
-# cloud servers, so when the site can't read it, this runner fetches
-# DraftKings itself and stores the quotes (needs the DATABASE_URL secret).
-# Logs show only capture counts and status.
+# opening lines and line-movement history. Each pull also stores the next
+# week's lookahead lines, so a week's openers are caught when DraftKings posts
+# them. First through the site's /api/odds (its server stores each changed
+# quote); DraftKings refuses some cloud servers, so when the site can't read
+# it, this runner fetches DraftKings itself and stores the quotes (needs the
+# DATABASE_URL secret). Logs show only capture counts and status.
 name: Odds snapshot
 
 on:

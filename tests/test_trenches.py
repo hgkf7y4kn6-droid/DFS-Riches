@@ -95,3 +95,34 @@ def test_strategy_uses_trench_edges_for_scores_and_failure_modes():
     assert dfs_strategy._trench_gaps(None, 2026)[0]["item"].startswith("Line play")
     gaps = dfs_strategy._trench_gaps({"has_ftn": True, "coverage_season": 2025}, 2026)
     assert gaps and "2025" in gaps[0]["why"]
+
+
+def test_accumulator_splits_early_and_late_downs():
+    acc = trenches.TrenchAccumulator()
+    acc.add(_play(down="1"))
+    acc.add(_play(down="2", success="0", epa="-0.3"))
+    acc.add(_play(down="3"))
+    acc.add(_play(down="4", success="0", epa="-1.0"))
+    acc.add(_play(down=""))                                   # no down (two-point try): counted in neither
+    o = acc.result()["off"]["2|BUF"]
+    assert (o["ed"], o["ed_succ"], o["ld"], o["ld_succ"]) == (2, 1, 2, 1)
+
+
+def _profile(ed, ld, d_ed, d_ld):
+    return {"off": {"early_down_success": ed, "late_down_success": ld},
+            "def": {"early_down_success": d_ed, "late_down_success": d_ld}}
+
+
+def test_late_down_gap_is_measured_against_the_early_down_pace_and_flags_outliers():
+    teams = {f"T{i}": _profile(0.45, 0.36, 0.45, 0.36) for i in range(9)}
+    teams["HOT"] = _profile(0.45, 0.50, 0.45, 0.30)            # converts far above its early-down pace, allows few
+    trenches.late_downs(teams)
+    hot, avg = teams["HOT"]["late_downs"], teams["T0"]["late_downs"]
+    assert hot["net"] > 0.15 and hot["flag"] == "hot" and hot["z"] > trenches.LATE_DOWN_FLAG_Z
+    assert avg["flag"] is None and avg["net"] < 0
+    assert "running hot" in trenches.late_down_note("HOT", teams["HOT"])
+    assert trenches.late_down_note("T0", teams["T0"]) is None
+    # A team missing a rate gets no gap rather than a made-up one.
+    teams["NEW"] = _profile(None, 0.4, 0.45, 0.36)
+    trenches.late_downs(teams)
+    assert "late_downs" not in teams["NEW"]

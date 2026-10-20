@@ -582,6 +582,8 @@ interface TrenchTeam {
   off: Record<string, number | null>;
   def: Record<string, number | null>;
   cov: Record<string, number | string | null>;
+  /** Late-down success beyond the early-down pace (offense, defense, net); a monitor, not a model input. */
+  late_downs?: { offense: number; defense: number; net: number; z?: number; flag?: 'hot' | 'cold' | null } | null;
 }
 interface TrenchDetail {
   away: TrenchTeam;
@@ -592,6 +594,7 @@ interface TrenchDetail {
   coverage_season?: number | null;
   window?: string | null;
   insight: string;
+  late_down_notes?: string[];
 }
 
 // ------------------------------------------------------- DFS model (/api/dfs-model)

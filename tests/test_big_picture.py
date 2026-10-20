@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 from app.big_picture import history, odds, quant, store
@@ -118,6 +120,25 @@ def test_odds_snapshots_only_store_changes(local_store):
     assert store.add_odds([_row(-7.5, -110, "2026-10-12T03:00:00+00:00")]) == 1
     s = odds.summarize(store.odds_history(2026, 6))["NYJ@NE"]["spread"]["home"]
     assert s["opening"]["line"] == -7.0 and s["current"]["line"] == -7.5 and len(s["moves"]) == 2
+
+
+def test_snapshot_also_stores_next_weeks_lookahead_lines(local_store, monkeypatch):
+    quotes = [{"game": "NYJ@NE", "market": "spread", "side": "home", "line": -7.0, "price": -110},
+              {"game": "BUF@MIA", "market": "spread", "side": "home", "line": 2.5, "price": -110},
+              {"game": "KC@DEN", "market": "total", "side": "over", "line": 44.5, "price": -110}]
+
+    async def fake_fetch():
+        return quotes, "ok"
+    monkeypatch.setattr(odds, "fetch", fake_fetch)
+    monkeypatch.setattr(odds, "odds_api_key", lambda: None)
+    monkeypatch.setitem(odds._LAST, "at", 0.0)
+    out = asyncio.run(odds.snapshot(2026, 6, [("NYJ", "NE")], force=True, next_games=[("BUF", "MIA")]))
+    assert out["stored"] == 1 and out["next_week_stored"] == 1
+    assert [r["game"] for r in store.odds_history(2026, 6)] == ["NYJ@NE"]
+    assert [r["game"] for r in store.odds_history(2026, 7)] == ["BUF@MIA"]       # Week 7's opener, captured in Week 6
+    # When Week 7 comes up, an unchanged quote isn't stored again: the lookahead line stays its opener.
+    out = asyncio.run(odds.snapshot(2026, 7, [("BUF", "MIA")], force=True))
+    assert out["stored"] == 0 and len(store.odds_history(2026, 7)) == 1
 
 
 def test_reports_are_append_only(local_store):

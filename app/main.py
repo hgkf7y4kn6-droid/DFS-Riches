@@ -779,23 +779,33 @@ async def api_odds(season: Annotated[int | None, Query(ge=2000, le=2100)] = None
                    week: Annotated[int | None, Query(ge=1, le=22)] = None, summary: bool = False):
     """DraftKings Sportsbook lines for a week (default: the upcoming one) (app.big_picture.odds): opening
     (first captured) and current quotes per game and market. Each call may take a fresh snapshot (at most
-    every 10 minutes); summary=1 returns only the capture status."""
+    every 10 minutes; for the upcoming week it also stores the next week's lookahead lines); summary=1 returns
+    only the capture status."""
     from app.big_picture import dossier as bp_dossier
     from app.big_picture import odds as odds_module
     from app.big_picture import store as bp_store
     try:
-        if season is None or week is None:
+        upcoming = season is None or week is None
+        if upcoming:
             season, week = await bp_dossier.target_week()
         schedule, _ = await slates.list_slates(season, week)
         games = [(g.away, g.home) for g in schedule.games + schedule.isolated_games]
-        snap = await odds_module.snapshot(season, week, games)
+        # The upcoming week's pull also stores the next week's lookahead lines (their openers).
+        next_games = None
+        if upcoming and week < 18:
+            try:
+                nxt, _ = await slates.list_slates(season, week + 1)
+                next_games = [(g.away, g.home) for g in nxt.games + nxt.isolated_games]
+            except Exception:
+                next_games = None
+        snap = await odds_module.snapshot(season, week, games, next_games=next_games)
         history = await asyncio.to_thread(bp_store.odds_history, season, week)
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not load odds: {exc}") from exc
     out = {"source": odds_module.SOURCE, "season": season, "week": week, "available": bool(history),
            "status": snap.get("status"), "captured_at": snap.get("fetched_at"), "stored": snap.get("stored"),
            "via": snap.get("via"), "credits_remaining": (snap.get("credits") or {}).get("remaining"),
-           "quotes_total": len(history)}
+           "quotes_total": len(history), "next_week_stored": snap.get("next_week_stored")}
     if not summary:
         out["games"] = odds_module.summarize(history)
     return out

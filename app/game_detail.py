@@ -235,6 +235,7 @@ def trench_section(tw: dict | None, game: Game) -> dict | None:
         "league": tw["league"], "coverage_season": tw.get("coverage_season"), "has_ftn": tw.get("has_ftn"),
         "window": tw.get("window"), "sources": tw.get("sources"), "note": tw.get("note"),
         "references": tw.get("references"), "insight": insight,
+        "late_down_notes": [n for t in (game.away, game.home) if (n := trenches.late_down_note(t, tw["teams"].get(t)))],
     }
 
 

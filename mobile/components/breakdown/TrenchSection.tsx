@@ -10,9 +10,9 @@ const EDGE_LABELS: Record<string, [string, string]> = {
 };
 const EDGE_MAX = 2.5;
 
-type Kind = 'pct' | 'epa' | 'sec' | 'dec';
+type Kind = 'pct' | 'pts' | 'epa' | 'sec' | 'dec';
 // The key line and efficiency rates (app/trenches.py), team vs team vs league.
-const METRICS: { group: string; rows: [string, (t: { off: any; def: any; cov: any }) => unknown, Kind][] }[] = [
+const METRICS: { group: string; rows: [string, (t: { off: any; def: any; cov: any; late_downs?: any }) => unknown, Kind][] }[] = [
   {
     group: 'Offense',
     rows: [
@@ -24,6 +24,8 @@ const METRICS: { group: string; rows: [string, (t: { off: any; def: any; cov: an
       ['Rush success rate', (t) => t.off?.rush_success, 'pct'],
       ['Run stuff rate (0 or less)', (t) => t.off?.stuff_rate, 'pct'],
       ['Explosive run rate (10+)', (t) => t.off?.explosive_run, 'pct'],
+      ['Early-down success (1st/2nd)', (t) => t.off?.early_down_success, 'pct'],
+      ['Late-down success (3rd/4th)', (t) => t.off?.late_down_success, 'pct'],
     ],
   },
   {
@@ -36,7 +38,15 @@ const METRICS: { group: string; rows: [string, (t: { off: any; def: any; cov: an
       ['Blitz rate', (t) => t.def?.blitz, 'pct'],
       ['Rush success allowed', (t) => t.def?.rush_success, 'pct'],
       ['Run stuff rate', (t) => t.def?.stuff_rate, 'pct'],
+      ['Early-down success allowed', (t) => t.def?.early_down_success, 'pct'],
+      ['Late-down success allowed', (t) => t.def?.late_down_success, 'pct'],
     ],
+  },
+  {
+    // Late-down success beyond what early downs imply, offense minus defense (app/trenches.py late_downs).
+    // Historically it didn't repeat within a season: a monitor, not a model input.
+    group: 'Late downs vs early-down pace',
+    rows: [['Net (offense - defense)', (t) => t.late_downs?.net, 'pts']],
   },
   {
     group: 'Coverage',
@@ -53,6 +63,7 @@ function fmt(v: unknown, kind: Kind): string {
   if (v == null || v === '') return '-';
   if (typeof v !== 'number') return String(v);
   if (kind === 'pct') return `${(v * 100).toFixed(1)}%`;
+  if (kind === 'pts') return `${v > 0 ? '+' : ''}${(v * 100).toFixed(1)} pts`;
   if (kind === 'epa') return `${v > 0 ? '+' : ''}${v.toFixed(3)}`;
   if (kind === 'sec') return `${v.toFixed(2)}s`;
   return v.toFixed(2);
@@ -139,8 +150,15 @@ export default function TrenchSection({ t, away, home }: { t: TrenchDetail; away
           </Text>
           <Row head cells={['', away, home, 'League']} />
           {g.rows.map(([label, get, kind]) => (
-            <Row key={label} cells={[label, fmt(get(t.away), kind), fmt(get(t.home), kind), fmt(get(lg), kind)]} />
+            <Row key={label} cells={[label, fmt(get(t.away), kind), fmt(get(t.home), kind), kind === 'pts' ? '0' : fmt(get(lg), kind)]} />
           ))}
+          {g.rows[0][2] === 'pts'
+            ? (t.late_down_notes ?? []).map((n, i) => (
+                <Text key={i} className="detail-bullet">
+                  • {n}
+                </Text>
+              ))
+            : null}
         </View>
       ))}
       {t.window ? <Text className="detail-note mt-2">{t.window}</Text> : null}

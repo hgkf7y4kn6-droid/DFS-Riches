@@ -615,6 +615,15 @@ tendency tools, but every number is computed here from open data:
   - Chalk failure modes and the game notes on the Slate tab.
 - **Projections are not changed.** The sources already price in matchups,
   so edges only re-rank players within the pools.
+- **Late-down monitor (display only).** Early-down (1st/2nd) and late-down
+  (3rd/4th) success rates for each offense and defense, and the gap between
+  a team's late-down success and what its early downs imply (offense minus
+  defense). Teams about 1.3 standard deviations from the league are flagged
+  as running hot or cold, with a note on the game view. In 2022-2025 the gap
+  didn't repeat from one half of a season to the other, and fading it was
+  52.2% against the closing spread, so no model uses it.
+  `python -m scripts.late_down_monitor` rechecks this season against the
+  2023-2025 baseline.
 
 **Sharp Football Analysis is referenced, not ingested or weighted.** Its
 Terms of Service prohibit automated access and copying, so the app never
@@ -1060,6 +1069,7 @@ scripts/record_draft_groups.py   records the current week's live ids into dk_ove
 scripts/save_optimal_lineups.py  records the current week's open slates' optimal lineups
 scripts/source_accuracy.py       grades each projection source vs actual DK points -> data/source_accuracy.json
 scripts/weather_effects.py       fits weather effects on 2016-2025 games -> data/weather_effects.json
+scripts/late_down_monitor.py     checks whether fading late-down over-performance beats the closing spread
   name_aliases.json manual DK-name -> Sleeper-name bridge, empty by default
   cache/            runtime API response cache (gitignored)
 templates/_base.html      shared head, header, nav and season/week selector

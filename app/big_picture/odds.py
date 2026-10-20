@@ -5,6 +5,10 @@ game lines (spread, total, moneyline) and, when listed, team totals. Each
 fetch is stored as a snapshot (app.big_picture.store, only quotes that
 changed), so the first quote we captured for a market is its "opening" line
 as far as this app knows, and every later move is kept with its timestamp.
+Each pull also stores the following week's games (DraftKings posts lookahead
+lines days before that week comes up; the same pull lists them at no extra
+cost), so a week's opening line is captured when it first appears rather
+than when the app moves on to that week.
 
 DraftKings refuses requests from cloud servers (Render, GitHub Actions), so
 when an Odds API key is configured (ODDS_API_KEY, from the-odds-api.com) the
@@ -254,8 +258,10 @@ async def fetch() -> tuple[list[dict], str]:
     return quotes, "ok" if quotes else "DraftKings Sportsbook returned no NFL game lines"
 
 
-async def snapshot(season: int, week: int, games: list[tuple[str, str]], force: bool = False) -> dict:
-    """Fetch DraftKings (at most every MIN_FETCH_SECONDS) and store this week's changed quotes."""
+async def snapshot(season: int, week: int, games: list[tuple[str, str]], force: bool = False,
+                   next_games: list[tuple[str, str]] | None = None) -> dict:
+    """Fetch DraftKings (at most every MIN_FETCH_SECONDS) and store this week's changed quotes, and with
+    next_games the following week's (its opening lines)."""
     # The Odds API's free credits are scarce: space those pulls out (and never let a forced run spend extra).
     gap = float(os.environ.get("ODDS_API_MIN_MINUTES", "360")) * 60 if odds_api_key() and _LAST.get("status") == "ok" \
         else MIN_FETCH_SECONDS                     # a failed pull retries after 10 minutes
@@ -267,17 +273,25 @@ async def snapshot(season: int, week: int, games: list[tuple[str, str]], force: 
         quotes, status = await fetch()
     except Exception as exc:
         quotes, status = [], f"DraftKings Sportsbook unreachable ({type(exc).__name__})"
-    wanted = {f"{a}@{h}" for a, h in games}
     captured = store.now()
-    rows = [{**q, "season": season, "week": week, "captured_at": captured, "source": SOURCE}
-            for q in quotes if q["game"] in wanted]
+
+    def week_rows(wk: int, gs: list[tuple[str, str]]) -> list[dict]:
+        wanted = {f"{a}@{h}" for a, h in gs}
+        return [{**q, "season": season, "week": wk, "captured_at": captured, "source": SOURCE}
+                for q in quotes if q["game"] in wanted]
+
+    rows = week_rows(week, games)
+    ahead = week_rows(week + 1, next_games) if next_games else []
     if quotes and not rows:
         status = "DraftKings Sportsbook listed no games from this week"
     import asyncio
     stored = await asyncio.to_thread(store.add_odds, rows) if rows else 0
+    stored_ahead = await asyncio.to_thread(store.add_odds, ahead) if ahead else 0
     _LAST.update(status=status, iso=captured.isoformat())
-    log.info("DraftKings odds snapshot: %s, %d quotes for week %d, %d new", status, len(rows), week, stored)
-    return {"status": status, "stored": stored, "quotes": len(rows), "fetched_at": captured.isoformat(),
+    log.info("DraftKings odds snapshot: %s, %d quotes for week %d, %d new; %d quotes for week %d, %d new",
+             status, len(rows), week, stored, len(ahead), week + 1, stored_ahead)
+    return {"status": status, "stored": stored, "quotes": len(rows), "next_week_quotes": len(ahead),
+            "next_week_stored": stored_ahead, "fetched_at": captured.isoformat(),
             "via": _LAST.get("via"), "credits": _LAST.get("credits")}
 
 
@@ -308,12 +322,17 @@ async def snapshot_via_runner(site: str) -> dict:
         if info.get("status") == "ok":
             return {"via": "site", **info}
         wk = (await client.get(f"{site}/api/week", params={"season": season, "week": week})).json()
-    sched = wk.get("schedule") or {}
-    games = [(g["away"], g["home"]) for g in (sched.get("games") or []) + (sched.get("isolated_games") or [])]
+        nxt = (await client.get(f"{site}/api/week", params={"season": season, "week": week + 1})).json() if week < 18 else {}
+
+    def pairs(w: dict) -> list[tuple[str, str]]:
+        sched = (w or {}).get("schedule") or {}
+        return [(g["away"], g["home"]) for g in (sched.get("games") or []) + (sched.get("isolated_games") or [])]
+
+    games = pairs(wk)
     if not store._url():
         quotes, status = await fetch()
         return {"via": "runner", "status": status, "quotes": len(quotes), "stored": 0, "note": "no DATABASE_URL: nothing stored"}
-    out = await snapshot(season, week, games, force=True)
+    out = await snapshot(season, week, games, force=True, next_games=pairs(nxt) or None)
     return {"via": "runner", "season": season, "week": week, **out}
 
 

@@ -23,6 +23,13 @@ cleanest pocket). A matchup "edge" is the offense unit's z minus the
 opposing unit's z: positive favors the offense. It is only called a lean or
 strong edge when the defense is itself below average (offense edges) or
 above average (defense edges).
+
+Late-down monitor (display only, no model uses it): success on 3rd/4th down
+above or below what a team's 1st/2nd-down success implies at the league's
+late/early ratio, offense minus defense. In 2022-2025 that gap didn't repeat
+from one half of a season to the other (odd vs even weeks, r = -0.08), so a
+team far from its early-down pace is flagged as running hot or cold;
+scripts.late_down_monitor checks whether fading it beats the closing line.
 """
 from __future__ import annotations
 
@@ -124,6 +131,11 @@ class TrenchAccumulator:
         if wp is None or not WP_MIN <= wp <= WP_MAX:
             return
         c: dict[str, float] = {"plays": 1, "epa": epa or 0.0, "succ": success}
+        down = nc._to_int(r.get("down"))
+        if down in (1, 2):
+            c.update(ed=1, ed_succ=success)
+        elif down in (3, 4):
+            c.update(ld=1, ld_succ=success)
         if dropback:
             c.update(db=1, db_epa=epa or 0.0, db_succ=success, sack=sack,
                      hit=sack or r.get("qb_hit") == "1", exp_pass=(not sack and yards >= EXPLOSIVE_PASS))
@@ -267,6 +279,7 @@ def offense_metrics(c: dict) -> dict[str, float | None]:
         "rush_epa": _rate(c, "rush_epa", "rush", 10), "rush_success": _rate(c, "rush_succ", "rush", 10),
         "stuff_rate": _rate(c, "stuff", "rush", 10), "explosive_run": _rate(c, "exp_rush", "rush", 10),
         "ypc": _rate(c, "rush_yds", "rush", 10),
+        "early_down_success": _rate(c, "ed_succ", "ed", 15), "late_down_success": _rate(c, "ld_succ", "ld", 10),
         "play_action": _rate(c, "pa", "ftn_db", 15), "screen": _rate(c, "screen", "ftn_db", 15),
         "motion": _rate(c, "motion", "ftn", 20), "rpo": _rate(c, "rpo", "ftn", 20), "no_huddle": _rate(c, "no_huddle", "ftn", 20),
         "box_faced": _rate(c, "box", "ftn_rush", 10), "light_box": _rate(c, "light_box", "ftn_rush", 10),
@@ -280,6 +293,7 @@ def defense_metrics(c: dict) -> dict[str, float | None]:
         "sack_rate": m["sack_rate"], "pressure_rate": m["pressure_rate"], "explosive_pass": m["explosive_pass"],
         "rush_epa": m["rush_epa"], "rush_success": m["rush_success"], "stuff_rate": m["stuff_rate"],
         "explosive_run": m["explosive_run"], "ypc": m["ypc"],
+        "early_down_success": m["early_down_success"], "late_down_success": m["late_down_success"],
         "blitz": _rate(c, "blitz", "ftn_db", 15), "rushers": _rate(c, "rushers", "ftn_db", 15),
         "heavy_box": _rate(c, "heavy_box", "ftn_rush", 10), "box": _rate(c, "box", "ftn_rush", 10),
     }
@@ -330,6 +344,47 @@ def grade_units(teams: dict[str, dict]) -> None:
             teams[t].setdefault("grades", {})[unit] = {"z": round(scored[t], 2), "rank": i + 1}
 
 
+LATE_DOWN_FLAG_Z = 1.28    # about the top / bottom 10% of teams
+
+
+def late_downs(teams: dict[str, dict]) -> None:
+    """Adds profile["late_downs"] = {"offense", "defense", "net", "z", "flag"} in place: late-down success minus
+    what early-down success implies (league late/early ratio), offense minus defense; flag "hot" / "cold" when
+    the net is LATE_DOWN_FLAG_Z league standard deviations from the mean."""
+    def ratio(side: str) -> float | None:
+        ed = [p[side]["early_down_success"] for p in teams.values() if p[side].get("early_down_success")]
+        ld = [p[side]["late_down_success"] for p in teams.values() if p[side].get("late_down_success") is not None]
+        return statistics.fmean(ld) / statistics.fmean(ed) if ed and ld else None
+
+    r_off, r_def = ratio("off"), ratio("def")
+    nets = {}
+    for t, p in teams.items():
+        o, d = p["off"], p["def"]
+        if None in (r_off, r_def, o.get("early_down_success"), o.get("late_down_success"),
+                    d.get("early_down_success"), d.get("late_down_success")):
+            continue
+        off = o["late_down_success"] - r_off * o["early_down_success"]
+        de = d["late_down_success"] - r_def * d["early_down_success"]
+        p["late_downs"] = {"offense": round(off, 4), "defense": round(de, 4), "net": round(off - de, 4)}
+        nets[t] = off - de
+    if len(nets) < 2:
+        return
+    mu, sd = statistics.fmean(nets.values()), statistics.pstdev(nets.values())
+    for t, v in nets.items():
+        z = (v - mu) / sd if sd else 0.0
+        teams[t]["late_downs"].update(z=round(z, 2), flag="hot" if z >= LATE_DOWN_FLAG_Z else "cold" if z <= -LATE_DOWN_FLAG_Z else None)
+
+
+def late_down_note(team: str, p: dict | None) -> str | None:
+    ld = (p or {}).get("late_downs") or {}
+    if not ld.get("flag"):
+        return None
+    pts = ld["net"] * 100
+    return (f"{team} is running {'hot' if ld['flag'] == 'hot' else 'cold'} on 3rd/4th downs: {abs(pts):.1f} points of success "
+            f"rate {'above' if pts > 0 else 'below'} its early-down pace (offense minus defense). That gap hasn't repeated "
+            f"within a season historically -- watched, not used by the model.")
+
+
 def league_averages(teams: dict[str, dict]) -> dict[str, dict[str, float]]:
     out: dict[str, dict[str, float]] = {}
     for side in ("off", "def", "cov"):
@@ -359,6 +414,7 @@ def build_teams(week: int, cur_t: dict, prev_t: dict, cov_cur: dict | None = Non
         teams[team] = {"off": offense_metrics(off_c), "def": defense_metrics(def_c),
                        "cov": coverage_metrics(cov_off, cov_def), "games": n_now, "prior_games": PRIOR_GAMES if n_last else 0}
     grade_units(teams)
+    late_downs(teams)
     return teams
 
 
@@ -507,5 +563,5 @@ def team_card(tw: dict | None, team: str) -> dict | None:
     return {
         "team": team, "games": p["games"],
         "units": {u: {"label": UNIT_LABELS[u], **g[u]} for u in UNITS if u in g},
-        "off": p["off"], "def": p["def"], "cov": p["cov"],
+        "off": p["off"], "def": p["def"], "cov": p["cov"], "late_downs": p.get("late_downs"),
     }

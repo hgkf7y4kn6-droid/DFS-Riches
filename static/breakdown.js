@@ -290,12 +290,17 @@
     ["Play-action rate", (t) => t.off.play_action, "pct"], ["Motion rate", (t) => t.off.motion, "pct"],
     ["Screen rate", (t) => t.off.screen, "pct"], ["RPO rate", (t) => t.off.rpo, "pct"], ["No-huddle rate", (t) => t.off.no_huddle, "pct"],
     ["Runs vs light box (6 or fewer)", (t) => t.off.light_box, "pct"],
+    ["Early-down success (1st/2nd)", (t) => t.off.early_down_success, "pct"], ["Late-down success (3rd/4th)", (t) => t.off.late_down_success, "pct"],
     ["Defense", null],
     ["Success rate allowed", (t) => t.def.success, "pct"], ["EPA/play allowed", (t) => t.def.epa_play, "epa"],
     ["Sack rate", (t) => t.def.sack_rate, "pct"], ["Sack + QB-hit rate", (t) => t.def.pressure_rate, "pct"],
     ["Blitz rate", (t) => t.def.blitz, "pct"], ["Avg pass rushers", (t) => t.def.rushers, "dec"],
     ["Rush success allowed", (t) => t.def.rush_success, "pct"], ["Run stuff rate", (t) => t.def.stuff_rate, "pct"],
     ["Heavy box rate (8+)", (t) => t.def.heavy_box, "pct"],
+    ["Early-down success allowed", (t) => t.def.early_down_success, "pct"], ["Late-down success allowed", (t) => t.def.late_down_success, "pct"],
+    // Late-down success beyond the early-down pace, offense minus defense (app/trenches.py late_downs): a monitor, not a model input.
+    ["Late downs vs early-down pace", null],
+    ["Net (offense - defense)", (t) => t.late_downs && t.late_downs.net, "pts"],
     ["Coverage", null],
     ["Man coverage rate", (t) => t.cov.man, "pct"], ["Single-high shell", (t) => t.cov.single_high, "pct"],
     ["Two-high shell", (t) => t.cov.two_high, "pct"], ["Most-used coverage", (t) => t.cov.top_shell, "text"],
@@ -309,6 +314,7 @@
     if (kind === "epa") return (v > 0 ? "+" : "") + v.toFixed(3);
     if (kind === "sec") return v.toFixed(2) + "s";
     if (kind === "dec") return v.toFixed(2);
+    if (kind === "pts") return (v > 0 ? "+" : "") + (v * 100).toFixed(1) + " pts";
     return String(v);
   }
 
@@ -325,13 +331,13 @@
         });
       }
     }
-    const notes = [...t.away_offense.notes, ...t.home_offense.notes].filter((n) => !t.insight.includes(n));
+    const notes = [...t.away_offense.notes, ...t.home_offense.notes, ...(t.late_down_notes || [])].filter((n) => !t.insight.includes(n));
     const league = (fn) => { try { return fn({ off: t.league.off || {}, def: t.league.def || {}, cov: t.league.cov || {} }); } catch (e) { return null; } };
     const units = Object.keys(t.away.units).map((u) => [t.away.units[u].label, `#${t.away.units[u].rank}`, `#${t.home.units[u].rank}`, "-"]);
     const tableRows = [["Unit grades (1 = best)", null], ...units.map((u) => [u[0], () => u]), ...TRENCH_ROWS];
     const tbody = el("tbody", {}, tableRows.map(([label, fn, kind]) => {
       if (!fn) return el("tr", { cls: "gd-group" }, [el("th", { text: label + (label === "Coverage" && t.coverage_season ? ` (${t.coverage_season} season)` : ""), attrs: { scope: "colgroup", colspan: "4" } })]);
-      const vals = kind ? [fmtTrench(fn(t.away), kind), fmtTrench(fn(t.home), kind), fmtTrench(league(fn), kind)] : fn().slice(1);
+      const vals = kind ? [fmtTrench(fn(t.away), kind), fmtTrench(fn(t.home), kind), kind === "pts" ? "0" : fmtTrench(league(fn), kind)] : fn().slice(1);
       return el("tr", {}, [el("th", { text: label, attrs: { scope: "row" } }), ...vals.map((v) => el("td", { text: v }))]);
     }));
     const thead = el("thead", {}, [el("tr", {}, ["Metric", g.away, g.home, "League"].map((h) => el("th", { text: h, attrs: { scope: "col" } })))]);
