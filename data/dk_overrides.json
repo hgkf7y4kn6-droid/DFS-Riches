@@ -173,6 +173,24 @@
           "label": "Showdown - Sun Night (DAL @ GB)"
         }
       }
+    },
+    "7": {
+      "classic_sunday": {
+        "draft_group_id": 155198,
+        "label": "Classic - Sunday Main (10 games)",
+        "first_kickoff": "2026-10-25T17:00:00+00:00",
+        "last_kickoff": "2026-10-25T20:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 155197,
+        "label": "Full Week 7 Slate (14 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 155204,
+          "label": "Showdown - Thu Night (NE @ CHI)"
+        }
+      }
     }
   }
 }
