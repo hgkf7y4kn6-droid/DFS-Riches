@@ -628,6 +628,12 @@ tendency tools, but every number is computed here from open data:
   in points, above the league rate (shrunk by 10 drives). Fading it went
   53.6% against the spread in 2023-2025 (597 games), short of
   significance, so it is monitored rather than used.
+  It also tracks a **toxic flag**: an offense whose pass protection is 1+
+  standard deviation below the league, with above-average offensive-line
+  penalties, facing a defense that blitzes 1+ SD more than the league,
+  graded on its points against the implied team total. It fires about 8
+  times a season. In 2023-2025, 20 of 25 went under their team total, but
+  it was one of several flags tested, so it is watched, not used.
 
 **Sharp Football Analysis is referenced, not ingested or weighted.** Its
 Terms of Service prohibit automated access and copying, so the app never

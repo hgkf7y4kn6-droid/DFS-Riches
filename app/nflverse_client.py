@@ -207,7 +207,7 @@ async def get_pbp_aggregates(season: int, current_season: int | None = None) -> 
     current = current_season if current_season is not None else DEFAULT_SEASON
     ttl = TTL_NFLVERSE_TEAM_STATS if season >= current else TTL_NFLVERSE_PBP_PAST
     try:
-        return await cached_fetch(f"nflverse_pbp_aggregates_v6_{season}", ttl, fetch)
+        return await cached_fetch(f"nflverse_pbp_aggregates_v7_{season}", ttl, fetch)
     except Exception:
         return {"neutral": {"offense": {}, "defense": {}}, "trenches": {}, "environment": {}, "game": {}, "penalty_drives": {}}
 

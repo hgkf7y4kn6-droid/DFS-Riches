@@ -162,18 +162,27 @@ class TrenchAccumulator:
 
 
 class PenaltyDriveAccumulator:
-    """Per offense team-week drive counts for the penalty-drive luck monitor (scripts.late_down_monitor):
-    drives (not ending the half), drives on which the defense committed an accepted penalty (not declined or
-    offsetting, yards assessed), and how many of those ended in points. Feed every play-by-play row."""
+    """Per offense team-week counts for the luck monitor (scripts.late_down_monitor): drives (not ending the
+    half), drives on which the defense committed an accepted penalty (not declined or offsetting, yards
+    assessed) and how many of those ended in points; and offensive snaps with the offensive-line flags among
+    them (false start, holding, illegal formation; declined ones too). Feed every play-by-play row."""
 
     SCORED = ("Touchdown", "Field goal")
+    OL_PENALTIES = ("False Start", "Offensive Holding", "Illegal Formation")
 
     def __init__(self):
         self.drives: dict[tuple[str, str], dict] = {}
+        self.snaps: dict[tuple[int, str], list[int]] = {}
 
     def add(self, r: dict) -> None:
-        if r.get("season_type", "REG") != "REG" or not r.get("fixed_drive") or not r.get("posteam") \
-                or r.get("play_type") in ("kickoff", "extra_point", "", None):
+        if r.get("season_type", "REG") != "REG" or not r.get("posteam"):
+            return
+        if r.get("play_type") in ("pass", "run", "no_play"):
+            c = self.snaps.setdefault((nc._to_int(r.get("week")), r["posteam"]), [0, 0])
+            c[0] += 1
+            c[1] += (r.get("penalty") == "1" and r.get("penalty_team") == r["posteam"]
+                     and r.get("penalty_type") in self.OL_PENALTIES)
+        if not r.get("fixed_drive") or r.get("play_type") in ("kickoff", "extra_point", "", None):
             return
         d = self.drives.setdefault((r.get("game_id", ""), r["fixed_drive"]), {
             "week": nc._to_int(r.get("week")), "off": r["posteam"], "def": r.get("defteam"),
@@ -189,11 +198,18 @@ class PenaltyDriveAccumulator:
             team = nc.to_app_team(d["off"])
             if d["week"] is None or not team or d["result"] in ("End of half", ""):
                 continue
-            c = out.setdefault(f"{d['week']}|{team}", {"drives": 0, "flag_drives": 0, "flag_scored": 0})
+            c = out.setdefault(f"{d['week']}|{team}", dict.fromkeys(("drives", "flag_drives", "flag_scored", "snaps", "ol_pen"), 0))
             c["drives"] += 1
             if d["flag"]:
                 c["flag_drives"] += 1
                 c["flag_scored"] += d["result"] in self.SCORED
+        for (week, off), (snaps, ol_pen) in self.snaps.items():
+            team = nc.to_app_team(off)
+            if week is None or not team:
+                continue
+            c = out.setdefault(f"{week}|{team}", dict.fromkeys(("drives", "flag_drives", "flag_scored", "snaps", "ol_pen"), 0))
+            c["snaps"] += snaps
+            c["ol_pen"] += ol_pen
         return out
 
 

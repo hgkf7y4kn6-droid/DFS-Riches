@@ -148,7 +148,18 @@ def test_penalty_drive_accumulator_counts_accepted_defensive_flags_per_drive():
     acc.add(_drive_play(4, "Field goal", penalty="1", penalty_team="MIA", penalty_yards="15"))
     acc.add(_drive_play(5, "End of half", penalty="1", penalty_team="MIA", penalty_yards="15"))        # not counted
     acc.add(_drive_play(6, "Touchdown", season_type="POST", penalty="1", penalty_team="MIA", penalty_yards="5"))
-    assert acc.result() == {"2|BUF": {"drives": 4, "flag_drives": 2, "flag_scored": 2}}
+    assert acc.result() == {"2|BUF": {"drives": 4, "flag_drives": 2, "flag_scored": 2, "snaps": 6, "ol_pen": 0}}
+
+
+def test_penalty_drive_accumulator_counts_offensive_line_flags_per_snap():
+    acc = trenches.PenaltyDriveAccumulator()
+    acc.add(_drive_play(1, "Punt", play_type="no_play", penalty="1", penalty_team="BUF", penalty_type="False Start"))
+    acc.add(_drive_play(1, "Punt", penalty="1", penalty_team="BUF", penalty_type="Offensive Holding", desc="declined"))
+    acc.add(_drive_play(1, "Punt", penalty="1", penalty_team="BUF", penalty_type="Offensive Pass Interference"))
+    acc.add(_drive_play(1, "Punt", penalty="1", penalty_team="MIA", penalty_type="Defensive Holding"))
+    acc.add(_drive_play(1, "Punt", play_type="punt"))                                                   # not a snap
+    c = acc.result()["2|BUF"]
+    assert (c["snaps"], c["ol_pen"]) == (4, 2)
 
 
 def test_penalty_luck_needs_four_recent_games_and_shrinks_to_the_league():
@@ -158,3 +169,15 @@ def test_penalty_luck_needs_four_recent_games_and_shrinks_to_the_league():
     luck = mon.penalty_luck(pen, "BUF", 6, 0.6)                            # 8 of 8 scored, plus 10 drives at 60%
     assert luck == pytest.approx((8 + 6) / 18 - 0.6)
     assert mon.league_flag_score_rate({2025: pen}) == 1.0
+
+
+def test_toxic_flag_needs_weak_protection_and_above_average_ol_penalties():
+    from scripts import late_down_monitor as mon
+    teams = {f"T{i}": {"off": {"pressure_rate": 0.15}, "def": {"blitz": 0.25}} for i in range(11)}
+    teams["BAD"] = {"off": {"pressure_rate": 0.30}, "def": {"blitz": 0.25}}       # protection far below the rest
+    teams["CLEAN"] = {"off": {"pressure_rate": 0.30}, "def": {"blitz": 0.60}}
+    pen = {f"1|{t}": {"snaps": 120, "ol_pen": 2} for t in teams}
+    pen["1|BAD"]["ol_pen"] = 9                                                     # flagged far more often
+    pen["1|CLEAN"]["ol_pen"] = 1
+    assert mon.toxic_offenses(teams, pen, {}, 2) == {"BAD"}
+    assert mon.blitz_z(teams)["CLEAN"] > mon.TOXIC_Z

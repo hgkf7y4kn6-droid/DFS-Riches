@@ -14,6 +14,14 @@ Two signals, each compared with how the game finished against nflverse's closing
                       320-277 (53.6%) on 2023-2025, z = 1.76 against a coin flip, positive in each season; its
                       separate effect against the line was t = -1.4 once recent offense was accounted for.
 
+  toxic flag          an offense whose pass protection (sack + QB-hit rate allowed) is 1+ standard deviation worse
+                      than the league, facing a defense that blitzes 1+ SD more than the league, with above-
+                      average offensive-line penalties (false start, holding, illegal formation per snap); all
+                      entering the game, last season weighted as PRIOR_GAMES games. Graded on that team's points
+                      against its implied team total from the closing spread and total. Research backtest
+                      (2023-2025): 26 team-games, 42% scored 7+ below the implied total (others 21%) and 73% went
+                      under it; one of five similar flags tested, so it is watched, not used.
+
 "Fade" picks the team with the lower value; "flagged" (late downs only) is games with a team flagged hot or cold.
 Prints only aggregates.
 """
@@ -29,6 +37,32 @@ from app import nflverse_client as nc, trenches
 LUCK_GAMES = 4
 LUCK_SHRINK = 10          # drives of league-average results added to each team's recent sample
 LUCK_FROM_WEEK = 5
+TOXIC_Z = 1.0             # protection and opponent blitz thresholds; OL penalties only need to be above average
+OL_PEN_MIN_SNAPS = 100
+
+
+def _z(values: dict[str, float]) -> dict[str, float]:
+    if len(values) < 10:
+        return {}
+    mu, sd = statistics.fmean(values.values()), statistics.pstdev(values.values())
+    return {t: (v - mu) / sd if sd else 0.0 for t, v in values.items()}
+
+
+def toxic_offenses(teams: dict, pen_cur: dict, pen_prev: dict, week: int) -> set[str]:
+    """Offenses entering `week` with weak protection and above-average OL penalties ({team}); the opponent's
+    blitz rate is checked per game (toxic_vs)."""
+    prot = _z({t: p["off"]["pressure_rate"] for t, p in teams.items() if p["off"].get("pressure_rate") is not None})
+    rates = {}
+    for t in teams:
+        c, _, _ = trenches.blend({"off": pen_cur}, {"off": pen_prev}, t, "off", week)
+        if c.get("snaps", 0) >= OL_PEN_MIN_SNAPS:
+            rates[t] = c["ol_pen"] / c["snaps"]
+    pen = _z(rates)
+    return {t for t in prot if prot[t] > TOXIC_Z and pen.get(t, 0.0) > 0}
+
+
+def blitz_z(teams: dict) -> dict[str, float]:
+    return _z({t: p["def"]["blitz"] for t, p in teams.items() if p["def"].get("blitz") is not None})
 
 
 def league_flag_score_rate(pen_by_season: dict[int, dict]) -> float:
@@ -53,15 +87,23 @@ async def season_rows(season: int, current: int, league: float | None = None) ->
     cur, prev = await nc.get_pbp_aggregates(season, current), await nc.get_pbp_aggregates(season - 1, current)
     cur_t, prev_t = trenches.index_counts(cur.get("trenches")), trenches.index_counts(prev.get("trenches"))
     pen = cur.get("penalty_drives") or {}
+    pen_prev = prev.get("penalty_drives") or {}
     league = league_flag_score_rate({season: pen}) if league is None else league
     games = await nc.get_games(season)
-    rows, by_week = [], {}
+    rows, by_week, toxic = [], {}, {}
     for (week, away, home), g in sorted(games.items()):
         if week > 18 or not g["is_final"] or g["spread_line"] is None:
             continue
         if week not in by_week:
             by_week[week] = trenches.build_teams(week, cur_t, prev_t)
+            toxic[week] = (toxic_offenses(by_week[week], pen, pen_prev, week), blitz_z(by_week[week]))
         row = {"season": season, "week": week, "miss": (g["home_score"] - g["away_score"]) - g["spread_line"]}
+        if g["total_line"] is not None:
+            # each offense's points against its implied team total, flagged when the toxic conjunction holds
+            offenses, blitz = toxic[week]
+            implied = {home: (g["total_line"] + g["spread_line"]) / 2, away: (g["total_line"] - g["spread_line"]) / 2}
+            row["teams"] = [{"toxic": off in offenses and blitz.get(de, 0.0) > TOXIC_Z, "dev": pts - implied[off]}
+                            for off, de, pts in ((home, away, g["home_score"]), (away, home, g["away_score"]))]
         a, h = (by_week[week].get(t, {}).get("late_downs") for t in (away, home))
         if a and h:
             row.update(gap=h["net"] - a["net"], flagged=bool(a.get("flag") or h.get("flag")))
@@ -87,6 +129,18 @@ def summarize(rows: list[dict], key: str, flagged: bool = False) -> dict:
     return out
 
 
+def summarize_toxic(rows: list[dict]) -> dict:
+    sides = [t for r in rows for t in r.get("teams", [])]
+    out = {}
+    for name, sel in (("toxic", [t for t in sides if t["toxic"]]), ("others", [t for t in sides if not t["toxic"]])):
+        decided = [t for t in sel if t["dev"] != 0]
+        out[name] = {"team_games": len(sel)} | ({
+            "scored_7_below_implied": f"{sum(t['dev'] <= -7 for t in sel) / len(sel):.1%}",
+            "under_team_total": f"{sum(t['dev'] < 0 for t in decided)}-{sum(t['dev'] > 0 for t in decided)}",
+            "avg_vs_implied": round(statistics.fmean(t["dev"] for t in sel), 1)} if sel else {})
+    return out
+
+
 async def main() -> None:
     from app.sleeper_client import get_nfl_state
     state = await get_nfl_state()
@@ -105,6 +159,9 @@ async def main() -> None:
         print(f"  {label}")
         print(f"    baseline {baseline}: {summarize(base, key, flagged)}")
         print(f"    {args.season}: {summarize(rows[args.season], key, flagged)}")
+    print("  toxic flag (team points vs implied team total)")
+    print(f"    baseline {baseline}: {summarize_toxic(base)}")
+    print(f"    {args.season}: {summarize_toxic(rows[args.season])}")
 
 
 if __name__ == "__main__":
