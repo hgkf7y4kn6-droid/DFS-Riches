@@ -104,3 +104,13 @@ export function ordinal(n: number): string {
   const v = n % 100;
   return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
 }
+
+/** Why a slate has no players yet, and when to expect them (empty states for slates without salaries). */
+export function salariesPendingText(slate: { games: { kickoff_utc: string }[] }): string {
+  const first = slate.games.map((g) => g.kickoff_utc).sort()[0];
+  return (
+    "DraftKings hasn't posted salaries for this slate yet. They usually go up a few days before kickoff" +
+    (first ? ` (first game ${formatEt(first)})` : '') +
+    ', and the app picks them up automatically.'
+  );
+}

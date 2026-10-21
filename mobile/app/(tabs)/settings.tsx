@@ -6,11 +6,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AccountCard from '@/components/AccountCard';
 import MatchupModeToggle from '@/components/MatchupModeToggle';
+import BackLink from '@/components/BackLink';
 import BrandHeader from '@/components/BrandHeader';
 import SafeAreaView from '@/components/SafeAreaView';
 import { API_BASE_URL } from '@/constants/config';
 import { FLOATING_TAB_BAR } from '@/constants/theme';
 import { useDfsModel } from '@/lib/dfs-model-context';
+import { useOnboarding } from '@/lib/onboarding-context';
 import { useSubmissions } from '@/lib/submissions-context';
 import { usePoolTags } from '@/lib/pool-tags-context';
 import { useWeek } from '@/lib/week-context';
@@ -62,6 +64,7 @@ export default function SettingsScreen() {
   const { refresh: refreshModel } = useDfsModel();
   const { submissions, clear } = useSubmissions();
   const { pools, clearAll: clearPoolTags } = usePoolTags();
+  const { showIntro, startHereHidden, setStartHereHidden } = useOnboarding();
   const poolChanges = Object.values(pools).reduce((n, tags) => n + Object.keys(tags).length, 0);
 
   return (
@@ -70,7 +73,8 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}>
-        <BrandHeader title="Settings" />
+        <BrandHeader title="Settings" settings={false} />
+        <BackLink />
 
         <Text className="settings-group-title">Account</Text>
         <AccountCard />
@@ -78,9 +82,21 @@ export default function SettingsScreen() {
           <Row label="Appearance" value={`${scheme === 'dark' ? 'Dark' : 'Light'} (follows your device)`} last />
         </View>
 
+        <Text className="settings-group-title">Help</Text>
+        <View className="settings-group mt-0">
+          <Row label="Glossary" value="What every term means ›" onPress={() => router.push('/glossary')} />
+          <Row label="Show the intro again" value="3 quick screens ›" onPress={showIntro} />
+          <Row
+            label="Start here card on Home"
+            value={startHereHidden ? 'Hidden · tap to show' : 'Showing · tap to hide'}
+            onPress={() => setStartHereHidden(!startHereHidden)}
+            last
+          />
+        </View>
+
         <Text className="settings-group-title">Matchups</Text>
         <View className="settings-group mt-0 p-4">
-          <MatchupModeToggle />
+          <MatchupModeToggle explained />
         </View>
 
         <Text className="settings-group-title">Data</Text>

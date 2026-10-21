@@ -40,7 +40,7 @@ interface Props {
 }
 
 /**
- * A small leverage number after a player's name: fair minus projected
+ * A small labeled leverage number ("lev +2.4") after a player's name: fair minus projected
  * ownership in points (app/leverage.py), the number itself colored green (positive), red
  * (negative) or gold (about even) -- darker = bigger. Renders nothing when
  * the player has no leverage (not on the DFS model's slate).
@@ -67,6 +67,7 @@ export default function LeverageBadge({ player, value, detail, inline, name }: P
     return (
       <Text onPress={open} accessibilityRole="button" accessibilityLabel={label} suppressHighlighting>
         {' '}
+        <Text className="lev-badge-label">lev </Text>
         <Text className="lev-badge-text" style={{ color }}>
           {formatLeverage(info.value)}
         </Text>
@@ -76,6 +77,7 @@ export default function LeverageBadge({ player, value, detail, inline, name }: P
   return (
     <Pressable className="lev-badge" onPress={open} accessibilityRole="button" accessibilityLabel={label} hitSlop={8}>
       <Text className="lev-badge-text" style={{ color }}>
+        <Text className="lev-badge-label">lev </Text>
         {formatLeverage(info.value)}
       </Text>
     </Pressable>

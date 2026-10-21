@@ -4,9 +4,10 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import DfsPlayerRow, { type DfsMetric } from '@/components/dfs/DfsPlayerRow';
 import { useExpandedWidth } from '@/components/dfs/useCardWidth';
 import { PLAYABLE_STATUSES } from '@/constants/data';
-import LeverageBadge from '@/components/LeverageBadge';
+import { Glossed } from '@/components/Term';
 
 const POSITIONS = ['QB', 'RB', 'WR', 'TE', 'DST'];
+const METRIC_UNIT: Record<DfsMetric, string> = { final: 'pts', value: 'pts/$1k', ceiling: 'pts ceiling' };
 
 interface Props {
   title: string;
@@ -41,13 +42,14 @@ export default function RankedPlayersCard({ title, subtitle, metric, players }: 
       <Pressable onPress={() => setExpanded((e) => !e)} accessibilityRole="button" aria-expanded={expanded}>
         <Text className="dfs-card-kicker">Top 10 by position</Text>
         <Text className="dfs-card-title">{title}</Text>
-        <Text className="dfs-card-subtitle">{subtitle}</Text>
+        <Text className="dfs-card-subtitle">
+          <Glossed text={subtitle} />
+        </Text>
         {!expanded ? (
           <View className="mt-2">
             {top3.map((p, i) => (
               <Text key={p.id} className="dfs-preview" numberOfLines={1}>
-                {i + 1}. {p.name}
-                <LeverageBadge inline player={{ id: p.id, name: p.name, team: p.team }} /> <Text className="dfs-meta">{p.position} · {(p[metric] ?? 0).toFixed(metric === 'value' ? 2 : 1)}</Text>
+                {i + 1}. {p.name} <Text className="dfs-meta">{p.position} · {(p[metric] ?? 0).toFixed(metric === 'value' ? 2 : 1)} {METRIC_UNIT[metric]}</Text>
               </Text>
             ))}
           </View>

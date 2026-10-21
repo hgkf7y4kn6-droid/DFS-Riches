@@ -1,7 +1,9 @@
-import { Tabs } from 'expo-router';
-import { Image, Platform, View } from 'react-native';
+import { useAuth } from '@clerk/expo';
+import { Redirect, Tabs } from 'expo-router';
+import { ActivityIndicator, Image, Platform, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import IntroTour from '@/components/IntroTour';
 import { HIDDEN_TAB_ROUTES, tabs } from '@/constants/data';
 import { FLOATING_TAB_BAR, fonts, useThemeColors } from '@/constants/theme';
 import { useAccountSync } from '@/lib/account-sync';
@@ -12,6 +14,13 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const theme = useThemeColors();
   const { master } = useAccountSync();
+  const { isLoaded, isSignedIn } = useAuth();
+  // Labels shrink (10px down to 8px) so the longest, "Tournaments", fits its slot
+  // on narrow phones and when the master-only tab makes six.
+  const { width } = useWindowDimensions();
+  const visible = tabs.filter((t) => !t.masterOnly || master).length;
+  const perTab = (Math.min(width, FLOATING_TAB_BAR.maxWidth + 2 * FLOATING_TAB_BAR.margin) - 2 * FLOATING_TAB_BAR.margin - 2) / visible;
+  const labelSize = Math.max(8, Math.min(10, Math.floor(((perTab - 4) / 6.3) * 2) / 2));
   // On web, the stylesheet's theme variables (they follow the device's light/dark
   // setting instantly, even on the pre-rendered page); native uses the palette.
   const colors =
@@ -26,7 +35,23 @@ export default function TabLayout() {
         }
       : theme;
 
+  // The app needs an account: until Clerk knows who this is, a loading
+  // screen (also what the pre-rendered web page shows); signed out, the
+  // sign-in page (it links to creating an account).
+  if (!isLoaded) {
+    return (
+      <View className="auth-gate">
+        <Text className="brand-title">
+          <Text className="brand-accent">$</Text>DFS<Text className="brand-accent">Riches</Text>
+        </Text>
+        <ActivityIndicator className="mt-4" color={theme.accent} />
+      </View>
+    );
+  }
+  if (!isSignedIn) return <Redirect href="/sign-in" />;
+
   return (
+    <>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -59,9 +84,9 @@ export default function TabLayout() {
           elevation: 10,
         },
         tabBarLabelPosition: 'below-icon',
-        tabBarLabelStyle: { fontSize: 10, lineHeight: 13, fontFamily: fonts.semibold, marginTop: 3 },
+        tabBarLabelStyle: { fontSize: labelSize, lineHeight: 13, fontFamily: fonts.semibold, marginTop: 3, marginHorizontal: 0 },
         tabBarIconStyle: { height: 28 },
-        tabBarItemStyle: { justifyContent: 'center', paddingVertical: 0 },
+        tabBarItemStyle: { justifyContent: 'center', paddingVertical: 0, paddingHorizontal: 0 },
       }}>
       {tabs.map((tab) => (
         <Tabs.Screen
@@ -88,5 +113,7 @@ export default function TabLayout() {
         <Tabs.Screen key={name} name={name} options={{ href: null }} />
       ))}
     </Tabs>
+    <IntroTour />
+    </>
   );
 }

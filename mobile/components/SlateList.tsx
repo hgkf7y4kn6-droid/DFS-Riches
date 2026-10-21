@@ -8,8 +8,8 @@ interface Props {
   onSelect: (slateId: string) => void;
 }
 
-function slateMeta(slate: Slate): string {
-  if (!slate.available) return 'No salaries yet';
+export function slateMeta(slate: Slate): string {
+  if (!slate.available) return 'Salaries not out yet';
   const games = `${slate.games.length} game${slate.games.length === 1 ? '' : 's'}`;
   if (slate.slate_type === 'showdown') {
     const g = slate.games[0];
@@ -18,7 +18,7 @@ function slateMeta(slate: Slate): string {
   return `Classic · ${games}`;
 }
 
-function slateTitle(slate: Slate): string {
+export function slateTitle(slate: Slate): string {
   if (slate.slate_type === 'showdown' && slate.games[0]) return `${slate.games[0].away} @ ${slate.games[0].home}`;
   return slate.slate_id === 'classic_sunday' ? 'Sunday Main' : slate.slate_id === 'classic' ? 'Full Week' : slate.label;
 }

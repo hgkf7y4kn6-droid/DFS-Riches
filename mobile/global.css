@@ -1255,4 +1255,94 @@
   .error-text {
     @apply py-3 text-center text-sm font-sans-medium text-danger;
   }
+
+  /* ------------------------------------------------- new-user help */
+  /* Header: the week picker and Settings gear, the slate underneath. */
+  .brand-controls {
+    @apply items-end gap-1.5;
+  }
+  .brand-term {
+    @apply mt-0.5 text-xs font-sans-bold text-accent-ink;
+  }
+  .gear-btn {
+    @apply size-10 items-center justify-center rounded-xl border border-border bg-card;
+  }
+  .slate-pill {
+    @apply max-w-[180px];
+  }
+  .slate-option {
+    @apply mb-2 flex-row items-center rounded-xl border border-border px-3 py-2.5;
+  }
+  .slate-option-active {
+    @apply border-primary;
+  }
+  .slate-option-check {
+    @apply ml-2 text-base font-sans-bold text-accent-ink;
+  }
+  /* The ⓘ beside a control that opens its explanation. */
+  .info-btn {
+    @apply size-7 items-center justify-center rounded-full;
+  }
+  .info-btn-text {
+    @apply text-base font-sans-bold text-accent-ink;
+  }
+  /* "lev" before a leverage number. */
+  .lev-badge-label {
+    @apply text-[10px] font-sans-semibold text-muted-foreground;
+  }
+  /* Home's "Start here" card. */
+  .start-card {
+    @apply mb-4 rounded-3xl border-2 border-accent bg-card p-4;
+  }
+  .start-title {
+    @apply text-lg font-sans-bold text-foreground;
+  }
+  .start-step {
+    @apply mt-4 flex-row gap-3;
+  }
+  .start-step-num {
+    @apply size-7 items-center justify-center rounded-full bg-accent;
+  }
+  .start-step-num-text {
+    @apply text-sm font-sans-extrabold text-accent-foreground;
+  }
+  .start-step-title {
+    @apply text-base font-sans-bold text-foreground;
+  }
+  .start-step-text {
+    @apply mt-0.5 text-xs font-sans-medium text-muted-foreground;
+  }
+  /* First-run intro. */
+  .intro-sheet {
+    @apply p-5;
+  }
+  .intro-kicker {
+    @apply text-[11px] font-sans-bold uppercase text-accent-ink;
+  }
+  .intro-title {
+    @apply mb-2 mt-2 text-2xl font-sans-bold text-foreground;
+  }
+  .intro-text {
+    @apply mb-2 text-sm font-sans-medium text-foreground;
+  }
+  .intro-dots {
+    @apply my-4 flex-row justify-center gap-2;
+  }
+  .intro-dot {
+    @apply size-2 rounded-full bg-border;
+  }
+  .intro-dot-active {
+    @apply bg-accent;
+  }
+  /* Glossary page rows. */
+  .glossary-row {
+    @apply border-b border-border px-4 py-3;
+  }
+  .glossary-text {
+    @apply mt-1 text-xs font-sans-medium text-muted-foreground;
+  }
+  /* Shown while the sign-in service loads (before the app knows who you are). */
+  .auth-gate {
+    @apply flex-1 items-center justify-center bg-background;
+  }
 }

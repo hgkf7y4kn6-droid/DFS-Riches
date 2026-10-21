@@ -10,7 +10,7 @@ interface AppTab {
   /** Stable id, used as the React key. */
   id: string;
   /** Route file name inside app/(tabs) (e.g. "index" for app/(tabs)/index.tsx). */
-  name: 'index' | 'dfs-model' | 'cash' | 'gpp' | 'big-picture' | 'settings';
+  name: 'index' | 'dfs-model' | 'cash' | 'gpp' | 'big-picture' | 'lineups';
   /** Label under the icon and the screen title. */
   title: string;
   /** Icon from constants/icons.ts, tinted with the active/inactive color. */
@@ -20,12 +20,6 @@ interface AppTab {
 }
 
 /** The signed-in user shown in the Home header. */
-interface HomeUser {
-  name: string;
-  greeting: string;
-  avatar: import('react-native').ImageSourcePropType;
-}
-
 /** The Home balance card: money spent on lineup submissions and the next contest lock. */
 interface HomeBalance {
   /** Dollars spent on contest entries. */

@@ -10,29 +10,56 @@ const MODEL_LABEL: Record<string, string> = {
   gbm: 'LightGBM',
 };
 
-/** How the ownership numbers were made, and whether the trained models have data yet. Tap for details. */
-export default function OwnershipModelNote({ models }: { models: PlaysResponse['ownership_models'] }) {
+/** The field's most-owned players; tap for how the ownership numbers were made and whether the trained models have data yet. */
+export default function OwnershipModelNote({
+  models,
+  players,
+  field,
+}: {
+  models: PlaysResponse['ownership_models'];
+  players: PlayPlayer[];
+  /** The field whose most-owned players lead the note. */
+  field: OwnershipContest;
+}) {
   const [open, setOpen] = useState(false);
   const entries = Object.values(models).filter(Boolean) as OwnershipModelInfo[];
   const first = entries[0];
   if (!first) return null;
   const t = first.training;
+  // The takeaway first: who the field is expected to play most.
+  const popular = players
+    .filter((p) => p.ownership[field] != null)
+    .sort((a, b) => (b.ownership[field] ?? 0) - (a.ownership[field] ?? 0))
+    .slice(0, 3);
   return (
     <Pressable className="env-stack mb-3" onPress={() => setOpen((o) => !o)} accessibilityRole="button" aria-expanded={open}>
-      <Text className="dfs-stats mt-0">
-        {first.simulated_lineups.toLocaleString('en-US')} simulated lineups per contest ·{' '}
-        {Object.entries(first.weights)
-          .map(([k, w]) => `${MODEL_LABEL[k] ?? k} ${formatPercent(w, 0)}`)
-          .join(' + ')}
-      </Text>
+      {popular.length ? (
+        <Text className="dfs-name">
+          Most popular:{' '}
+          {popular.map((p, i) => (
+            <Text key={p.id} className={i ? 'dfs-meta' : undefined}>
+              {i ? ' · ' : ''}
+              {p.name} ({Math.round(p.ownership[field] ?? 0)}%)
+            </Text>
+          ))}
+        </Text>
+      ) : null}
       <Text className="dfs-reason">
-        {t.frac_logit || t.gbm
-          ? `Fractional logit${t.gbm ? ' and LightGBM' : ''} trained on ${t.slates} slates of actual ownership.`
-          : `Fractional logit and LightGBM switch on once 3 slates have actual ownership uploaded (${t.slates} so far).`}{' '}
-        {open ? '▲' : 'How it works ▼'}
+        Expected share of lineups that play each player. {open ? 'Hide ▲' : 'How it works ▼'}
       </Text>
       {open ? (
         <View className="mt-2 gap-1">
+          <Text className="dfs-stats mt-0">
+            {first.simulated_lineups.toLocaleString('en-US')} simulated lineups per contest ·{' '}
+            {Object.entries(first.weights)
+              .map(([k, w]) => `${MODEL_LABEL[k] ?? k} ${formatPercent(w, 0)}`)
+              .join(' + ')}
+          </Text>
+          <Text className="dfs-reason">
+            {t.frac_logit || t.gbm
+              ? `Fractional logit${t.gbm ? ' and LightGBM' : ''} trained on ${t.slates} slates of actual ownership.`
+              : `Fractional logit and LightGBM switch on once 3 slates have actual ownership uploaded (${t.slates} so far).`}
+          </Text>
           <Text className="dfs-reason">
             • Field simulation: each contest&apos;s field is simulated 10,000 times. Every entrant runs a quick optimizer on
             projections randomized by the player&apos;s own spread, with a shared team shock so lineups stack; ownership is how

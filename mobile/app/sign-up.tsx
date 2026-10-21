@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 
 import { AuthShell, clerkMessage, Field, FormError, SubmitButton, useSlowLoadNotice } from '@/components/auth/AuthShell';
+import { track } from '@/lib/analytics';
 
 type Step = 'details' | 'email_code' | 'phone_code';
 
@@ -23,8 +24,8 @@ export default function SignUpScreen() {
 
   const done = async (sessionId: string | null) => {
     await setActive!({ session: sessionId });
-    if (router.canGoBack()) router.back();
-    else router.replace('/settings');
+    track('signed_up');
+    router.replace('/');
   };
 
   // After a step: finish, or move on to whichever verification Clerk still needs.
@@ -80,7 +81,7 @@ export default function SignUpScreen() {
           ? `Enter the code sent to ${form.email.trim()}.`
           : step === 'phone_code'
             ? `Enter the code texted to ${form.phone.trim()}.`
-            : 'Your saved lineups, contest entries, pool tags and settings will follow you to every device.'
+            : 'Free. Your username greets you in the app, and your lineups, contest entries and settings follow you to every device.'
       }
       footer={
         <Text className="text-sm font-sans-medium text-muted-foreground">

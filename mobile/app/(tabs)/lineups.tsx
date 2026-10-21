@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
-import { FlatList, ScrollView } from 'react-native';
+import { FlatList, ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import BrandHeader from '@/components/BrandHeader';
-import BackLink from '@/components/BackLink';
 import LineupBuilder from '@/components/LineupBuilder';
 import ListHeading from '@/components/ListHeading';
 import OptimalLineups from '@/components/OptimalLineups';
 import SafeAreaView from '@/components/SafeAreaView';
 import SlateList from '@/components/SlateList';
 import StatusView from '@/components/StatusView';
+import { Glossed } from '@/components/Term';
 import UpcomingGamesCard from '@/components/UpcomingGamesCard';
 import { toUpcomingGame } from '@/lib/games';
 import { FLOATING_TAB_BAR } from '@/constants/theme';
@@ -34,8 +34,10 @@ export default function Lineups() {
         contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}
         keyboardShouldPersistTaps="handled">
-        <BrandHeader title="Lineups" />
-        <BackLink />
+        <BrandHeader title="Lineups" slate="week" />
+        <Text className="screen-subtitle">
+          <Glossed text="Pick a slate, then tap players to fill each slot under the $50,000 salary cap. Start from a projected optimal lineup if you like." />
+        </Text>
         <StatusView loading={weekData.loading && !data} error={weekData.error} />
         {data && editing ? (
           <>

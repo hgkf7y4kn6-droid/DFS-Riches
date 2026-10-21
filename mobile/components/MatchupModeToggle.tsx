@@ -8,10 +8,15 @@ const OPTIONS: { mode: MatchupMode; label: string; hint: string }[] = [
   { mode: 'adj', label: 'Schedule-adjusted', hint: 'Strips out the offenses each defense happened to face' },
 ];
 
-/** One dropdown that switches every matchup badge between raw and strength-of-schedule adjusted ranks. */
-export default function MatchupModeToggle({ compact = false }: { compact?: boolean }) {
+/**
+ * One dropdown that switches every matchup badge between raw and
+ * strength-of-schedule adjusted ranks. What the ranks mean sits behind the ⓘ
+ * (always shown with `explained`, as in Settings).
+ */
+export default function MatchupModeToggle({ explained = false }: { explained?: boolean }) {
   const { mode, setMode, data } = useMatchups();
   const [open, setOpen] = useState(false);
+  const [info, setInfo] = useState(false);
   const current = OPTIONS.find((o) => o.mode === mode) ?? OPTIONS[0];
   return (
     <View className="mb-2">
@@ -27,6 +32,17 @@ export default function MatchupModeToggle({ compact = false }: { compact?: boole
             {current.label} {open ? '▴' : '▾'}
           </Text>
         </Pressable>
+        {!explained ? (
+          <Pressable
+            className="info-btn"
+            onPress={() => setInfo((v) => !v)}
+            accessibilityRole="button"
+            aria-expanded={info}
+            accessibilityLabel="What matchup ranks mean"
+            hitSlop={8}>
+            <Text className="info-btn-text">ⓘ</Text>
+          </Pressable>
+        ) : null}
       </View>
       {open ? (
         <View className="matchup-menu" accessibilityRole="radiogroup">
@@ -52,7 +68,7 @@ export default function MatchupModeToggle({ compact = false }: { compact?: boole
           })}
         </View>
       ) : null}
-      {!compact ? (
+      {explained || info ? (
         <Text className="dfs-reason">
           #32 = the defense allowing the most to that position this season (its last {data?.window ?? 8} games once it has played that many), #1 the least (green soft, red tough).{' '}
           {mode === 'adj'

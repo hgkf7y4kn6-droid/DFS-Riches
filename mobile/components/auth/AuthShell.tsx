@@ -1,5 +1,4 @@
 import { useClerk } from '@clerk/expo';
-import { router } from 'expo-router';
 import { type ReactNode, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
@@ -14,9 +13,6 @@ export function AuthShell({ title, subtitle, children, footer }: { title: string
     <SafeAreaView className="auth-safe-area" edges={['top', 'left', 'right', 'bottom']}>
       <KeyboardAvoidingView className="auth-screen" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView className="auth-scroll" contentContainerClassName="auth-content" keyboardShouldPersistTaps="handled">
-          <Pressable onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} accessibilityRole="button" className="mb-4 self-start py-1">
-            <Text className="link-text text-sm">‹ Back</Text>
-          </Pressable>
           <View className="auth-brand-block">
             <View className="auth-logo-wrap">
               <View className="auth-logo-mark">
@@ -26,7 +22,7 @@ export function AuthShell({ title, subtitle, children, footer }: { title: string
                 <Text className="brand-title">
                   <Text className="brand-accent">$</Text>DFS<Text className="brand-accent">Riches</Text>
                 </Text>
-                <Text className="auth-wordmark-sub">Your lineups, entries and pool on every device</Text>
+                <Text className="auth-wordmark-sub">DraftKings NFL projections and lineups</Text>
               </View>
             </View>
             <Text className="auth-title">{title}</Text>

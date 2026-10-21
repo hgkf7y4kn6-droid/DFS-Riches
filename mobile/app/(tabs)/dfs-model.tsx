@@ -4,14 +4,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import MatchupModeToggle from '@/components/MatchupModeToggle';
 import BrandHeader from '@/components/BrandHeader';
-import DfsSlatePicker from '@/components/dfs/DfsSlatePicker';
 import GameEnvironmentCard from '@/components/dfs/GameEnvironmentCard';
 import ModelStatus from '@/components/dfs/ModelStatus';
 import RankedPlayersCard from '@/components/dfs/RankedPlayersCard';
 import type { DfsMetric } from '@/components/dfs/DfsPlayerRow';
 import ListHeading from '@/components/ListHeading';
 import SafeAreaView from '@/components/SafeAreaView';
+import { Glossed } from '@/components/Term';
 import { FLOATING_TAB_BAR, useThemeColors } from '@/constants/theme';
+import { useScrollDepth } from '@/lib/analytics';
 import { useDfsModel } from '@/lib/dfs-model-context';
 import { formatEt } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
@@ -28,6 +29,7 @@ export default function DfsModelScreen() {
   const { model, loading, refresh } = useDfsModel();
   const { weekData } = useWeek();
   const [open, setOpen] = useState<string | null>(null);
+  const onScroll = useScrollDepth('dfs_model');
 
   const ready = model?.available ? model : null;
   const envs = useMemo(() => [...(ready?.strategy.games ?? [])].sort((a, b) => a.env_rank - b.env_rank), [ready]);
@@ -40,12 +42,14 @@ export default function DfsModelScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}
-        refreshControl={<RefreshControl refreshing={loading && !!model} onRefresh={refresh} tintColor={colors.accent} />}>
-        <BrandHeader title="DFS Model" />
+        refreshControl={<RefreshControl refreshing={loading && !!model} onRefresh={refresh} tintColor={colors.accent} />}
+        onScroll={onScroll}
+        scrollEventThrottle={250}>
+        <BrandHeader title="DFS Model" slate="model" />
         <Text className="screen-subtitle">
-          {ready ? `${ready.slate.label} · updated ${formatEt(ready.generated_at)}` : 'Projections, values, ceilings and game environments'}
+          <Glossed text="The model's projected points for every player, and which games are set up to score the most. Tap any card for more." />
+          {ready ? `\nUpdated ${formatEt(ready.generated_at)}` : ''}
         </Text>
-        <DfsSlatePicker />
         <MatchupModeToggle />
         <ModelStatus />
 

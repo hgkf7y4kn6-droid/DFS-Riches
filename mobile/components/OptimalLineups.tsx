@@ -7,7 +7,7 @@ import { OPTIMAL_STATUS_TEXT } from "@/constants/data";
 import icons from "@/constants/icons";
 import { useThemeColors } from "@/constants/theme";
 import { fromOptimal } from "@/lib/lineups";
-import { formatCurrency, formatEt, formatPoints } from "@/lib/utils";
+import { formatCurrency, formatEt, formatPoints, salariesPendingText } from "@/lib/utils";
 import { type LineupScope, useLineups, useWeek } from "@/lib/week-context";
 
 function statusLine(opt: OptimalResponse): string {
@@ -155,7 +155,7 @@ export default function OptimalLineups({
           opt && opt.lineups.length === 0
             ? selectedSlate.available
               ? "No optimal lineups yet"
-              : "DraftKings has not posted salaries for this slate yet"
+              : salariesPendingText(selectedSlate)
             : null
         }
       />

@@ -1,7 +1,7 @@
-import { useAuth, useUser } from '@clerk/expo';
-import { Link, router } from 'expo-router';
+import { useUser } from '@clerk/expo';
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { FlatList, Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import BestContests from '@/components/BestContests';
@@ -15,13 +15,16 @@ import OptimalLineups from '@/components/OptimalLineups';
 import ProfitLossTracker from '@/components/ProfitLossTracker';
 import SafeAreaView from '@/components/SafeAreaView';
 import SlateList from '@/components/SlateList';
+import StartHereCard from '@/components/StartHereCard';
 import StatusView from '@/components/StatusView';
 import SubmissionForm from '@/components/SubmissionForm';
 import UpcomingGamesCard from '@/components/UpcomingGamesCard';
-import { HOME_BALANCE, HOME_SECTIONS, HOME_USER } from '@/constants/data';
+import { HOME_BALANCE, HOME_GREETING, HOME_SECTIONS } from '@/constants/data';
 import { FLOATING_TAB_BAR, useThemeColors } from '@/constants/theme';
 import dayjs from '@/lib/dayjs';
 import { toUpcomingGame } from '@/lib/games';
+import { useOnboarding } from '@/lib/onboarding-context';
+import { useChooseSlate } from '@/lib/slate-choice';
 import { stats } from '@/lib/submissions';
 import { useSubmissions } from '@/lib/submissions-context';
 import { formatCurrency } from '@/lib/utils';
@@ -30,7 +33,9 @@ import { useWeek } from '@/lib/week-context';
 export default function Home() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
-  const { week, weekData, refresh, selectedSlate, selectSlate } = useWeek();
+  const { week, weekData, refresh, selectedSlate } = useWeek();
+  const choose = useChooseSlate();
+  const { startHereHidden } = useOnboarding();
   const { submissions } = useSubmissions();
   const data = weekData.data;
   const [profitOpen, setProfitOpen] = useState(HOME_SECTIONS.profit.defaultExpanded);
@@ -60,11 +65,9 @@ export default function Home() {
     lineupContestDate: nextLock ?? HOME_BALANCE.lineupContestDate,
   };
 
-  const { isSignedIn } = useAuth();
+  // Everyone in the app is signed in (app/(tabs)/_layout.tsx): greet them by username.
   const { user } = useUser();
-  const displayName = isSignedIn
-    ? user?.firstName || user?.username || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || HOME_USER.name
-    : HOME_USER.name;
+  const displayName = user?.username || user?.firstName || user?.primaryEmailAddress?.emailAddress?.split('@')[0] || 'there';
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
@@ -73,55 +76,78 @@ export default function Home() {
         contentContainerClassName="screen-content"
         contentContainerStyle={{ paddingBottom: insets.bottom + FLOATING_TAB_BAR.space }}
         refreshControl={<RefreshControl refreshing={weekData.loading && !!data} onRefresh={refresh} tintColor={colors.accent} />}>
-        <BrandHeader title="Home" />
+        <BrandHeader title="Home" slate="week" />
 
         {/* User info */}
         <View className="home-header">
           <View className="home-user">
-            {isSignedIn ? (
-              <View className="home-avatar account-avatar" style={{ width: 64, height: 64 }}>
-                <Text className="account-avatar-text text-2xl">{displayName[0]?.toUpperCase()}</Text>
-              </View>
-            ) : (
-              <Image source={HOME_USER.avatar} className="home-avatar" style={{ width: 64, height: 64 }} />
-            )}
+            <View className="home-avatar account-avatar" style={{ width: 56, height: 56 }}>
+              <Text className="account-avatar-text text-2xl">{displayName[0]?.toUpperCase()}</Text>
+            </View>
             <View className="flex-1">
               <Text className="home-user-greeting">
-                {HOME_USER.greeting}
+                {HOME_GREETING}
                 {week ? ` · Week ${week}` : ''}
               </Text>
               <Text className="home-user-name" numberOfLines={1}>
                 {displayName}
               </Text>
-              {!isSignedIn ? (
-                // A real link, so it works on the pre-rendered page before the app has loaded.
-                <Link href="/sign-in" asChild>
-                  <Pressable accessibilityRole="link" className="ml-4 mt-0.5 self-start">
-                    <Text className="link-text text-xs">Sign in to sync across devices ›</Text>
-                  </Pressable>
-                </Link>
-              ) : null}
             </View>
           </View>
         </View>
 
-        {/* Balance card: money spent on lineup submissions */}
-        <View className="home-balance-card">
-          <Text className="home-balance-label">Spent on lineup submissions</Text>
-          <View className="home-balance-row">
-            <Text className="home-balance-amount">{formatCurrency(homeBalance.amount)}</Text>
-            <View className="home-balance-date-block">
-              <Text className="home-balance-date-label">Next lineup lock</Text>
-              <Text className="home-balance-date">{dayjs(homeBalance.lineupContestDate).format('MM/DD')}</Text>
-            </View>
+        {/* Start here: pick a slate, see its top plays, build a lineup */}
+        {!startHereHidden ? <StartHereCard /> : null}
+
+        <StatusView loading={weekData.loading && !data} error={weekData.error} />
+
+        {/* This week's slates first: every DraftKings slate (Sunday Main, Full Week, each Showdown) and its optimal lineups */}
+        {data ? (
+          <View>
+            <ListHeading
+              title={HOME_SECTIONS.slates.title}
+              subtitle={
+                startHereHidden
+                  ? `${data.slates.length} slates this week · tap one for its optimal lineups`
+                  : 'The projected best lineups for the slate you picked'
+              }
+              onPress={() => router.push('/lineups')}
+            />
+            {data.slates.length ? (
+              <>
+                {startHereHidden ? <SlateList slates={data.slates} selectedId={selectedSlate?.slate_id ?? null} onSelect={choose} /> : null}
+                <View className={startHereHidden ? 'mt-3' : ''}>
+                  <OptimalLineups collapsible />
+                </View>
+                <Pressable className="btn-outline mt-2" onPress={() => router.push('/lineups')} accessibilityRole="button">
+                  <Text className="btn-outline-text">Build lineups for this slate ›</Text>
+                </Pressable>
+              </>
+            ) : (
+              <Text className="home-empty-state">
+                {"DraftKings hasn't posted this week's slates yet. They usually go up a few days before the first kickoff."}
+              </Text>
+            )}
           </View>
-          <BalanceStats />
-        </View>
+        ) : null}
+
+        {/* Balance card: money spent on lineup submissions, once there's an entry to show */}
+        {submissions.length ? (
+          <View className="home-balance-card">
+            <Text className="home-balance-label">Spent on lineup submissions</Text>
+            <View className="home-balance-row">
+              <Text className="home-balance-amount">{formatCurrency(homeBalance.amount)}</Text>
+              <View className="home-balance-date-block">
+                <Text className="home-balance-date-label">Next lineup lock</Text>
+                <Text className="home-balance-date">{dayjs(homeBalance.lineupContestDate).format('MM/DD')}</Text>
+              </View>
+            </View>
+            <BalanceStats />
+          </View>
+        ) : null}
 
         {/* Free contests that pay cash: opens itself when there are any */}
         <FreeContests />
-
-        <StatusView loading={weekData.loading && !data} error={weekData.error} />
 
         {data ? (
           <>
@@ -155,28 +181,6 @@ export default function Home() {
                   )
                 }
               />
-            </View>
-
-            {/* Slates: every DraftKings slate this week (Sunday Main, Full Week, each Showdown) and its optimal lineups */}
-            <View>
-              <ListHeading
-                title={HOME_SECTIONS.slates.title}
-                subtitle={`${data.slates.length} slates this week · tap one for its optimal lineups`}
-                onPress={() => router.push('/lineups')}
-              />
-              {data.slates.length ? (
-                <>
-                  <SlateList slates={data.slates} selectedId={selectedSlate?.slate_id ?? null} onSelect={selectSlate} />
-                  <View className="mt-3">
-                    <OptimalLineups collapsible />
-                  </View>
-                  <Pressable className="btn-outline mt-2" onPress={() => router.push('/lineups')} accessibilityRole="button">
-                    <Text className="btn-outline-text">Build lineups for this slate ›</Text>
-                  </Pressable>
-                </>
-              ) : (
-                <Text className="home-empty-state">{"DraftKings hasn't posted this week's slates yet."}</Text>
-              )}
             </View>
           </>
         ) : null}

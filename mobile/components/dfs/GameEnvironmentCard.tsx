@@ -2,6 +2,7 @@ import { Image, Pressable, Text, View } from 'react-native';
 
 import DfsPlayerRow from '@/components/dfs/DfsPlayerRow';
 import StatusView from '@/components/StatusView';
+import { Term } from '@/components/Term';
 import { PLAYABLE_STATUSES } from '@/constants/data';
 import icons from '@/constants/icons';
 import { useThemeColors } from '@/constants/theme';
@@ -19,6 +20,13 @@ interface Props {
   gameId: string | null;
   expanded: boolean;
   onToggle: () => void;
+}
+
+/** "DET favored by 3" / "Pick'em", for the collapsed card. */
+function favoriteText(env: DfsGameEnv): string {
+  if (env.spread_home == null) return '';
+  if (env.spread_home === 0) return "Pick'em";
+  return `${env.spread_home < 0 ? env.home : env.away} favored by ${Math.abs(env.spread_home)}`;
 }
 
 function spreadText(env: DfsGameEnv): string {
@@ -117,8 +125,9 @@ function StackCard({ stack, rank }: { stack: DfsStack; rank: number }) {
 }
 
 /**
- * One game environment, ranked best to worst. Collapsed: environment and
- * popularity rank, lines, script. Tap to expand: the 1-5 best stacks (by the
+ * One game environment, ranked best to worst. Collapsed: environment rank,
+ * the Vegas read in plain words, tags and script. Tap to expand: the
+ * numbers (lines, popularity, env score, the advanced models), the 1-5 best stacks (by the
  * model's stack score: environment, ceiling vs salary, popularity), the
  * matchups to exploit, and the players to target ranked by ceiling. Tap the
  * header again to collapse.
@@ -130,12 +139,13 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
     .filter((p) => PLAYABLE_STATUSES.has(p.injury ?? 'Healthy') && p.final > 0)
     .sort((a, b) => (b.ceiling ?? 0) - (a.ceiling ?? 0) || b.final - a.final)
     .slice(0, 8);
+  // Each tag opens its glossary definition.
   const tags = [
-    env.shootout && 'Shootout',
-    env.shootout_leverage?.flag && `Shootout leverage ${env.shootout_leverage.leverage.toFixed(2)}x`,
-    env.negative_script && 'Negative script',
-    env.live_dog && `Live dog: ${env.underdog}`,
-  ].filter(Boolean) as string[];
+    env.shootout && { id: 'shootout', text: 'Shootout' },
+    env.shootout_leverage?.flag && { id: 'shootout-leverage', text: `Shootout leverage ${env.shootout_leverage.leverage.toFixed(2)}x` },
+    env.negative_script && { id: 'negative-script', text: 'Negative script' },
+    env.live_dog && { id: 'live-dog', text: `Live dog: ${env.underdog}` },
+  ].filter(Boolean) as { id: string; text: string }[];
 
   return (
     <View className={`env-card ${expanded ? 'slate-card-active' : ''}`}>
@@ -159,38 +169,64 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
             style={{ width: 16, height: 16, tintColor: colors.foreground, transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}
           />
         </View>
+        {/* Collapsed: the plain-language read. The model's numbers are in the expanded card. */}
         <Text className="dfs-stats mt-2">
-          O/U {env.total ?? '-'} · {spreadText(env)} · {env.away} {env.away_implied ?? '-'} / {env.home} {env.home_implied ?? '-'}
+          {env.total != null ? (
+            <>
+              {env.total} <Term id="total">total points</Term> expected
+            </>
+          ) : (
+            'No Vegas total yet'
+          )}
+          {favoriteText(env) ? ` · ${favoriteText(env)}` : ''}
         </Text>
-        <Text className="dfs-meta">
-          Popularity #{env.pop_rank} · {formatPercent(env.pop_share, 0)} of the field · env score {env.env_score.toFixed(2)}
-        </Text>
-        {env.advanced_env ? (
-          <Text className="dfs-meta">
-            Advanced env {env.advanced_env.lean ?? 'Neutral'} lean ({formatSigned(env.advanced_env.adj, 2)}): pace{' '}
-            {formatSigned(env.advanced_env.parts.playcaller_pace, 2)} · drive velocity {env.advanced_env.parts.drive_velocity.toFixed(2)} ·
-            pressure {formatSigned(env.advanced_env.parts.trench_penalty, 2)}
+        {tags.length ? (
+          <Text className="slate-card-status mt-1">
+            {tags.map((t, i) => (
+              <Text key={t.id}>
+                {i ? ' · ' : ''}
+                <Term id={t.id}>{t.text}</Term>
+              </Text>
+            ))}
           </Text>
         ) : null}
-        {env.shootout_leverage ? (
-          <Text className="dfs-meta">
-            Top-scorer odds {formatPercent(env.shootout_leverage.expected_share, 0)} vs {formatPercent(env.shootout_leverage.own_share, 0)}{' '}
-            of the field · leverage {env.shootout_leverage.leverage.toFixed(2)}x (#{env.shootout_leverage.rank})
-          </Text>
-        ) : null}
-        {env.model_v2 ? (
-          <Text className="dfs-meta">
-            Game model: total {env.model_v2.fair_total.toFixed(1)} ({formatSigned(env.model_v2.total_adj, 1)} vs the line) · {env.home}{' '}
-            {formatSigned(env.model_v2.fair_home_margin, 1)}
-          </Text>
-        ) : null}
-        {tags.length ? <Text className="slate-card-status mt-1">{tags.join(' · ')}</Text> : null}
         <Text className="dfs-reason mt-1">{env.script}</Text>
+        {!expanded ? <Text className="upcoming-expand-hint">Stacks, matchups, targets and the numbers ▼</Text> : null}
       </Pressable>
 
       {expanded ? (
         <View className="slate-card-body">
-          <Text className="detail-title">Best stacks</Text>
+          <Text className="detail-title">The numbers</Text>
+          <Text className="dfs-stats mt-0">
+            <Term id="total">O/U</Term> {env.total ?? '-'} · <Term id="spread">{spreadText(env)}</Term> · <Term id="implied">Implied</Term> {env.away}{' '}
+            {env.away_implied ?? '-'} / {env.home} {env.home_implied ?? '-'}
+          </Text>
+          <Text className="dfs-meta">
+            <Term id="popularity">Popularity</Term> #{env.pop_rank} · {formatPercent(env.pop_share, 0)} of the field ·{' '}
+            <Term id="game-environment">env score</Term> {env.env_score.toFixed(2)}
+          </Text>
+          {env.advanced_env ? (
+            <Text className="dfs-meta">
+              Advanced env {env.advanced_env.lean ?? 'Neutral'} lean ({formatSigned(env.advanced_env.adj, 2)}): pace{' '}
+              {formatSigned(env.advanced_env.parts.playcaller_pace, 2)} · drive velocity {env.advanced_env.parts.drive_velocity.toFixed(2)} ·
+              pressure {formatSigned(env.advanced_env.parts.trench_penalty, 2)}
+            </Text>
+          ) : null}
+          {env.shootout_leverage ? (
+            <Text className="dfs-meta">
+              Top-scorer odds {formatPercent(env.shootout_leverage.expected_share, 0)} vs {formatPercent(env.shootout_leverage.own_share, 0)}{' '}
+              of the field · leverage {env.shootout_leverage.leverage.toFixed(2)}x (#{env.shootout_leverage.rank})
+            </Text>
+          ) : null}
+          {env.model_v2 ? (
+            <Text className="dfs-meta">
+              Game model: total {env.model_v2.fair_total.toFixed(1)} ({formatSigned(env.model_v2.total_adj, 1)} vs the line) · {env.home}{' '}
+              {formatSigned(env.model_v2.fair_home_margin, 1)}
+            </Text>
+          ) : null}
+          <Text className="detail-title mt-4">
+            Best <Term id="stack">stacks</Term>
+          </Text>
           {best.length ? best.map((s, i) => <StackCard key={`${s.team}-${s.type}-${i}`} stack={s} rank={i + 1} />) : (
             <Text className="home-empty-state">No stacks for this game.</Text>
           )}

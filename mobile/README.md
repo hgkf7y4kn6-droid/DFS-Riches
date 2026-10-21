@@ -51,23 +51,28 @@ native code changes the fingerprint and needs a new build.
 
 | Path | What's there |
 | --- | --- |
-| `app/_layout.tsx` | Root stack: safe-area provider, week data provider, `global.css` |
-| `app/(tabs)/_layout.tsx` | Floating bottom tab bar (Home, DFS Model, Cash, GPP, Settings), mapped from `tabs` in `constants/data.ts`; positioned with `useSafeAreaInsets()` |
+| `app/_layout.tsx` | Root stack: safe-area provider, week data provider, onboarding and glossary providers, `global.css` |
+| `app/sign-in.tsx`, `app/sign-up.tsx` | Clerk sign-in / free account: the way into the app (signed-out visitors land on sign-in) |
+| `app/(tabs)/_layout.tsx` | Requires a signed-in account, then the floating bottom tab bar (Home, DFS Model, Safe Plays, Tournaments, Lineups), mapped from `tabs` in `constants/data.ts`; positioned with `useSafeAreaInsets()`; the first-run intro (`components/IntroTour.tsx`) |
 | `app/(tabs)/dfs-model.tsx` | Top 10 projections / values / ceilings by position, and game environments ranked best to worst (stacks, matchups, targets) |
-| `app/(tabs)/cash.tsx`, `app/(tabs)/gpp.tsx` | Top QB/RB/WR/TE plays by strength of play, and every player's expected cash (or small/large-field GPP) ownership with Prioritize / Neutral / Fade tags (`components/plays/`, `/api/plays`) |
-| `app/(tabs)/settings.tsx` | Account, data, links to the lineup builder and Lines & Performance, clearing saved data |
-| `app/(tabs)/index.tsx` | Home: header with add-entry button, balance card (money spent on entries, next lineup lock), upcoming games (tap a card for its weekly breakdown), slate cards (tap to open projected optimal lineups and build/save lineups), profit/loss tracker, Lines & Performance |
-| `app/(tabs)/lineups.tsx` | Slates, projected optimal lineups and the lineup builder (from Home/Settings; not in the tab bar) |
+| `app/(tabs)/cash.tsx`, `app/(tabs)/gpp.tsx` | Safe Plays (cash games) and Tournaments (GPPs): top QB/RB/WR/TE plays by strength of play, and every player's expected cash (or small/large-field GPP) ownership with Prioritize / Neutral / Fade tags (`components/plays/`, `/api/plays`) |
+| `app/(tabs)/settings.tsx` | The header's gear: account, help (glossary, intro, Start here card), data, links to the lineup builder and Lines & Performance, clearing saved data |
+| `app/(tabs)/glossary.tsx` | Every DFS term in plain language (`constants/glossary.ts`); `components/Term.tsx` makes a term on any screen tappable |
+| `app/(tabs)/index.tsx` | Home: greeting by username, the Start here card (pick a slate, see its top plays, build a lineup), this week's slates and optimal lineups, balance card once an entry is logged (money spent on entries, next lineup lock), upcoming games (tap a card for its weekly breakdown), slate cards (tap to open projected optimal lineups and build/save lineups), profit/loss tracker, Lines & Performance |
+| `app/(tabs)/lineups.tsx` | Slates, projected optimal lineups and the lineup builder (the Lineups tab) |
 | `app/(tabs)/lines.tsx` | Lines & Performance for every game (from Home/Settings; not in the tab bar) |
 | `components/` | The pieces those screens are built from |
-| `constants/data.ts` | Tabs, Home user, Home sections, builder filters |
+| `constants/data.ts` | Tabs, Home greeting, Home sections, builder filters |
 | `constants/icons.ts`, `constants/images.ts` | Centralized icon and image imports |
 | `lib/utils.ts` | `formatCurrency` and other formatters |
 | `lib/api.ts`, `lib/week-context.tsx` | API client and shared week/slate/lineup state (saved lineups persist on the device) |
 | `lib/submissions.ts`, `lib/submissions-context.tsx` | Logged contest entries (saved on the device) and the profit/loss math |
 | `lib/lineups.ts` | Lineup rules, ported from the website's `static/lineups.js` |
 | `lib/lines.ts` | Lines & Performance formatting, ported from `static/app.js` |
-| `lib/dfs-model-context.tsx`, `lib/game-detail.ts` | The DFS model (shared by DFS Model/Cash/GPP) and per-game breakdowns, each fetched once |
+| `lib/dfs-model-context.tsx`, `lib/game-detail.ts` | The DFS model (shared by DFS Model/Safe Plays/Tournaments) and per-game breakdowns, each fetched once |
+| `lib/slate-choice.ts`, `components/SlatePill.tsx` | One slate choice for every tab, and the header's slate button |
+| `lib/onboarding-context.tsx`, `components/StartHereCard.tsx` | First-run intro and Home's Start here card (remembered on the device) |
+| `lib/analytics.tsx` | PostHog: screen views, sign-ins, intro / Start here steps, glossary taps, lineup builder funnel, DFS Model scroll depth |
 | `lib/games.ts` | Turns API games into the `UpcomingGame` cards (team logos from Sleeper's CDN) |
 | `type.d.ts` | Global types for tabs, Home data and every API response |
 | `global.css` | Tailwind layers plus the app's component classes (auth, home, games, players, lineups, forms, profit/loss) |

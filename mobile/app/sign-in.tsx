@@ -2,17 +2,16 @@ import { useAuth } from '@clerk/expo';
 import { useSignIn } from '@clerk/expo/legacy';
 import { Link, router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, Text } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { AuthShell, clerkMessage, Field, FormError, SubmitButton, useSlowLoadNotice } from '@/components/auth/AuthShell';
+import { track } from '@/lib/analytics';
 
 type Step = 'password' | 'first_code' | 'second_code';
 type Factor = { strategy: string; emailAddressId?: string; phoneNumberId?: string };
 
-const leave = () => {
-  if (router.canGoBack()) router.back();
-  else router.replace('/settings');
-};
+// Into the app (signing in is the way in: app/(tabs)/_layout.tsx sends signed-out visitors here).
+const leave = () => router.replace('/');
 
 /**
  * Clerk sign-in: email or username + password, or a one-time code by email
@@ -38,6 +37,7 @@ export default function SignInScreen() {
 
   const finish = async (sessionId: string | null) => {
     await setActive!({ session: sessionId });
+    track('signed_in');
     leave();
   };
 
@@ -131,15 +131,23 @@ export default function SignInScreen() {
   const where = codeStrategy === 'email_code' ? 'email' : 'phone';
   return (
     <AuthShell
-      title={coding ? `Check your ${where}` : 'Welcome back'}
-      subtitle={coding ? `Enter the code we sent to your ${where}.` : 'Sign in to bring your saved lineups, contest entries and pool tags to this device.'}
+      title={coding ? `Check your ${where}` : 'Sign in'}
+      subtitle={
+        coding
+          ? `Enter the code we sent to your ${where}.`
+          : 'Sign in, or create a free account, to see this week\'s projections and build lineups. Your lineups and entries follow you to every device.'
+      }
       footer={
-        <Text className="text-sm font-sans-medium text-muted-foreground">
-          New here?{' '}
-          <Link href="/sign-up" replace>
-            <Text className="link-text text-sm">Create an account</Text>
-          </Link>
-        </Text>
+        coding ? null : (
+          <View className="w-full max-w-[420px] items-center">
+            <Text className="mb-2 text-sm font-sans-medium text-muted-foreground">New to DFSRiches?</Text>
+            <Link href="/sign-up" replace asChild>
+              <Pressable className="btn-outline w-full justify-center" accessibilityRole="link">
+                <Text className="btn-outline-text">Create a free account</Text>
+              </Pressable>
+            </Link>
+          </View>
+        )
       }>
       <FormError message={error ?? slowNotice} />
       {coding ? (

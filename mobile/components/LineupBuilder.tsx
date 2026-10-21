@@ -15,7 +15,8 @@ import { useSlateOwnership } from '@/lib/slate-ownership';
 import { useLeverage } from '@/lib/leverage-context';
 import { useSubmissions } from '@/lib/submissions-context';
 import { matchupScore, useMatchups } from '@/lib/matchups-context';
-import { formatCurrency, formatEt, formatPoints } from '@/lib/utils';
+import { track } from '@/lib/analytics';
+import { formatCurrency, formatEt, formatPoints, salariesPendingText } from '@/lib/utils';
 import { evenWeights, type Factor, setWeight, totalWeight, type Weights, weightedRank } from '@/lib/weighted-sort';
 import { type LineupScope, useLineups, useWeek } from '@/lib/week-context';
 
@@ -269,7 +270,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
 
   if (!selectedSlate) return null;
   if (!selectedSlate.available) {
-    return <Text className="empty-text">DraftKings has not posted salaries for this slate yet.</Text>;
+    return <Text className="empty-text">{salariesPendingText(selectedSlate)}</Text>;
   }
 
   const toggle = (player: Player) => {
@@ -290,6 +291,10 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
     }
     setLineup(activeLineup, res.slots);
     setMessage({ text: `Added ${player.name} at ${defs[res.index].label}.` });
+    // Funnel events: the first player in a lineup, and a filled lineup.
+    const filled = res.slots.filter(Boolean).length;
+    if (filled === 1) track('lineup_started', { scope: scope || 'lineups', slate_type: slateType });
+    if (filled === defs.length) track('lineup_completed', { scope: scope || 'lineups', slate_type: slateType });
   };
 
   return (
@@ -335,6 +340,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
           className={`save-btn ${unsaved ? '' : 'save-btn-idle'}`}
           onPress={() => {
             saveLineups();
+            track('lineups_saved', { scope: scope || 'lineups', count: lineups.length });
             setMessage({ text: `Saved ${lineups.length} lineup${lineups.length === 1 ? '' : 's'} for ${selectedSlate.label}.` });
           }}
           accessibilityRole="button"

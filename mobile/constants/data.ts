@@ -1,5 +1,4 @@
 import icons from '@/constants/icons';
-import images from '@/constants/images';
 
 // Bottom tabs: app/(tabs)/_layout.tsx maps over these, one Tabs.Screen each.
 export const tabs: AppTab[] = [
@@ -7,20 +6,19 @@ export const tabs: AppTab[] = [
   // Master accounts only while it's piloted (the tab is hidden for everyone else).
   { id: 'big-picture', name: 'big-picture', title: 'Big Picture', icon: icons.bigpicture, masterOnly: true },
   { id: 'dfs-model', name: 'dfs-model', title: 'DFS Model', icon: icons.dfs },
-  { id: 'cash', name: 'cash', title: 'Cash', icon: icons.cash },
-  { id: 'gpp', name: 'gpp', title: 'GPP', icon: icons.gpp },
-  { id: 'settings', name: 'settings', title: 'Settings', icon: icons.settings },
+  // Plain-language names; each screen shows the contest term under its title.
+  { id: 'cash', name: 'cash', title: 'Safe Plays', icon: icons.cash },
+  { id: 'gpp', name: 'gpp', title: 'Tournaments', icon: icons.gpp },
+  { id: 'lineups', name: 'lineups', title: 'Lineups', icon: icons.lineups },
 ];
 
-// Screens in app/(tabs) that aren't in the tab bar (opened from Home's "View all" and Settings).
-export const HIDDEN_TAB_ROUTES = ['lineups', 'lines'] as const;
+// Screens in app/(tabs) that aren't in the tab bar: Settings (the header's
+// gear), Lines & Performance (Home and Settings) and the glossary (Settings
+// and any definition sheet).
+export const HIDDEN_TAB_ROUTES = ['settings', 'lines', 'glossary'] as const;
 
-// Home header.
-export const HOME_USER: HomeUser = {
-  name: 'Rags2Riches26',
-  greeting: 'Welcome back',
-  avatar: images.avatar,
-};
+// Home header greeting (above the signed-in user's username).
+export const HOME_GREETING = 'Welcome back';
 
 // Home balance card. Hard-coded starting values: app/(tabs)/index.tsx
 // replaces them with live numbers (logged entry fees, next slate lock) once
