@@ -12,3 +12,4 @@ web/
 .env.local
 node_modules/
 data/cache/train/
+data/cache/wiki_raw_*.json.gz
