@@ -1,94 +1,116 @@
 {
- "generated_at": "2026-10-21T21:59:29Z",
+ "generated_at": "2026-10-21T22:53:14Z",
  "seasons": [
   2021,
   2026
  ],
  "lookback_seasons": 3,
  "baseline": {
-  "team_games": 2785,
-  "total_resid_mean": 0.64,
-  "over_rate": 0.488,
+  "team_games": 2788,
+  "total_resid_mean": 0.63,
+  "over_rate": 0.487,
   "abs_miss_mean": 10.34,
   "miss_10plus_rate": 0.439,
   "team_vs_implied_mean": 0.32,
   "team_beat_implied_rate": 0.495,
-  "cover_rate": 0.498
+  "cover_rate": 0.498,
+  "opp_vs_implied_mean": 0.31,
+  "opp_held_under_implied_rate": 0.495
  },
  "groups": {
   "offense": {
    "summary": {
-    "team_games": 54,
-    "total_resid_mean": -2.47,
-    "over_rate": 0.444,
-    "abs_miss_mean": 11.79,
-    "miss_10plus_rate": 0.574,
-    "team_vs_implied_mean": -0.61,
-    "team_beat_implied_rate": 0.389,
-    "cover_rate": 0.519
+    "team_games": 52,
+    "total_resid_mean": -2.59,
+    "over_rate": 0.442,
+    "abs_miss_mean": 11.64,
+    "miss_10plus_rate": 0.558,
+    "team_vs_implied_mean": -0.69,
+    "team_beat_implied_rate": 0.385,
+    "cover_rate": 0.52,
+    "opp_vs_implied_mean": -1.9,
+    "opp_held_under_implied_rate": 0.635
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -3.109,
-     "p": 0.0842
+     "diff": -3.215,
+     "p": 0.0787
     },
     "over_rate": {
-     "diff": -0.043,
-     "p": 0.5564
+     "diff": -0.045,
+     "p": 0.5539
     },
     "abs_miss_mean": {
-     "diff": 1.451,
-     "p": 0.1819
+     "diff": 1.306,
+     "p": 0.2411
     },
     "miss_10plus_rate": {
-     "diff": 0.135,
-     "p": 0.0473
+     "diff": 0.118,
+     "p": 0.0893
     },
     "team_vs_implied_mean": {
-     "diff": -0.935,
-     "p": 0.4635
+     "diff": -1.007,
+     "p": 0.4283
     },
     "cover_rate": {
-     "diff": 0.021,
-     "p": 0.7654
+     "diff": 0.022,
+     "p": 0.7456
+    },
+    "opp_vs_implied_mean": {
+     "diff": -2.208,
+     "p": 0.0853
+    },
+    "opp_held_under_implied_rate": {
+     "diff": 0.14,
+     "p": 0.0469
     }
    }
   },
   "offense_first_meeting": {
    "summary": {
-    "team_games": 36,
-    "total_resid_mean": -2.19,
-    "over_rate": 0.472,
-    "abs_miss_mean": 11.94,
-    "miss_10plus_rate": 0.5,
-    "team_vs_implied_mean": 0.24,
-    "team_beat_implied_rate": 0.444,
-    "cover_rate": 0.559
+    "team_games": 34,
+    "total_resid_mean": -2.35,
+    "over_rate": 0.471,
+    "abs_miss_mean": 11.74,
+    "miss_10plus_rate": 0.471,
+    "team_vs_implied_mean": 0.17,
+    "team_beat_implied_rate": 0.441,
+    "cover_rate": 0.562,
+    "opp_vs_implied_mean": -2.52,
+    "opp_held_under_implied_rate": 0.618
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -2.831,
-     "p": 0.1915
+     "diff": -2.982,
+     "p": 0.1825
     },
     "over_rate": {
-     "diff": -0.015,
-     "p": 0.8686
+     "diff": -0.017,
+     "p": 0.8654
     },
     "abs_miss_mean": {
-     "diff": 1.609,
-     "p": 0.2329
+     "diff": 1.397,
+     "p": 0.3111
     },
     "miss_10plus_rate": {
-     "diff": 0.061,
-     "p": 0.503
+     "diff": 0.031,
+     "p": 0.7301
     },
     "team_vs_implied_mean": {
-     "diff": -0.087,
-     "p": 0.9582
+     "diff": -0.15,
+     "p": 0.9218
     },
     "cover_rate": {
-     "diff": 0.061,
-     "p": 0.4616
+     "diff": 0.065,
+     "p": 0.4502
+    },
+    "opp_vs_implied_mean": {
+     "diff": -2.831,
+     "p": 0.0727
+    },
+    "opp_held_under_implied_rate": {
+     "diff": 0.123,
+     "p": 0.1654
     }
    }
   },
@@ -101,108 +123,138 @@
     "miss_10plus_rate": 0.343,
     "team_vs_implied_mean": 2.36,
     "team_beat_implied_rate": 0.6,
-    "cover_rate": 0.5
+    "cover_rate": 0.5,
+    "opp_vs_implied_mean": 0.2,
+    "opp_held_under_implied_rate": 0.486
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": 1.921,
-     "p": 0.3864
+     "diff": 1.928,
+     "p": 0.3822
     },
     "over_rate": {
-     "diff": 0.055,
-     "p": 0.5815
+     "diff": 0.056,
+     "p": 0.5903
     },
     "abs_miss_mean": {
-     "diff": -1.778,
-     "p": 0.1942
+     "diff": -1.781,
+     "p": 0.1889
     },
     "miss_10plus_rate": {
-     "diff": -0.096,
-     "p": 0.3122
+     "diff": -0.097,
+     "p": 0.3064
     },
     "team_vs_implied_mean": {
-     "diff": 2.034,
-     "p": 0.1835
+     "diff": 2.038,
+     "p": 0.1822
     },
     "cover_rate": {
      "diff": 0.002,
-     "p": 0.9901
+     "p": 0.9909
+    },
+    "opp_vs_implied_mean": {
+     "diff": -0.109,
+     "p": 0.9453
+    },
+    "opp_held_under_implied_rate": {
+     "diff": -0.009,
+     "p": 1.0
     }
    }
   },
   "any": {
    "summary": {
-    "team_games": 88,
-    "total_resid_mean": -0.56,
+    "team_games": 86,
+    "total_resid_mean": -0.59,
     "over_rate": 0.477,
-    "abs_miss_mean": 10.57,
-    "miss_10plus_rate": 0.489,
-    "team_vs_implied_mean": 0.53,
-    "team_beat_implied_rate": 0.466,
-    "cover_rate": 0.512
+    "abs_miss_mean": 10.46,
+    "miss_10plus_rate": 0.477,
+    "team_vs_implied_mean": 0.51,
+    "team_beat_implied_rate": 0.465,
+    "cover_rate": 0.512,
+    "opp_vs_implied_mean": -1.1,
+    "opp_held_under_implied_rate": 0.581
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -1.199,
-     "p": 0.399
+     "diff": -1.216,
+     "p": 0.3954
     },
     "over_rate": {
      "diff": -0.01,
-     "p": 0.8785
+     "p": 0.8805
     },
     "abs_miss_mean": {
-     "diff": 0.238,
-     "p": 0.7824
+     "diff": 0.121,
+     "p": 0.8925
     },
     "miss_10plus_rate": {
-     "diff": 0.05,
-     "p": 0.3773
+     "diff": 0.037,
+     "p": 0.5067
     },
     "team_vs_implied_mean": {
-     "diff": 0.208,
-     "p": 0.8401
+     "diff": 0.192,
+     "p": 0.8396
     },
     "cover_rate": {
-     "diff": 0.013,
-     "p": 0.8193
+     "diff": 0.014,
+     "p": 0.8177
+    },
+    "opp_vs_implied_mean": {
+     "diff": -1.408,
+     "p": 0.1613
+    },
+    "opp_held_under_implied_rate": {
+     "diff": 0.087,
+     "p": 0.1264
     }
    }
   },
   "offense_former_division": {
    "summary": {
-    "team_games": 92,
-    "total_resid_mean": -0.64,
-    "over_rate": 0.424,
-    "abs_miss_mean": 9.49,
-    "miss_10plus_rate": 0.38,
-    "team_vs_implied_mean": -1.05,
-    "team_beat_implied_rate": 0.413,
-    "cover_rate": 0.484
+    "team_games": 88,
+    "total_resid_mean": -0.32,
+    "over_rate": 0.443,
+    "abs_miss_mean": 9.58,
+    "miss_10plus_rate": 0.375,
+    "team_vs_implied_mean": -0.97,
+    "team_beat_implied_rate": 0.42,
+    "cover_rate": 0.483,
+    "opp_vs_implied_mean": 0.66,
+    "opp_held_under_implied_rate": 0.455
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -1.272,
-     "p": 0.3553
+     "diff": -0.947,
+     "p": 0.5
     },
     "over_rate": {
-     "diff": -0.064,
-     "p": 0.2391
+     "diff": -0.044,
+     "p": 0.4489
     },
     "abs_miss_mean": {
-     "diff": -0.841,
-     "p": 0.3266
+     "diff": -0.759,
+     "p": 0.3871
     },
     "miss_10plus_rate": {
-     "diff": -0.058,
-     "p": 0.2937
+     "diff": -0.064,
+     "p": 0.2808
     },
     "team_vs_implied_mean": {
-     "diff": -1.375,
-     "p": 0.145
+     "diff": -1.294,
+     "p": 0.1849
     },
     "cover_rate": {
      "diff": -0.015,
-     "p": 0.788
+     "p": 0.7861
+    },
+    "opp_vs_implied_mean": {
+     "diff": 0.347,
+     "p": 0.7198
+    },
+    "opp_held_under_implied_rate": {
+     "diff": -0.04,
+     "p": 0.5163
     }
    }
   },
@@ -215,75 +267,837 @@
     "miss_10plus_rate": 0.48,
     "team_vs_implied_mean": 0.15,
     "team_beat_implied_rate": 0.507,
-    "cover_rate": 0.592
+    "cover_rate": 0.592,
+    "opp_vs_implied_mean": 0.35,
+    "opp_held_under_implied_rate": 0.533
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -0.136,
-     "p": 0.9295
+     "diff": -0.129,
+     "p": 0.9369
     },
     "over_rate": {
      "diff": 0.026,
-     "p": 0.6663
+     "p": 0.6729
     },
     "abs_miss_mean": {
-     "diff": 0.378,
-     "p": 0.6864
+     "diff": 0.375,
+     "p": 0.6896
     },
     "miss_10plus_rate": {
      "diff": 0.041,
-     "p": 0.4801
+     "p": 0.555
     },
     "team_vs_implied_mean": {
-     "diff": -0.17,
-     "p": 0.8663
+     "diff": -0.166,
+     "p": 0.8749
     },
     "cover_rate": {
-     "diff": 0.093,
-     "p": 0.113
+     "diff": 0.094,
+     "p": 0.1087
+    },
+    "opp_vs_implied_mean": {
+     "diff": 0.037,
+     "p": 0.9731
+    },
+    "opp_held_under_implied_rate": {
+     "diff": 0.039,
+     "p": 0.5684
     }
    }
   },
   "any_former_division": {
    "summary": {
-    "team_games": 161,
-    "total_resid_mean": -0.11,
-    "over_rate": 0.463,
-    "abs_miss_mean": 10.11,
-    "miss_10plus_rate": 0.429,
-    "team_vs_implied_mean": -0.59,
-    "team_beat_implied_rate": 0.46,
-    "cover_rate": 0.526
+    "team_games": 158,
+    "total_resid_mean": 0.02,
+    "over_rate": 0.471,
+    "abs_miss_mean": 10.17,
+    "miss_10plus_rate": 0.43,
+    "team_vs_implied_mean": -0.55,
+    "team_beat_implied_rate": 0.462,
+    "cover_rate": 0.529,
+    "opp_vs_implied_mean": 0.56,
+    "opp_held_under_implied_rate": 0.487
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -0.742,
-     "p": 0.494
+     "diff": -0.613,
+     "p": 0.5737
     },
     "over_rate": {
-     "diff": -0.025,
-     "p": 0.55
+     "diff": -0.016,
+     "p": 0.7098
     },
     "abs_miss_mean": {
-     "diff": -0.23,
-     "p": 0.7298
+     "diff": -0.165,
+     "p": 0.802
     },
     "miss_10plus_rate": {
-     "diff": -0.01,
-     "p": 0.8119
+     "diff": -0.009,
+     "p": 0.8649
     },
     "team_vs_implied_mean": {
-     "diff": -0.91,
-     "p": 0.221
+     "diff": -0.865,
+     "p": 0.2511
     },
     "cover_rate": {
-     "diff": 0.027,
-     "p": 0.5074
+     "diff": 0.031,
+     "p": 0.4483
+    },
+    "opp_vs_implied_mean": {
+     "diff": 0.252,
+     "p": 0.7372
+    },
+    "opp_held_under_implied_rate": {
+     "diff": -0.007,
+     "p": 0.8755
+    }
+   }
+  },
+  "knows_opp_offense": {
+   "summary": {
+    "team_games": 29,
+    "total_resid_mean": -2.97,
+    "over_rate": 0.414,
+    "abs_miss_mean": 12.0,
+    "miss_10plus_rate": 0.621,
+    "team_vs_implied_mean": -2.27,
+    "team_beat_implied_rate": 0.345,
+    "cover_rate": 0.483,
+    "opp_vs_implied_mean": -0.7,
+    "opp_held_under_implied_rate": 0.586
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": -3.594,
+     "p": 0.1386
+    },
+    "over_rate": {
+     "diff": -0.073,
+     "p": 0.4439
+    },
+    "abs_miss_mean": {
+     "diff": 1.661,
+     "p": 0.2651
+    },
+    "miss_10plus_rate": {
+     "diff": 0.181,
+     "p": 0.0571
+    },
+    "team_vs_implied_mean": {
+     "diff": -2.587,
+     "p": 0.1206
+    },
+    "cover_rate": {
+     "diff": -0.015,
+     "p": 0.9441
+    },
+    "opp_vs_implied_mean": {
+     "diff": -1.008,
+     "p": 0.5577
+    },
+    "opp_held_under_implied_rate": {
+     "diff": 0.092,
+     "p": 0.35
+    }
+   }
+  },
+  "knows_opp_defense": {
+   "summary": {
+    "team_games": 17,
+    "total_resid_mean": 1.74,
+    "over_rate": 0.471,
+    "abs_miss_mean": 7.44,
+    "miss_10plus_rate": 0.353,
+    "team_vs_implied_mean": 3.01,
+    "team_beat_implied_rate": 0.647,
+    "cover_rate": 0.625,
+    "opp_vs_implied_mean": -1.28,
+    "opp_held_under_implied_rate": 0.647
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": 1.107,
+     "p": 0.7262
+    },
+    "over_rate": {
+     "diff": -0.017,
+     "p": 0.979
+    },
+    "abs_miss_mean": {
+     "diff": -2.897,
+     "p": 0.1355
+    },
+    "miss_10plus_rate": {
+     "diff": -0.086,
+     "p": 0.6238
+    },
+    "team_vs_implied_mean": {
+     "diff": 2.695,
+     "p": 0.2184
+    },
+    "cover_rate": {
+     "diff": 0.127,
+     "p": 0.3312
+    },
+    "opp_vs_implied_mean": {
+     "diff": -1.589,
+     "p": 0.4723
+    },
+    "opp_held_under_implied_rate": {
+     "diff": 0.152,
+     "p": 0.2258
     }
    }
   }
  },
  "source": "Coaching staffs: Wikipedia team-season articles (CC BY-SA 4.0). Games and lines: nflverse.",
+ "scheme_examples": [
+  {
+   "season": 2021,
+   "week": 4,
+   "team": "CLE",
+   "opp": "MIN",
+   "knows_opp_offense": [
+    "Kevin Stefanski"
+   ],
+   "knows_opp_defense": [],
+   "resid": -31.0,
+   "team_vs_implied": -12.5,
+   "opp_vs_implied": -18.5,
+   "cover": 6.0
+  },
+  {
+   "season": 2021,
+   "week": 5,
+   "team": "NYG",
+   "opp": "DAL",
+   "knows_opp_offense": [
+    "Jason Garrett"
+   ],
+   "knows_opp_defense": [],
+   "resid": 11.0,
+   "team_vs_implied": -2.75,
+   "opp_vs_implied": 13.75,
+   "cover": -16.5
+  },
+  {
+   "season": 2021,
+   "week": 8,
+   "team": "JAX",
+   "opp": "SEA",
+   "knows_opp_offense": [
+    "Brian Schottenheimer"
+   ],
+   "knows_opp_defense": [],
+   "resid": -6.0,
+   "team_vs_implied": -13.0,
+   "opp_vs_implied": 7.0,
+   "cover": -20.0
+  },
+  {
+   "season": 2021,
+   "week": 13,
+   "team": "NYG",
+   "opp": "MIA",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Patrick Graham (American football)"
+   ],
+   "resid": -11.0,
+   "team_vs_implied": -7.75,
+   "opp_vs_implied": -3.25,
+   "cover": -4.5
+  },
+  {
+   "season": 2021,
+   "week": 15,
+   "team": "NYG",
+   "opp": "DAL",
+   "knows_opp_offense": [
+    "Jason Garrett"
+   ],
+   "knows_opp_defense": [],
+   "resid": -16.0,
+   "team_vs_implied": -9.75,
+   "opp_vs_implied": -6.25,
+   "cover": -3.5
+  },
+  {
+   "season": 2022,
+   "week": 6,
+   "team": "NYG",
+   "opp": "BAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Don Martindale"
+   ],
+   "resid": -2.0,
+   "team_vs_implied": 3.75,
+   "opp_vs_implied": -5.75,
+   "cover": 9.5
+  },
+  {
+   "season": 2022,
+   "week": 11,
+   "team": "PHI",
+   "opp": "IND",
+   "knows_opp_offense": [
+    "Nick Sirianni"
+   ],
+   "knows_opp_defense": [],
+   "resid": -12.5,
+   "team_vs_implied": -9.0,
+   "opp_vs_implied": -3.5,
+   "cover": -5.5
+  },
+  {
+   "season": 2022,
+   "week": 13,
+   "team": "MIA",
+   "opp": "SF",
+   "knows_opp_offense": [
+    "Mike McDaniel"
+   ],
+   "knows_opp_defense": [],
+   "resid": 4.0,
+   "team_vs_implied": -3.75,
+   "opp_vs_implied": 7.75,
+   "cover": -11.5
+  },
+  {
+   "season": 2022,
+   "week": 15,
+   "team": "LV",
+   "opp": "NE",
+   "knows_opp_offense": [
+    "Josh McDaniels"
+   ],
+   "knows_opp_defense": [],
+   "resid": 9.0,
+   "team_vs_implied": 7.0,
+   "opp_vs_implied": 2.0,
+   "cover": 5.0
+  },
+  {
+   "season": 2022,
+   "week": 17,
+   "team": "LAC",
+   "opp": "LA",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Brandon Staley"
+   ],
+   "resid": -0.5,
+   "team_vs_implied": 7.0,
+   "opp_vs_implied": -7.5,
+   "cover": 14.5
+  },
+  {
+   "season": 2023,
+   "week": 6,
+   "team": "NYG",
+   "opp": "BUF",
+   "knows_opp_offense": [
+    "Brian Daboll"
+   ],
+   "knows_opp_defense": [],
+   "resid": -20.5,
+   "team_vs_implied": -5.0,
+   "opp_vs_implied": -15.5,
+   "cover": 10.5
+  },
+  {
+   "season": 2023,
+   "week": 6,
+   "team": "LV",
+   "opp": "NE",
+   "knows_opp_offense": [
+    "Josh McDaniels"
+   ],
+   "knows_opp_defense": [],
+   "resid": -3.5,
+   "team_vs_implied": -1.25,
+   "opp_vs_implied": -2.25,
+   "cover": 1.0
+  },
+  {
+   "season": 2023,
+   "week": 6,
+   "team": "LAC",
+   "opp": "DAL",
+   "knows_opp_offense": [
+    "Kellen Moore"
+   ],
+   "knows_opp_defense": [],
+   "resid": -12.5,
+   "team_vs_implied": -7.0,
+   "opp_vs_implied": -5.5,
+   "cover": -1.5
+  },
+  {
+   "season": 2023,
+   "week": 9,
+   "team": "CAR",
+   "opp": "IND",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Frank Reich"
+   ],
+   "resid": -5.0,
+   "team_vs_implied": -8.75,
+   "opp_vs_implied": 3.75,
+   "cover": -12.5
+  },
+  {
+   "season": 2023,
+   "week": 12,
+   "team": "ATL",
+   "opp": "NO",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Ryan Nielsen"
+   ],
+   "resid": -3.0,
+   "team_vs_implied": 4.0,
+   "opp_vs_implied": -7.0,
+   "cover": 11.0
+  },
+  {
+   "season": 2023,
+   "week": 13,
+   "team": "DAL",
+   "opp": "SEA",
+   "knows_opp_offense": [
+    "Brian Schottenheimer"
+   ],
+   "knows_opp_defense": [],
+   "resid": 28.5,
+   "team_vs_implied": 12.5,
+   "opp_vs_implied": 16.0,
+   "cover": -3.5
+  },
+  {
+   "season": 2023,
+   "week": 14,
+   "team": "DEN",
+   "opp": "LAC",
+   "knows_opp_offense": [
+    "Joe Lombardi"
+   ],
+   "knows_opp_defense": [],
+   "resid": -14.0,
+   "team_vs_implied": 3.0,
+   "opp_vs_implied": -17.0,
+   "cover": 20.0
+  },
+  {
+   "season": 2023,
+   "week": 17,
+   "team": "DEN",
+   "opp": "LAC",
+   "knows_opp_offense": [
+    "Joe Lombardi"
+   ],
+   "knows_opp_defense": [],
+   "resid": -14.5,
+   "team_vs_implied": -5.5,
+   "opp_vs_implied": -9.0,
+   "cover": 3.5
+  },
+  {
+   "season": 2023,
+   "week": 17,
+   "team": "ARI",
+   "opp": "PHI",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Jonathan Gannon"
+   ],
+   "resid": 18.0,
+   "team_vs_implied": 17.0,
+   "opp_vs_implied": 1.0,
+   "cover": 16.0
+  },
+  {
+   "season": 2023,
+   "week": 18,
+   "team": "ATL",
+   "opp": "NO",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Ryan Nielsen"
+   ],
+   "resid": 23.5,
+   "team_vs_implied": -2.0,
+   "opp_vs_implied": 25.5,
+   "cover": -27.5
+  },
+  {
+   "season": 2024,
+   "week": 7,
+   "team": "DEN",
+   "opp": "NO",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Sean Payton"
+   ],
+   "resid": 6.0,
+   "team_vs_implied": 13.25,
+   "opp_vs_implied": -7.25,
+   "cover": 20.5
+  },
+  {
+   "season": 2024,
+   "week": 8,
+   "team": "MIN",
+   "opp": "LA",
+   "knows_opp_offense": [
+    "Kevin O'Connell (American football)"
+   ],
+   "knows_opp_defense": [],
+   "resid": 2.5,
+   "team_vs_implied": -5.25,
+   "opp_vs_implied": 7.75,
+   "cover": -13.0
+  },
+  {
+   "season": 2024,
+   "week": 10,
+   "team": "PHI",
+   "opp": "DAL",
+   "knows_opp_offense": [
+    "Kellen Moore"
+   ],
+   "knows_opp_defense": [],
+   "resid": -4.5,
+   "team_vs_implied": 8.0,
+   "opp_vs_implied": -12.5,
+   "cover": 20.5
+  },
+  {
+   "season": 2024,
+   "week": 11,
+   "team": "NO",
+   "opp": "CLE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Joe Woods (American football)"
+   ],
+   "resid": 5.0,
+   "team_vs_implied": 13.5,
+   "opp_vs_implied": -8.5,
+   "cover": 22.0
+  },
+  {
+   "season": 2024,
+   "week": 12,
+   "team": "WAS",
+   "opp": "DAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dan Quinn (American football)"
+   ],
+   "resid": 15.0,
+   "team_vs_implied": -1.75,
+   "opp_vs_implied": 16.75,
+   "cover": -18.5
+  },
+  {
+   "season": 2024,
+   "week": 12,
+   "team": "LAC",
+   "opp": "BAL",
+   "knows_opp_offense": [
+    "Greg Roman"
+   ],
+   "knows_opp_defense": [],
+   "resid": 2.0,
+   "team_vs_implied": -1.0,
+   "opp_vs_implied": 3.0,
+   "cover": -4.0
+  },
+  {
+   "season": 2024,
+   "week": 13,
+   "team": "CAR",
+   "opp": "TB",
+   "knows_opp_offense": [
+    "Dave Canales"
+   ],
+   "knows_opp_defense": [],
+   "resid": 3.0,
+   "team_vs_implied": 3.25,
+   "opp_vs_implied": -0.25,
+   "cover": 3.5
+  },
+  {
+   "season": 2024,
+   "week": 15,
+   "team": "TEN",
+   "opp": "CIN",
+   "knows_opp_offense": [
+    "Brian Callahan"
+   ],
+   "knows_opp_defense": [],
+   "resid": 17.5,
+   "team_vs_implied": 6.75,
+   "opp_vs_implied": 10.75,
+   "cover": -4.0
+  },
+  {
+   "season": 2024,
+   "week": 16,
+   "team": "MIA",
+   "opp": "SF",
+   "knows_opp_offense": [
+    "Mike McDaniel"
+   ],
+   "knows_opp_defense": [],
+   "resid": 2.0,
+   "team_vs_implied": 8.0,
+   "opp_vs_implied": -6.0,
+   "cover": 14.0
+  },
+  {
+   "season": 2024,
+   "week": 16,
+   "team": "LA",
+   "opp": "NYJ",
+   "knows_opp_offense": [
+    "Mike LaFleur"
+   ],
+   "knows_opp_defense": [],
+   "resid": -19.0,
+   "team_vs_implied": -6.0,
+   "opp_vs_implied": -13.0,
+   "cover": 7.0
+  },
+  {
+   "season": 2024,
+   "week": 17,
+   "team": "PHI",
+   "opp": "DAL",
+   "knows_opp_offense": [
+    "Kellen Moore"
+   ],
+   "knows_opp_defense": [],
+   "resid": 10.5,
+   "team_vs_implied": 18.5,
+   "opp_vs_implied": -8.0,
+   "cover": 26.5
+  },
+  {
+   "season": 2024,
+   "week": 17,
+   "team": "CAR",
+   "opp": "TB",
+   "knows_opp_offense": [
+    "Dave Canales"
+   ],
+   "knows_opp_defense": [],
+   "resid": 14.5,
+   "team_vs_implied": -5.0,
+   "opp_vs_implied": 19.5,
+   "cover": -24.5
+  },
+  {
+   "season": 2024,
+   "week": 18,
+   "team": "WAS",
+   "opp": "DAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dan Quinn (American football)"
+   ],
+   "resid": -1.5,
+   "team_vs_implied": -2.25,
+   "opp_vs_implied": 0.75,
+   "cover": -3.0
+  },
+  {
+   "season": 2024,
+   "week": 19,
+   "team": "MIN",
+   "opp": "LA",
+   "knows_opp_offense": [
+    "Kevin O'Connell (American football)"
+   ],
+   "knows_opp_defense": [],
+   "resid": -11.5,
+   "team_vs_implied": -16.0,
+   "opp_vs_implied": 4.5,
+   "cover": -20.5
+  },
+  {
+   "season": 2025,
+   "week": 1,
+   "team": "NE",
+   "opp": "LV",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Josh McDaniels"
+   ],
+   "resid": -11.5,
+   "team_vs_implied": -10.5,
+   "opp_vs_implied": -1.0,
+   "cover": -9.5
+  },
+  {
+   "season": 2025,
+   "week": 2,
+   "team": "CHI",
+   "opp": "DET",
+   "knows_opp_offense": [
+    "Ben Johnson (American football coach)"
+   ],
+   "knows_opp_defense": [],
+   "resid": 26.5,
+   "team_vs_implied": 0.75,
+   "opp_vs_implied": 25.75,
+   "cover": -25.0
+  },
+  {
+   "season": 2025,
+   "week": 7,
+   "team": "JAX",
+   "opp": "LA",
+   "knows_opp_offense": [
+    "Liam Coen"
+   ],
+   "knows_opp_defense": [],
+   "resid": -2.5,
+   "team_vs_implied": -13.75,
+   "opp_vs_implied": 11.25,
+   "cover": -25.0
+  },
+  {
+   "season": 2025,
+   "week": 8,
+   "team": "HOU",
+   "opp": "SF",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "DeMeco Ryans"
+   ],
+   "resid": -0.5,
+   "team_vs_implied": 4.0,
+   "opp_vs_implied": -4.5,
+   "cover": 8.5
+  },
+  {
+   "season": 2025,
+   "week": 16,
+   "team": "CAR",
+   "opp": "TB",
+   "knows_opp_offense": [
+    "Dave Canales"
+   ],
+   "knows_opp_defense": [],
+   "resid": -1.5,
+   "team_vs_implied": 2.25,
+   "opp_vs_implied": -3.75,
+   "cover": 6.0
+  },
+  {
+   "season": 2025,
+   "week": 17,
+   "team": "ATL",
+   "opp": "LA",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Raheem Morris"
+   ],
+   "resid": 2.5,
+   "team_vs_implied": 6.5,
+   "opp_vs_implied": -4.0,
+   "cover": 10.5
+  },
+  {
+   "season": 2025,
+   "week": 18,
+   "team": "CAR",
+   "opp": "TB",
+   "knows_opp_offense": [
+    "Dave Canales"
+   ],
+   "knows_opp_defense": [],
+   "resid": -13.5,
+   "team_vs_implied": -6.25,
+   "opp_vs_implied": -7.25,
+   "cover": 1.0
+  },
+  {
+   "season": 2025,
+   "week": 18,
+   "team": "CHI",
+   "opp": "DET",
+   "knows_opp_offense": [
+    "Ben Johnson (American football coach)"
+   ],
+   "knows_opp_defense": [],
+   "resid": -16.5,
+   "team_vs_implied": -11.5,
+   "opp_vs_implied": -5.0,
+   "cover": -6.5
+  },
+  {
+   "season": 2026,
+   "week": 1,
+   "team": "SF",
+   "opp": "LA",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Raheem Morris"
+   ],
+   "resid": -13.5,
+   "team_vs_implied": 5.0,
+   "opp_vs_implied": -18.5,
+   "cover": 23.5
+  },
+  {
+   "season": 2026,
+   "week": 3,
+   "team": "NYJ",
+   "opp": "DET",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Aaron Glenn"
+   ],
+   "resid": 5.5,
+   "team_vs_implied": 2.75,
+   "opp_vs_implied": 2.75,
+   "cover": 0.0
+  },
+  {
+   "season": 2026,
+   "week": 6,
+   "team": "TEN",
+   "opp": "IND",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Gus Bradley"
+   ],
+   "resid": 2.5,
+   "team_vs_implied": 7.5,
+   "opp_vs_implied": -5.0,
+   "cover": 12.5
+  },
+  {
+   "season": 2026,
+   "week": 6,
+   "team": "ARI",
+   "opp": "LA",
+   "knows_opp_offense": [
+    "Mike LaFleur"
+   ],
+   "knows_opp_defense": [],
+   "resid": -17.5,
+   "team_vs_implied": -1.5,
+   "opp_vs_implied": -16.0,
+   "cover": 14.5
+  }
+ ],
  "offense_examples": [
   {
    "season": 2021,
@@ -511,20 +1325,6 @@
   },
   {
    "season": 2023,
-   "week": 8,
-   "team": "ATL",
-   "opp": "TEN",
-   "off_reunion": [
-    "Arthur Smith (American football, born 1982)"
-   ],
-   "first": true,
-   "resid": 16.0,
-   "team_vs_implied": 4.25,
-   "points": 23.0,
-   "implied": 18.8
-  },
-  {
-   "season": 2023,
    "week": 13,
    "team": "DAL",
    "opp": "SEA",
@@ -591,20 +1391,6 @@
    "resid": -15.0,
    "team_vs_implied": -16.5,
    "points": 3.0,
-   "implied": 19.5
-  },
-  {
-   "season": 2024,
-   "week": 1,
-   "team": "PIT",
-   "opp": "ATL",
-   "off_reunion": [
-    "Arthur Smith (American football, born 1982)"
-   ],
-   "first": true,
-   "resid": -15.0,
-   "team_vs_implied": -1.5,
-   "points": 18.0,
    "implied": 19.5
   },
   {

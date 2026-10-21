@@ -26,6 +26,13 @@ total. Likewise a defensive coordinator facing the offense he just left.
    isn't that team itself, and it isn't in his current team's division
    (current division games carry that familiarity for both sides).
    Divisions come from nflverse's division-game flags.
+   Scheme knowledge (the other direction): a coach who was the opponent's
+   head coach or offensive coordinator, facing it while its offense is still
+   run by someone from his time there (its current head coach or OC was its
+   head coach or OC that season) -- does his defense hold that offense under
+   its implied total? And the mirror: a former head coach or defensive
+   coordinator of the opponent, its defense still run by someone from his
+   time -- does his team's offense beat its implied total?
 4. Against games with no coach connection at all: the game total vs the closing total (signed, the
    over rate, the miss size, how often it misses by 10+), the reunion team's
    points vs its implied total, and its cover rate. p-values from 20,000
@@ -87,12 +94,14 @@ def team_name(abbr: str, season: int) -> str:
 
 # ----------------------------------------------------------------- staffs
 LINK = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
+# Links in a coach field that aren't coaches (notes like "missed a game due to COVID-19").
+NOT_A_PERSON = re.compile(r"\d{4}|COVID|pandemic|season|National Football League|NFL|List of|coach$|coordinator$|interim", re.I)
 
 
 def people(value: str) -> list[str]:
     """Coach names in an infobox value: link targets, else the plain names (split on line breaks)."""
     value = re.sub(r"<ref[^>]*/>|<ref.*?</ref>", "", value, flags=re.S)
-    links = [m.strip() for m in LINK.findall(value)]
+    links = [m.strip() for m in LINK.findall(value) if not NOT_A_PERSON.search(m)]
     if links:
         return links
     text = re.sub(r"\{\{[^{}]*\}\}|\([^)]*\)|<[^>]+>|'''?", "|", value)
@@ -153,7 +162,7 @@ def staffs_for(season: int, teams: list[str]) -> dict[str, dict]:
     if path.exists():
         cached = json.loads(path.read_text())
         if set(teams) <= set(cached):
-            return cached
+            return {t: {r: [n for n in names if not NOT_A_PERSON.search(n)] for r, names in st.items()} for t, st in cached.items()}
     staffs = {}
     for t in teams:
         text = wiki_page(f"{season} {team_name(t, season)} season")
@@ -221,6 +230,25 @@ def reunions(all_games: list[dict], staffs: dict[int, dict[str, dict]]) -> list[
         return any(season - LOOKBACK <= s < season and t not in (team, opp) and opp in division.get(s, {}).get(t, ())
                    for s, t, _ in roles.get(name, []))
 
+    # Who held which roles on each franchise's staff each season.
+    staff_of: dict[tuple[int, str], dict[str, set]] = {}
+    for season, teams in staffs.items():
+        for t, st in teams.items():
+            staff_of[(season, fr(t))] = {r: set(st[r]) for r in ("hc", "oc", "dc")}
+
+    def knows_scheme(name: str, team: str, opp: str, season: int, side: str) -> bool:
+        """`name` was on opp's staff (HC or the side's coordinator) in one of the last LOOKBACK seasons, and someone
+        running that side of opp now (its HC or that coordinator) was on opp's staff then too."""
+        coord = "oc" if side == "offense" else "dc"
+        now = staff_of.get((season, opp), {})
+        running = now.get("hc", set()) | now.get(coord, set())
+        for s, t, r in roles.get(name, []):
+            if season - LOOKBACK <= s < season and t == opp and t != team and r in ("hc", coord):
+                then = staff_of.get((s, opp), {})
+                if running & ((then.get("hc", set()) | then.get(coord, set())) - {name}):
+                    return True
+        return False
+
     def been(name: str, role: str, before: int) -> bool:
         return any(s < before and r == role for s, _, r in roles.get(name, []))
 
@@ -245,6 +273,9 @@ def reunions(all_games: list[dict], staffs: dict[int, dict[str, dict]]) -> list[
             off_r = sorted({c for c in offense if coached(c, fr(opp), g["season"])})
             def_r = sorted({c for c in defense if coached(c, fr(opp), g["season"])})
             off_d = sorted({c for c in offense if c not in off_r and former_division(c, fr(team), fr(opp), g["season"])})
+            staff = set(s["hc"]) | set(s["oc"]) | set(s["dc"])
+            knows_off = sorted({c for c in staff if knows_scheme(c, fr(team), fr(opp), g["season"], "offense")})
+            knows_def = sorted({c for c in staff if knows_scheme(c, fr(team), fr(opp), g["season"], "defense")})
             def_d = sorted({c for c in defense if c not in def_r and former_division(c, fr(team), fr(opp), g["season"])})
             first = False
             for c in off_r + def_r:
@@ -255,8 +286,9 @@ def reunions(all_games: list[dict], staffs: dict[int, dict[str, dict]]) -> list[
             rows.append({
                 "season": g["season"], "week": g["week"], "type": g["type"], "team": team, "opp": opp,
                 "game": f"{g['away']}@{g['home']}", "off_reunion": off_r, "def_reunion": def_r, "first": first,
-                "off_division": off_d, "def_division": def_d,
+                "off_division": off_d, "def_division": def_d, "knows_opp_offense": knows_off, "knows_opp_defense": knows_def,
                 "resid": g["hs"] + g["as"] - g["total"], "team_vs_implied": pts - implied,
+                "opp_vs_implied": (g["hs"] + g["as"] - g["total"]) - (pts - implied),
                 "cover": margin - exp_margin, "points": pts, "implied": round(implied, 1),
             })
     return rows
@@ -275,6 +307,8 @@ def summarize(rows: list[dict]) -> dict:
         "team_vs_implied_mean": round(statistics.fmean(r["team_vs_implied"] for r in rows), 2) if rows else None,
         "team_beat_implied_rate": round(sum(r["team_vs_implied"] > 0 for r in rows) / len(rows), 3) if rows else None,
         "cover_rate": round(sum(c > 0 for c in covers) / len(covers), 3) if covers else None,
+        "opp_vs_implied_mean": round(statistics.fmean(r["opp_vs_implied"] for r in rows), 2) if rows else None,
+        "opp_held_under_implied_rate": round(sum(r["opp_vs_implied"] < 0 for r in rows) / len(rows), 3) if rows else None,
     }
 
 
@@ -285,6 +319,8 @@ STATS = {
     "miss_10plus_rate": lambda rs: statistics.fmean(abs(r["resid"]) >= 10 for r in rs),
     "team_vs_implied_mean": lambda rs: statistics.fmean(r["team_vs_implied"] for r in rs),
     "cover_rate": lambda rs: statistics.fmean(r["cover"] > 0 for r in rs if r["cover"] != 0),
+    "opp_vs_implied_mean": lambda rs: statistics.fmean(r["opp_vs_implied"] for r in rs),
+    "opp_held_under_implied_rate": lambda rs: statistics.fmean(r["opp_vs_implied"] < 0 for r in rs),
 }
 
 
@@ -334,8 +370,11 @@ async def main() -> None:
         "offense_former_division": lambda r: bool(r["off_division"]) and not r["off_reunion"],
         "defense_former_division": lambda r: bool(r["def_division"]) and not r["def_reunion"],
         "any_former_division": lambda r: bool(r["off_division"] or r["def_division"]) and not (r["off_reunion"] or r["def_reunion"]),
+        "knows_opp_offense": lambda r: bool(r["knows_opp_offense"]),
+        "knows_opp_defense": lambda r: bool(r["knows_opp_defense"]),
     }
-    baseline = [r for r in rows if not (r["off_reunion"] or r["def_reunion"] or r["off_division"] or r["def_division"])]
+    baseline = [r for r in rows if not (r["off_reunion"] or r["def_reunion"] or r["off_division"] or r["def_division"]
+                                        or r["knows_opp_offense"] or r["knows_opp_defense"])]
     result = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "seasons": [FIRST_SEASON, seasons[-1]], "lookback_seasons": LOOKBACK,
@@ -352,6 +391,11 @@ async def main() -> None:
         print(name, result["groups"][name]["summary"])
         print("   vs baseline", result["groups"][name]["vs_baseline"])
     print("baseline", result["baseline"])
+    result["scheme_examples"] = [
+        {k: r[k] for k in ("season", "week", "team", "opp", "knows_opp_offense", "knows_opp_defense", "resid",
+                           "team_vs_implied", "opp_vs_implied", "cover")}
+        for r in rows if r["knows_opp_offense"] or r["knows_opp_defense"]
+    ]
     result["offense_examples"] = [
         {k: r[k] for k in ("season", "week", "team", "opp", "off_reunion", "first", "resid", "team_vs_implied", "points", "implied")}
         for r in rows if r["off_reunion"]
