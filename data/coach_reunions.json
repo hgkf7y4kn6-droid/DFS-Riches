@@ -1,0 +1,1045 @@
+{
+ "generated_at": "2026-10-21T21:59:29Z",
+ "seasons": [
+  2021,
+  2026
+ ],
+ "lookback_seasons": 3,
+ "baseline": {
+  "team_games": 2785,
+  "total_resid_mean": 0.64,
+  "over_rate": 0.488,
+  "abs_miss_mean": 10.34,
+  "miss_10plus_rate": 0.439,
+  "team_vs_implied_mean": 0.32,
+  "team_beat_implied_rate": 0.495,
+  "cover_rate": 0.498
+ },
+ "groups": {
+  "offense": {
+   "summary": {
+    "team_games": 54,
+    "total_resid_mean": -2.47,
+    "over_rate": 0.444,
+    "abs_miss_mean": 11.79,
+    "miss_10plus_rate": 0.574,
+    "team_vs_implied_mean": -0.61,
+    "team_beat_implied_rate": 0.389,
+    "cover_rate": 0.519
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": -3.109,
+     "p": 0.0842
+    },
+    "over_rate": {
+     "diff": -0.043,
+     "p": 0.5564
+    },
+    "abs_miss_mean": {
+     "diff": 1.451,
+     "p": 0.1819
+    },
+    "miss_10plus_rate": {
+     "diff": 0.135,
+     "p": 0.0473
+    },
+    "team_vs_implied_mean": {
+     "diff": -0.935,
+     "p": 0.4635
+    },
+    "cover_rate": {
+     "diff": 0.021,
+     "p": 0.7654
+    }
+   }
+  },
+  "offense_first_meeting": {
+   "summary": {
+    "team_games": 36,
+    "total_resid_mean": -2.19,
+    "over_rate": 0.472,
+    "abs_miss_mean": 11.94,
+    "miss_10plus_rate": 0.5,
+    "team_vs_implied_mean": 0.24,
+    "team_beat_implied_rate": 0.444,
+    "cover_rate": 0.559
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": -2.831,
+     "p": 0.1915
+    },
+    "over_rate": {
+     "diff": -0.015,
+     "p": 0.8686
+    },
+    "abs_miss_mean": {
+     "diff": 1.609,
+     "p": 0.2329
+    },
+    "miss_10plus_rate": {
+     "diff": 0.061,
+     "p": 0.503
+    },
+    "team_vs_implied_mean": {
+     "diff": -0.087,
+     "p": 0.9582
+    },
+    "cover_rate": {
+     "diff": 0.061,
+     "p": 0.4616
+    }
+   }
+  },
+  "defense": {
+   "summary": {
+    "team_games": 35,
+    "total_resid_mean": 2.56,
+    "over_rate": 0.543,
+    "abs_miss_mean": 8.56,
+    "miss_10plus_rate": 0.343,
+    "team_vs_implied_mean": 2.36,
+    "team_beat_implied_rate": 0.6,
+    "cover_rate": 0.5
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": 1.921,
+     "p": 0.3864
+    },
+    "over_rate": {
+     "diff": 0.055,
+     "p": 0.5815
+    },
+    "abs_miss_mean": {
+     "diff": -1.778,
+     "p": 0.1942
+    },
+    "miss_10plus_rate": {
+     "diff": -0.096,
+     "p": 0.3122
+    },
+    "team_vs_implied_mean": {
+     "diff": 2.034,
+     "p": 0.1835
+    },
+    "cover_rate": {
+     "diff": 0.002,
+     "p": 0.9901
+    }
+   }
+  },
+  "any": {
+   "summary": {
+    "team_games": 88,
+    "total_resid_mean": -0.56,
+    "over_rate": 0.477,
+    "abs_miss_mean": 10.57,
+    "miss_10plus_rate": 0.489,
+    "team_vs_implied_mean": 0.53,
+    "team_beat_implied_rate": 0.466,
+    "cover_rate": 0.512
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": -1.199,
+     "p": 0.399
+    },
+    "over_rate": {
+     "diff": -0.01,
+     "p": 0.8785
+    },
+    "abs_miss_mean": {
+     "diff": 0.238,
+     "p": 0.7824
+    },
+    "miss_10plus_rate": {
+     "diff": 0.05,
+     "p": 0.3773
+    },
+    "team_vs_implied_mean": {
+     "diff": 0.208,
+     "p": 0.8401
+    },
+    "cover_rate": {
+     "diff": 0.013,
+     "p": 0.8193
+    }
+   }
+  },
+  "offense_former_division": {
+   "summary": {
+    "team_games": 92,
+    "total_resid_mean": -0.64,
+    "over_rate": 0.424,
+    "abs_miss_mean": 9.49,
+    "miss_10plus_rate": 0.38,
+    "team_vs_implied_mean": -1.05,
+    "team_beat_implied_rate": 0.413,
+    "cover_rate": 0.484
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": -1.272,
+     "p": 0.3553
+    },
+    "over_rate": {
+     "diff": -0.064,
+     "p": 0.2391
+    },
+    "abs_miss_mean": {
+     "diff": -0.841,
+     "p": 0.3266
+    },
+    "miss_10plus_rate": {
+     "diff": -0.058,
+     "p": 0.2937
+    },
+    "team_vs_implied_mean": {
+     "diff": -1.375,
+     "p": 0.145
+    },
+    "cover_rate": {
+     "diff": -0.015,
+     "p": 0.788
+    }
+   }
+  },
+  "defense_former_division": {
+   "summary": {
+    "team_games": 75,
+    "total_resid_mean": 0.5,
+    "over_rate": 0.514,
+    "abs_miss_mean": 10.71,
+    "miss_10plus_rate": 0.48,
+    "team_vs_implied_mean": 0.15,
+    "team_beat_implied_rate": 0.507,
+    "cover_rate": 0.592
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": -0.136,
+     "p": 0.9295
+    },
+    "over_rate": {
+     "diff": 0.026,
+     "p": 0.6663
+    },
+    "abs_miss_mean": {
+     "diff": 0.378,
+     "p": 0.6864
+    },
+    "miss_10plus_rate": {
+     "diff": 0.041,
+     "p": 0.4801
+    },
+    "team_vs_implied_mean": {
+     "diff": -0.17,
+     "p": 0.8663
+    },
+    "cover_rate": {
+     "diff": 0.093,
+     "p": 0.113
+    }
+   }
+  },
+  "any_former_division": {
+   "summary": {
+    "team_games": 161,
+    "total_resid_mean": -0.11,
+    "over_rate": 0.463,
+    "abs_miss_mean": 10.11,
+    "miss_10plus_rate": 0.429,
+    "team_vs_implied_mean": -0.59,
+    "team_beat_implied_rate": 0.46,
+    "cover_rate": 0.526
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": -0.742,
+     "p": 0.494
+    },
+    "over_rate": {
+     "diff": -0.025,
+     "p": 0.55
+    },
+    "abs_miss_mean": {
+     "diff": -0.23,
+     "p": 0.7298
+    },
+    "miss_10plus_rate": {
+     "diff": -0.01,
+     "p": 0.8119
+    },
+    "team_vs_implied_mean": {
+     "diff": -0.91,
+     "p": 0.221
+    },
+    "cover_rate": {
+     "diff": 0.027,
+     "p": 0.5074
+    }
+   }
+  }
+ },
+ "source": "Coaching staffs: Wikipedia team-season articles (CC BY-SA 4.0). Games and lines: nflverse.",
+ "offense_examples": [
+  {
+   "season": 2021,
+   "week": 1,
+   "team": "DEN",
+   "opp": "NYG",
+   "off_reunion": [
+    "Pat Shurmur"
+   ],
+   "first": true,
+   "resid": -1.5,
+   "team_vs_implied": 4.75,
+   "points": 27.0,
+   "implied": 22.2
+  },
+  {
+   "season": 2021,
+   "week": 2,
+   "team": "CHI",
+   "opp": "CIN",
+   "off_reunion": [
+    "Bill Lazor"
+   ],
+   "first": true,
+   "resid": -7.5,
+   "team_vs_implied": -3.25,
+   "points": 20.0,
+   "implied": 23.2
+  },
+  {
+   "season": 2021,
+   "week": 4,
+   "team": "CLE",
+   "opp": "MIN",
+   "off_reunion": [
+    "Kevin Stefanski"
+   ],
+   "first": true,
+   "resid": -31.0,
+   "team_vs_implied": -12.5,
+   "points": 14.0,
+   "implied": 26.5
+  },
+  {
+   "season": 2021,
+   "week": 5,
+   "team": "NYG",
+   "opp": "DAL",
+   "off_reunion": [
+    "Jason Garrett"
+   ],
+   "first": false,
+   "resid": 11.0,
+   "team_vs_implied": -2.75,
+   "points": 20.0,
+   "implied": 22.8
+  },
+  {
+   "season": 2021,
+   "week": 8,
+   "team": "JAX",
+   "opp": "SEA",
+   "off_reunion": [
+    "Brian Schottenheimer"
+   ],
+   "first": true,
+   "resid": -6.0,
+   "team_vs_implied": -13.0,
+   "points": 7.0,
+   "implied": 20.0
+  },
+  {
+   "season": 2021,
+   "week": 9,
+   "team": "PHI",
+   "opp": "LAC",
+   "off_reunion": [
+    "Shane Steichen"
+   ],
+   "first": true,
+   "resid": 1.5,
+   "team_vs_implied": -0.25,
+   "points": 24.0,
+   "implied": 24.2
+  },
+  {
+   "season": 2021,
+   "week": 15,
+   "team": "NYG",
+   "opp": "DAL",
+   "off_reunion": [
+    "Jason Garrett"
+   ],
+   "first": false,
+   "resid": -16.0,
+   "team_vs_implied": -9.75,
+   "points": 6.0,
+   "implied": 15.8
+  },
+  {
+   "season": 2022,
+   "week": 9,
+   "team": "MIN",
+   "opp": "WAS",
+   "off_reunion": [
+    "Kevin O'Connell (American football)"
+   ],
+   "first": true,
+   "resid": -6.5,
+   "team_vs_implied": -3.25,
+   "points": 20.0,
+   "implied": 23.2
+  },
+  {
+   "season": 2022,
+   "week": 11,
+   "team": "PHI",
+   "opp": "IND",
+   "off_reunion": [
+    "Nick Sirianni"
+   ],
+   "first": true,
+   "resid": -12.5,
+   "team_vs_implied": -9.0,
+   "points": 17.0,
+   "implied": 26.0
+  },
+  {
+   "season": 2022,
+   "week": 13,
+   "team": "MIA",
+   "opp": "SF",
+   "off_reunion": [
+    "Mike McDaniel"
+   ],
+   "first": true,
+   "resid": 4.0,
+   "team_vs_implied": -3.75,
+   "points": 17.0,
+   "implied": 20.8
+  },
+  {
+   "season": 2022,
+   "week": 15,
+   "team": "LV",
+   "opp": "NE",
+   "off_reunion": [
+    "Josh McDaniels"
+   ],
+   "first": true,
+   "resid": 9.0,
+   "team_vs_implied": 7.0,
+   "points": 30.0,
+   "implied": 23.0
+  },
+  {
+   "season": 2023,
+   "week": 3,
+   "team": "KC",
+   "opp": "CHI",
+   "off_reunion": [
+    "Matt Nagy"
+   ],
+   "first": true,
+   "resid": 3.0,
+   "team_vs_implied": 10.5,
+   "points": 41.0,
+   "implied": 30.5
+  },
+  {
+   "season": 2023,
+   "week": 5,
+   "team": "NYJ",
+   "opp": "DEN",
+   "off_reunion": [
+    "Nathaniel Hackett"
+   ],
+   "first": true,
+   "resid": 9.5,
+   "team_vs_implied": 11.0,
+   "points": 31.0,
+   "implied": 20.0
+  },
+  {
+   "season": 2023,
+   "week": 6,
+   "team": "NYG",
+   "opp": "BUF",
+   "off_reunion": [
+    "Brian Daboll"
+   ],
+   "first": true,
+   "resid": -20.5,
+   "team_vs_implied": -5.0,
+   "points": 9.0,
+   "implied": 14.0
+  },
+  {
+   "season": 2023,
+   "week": 6,
+   "team": "LV",
+   "opp": "NE",
+   "off_reunion": [
+    "Josh McDaniels"
+   ],
+   "first": false,
+   "resid": -3.5,
+   "team_vs_implied": -1.25,
+   "points": 21.0,
+   "implied": 22.2
+  },
+  {
+   "season": 2023,
+   "week": 6,
+   "team": "LAC",
+   "opp": "DAL",
+   "off_reunion": [
+    "Kellen Moore"
+   ],
+   "first": true,
+   "resid": -12.5,
+   "team_vs_implied": -7.0,
+   "points": 17.0,
+   "implied": 24.0
+  },
+  {
+   "season": 2023,
+   "week": 8,
+   "team": "ATL",
+   "opp": "TEN",
+   "off_reunion": [
+    "Arthur Smith (American football, born 1982)"
+   ],
+   "first": true,
+   "resid": 16.0,
+   "team_vs_implied": 4.25,
+   "points": 23.0,
+   "implied": 18.8
+  },
+  {
+   "season": 2023,
+   "week": 13,
+   "team": "DAL",
+   "opp": "SEA",
+   "off_reunion": [
+    "Brian Schottenheimer"
+   ],
+   "first": true,
+   "resid": 28.5,
+   "team_vs_implied": 12.5,
+   "points": 41.0,
+   "implied": 28.5
+  },
+  {
+   "season": 2023,
+   "week": 14,
+   "team": "DEN",
+   "opp": "LAC",
+   "off_reunion": [
+    "Joe Lombardi"
+   ],
+   "first": true,
+   "resid": -14.0,
+   "team_vs_implied": 3.0,
+   "points": 24.0,
+   "implied": 21.0
+  },
+  {
+   "season": 2023,
+   "week": 15,
+   "team": "TEN",
+   "opp": "HOU",
+   "off_reunion": [
+    "Tim Kelly (American football)"
+   ],
+   "first": true,
+   "resid": -3.0,
+   "team_vs_implied": -4.5,
+   "points": 16.0,
+   "implied": 20.5
+  },
+  {
+   "season": 2023,
+   "week": 17,
+   "team": "DEN",
+   "opp": "LAC",
+   "off_reunion": [
+    "Joe Lombardi"
+   ],
+   "first": false,
+   "resid": -14.5,
+   "team_vs_implied": -5.5,
+   "points": 16.0,
+   "implied": 21.5
+  },
+  {
+   "season": 2023,
+   "week": 17,
+   "team": "TEN",
+   "opp": "HOU",
+   "off_reunion": [
+    "Tim Kelly (American football)"
+   ],
+   "first": false,
+   "resid": -15.0,
+   "team_vs_implied": -16.5,
+   "points": 3.0,
+   "implied": 19.5
+  },
+  {
+   "season": 2024,
+   "week": 1,
+   "team": "PIT",
+   "opp": "ATL",
+   "off_reunion": [
+    "Arthur Smith (American football, born 1982)"
+   ],
+   "first": true,
+   "resid": -15.0,
+   "team_vs_implied": -1.5,
+   "points": 18.0,
+   "implied": 19.5
+  },
+  {
+   "season": 2024,
+   "week": 4,
+   "team": "WAS",
+   "opp": "ARI",
+   "off_reunion": [
+    "Kliff Kingsbury"
+   ],
+   "first": true,
+   "resid": 7.0,
+   "team_vs_implied": 19.25,
+   "points": 42.0,
+   "implied": 22.8
+  },
+  {
+   "season": 2024,
+   "week": 4,
+   "team": "NYJ",
+   "opp": "DEN",
+   "off_reunion": [
+    "Nathaniel Hackett"
+   ],
+   "first": false,
+   "resid": -20.5,
+   "team_vs_implied": -14.5,
+   "points": 9.0,
+   "implied": 23.5
+  },
+  {
+   "season": 2024,
+   "week": 5,
+   "team": "CHI",
+   "opp": "CAR",
+   "off_reunion": [
+    "Thomas Brown (American football coach)"
+   ],
+   "first": true,
+   "resid": 6.0,
+   "team_vs_implied": 14.0,
+   "points": 36.0,
+   "implied": 22.0
+  },
+  {
+   "season": 2024,
+   "week": 6,
+   "team": "DEN",
+   "opp": "LAC",
+   "off_reunion": [
+    "Joe Lombardi"
+   ],
+   "first": false,
+   "resid": 2.0,
+   "team_vs_implied": -1.0,
+   "points": 16.0,
+   "implied": 17.0
+  },
+  {
+   "season": 2024,
+   "week": 8,
+   "team": "MIN",
+   "opp": "LA",
+   "off_reunion": [
+    "Kevin O'Connell (American football)"
+   ],
+   "first": true,
+   "resid": 2.5,
+   "team_vs_implied": -5.25,
+   "points": 20.0,
+   "implied": 25.2
+  },
+  {
+   "season": 2024,
+   "week": 10,
+   "team": "PHI",
+   "opp": "DAL",
+   "off_reunion": [
+    "Kellen Moore"
+   ],
+   "first": true,
+   "resid": -4.5,
+   "team_vs_implied": 8.0,
+   "points": 34.0,
+   "implied": 26.0
+  },
+  {
+   "season": 2024,
+   "week": 12,
+   "team": "LAC",
+   "opp": "BAL",
+   "off_reunion": [
+    "Greg Roman"
+   ],
+   "first": true,
+   "resid": 2.0,
+   "team_vs_implied": -1.0,
+   "points": 23.0,
+   "implied": 24.0
+  },
+  {
+   "season": 2024,
+   "week": 13,
+   "team": "CAR",
+   "opp": "TB",
+   "off_reunion": [
+    "Dave Canales"
+   ],
+   "first": true,
+   "resid": 3.0,
+   "team_vs_implied": 3.25,
+   "points": 23.0,
+   "implied": 19.8
+  },
+  {
+   "season": 2024,
+   "week": 15,
+   "team": "TEN",
+   "opp": "CIN",
+   "off_reunion": [
+    "Brian Callahan"
+   ],
+   "first": true,
+   "resid": 17.5,
+   "team_vs_implied": 6.75,
+   "points": 27.0,
+   "implied": 20.2
+  },
+  {
+   "season": 2024,
+   "week": 16,
+   "team": "DEN",
+   "opp": "LAC",
+   "off_reunion": [
+    "Joe Lombardi"
+   ],
+   "first": false,
+   "resid": 19.5,
+   "team_vs_implied": 7.75,
+   "points": 27.0,
+   "implied": 19.2
+  },
+  {
+   "season": 2024,
+   "week": 16,
+   "team": "MIA",
+   "opp": "SF",
+   "off_reunion": [
+    "Mike McDaniel"
+   ],
+   "first": false,
+   "resid": 2.0,
+   "team_vs_implied": 8.0,
+   "points": 29.0,
+   "implied": 21.0
+  },
+  {
+   "season": 2024,
+   "week": 16,
+   "team": "LA",
+   "opp": "NYJ",
+   "off_reunion": [
+    "Mike LaFleur"
+   ],
+   "first": true,
+   "resid": -19.0,
+   "team_vs_implied": -6.0,
+   "points": 19.0,
+   "implied": 25.0
+  },
+  {
+   "season": 2024,
+   "week": 17,
+   "team": "CHI",
+   "opp": "SEA",
+   "off_reunion": [
+    "Shane Waldron"
+   ],
+   "first": true,
+   "resid": -34.5,
+   "team_vs_implied": -17.0,
+   "points": 3.0,
+   "implied": 20.0
+  },
+  {
+   "season": 2024,
+   "week": 17,
+   "team": "PHI",
+   "opp": "DAL",
+   "off_reunion": [
+    "Kellen Moore"
+   ],
+   "first": false,
+   "resid": 10.5,
+   "team_vs_implied": 18.5,
+   "points": 41.0,
+   "implied": 22.5
+  },
+  {
+   "season": 2024,
+   "week": 17,
+   "team": "CAR",
+   "opp": "TB",
+   "off_reunion": [
+    "Dave Canales"
+   ],
+   "first": false,
+   "resid": 14.5,
+   "team_vs_implied": -5.0,
+   "points": 14.0,
+   "implied": 19.0
+  },
+  {
+   "season": 2024,
+   "week": 19,
+   "team": "MIN",
+   "opp": "LA",
+   "off_reunion": [
+    "Kevin O'Connell (American football)"
+   ],
+   "first": false,
+   "resid": -11.5,
+   "team_vs_implied": -16.0,
+   "points": 9.0,
+   "implied": 25.0
+  },
+  {
+   "season": 2025,
+   "week": 1,
+   "team": "NE",
+   "opp": "LV",
+   "off_reunion": [
+    "Josh McDaniels"
+   ],
+   "first": true,
+   "resid": -11.5,
+   "team_vs_implied": -10.5,
+   "points": 13.0,
+   "implied": 23.5
+  },
+  {
+   "season": 2025,
+   "week": 2,
+   "team": "CHI",
+   "opp": "DET",
+   "off_reunion": [
+    "Ben Johnson (American football coach)"
+   ],
+   "first": true,
+   "resid": 26.5,
+   "team_vs_implied": 0.75,
+   "points": 21.0,
+   "implied": 20.2
+  },
+  {
+   "season": 2025,
+   "week": 3,
+   "team": "DEN",
+   "opp": "LAC",
+   "off_reunion": [
+    "Joe Lombardi"
+   ],
+   "first": false,
+   "resid": -2.5,
+   "team_vs_implied": -1.5,
+   "points": 20.0,
+   "implied": 21.5
+  },
+  {
+   "season": 2025,
+   "week": 3,
+   "team": "SEA",
+   "opp": "NO",
+   "off_reunion": [
+    "Klint Kubiak"
+   ],
+   "first": true,
+   "resid": 15.5,
+   "team_vs_implied": 19.5,
+   "points": 44.0,
+   "implied": 24.5
+  },
+  {
+   "season": 2025,
+   "week": 7,
+   "team": "JAX",
+   "opp": "LA",
+   "off_reunion": [
+    "Liam Coen"
+   ],
+   "first": true,
+   "resid": -2.5,
+   "team_vs_implied": -13.75,
+   "points": 7.0,
+   "implied": 20.8
+  },
+  {
+   "season": 2025,
+   "week": 16,
+   "team": "CAR",
+   "opp": "TB",
+   "off_reunion": [
+    "Dave Canales"
+   ],
+   "first": false,
+   "resid": -1.5,
+   "team_vs_implied": 2.25,
+   "points": 23.0,
+   "implied": 20.8
+  },
+  {
+   "season": 2025,
+   "week": 18,
+   "team": "CAR",
+   "opp": "TB",
+   "off_reunion": [
+    "Dave Canales"
+   ],
+   "first": false,
+   "resid": -13.5,
+   "team_vs_implied": -6.25,
+   "points": 14.0,
+   "implied": 20.2
+  },
+  {
+   "season": 2025,
+   "week": 18,
+   "team": "CHI",
+   "opp": "DET",
+   "off_reunion": [
+    "Ben Johnson (American football coach)"
+   ],
+   "first": false,
+   "resid": -16.5,
+   "team_vs_implied": -11.5,
+   "points": 16.0,
+   "implied": 27.5
+  },
+  {
+   "season": 2025,
+   "week": 18,
+   "team": "DEN",
+   "opp": "LAC",
+   "off_reunion": [
+    "Joe Lombardi"
+   ],
+   "first": false,
+   "resid": -15.5,
+   "team_vs_implied": -7.0,
+   "points": 19.0,
+   "implied": 26.0
+  },
+  {
+   "season": 2026,
+   "week": 3,
+   "team": "NYJ",
+   "opp": "DET",
+   "off_reunion": [
+    "Aaron Glenn"
+   ],
+   "first": true,
+   "resid": 5.5,
+   "team_vs_implied": 2.75,
+   "points": 24.0,
+   "implied": 21.2
+  },
+  {
+   "season": 2026,
+   "week": 3,
+   "team": "LV",
+   "opp": "NO",
+   "off_reunion": [
+    "Klint Kubiak"
+   ],
+   "first": true,
+   "resid": 18.5,
+   "team_vs_implied": 15.0,
+   "points": 35.0,
+   "implied": 20.0
+  },
+  {
+   "season": 2026,
+   "week": 3,
+   "team": "TEN",
+   "opp": "NYG",
+   "off_reunion": [
+    "Brian Daboll"
+   ],
+   "first": true,
+   "resid": -18.5,
+   "team_vs_implied": -10.5,
+   "points": 7.0,
+   "implied": 17.5
+  },
+  {
+   "season": 2026,
+   "week": 5,
+   "team": "NE",
+   "opp": "LV",
+   "off_reunion": [
+    "Josh McDaniels"
+   ],
+   "first": false,
+   "resid": 16.5,
+   "team_vs_implied": 20.5,
+   "points": 45.0,
+   "implied": 24.5
+  },
+  {
+   "season": 2026,
+   "week": 6,
+   "team": "CLE",
+   "opp": "BAL",
+   "off_reunion": [
+    "Todd Monken"
+   ],
+   "first": true,
+   "resid": -16.5,
+   "team_vs_implied": -5.25,
+   "points": 13.0,
+   "implied": 18.2
+  },
+  {
+   "season": 2026,
+   "week": 6,
+   "team": "ARI",
+   "opp": "LA",
+   "off_reunion": [
+    "Mike LaFleur"
+   ],
+   "first": true,
+   "resid": -17.5,
+   "team_vs_implied": -1.5,
+   "points": 18.0,
+   "implied": 19.5
+  }
+ ]
+}
