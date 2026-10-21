@@ -17,6 +17,8 @@ import { useSubmissions } from '@/lib/submissions-context';
 import { matchupScore, useMatchups } from '@/lib/matchups-context';
 import { track } from '@/lib/analytics';
 import { usePrefs } from '@/lib/prefs-context';
+import { useAccountSync } from '@/lib/account-sync';
+import { ProSheet } from '@/components/ProLock';
 import { formatCurrency, formatEt, formatPoints, salariesPendingText } from '@/lib/utils';
 import { evenWeights, type Factor, setWeight, totalWeight, type Weights, weightedRank } from '@/lib/weighted-sort';
 import { type LineupScope, useLineups, useWeek } from '@/lib/week-context';
@@ -98,6 +100,15 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   const [lowFirst, setLowFirst] = useState<Partial<Record<SortKey, boolean>>>({});
   // The sorts follow the user between sessions and devices (prefs.builder).
   const { prefs, loaded: prefsLoaded, update: updatePrefs } = usePrefs();
+  // Free accounts build one lineup per slate once Pro is on (accounts.PRO_FEATURES).
+  const { locked } = useAccountSync();
+  const [proOpen, setProOpen] = useState(false);
+  const newLineup = () => {
+    if (locked('multiple_lineups') && lineups.length >= 1) {
+      track('pro_unlock_tapped', { feature: 'multiple_lineups' });
+      setProOpen(true);
+    } else addLineup();
+  };
   const [prefsApplied, setPrefsApplied] = useState(false);
   // Applied once, when prefs first load (state adjusted during render, React's pattern for it).
   if (!prefsApplied && prefsLoaded) {
@@ -392,13 +403,14 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
           );
         })}
         {lineups.length < MAX_LINEUPS ? (
-          <Pressable className="filter-chip flex-row items-center" onPress={addLineup} accessibilityRole="button" accessibilityLabel="Add a lineup">
+          <Pressable className="filter-chip flex-row items-center" onPress={newLineup} accessibilityRole="button" accessibilityLabel="Add a lineup">
             <Image source={icons.plus} className="mr-1" style={{ width: 12, height: 12, tintColor: colors.foreground }} />
             <Text className="filter-chip-text">New</Text>
           </Pressable>
         ) : null}
       </ScrollView>
       ) : null}
+      <ProSheet feature="multiple_lineups" visible={proOpen} onClose={() => setProOpen(false)} />
 
       {/* Active lineup: stacked vertical slots */}
       <View className="lineup-card">

@@ -187,7 +187,8 @@ async def _require_sign_in(request: Request, call_next):
     if not path.startswith("/api/") or path in OPEN_API_PATHS or request.method == "OPTIONS" or not sign_in_required():
         return await call_next(request)
     try:
-        request.state.user_id = await accounts.verify(request.headers.get("authorization"))
+        request.state.claims = await accounts.verify_claims(request.headers.get("authorization"))
+        request.state.user_id = request.state.claims["sub"]
     except accounts.AuthError as exc:
         return JSONResponse({"detail": f"Sign in to DFSRiches to use this ({exc})."}, status_code=401,
                             headers={"WWW-Authenticate": "Bearer"})
@@ -456,6 +457,15 @@ async def _user(authorization: str | None) -> str:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
 
 
+async def _require_feature(request: Request, feature: str) -> None:
+    """A Pro feature (accounts.PRO_FEATURES): with PRO_GATING on, free accounts get a 402."""
+    if not accounts.pro_gating() or not sign_in_required():
+        return
+    claims = getattr(request.state, "claims", None) or {}
+    if not accounts.entitled(await accounts.plan(claims.get("sub", ""), claims), feature):
+        raise HTTPException(status_code=402, detail="This is a DFSRiches Pro feature.")
+
+
 async def _require_master(authorization: str | None) -> str:
     """Shared ownership data (projections, actuals) is written by master accounts only."""
     user_id = await _user(authorization)
@@ -470,9 +480,19 @@ async def api_me(authorization: Annotated[str | None, Header()] = None):
     plus whether the account is a master account and where data is stored."""
     user_id = await _user(authorization)
     try:
-        return await accounts.load(user_id)
+        return await accounts.load(user_id, await accounts.verify_claims(authorization))
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not load account data: {exc}") from exc
+
+
+@app.delete("/api/me")
+async def api_me_delete(authorization: Annotated[str | None, Header()] = None):
+    """Deletes the signed-in user's account and everything stored for it (Settings > Delete account)."""
+    user_id = await _user(authorization)
+    try:
+        return await accounts.delete_account(user_id)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not delete the account: {exc}") from exc
 
 
 @app.put("/api/me/data/{key}")
@@ -595,8 +615,9 @@ async def _slate_ownership(season: int, week: int, slate_id: str, version: tuple
 
 
 @app.get("/api/slates/{slate_id}/ownership")
-async def api_slate_ownership(slate_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
-    """Projected ownership % for a slate's players, keyed by DraftKings draftable id."""
+async def api_slate_ownership(request: Request, slate_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
+    """Projected ownership % for a slate's players, keyed by DraftKings draftable id (Pro)."""
+    await _require_feature(request, "ownership")
     try:
         return await _slate_ownership(season, week, slate_id, ownership_store.data_version())
     except HTTPException:
@@ -793,9 +814,10 @@ async def api_ownership_actual_video(request: Request, season: int, week: int, s
 
 
 @app.post("/api/ownership/duplication")
-async def api_ownership_duplication(body: dict = Body(...)):
-    """Duplication + exposure leverage for your own Lineup Builder lineups:
+async def api_ownership_duplication(request: Request, body: dict = Body(...)):
+    """Duplication + exposure leverage for your own Lineup Builder lineups (Pro):
     {season, week, slate_id, contest, contest_size, lineups: [[dk_draftable_id, ...], ...]}."""
+    await _require_feature(request, "leverage")
     try:
         season, week, slate_id = _slate_args(body)
         contest = _check_contest(str(body.get("contest") or "gpp"))

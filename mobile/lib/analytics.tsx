@@ -1,9 +1,10 @@
-import { useAuth, useUser } from '@clerk/expo';
+import { useAuth } from '@clerk/expo';
 import { usePathname } from 'expo-router';
-import { type ReactNode, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 
 import { POSTHOG_HOST, POSTHOG_KEY } from '@/constants/config';
+import { useAccountSync } from '@/lib/account-sync';
 
 type Client = {
   screen(name: string): unknown;
@@ -65,13 +66,12 @@ export function useScrollDepth(screen: string) {
   );
 }
 
-/** Screen views on every route change, and the signed-in Clerk user as the
+/** Screen views on every route change, and the signed-in Clerk user (by id) as the
  *  PostHog person (reset on sign-out so devices don't share a person). */
 function Tracking() {
   const pathname = usePathname();
   const { isLoaded, isSignedIn, userId } = useAuth();
-  const { user } = useUser();
-  const email = user?.primaryEmailAddress?.emailAddress;
+  const { plan, status } = useAccountSync();
   const wasSignedIn = useRef(false);
 
   useEffect(() => {
@@ -80,19 +80,16 @@ function Tracking() {
 
   useEffect(() => {
     if (!isLoaded) return;
-    if (isSignedIn && userId) send((c) => c.identify(userId, email ? { email } : undefined));
+    // The Clerk user id only (no email or name), with the plan so funnels split Free from Pro.
+    if (isSignedIn && userId) send((c) => c.identify(userId, status === 'synced' || status === 'saving' ? { plan } : undefined));
     else if (wasSignedIn.current) send((c) => c.reset());
     wasSignedIn.current = !!isSignedIn;
-  }, [isLoaded, isSignedIn, userId, email]);
+  }, [isLoaded, isSignedIn, userId, plan, status]);
 
   return null;
 }
 
-export function AnalyticsProvider({ children }: { children: ReactNode }) {
-  return (
-    <>
-      {POSTHOG_KEY ? <Tracking /> : null}
-      {children}
-    </>
-  );
+/** Screen and person tracking; rendered inside AccountSyncProvider (it reads the plan). */
+export function AnalyticsTracking() {
+  return POSTHOG_KEY ? <Tracking /> : null;
 }

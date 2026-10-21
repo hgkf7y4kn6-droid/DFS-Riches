@@ -116,6 +116,12 @@ async def _signing_key(kid: str):
 
 async def verify(authorization: str | None) -> str:
     """The Clerk user id behind `Authorization: Bearer <session token>`."""
+    return (await verify_claims(authorization))["sub"]
+
+
+async def verify_claims(authorization: str | None) -> dict:
+    """The verified claims of `Authorization: Bearer <session token>` (sub, and a "plan" claim when the
+    Clerk session token is customized to carry one)."""
     if not authorization or not authorization.lower().startswith("bearer "):
         raise AuthError("sign in required")
     token = authorization.split(" ", 1)[1].strip()
@@ -132,7 +138,7 @@ async def verify(authorization: str | None) -> str:
     allowed = authorized_parties()
     if allowed and claims.get("azp") and claims["azp"].rstrip("/") not in allowed:
         raise AuthError("session issued for another site")
-    return claims["sub"]
+    return claims
 
 
 def authorized_parties() -> set[str]:
@@ -181,6 +187,38 @@ async def is_master(user_id: str) -> bool:
     verified = {(e.get("email_address") or "").lower() for e in user.get("email_addresses") or []
                 if (e.get("verification") or {}).get("status") == "verified"}
     return bool(emails & verified)
+
+
+# ------------------------------------------------------------------ plans
+PLANS = ("free", "pro", "admin")
+# What each plan unlocks once billing is on (PRO_GATING=1). Free: projections, slates, one saved lineup.
+PRO_FEATURES = ("ownership", "leverage", "multiple_lineups", "big_picture", "alerts")
+
+
+def pro_gating() -> bool:
+    """Off until billing is set up: every account gets Pro features (the app still marks them Pro)."""
+    return os.environ.get("PRO_GATING", "0") == "1"
+
+
+async def plan(user_id: str, claims: dict | None = None) -> str:
+    """free / pro / admin. Masters are admin; otherwise the session token's "plan" claim (Clerk session
+    token customization: {"plan": "{{user.public_metadata.plan}}"}) and, without one, the account's
+    public_metadata.plan (looked up and cached), else free."""
+    if await is_master(user_id):
+        return "admin"
+    claimed = (claims or {}).get("plan")
+    if claimed in PLANS:
+        return claimed
+    try:
+        user = await clerk_user(user_id)
+    except Exception:
+        return "free"
+    value = (user.get("public_metadata") or {}).get("plan")
+    return value if value in ("free", "pro") else "free"
+
+
+def entitled(plan_name: str, feature: str) -> bool:
+    return not pro_gating() or feature not in PRO_FEATURES or plan_name in ("pro", "admin")
 
 
 # ----------------------------------------------------------- retention
@@ -293,11 +331,34 @@ def _profile(docs: dict[str, dict], master: bool) -> dict:
 
 
 # -------------------------------------------------------------------- api
-async def load(user_id: str) -> dict:
+async def load(user_id: str, claims: dict | None = None) -> dict:
     master = await is_master(user_id)
     mode = storage_mode()
     docs = await _db_load(user_id) if mode == "neon" else await _meta_load(user_id) if mode == "clerk" else {}
-    return {"user_id": user_id, "master": master, "storage": mode, "data": docs}
+    return {"user_id": user_id, "master": master, "storage": mode, "data": docs,
+            "plan": await plan(user_id, claims), "pro_gating": pro_gating(), "pro_features": list(PRO_FEATURES)}
+
+
+async def delete_account(user_id: str) -> dict:
+    """Deletes everything stored for the user: their synced documents (Neon rows and the Clerk metadata
+    copy) and, when the server has CLERK_SECRET_KEY, the Clerk account itself (otherwise the app deletes
+    it through Clerk's own user.delete())."""
+    out = {"deleted_data": False, "deleted_account": False}
+    if storage_mode() == "neon":
+        conn = await _connect()
+        async with conn:
+            await conn.execute("delete from user_data where user_id = %s", (user_id,))
+        out["deleted_data"] = True
+    if _secret():
+        try:
+            await _clerk("DELETE", f"/users/{user_id}")
+            out["deleted_account"] = True
+            out["deleted_data"] = True          # the metadata copy goes with the account
+        except Exception:
+            await _meta_write(user_id, {}, {})
+            out["deleted_data"] = True
+    _USERS.pop(user_id, None)
+    return out
 
 
 async def save(user_id: str, key: str, value: Any, updated_at: str | None) -> dict:

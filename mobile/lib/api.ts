@@ -137,6 +137,13 @@ export async function getAccount(token: string): Promise<AccountData> {
   return (await res.json()) as AccountData;
 }
 
+/** Deletes the account and everything stored for it (Settings > Delete account). */
+export async function deleteAccount(token: string): Promise<{ deleted_data: boolean; deleted_account: boolean }> {
+  const res = await fetch(`${API_BASE_URL}/api/me`, { method: 'DELETE', headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return (await res.json()) as { deleted_data: boolean; deleted_account: boolean };
+}
+
 /** Stores one synced document; the server keeps the newest by updated_at and returns what it kept. */
 export async function putAccountDoc(token: string, key: SyncKey, value: unknown, updatedAt: string): Promise<SyncedDoc> {
   const res = await fetch(`${API_BASE_URL}/api/me/data/${key}`, {

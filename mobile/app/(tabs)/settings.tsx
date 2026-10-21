@@ -1,6 +1,9 @@
+import { useAuth, useUser } from '@clerk/expo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Alert, Linking, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,15 +12,25 @@ import MatchupModeToggle from '@/components/MatchupModeToggle';
 import PrefsEditor from '@/components/PrefsEditor';
 import BackLink from '@/components/BackLink';
 import BrandHeader from '@/components/BrandHeader';
+import FeedbackSheet from '@/components/FeedbackSheet';
+import { ProSheet } from '@/components/ProLock';
 import SafeAreaView from '@/components/SafeAreaView';
 import { API_BASE_URL } from '@/constants/config';
 import { FLOATING_TAB_BAR } from '@/constants/theme';
+import { useAccountSync } from '@/lib/account-sync';
+import { track } from '@/lib/analytics';
+import { deleteAccount } from '@/lib/api';
 import { useDfsModel } from '@/lib/dfs-model-context';
 import { useOnboarding } from '@/lib/onboarding-context';
 import { useSubmissions } from '@/lib/submissions-context';
 import { usePoolTags } from '@/lib/pool-tags-context';
 import { useWeek } from '@/lib/week-context';
 import { useColorScheme } from '@/lib/color-scheme';
+
+const PLAN_LABEL: Record<Plan, string> = { free: 'Free', pro: 'Pro', admin: 'Admin' };
+
+/** The National Council on Problem Gambling's help line and site (1-800-GAMBLER). */
+const HELP_URL = 'https://www.ncpgambling.org/help-treatment/';
 
 /** Asks before destructive actions (Alert on phones; confirm() on web, where Alert is a no-op). */
 function confirm(title: string, message: string, onConfirm: () => void) {
@@ -66,6 +79,34 @@ export default function SettingsScreen() {
   const { submissions, clear } = useSubmissions();
   const { pools, clearAll: clearPoolTags } = usePoolTags();
   const { showIntro, startHereHidden, setStartHereHidden } = useOnboarding();
+  const { plan, locked } = useAccountSync();
+  const { getToken, signOut } = useAuth();
+  const { user } = useUser();
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [proOpen, setProOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  // Deletes the account and everything stored for it, then this device's copies, then signs out.
+  const removeAccount = async () => {
+    setDeleting(true);
+    try {
+      const token = await getToken();
+      if (!token) throw new Error('Not signed in');
+      const res = await deleteAccount(token);
+      if (!res.deleted_account) await user?.delete();
+      track('account_deleted');
+      const keys = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith('dfsriches:'));
+      await AsyncStorage.multiRemove(keys);
+      await signOut().catch(() => {});
+      router.replace('/sign-up');
+    } catch (e) {
+      const msg = `Couldn't delete your account: ${e instanceof Error ? e.message : String(e)}. Try again, or send feedback and we'll do it for you.`;
+      if (Platform.OS === 'web') window.alert(msg);
+      else Alert.alert('Delete account', msg);
+    } finally {
+      setDeleting(false);
+    }
+  };
   const poolChanges = Object.values(pools).reduce((n, tags) => n + Object.keys(tags).length, 0);
 
   return (
@@ -80,6 +121,11 @@ export default function SettingsScreen() {
         <Text className="settings-group-title">Account</Text>
         <AccountCard />
         <View className="settings-group mt-2">
+          <Row
+            label="Plan"
+            value={`${PLAN_LABEL[plan]}${plan === 'free' && !locked('ownership') ? ' · Pro features open during the beta' : ''}${plan === 'free' ? ' ›' : ''}`}
+            onPress={plan === 'free' ? () => setProOpen(true) : undefined}
+          />
           <Row label="Appearance" value={`${scheme === 'dark' ? 'Dark' : 'Light'} (follows your device)`} last />
         </View>
 
@@ -94,8 +140,9 @@ export default function SettingsScreen() {
             label="Start here card on Home"
             value={startHereHidden ? 'Hidden · tap to show' : 'Showing · tap to hide'}
             onPress={() => setStartHereHidden(!startHereHidden)}
-            last
           />
+          <Row label="Send feedback" value="Bugs, ideas ›" onPress={() => setFeedbackOpen(true)} />
+          <Row label="Play responsibly" value="Help: 1-800-GAMBLER ›" onPress={() => Linking.openURL(HELP_URL)} last />
         </View>
 
         <Text className="settings-group-title">Matchups</Text>
@@ -143,6 +190,21 @@ export default function SettingsScreen() {
             value={`${submissions.length} logged`}
             danger
             onPress={() => confirm('Clear contest entries?', 'Your balance card and profit/loss history will reset.', clear)}
+          />
+          <Row
+            label={deleting ? 'Deleting your account…' : 'Delete account'}
+            value="Account and all its data"
+            danger
+            onPress={
+              deleting
+                ? undefined
+                : () =>
+                    confirm(
+                      'Delete your account?',
+                      'Your account, saved lineups, contest entries, pool tags and settings are deleted for good. This cannot be undone.',
+                      removeAccount,
+                    )
+            }
             last
           />
         </View>
@@ -162,6 +224,8 @@ export default function SettingsScreen() {
           <Row label="Weather" value="Open-Meteo.com (CC BY 4.0), National Weather Service" last />
         </View>
       </ScrollView>
+      <FeedbackSheet visible={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
+      <ProSheet feature="ownership" visible={proOpen} onClose={() => setProOpen(false)} />
     </SafeAreaView>
   );
 }

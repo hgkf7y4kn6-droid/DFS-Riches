@@ -16,7 +16,7 @@ import { CLERK_PUBLISHABLE_KEY } from '@/constants/config';
 import { FONTS } from '@/constants/fonts';
 import { darkColors, lightColors } from '@/constants/theme';
 import { AccountSyncProvider } from '@/lib/account-sync';
-import { AnalyticsProvider } from '@/lib/analytics';
+import { AnalyticsTracking } from '@/lib/analytics';
 import { useAppUpdates } from '@/lib/app-updates';
 import '@/lib/clerk-diagnostics';
 import { DfsModelProvider } from '@/lib/dfs-model-context';
@@ -61,42 +61,41 @@ export default function RootLayout() {
 
   return (
     <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY} tokenCache={Platform.OS === 'web' ? undefined : tokenCache}>
-      <AnalyticsProvider>
-        <SafeAreaProvider>
-          <ThemeProvider value={navTheme(dark)}>
-            <AccountSyncProvider>
-              <PrefsProvider>
-                <SubmissionsProvider>
-                  <WeekProvider>
-                    <DfsModelProvider>
-                      <LeverageProvider>
-                        <PoolTagsProvider>
-                          <MatchupsProvider>
-                            <OnboardingProvider>
-                              <GlossaryProvider>
-                                <Head>
-                                  <title>DFSRiches</title>
-                                </Head>
-                                <StatusBar style={dark ? 'light' : 'dark'} />
-                                {/* Signing in is the way into the app (app/(tabs)/_layout.tsx), so these are full pages, not modals. */}
-                                <Stack screenOptions={{ headerShown: false }}>
-                                  <Stack.Screen name="(tabs)" />
-                                  <Stack.Screen name="sign-in" options={{ gestureEnabled: false }} />
-                                  <Stack.Screen name="sign-up" />
-                                </Stack>
-                              </GlossaryProvider>
-                            </OnboardingProvider>
-                          </MatchupsProvider>
-                        </PoolTagsProvider>
-                      </LeverageProvider>
-                    </DfsModelProvider>
-                  </WeekProvider>
-                </SubmissionsProvider>
-              </PrefsProvider>
-            </AccountSyncProvider>
-          </ThemeProvider>
-        </SafeAreaProvider>
-      </AnalyticsProvider>
+      <SafeAreaProvider>
+        <ThemeProvider value={navTheme(dark)}>
+          <AccountSyncProvider>
+            <AnalyticsTracking />
+            <PrefsProvider>
+              <SubmissionsProvider>
+                <WeekProvider>
+                  <DfsModelProvider>
+                    <LeverageProvider>
+                      <PoolTagsProvider>
+                        <MatchupsProvider>
+                          <OnboardingProvider>
+                            <GlossaryProvider>
+                              <Head>
+                                <title>DFSRiches</title>
+                              </Head>
+                              <StatusBar style={dark ? 'light' : 'dark'} />
+                              {/* Signing in is the way into the app (app/(tabs)/_layout.tsx), so these are full pages, not modals. */}
+                              <Stack screenOptions={{ headerShown: false }}>
+                                <Stack.Screen name="(tabs)" />
+                                <Stack.Screen name="sign-in" options={{ gestureEnabled: false }} />
+                                <Stack.Screen name="sign-up" />
+                              </Stack>
+                            </GlossaryProvider>
+                          </OnboardingProvider>
+                        </MatchupsProvider>
+                      </PoolTagsProvider>
+                    </LeverageProvider>
+                  </DfsModelProvider>
+                </WeekProvider>
+              </SubmissionsProvider>
+            </PrefsProvider>
+          </AccountSyncProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
     </ClerkProvider>
   );
 }

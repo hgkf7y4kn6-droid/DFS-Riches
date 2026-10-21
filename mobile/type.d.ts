@@ -1056,7 +1056,15 @@ interface AccountData {
   /** Where the data lives: Neon Postgres, Clerk metadata, or not configured on the server. */
   storage: 'neon' | 'clerk' | 'none';
   data: Partial<Record<SyncKey, SyncedDoc>>;
+  /** free / pro / admin (masters); app.accounts.plan. */
+  plan?: Plan;
+  /** Pro features are locked for free accounts (billing is on). */
+  pro_gating?: boolean;
+  pro_features?: ProFeature[];
 }
+
+type Plan = 'free' | 'pro' | 'admin';
+type ProFeature = 'ownership' | 'leverage' | 'multiple_lineups' | 'big_picture' | 'alerts';
 
 // ------------------------------------------------------------- Big Picture (master-only pilot)
 interface BigPictureRow {

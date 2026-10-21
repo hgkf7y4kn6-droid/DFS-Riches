@@ -219,11 +219,11 @@ def test_an_upload_without_a_slate_goes_to_the_slate_its_data_matches(client, mo
 def test_api_needs_a_signed_in_account(client, monkeypatch):
     monkeypatch.setenv("REQUIRE_SIGN_IN", "1")
 
-    async def verify(authorization):
+    async def verify_claims(authorization):
         if authorization != "Bearer good":
             raise main.accounts.AuthError("sign in required")
-        return "user_1"
-    monkeypatch.setattr(main.accounts, "verify", verify)
+        return {"sub": "user_1"}
+    monkeypatch.setattr(main.accounts, "verify_claims", verify_claims)
     r = client.get("/api/slates/nope/ownership?season=2026&week=3")
     assert r.status_code == 401 and "Sign in" in r.json()["detail"]
     assert client.get("/api/nope", headers={"authorization": "Bearer bad"}).status_code == 401
@@ -243,3 +243,36 @@ def test_classic_pages_load_clerk_when_sign_in_is_required(client, monkeypatch):
     assert main.accounts.publishable_key() in html
     monkeypatch.setenv("REQUIRE_SIGN_IN", "0")
     assert "clerk.browser.js" not in client.get("/classic").text
+
+
+def test_pro_features_need_pro_once_gating_is_on(client, monkeypatch):
+    monkeypatch.setenv("REQUIRE_SIGN_IN", "1")
+    plans = {"Bearer free": "free", "Bearer pro": "pro"}
+
+    async def verify_claims(authorization):
+        return {"sub": "u", "plan": plans[authorization]}
+
+    async def not_master(user_id):
+        return False
+    monkeypatch.setattr(main.accounts, "verify_claims", verify_claims)
+    monkeypatch.setattr(main.accounts, "is_master", not_master)
+    url = "/api/slates/nope/ownership?season=2026&week=3"
+    assert client.get(url, headers={"authorization": "Bearer free"}).status_code == 404     # gating off: everyone gets Pro
+    monkeypatch.setenv("PRO_GATING", "1")
+    assert client.get(url, headers={"authorization": "Bearer free"}).status_code == 402
+    assert client.get(url, headers={"authorization": "Bearer pro"}).status_code == 404
+
+
+def test_deleting_the_account_removes_its_data(client, monkeypatch):
+    deleted = []
+
+    async def verify(authorization):
+        return "user_9"
+
+    async def delete_account(user_id):
+        deleted.append(user_id)
+        return {"deleted_data": True, "deleted_account": True}
+    monkeypatch.setattr(main.accounts, "verify", verify)
+    monkeypatch.setattr(main.accounts, "delete_account", delete_account)
+    assert client.delete("/api/me", headers={"authorization": "Bearer x"}).json()["deleted_account"] is True
+    assert deleted == ["user_9"]

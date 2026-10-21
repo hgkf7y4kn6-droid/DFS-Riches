@@ -11,6 +11,10 @@ interface AccountSyncValue {
   status: Status;
   error: string | null;
   master: boolean;
+  /** The account's plan (free until it loads). */
+  plan: Plan;
+  /** A Pro feature this account can't use yet (always false while gating is off). */
+  locked: (feature: ProFeature) => boolean;
   storage: AccountData['storage'] | null;
   lastSynced: string | null;
   /** The account's copy of each document, loaded once per sign-in (null until then). */
@@ -114,6 +118,9 @@ export function AccountSyncProvider({ children }: { children: ReactNode }) {
       status,
       error: err ?? (mine?.storage === 'none' ? 'Account storage is not set up on the server yet.' : null),
       master: mine?.master ?? false,
+      plan: mine?.plan ?? 'free',
+      locked: (feature: ProFeature) =>
+        Boolean(mine?.pro_gating && (mine.pro_features ?? []).includes(feature) && mine.plan !== 'pro' && mine.plan !== 'admin'),
       storage: mine?.storage ?? null,
       lastSynced,
       remote: mine ? mine.data : null,

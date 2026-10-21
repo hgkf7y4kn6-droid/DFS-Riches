@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { type GestureResponderEvent, Pressable, Text } from 'react-native';
 
+import { useAccountSync } from '@/lib/account-sync';
 import { useLeverage } from '@/lib/leverage-context';
 import { trendInk, trendLevel } from '@/lib/trend';
 import { useColorScheme } from '@/lib/color-scheme';
@@ -48,12 +49,13 @@ interface Props {
 export default function LeverageBadge({ player, value, detail, inline, name }: Props) {
   const dark = useColorScheme() === 'dark';
   const { lookup, request, explain } = useLeverage();
+  const { locked } = useAccountSync();
   const explicit = value !== undefined;
   useEffect(() => {
     if (!explicit) request();
   }, [explicit, request]);
   const info = explicit ? (value != null ? { value, detail: detail ?? null } : null) : player ? lookup(player) : null;
-  if (!info) return null;
+  if (!info || locked('leverage')) return null;            // a Pro feature once billing is on
   const level = trendLevel(info.value, 0, 'high', { steps: STEPS, absolute: true });
   const color = trendInk(level, dark);
   const label = `${leverageText(info.value, info.detail)}. Tap for what this means.`;

@@ -947,6 +947,18 @@ endpoint is `/api/odds` (DraftKings sportsbook lines), which the odds-snapshot
 and Big Picture GitHub workflows read. Locally, `REQUIRE_SIGN_IN=0` turns the
 check off (Clerk's production sign-in only works on the site's own domain).
 
+### Plans and accounts
+
+Accounts are Free, Pro or Admin (`app/accounts.py`): masters are Admin; otherwise
+the session token's `plan` claim (customize Clerk's session token with
+`{"plan": "{{user.public_metadata.plan}}"}`) or, without it, the account's
+`public_metadata.plan`. Pro features are expected ownership, leverage, multiple
+lineups, the Big Picture and alerts. They stay open to everyone until
+`PRO_GATING=1`; after that the server answers free accounts' Pro endpoints with
+402 and the app shows a faded preview with "Unlock with Pro". `DELETE /api/me`
+(Settings > Delete account) deletes the account's data and, with
+`CLERK_SECRET_KEY`, the Clerk account. Legal drafts for review are in `docs/legal/`.
+
 ### Warm starts and performance logging
 
 - **Prebuilt data.** The Docker build runs `python -m app.prewarm --dfs`, so the image ships with this week's

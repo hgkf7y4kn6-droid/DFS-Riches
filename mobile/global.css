@@ -1399,4 +1399,15 @@
   .offline-banner-text {
     @apply text-xs font-sans-semibold text-warning;
   }
+
+  /* A Pro feature for a free account: a faded preview with "Unlock with Pro". */
+  .pro-lock {
+    @apply relative mb-3 overflow-hidden rounded-2xl;
+  }
+  .pro-lock-overlay {
+    @apply absolute inset-0 items-center justify-center bg-background/40 px-6;
+  }
+  .pro-lock-title {
+    @apply text-center text-base font-sans-bold text-foreground;
+  }
 }

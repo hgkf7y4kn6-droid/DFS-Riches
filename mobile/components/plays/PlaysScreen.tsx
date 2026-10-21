@@ -11,6 +11,7 @@ import OwnershipModelNote from '@/components/plays/OwnershipModelNote';
 import ActualOwnershipCard from '@/components/plays/ActualOwnershipCard';
 import LeverageCard from '@/components/plays/LeverageCard';
 import PlayRankingCard from '@/components/plays/PlayRankingCard';
+import ProLock from '@/components/ProLock';
 import WeatherCard, { weatherGames } from '@/components/plays/WeatherCard';
 import RoleShiftsCard from '@/components/plays/RoleShiftsCard';
 import SafeAreaView from '@/components/SafeAreaView';
@@ -136,7 +137,9 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
                 ) : item.kind === 'weather' ? (
                   <WeatherCard games={weather} />
                 ) : item.kind === 'leverage' ? (
-                  <LeverageCard byPosition={ready.leverage_by_position ?? {}} pool={pool} />
+                  <ProLock feature="leverage">
+                    <LeverageCard byPosition={ready.leverage_by_position ?? {}} pool={pool} />
+                  </ProLock>
                 ) : (
                   <PlayRankingCard
                     kicker={item.kicker}
@@ -154,9 +157,11 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
               showsHorizontalScrollIndicator={false}
             />
             <ListHeading title={copy.ownTitle} subtitle={copy.ownSubtitle} />
-            <OwnershipModelNote models={ready.ownership_models} players={ready.players} field={contest === 'cash' ? 'cash' : 'large_gpp'} />
-            <ActualOwnershipCard contest={contest} plays={ready} onUploaded={refresh} />
-            <OwnershipList players={ready.players} columns={columns} pool={pool} />
+            <ProLock feature="ownership" minHeight={240}>
+              <OwnershipModelNote models={ready.ownership_models} players={ready.players} field={contest === 'cash' ? 'cash' : 'large_gpp'} />
+              <ActualOwnershipCard contest={contest} plays={ready} onUploaded={refresh} />
+              <OwnershipList players={ready.players} columns={columns} pool={pool} />
+            </ProLock>
 
             {/* One builder for every contest, in the Lineups tab (set to this one). */}
             <Pressable

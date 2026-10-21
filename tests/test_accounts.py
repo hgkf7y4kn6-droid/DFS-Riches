@@ -166,3 +166,22 @@ def test_config_status_reports_presence_never_values(monkeypatch):
     status = accounts.config_status()
     assert status["clerk_secret_key"] and status["database_url"] and status["storage"] == "neon"
     assert "sk_test_secret_value" not in str(status) and "pw@host" not in str(status)
+
+
+def test_plans_come_from_the_token_then_metadata_and_masters_are_admin(monkeypatch):
+    async def master(user_id):
+        return user_id == "boss"
+
+    async def user(user_id):
+        return {"public_metadata": {"plan": "pro"}} if user_id == "payer" else {}
+    monkeypatch.setattr(accounts, "is_master", master)
+    monkeypatch.setattr(accounts, "clerk_user", user)
+    assert asyncio.run(accounts.plan("boss")) == "admin"
+    assert asyncio.run(accounts.plan("x", {"plan": "pro"})) == "pro"
+    assert asyncio.run(accounts.plan("payer")) == "pro"
+    assert asyncio.run(accounts.plan("someone")) == "free"
+    monkeypatch.delenv("PRO_GATING", raising=False)
+    assert accounts.entitled("free", "ownership")                 # gating off: everything is open
+    monkeypatch.setenv("PRO_GATING", "1")
+    assert not accounts.entitled("free", "ownership") and accounts.entitled("pro", "ownership")
+    assert accounts.entitled("free", "projections")              # not a Pro feature
