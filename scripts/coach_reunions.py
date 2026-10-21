@@ -8,12 +8,13 @@ than the market expects -- the game goes over, or his team beats its implied
 total. Likewise a defensive coordinator facing the offense he just left.
 
 1. Coaching staffs: each team-season's head coach, offensive coordinator and
-   defensive coordinator, 2006 on, from the infobox (and, where the infobox
+   defensive coordinator, 2018 on, from the infobox (and, where the infobox
    leaves coordinators out, the staff section) of Wikipedia's "<season> <team>
    season" articles (CC BY-SA 4.0), read one page at a time. Cached in
    data/cache/wiki_staffs_<season>.json.
 2. Games: nflverse schedules (closing spread and total, final score),
-   regular season and playoffs, 2006 on.
+   regular season and playoffs, 2021 on (recent seasons only, so the
+   Wikipedia reads stay light).
 3. A team-game is a reunion when one of the team's coaches held a head coach
    or coordinator job with the opponent in any of the previous three seasons:
      offense  -- its OC, or its head coach if he's been an OC in the data
@@ -41,10 +42,11 @@ import json
 import random
 import re
 import statistics
+import subprocess
 import time
+from urllib.parse import quote
 from pathlib import Path
 
-import httpx
 
 from app import nflverse_client as nc
 from app.config import NFLVERSE_GAMES_CSV_URL
@@ -52,7 +54,7 @@ from app.config import NFLVERSE_GAMES_CSV_URL
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / "data" / "cache"
 OUT = ROOT / "data" / "coach_reunions.json"
-FIRST_SEASON = 2006
+FIRST_SEASON = 2021                 # games analyzed from here; staffs go back LOOKBACK more seasons
 LOOKBACK = 3
 RAW = "https://en.wikipedia.org/w/index.php"
 HEADERS = {"User-Agent": "DFSRichesResearch/1.0 (https://dfsriches.richesdigitalventures.com; coach-history study)"}
@@ -125,11 +127,15 @@ def wiki_page(title: str) -> str | None:
     for _ in range(3):                        # redirect hops
         text = None
         for attempt in range(8):
-            r = httpx.get(RAW, params={"title": title, "action": "raw"}, headers=HEADERS, timeout=60)
-            if r.status_code == 200:
-                text = r.text
+            # curl: Wikimedia's edge refuses Python HTTP clients (403) but serves curl.
+            url = f"{RAW}?title={quote(title.replace(' ', '_'))}&action=raw"
+            res = subprocess.run(["curl", "-sS", "-A", HEADERS["User-Agent"], "-w", "\n%{http_code}", url],
+                                 capture_output=True, text=True, timeout=90)
+            body, _, code = res.stdout.rpartition("\n")
+            if code == "200":
+                text = body
                 break
-            if r.status_code == 404:
+            if code == "404":
                 return None
             time.sleep(15 * (attempt + 1))
         time.sleep(1.0)                       # a polite pace
@@ -175,7 +181,7 @@ async def games() -> list[dict]:
     for r in csv.DictReader(io.StringIO(text)):
         s = int(r["season"])
         hs, as_, total, spread = f(r["home_score"]), f(r["away_score"]), f(r["total_line"]), f(r["spread_line"])
-        if s < FIRST_SEASON or hs is None or as_ is None or total is None or spread is None:
+        if s < FIRST_SEASON - LOOKBACK or hs is None or as_ is None or total is None or spread is None:
             continue
         out.append({"season": s, "week": int(r["week"]), "gameday": r["gameday"], "type": r["game_type"], "div": r["div_game"] == "1",
                     "home": r["home_team"], "away": r["away_team"], "hs": hs, "as": as_, "total": total, "spread": spread})
@@ -313,12 +319,12 @@ def permutation_p(rows: list[dict], flag, n: int = 20000, seed: int = 7) -> dict
 async def main() -> None:
     all_games = await games()
     seasons = sorted({g["season"] for g in all_games})
-    print(f"{len(all_games)} games {seasons[0]}-{seasons[-1]}; staffs from Wikipedia:")
+    print(f"games {FIRST_SEASON}-{seasons[-1]} analyzed; staffs {seasons[0]}-{seasons[-1]} from Wikipedia:")
     staffs = {}
     for s in seasons:
         teams = sorted({g["home"] for g in all_games if g["season"] == s} | {g["away"] for g in all_games if g["season"] == s})
         staffs[s] = staffs_for(s, teams)
-    rows = reunions(all_games, staffs)
+    rows = [r for r in reunions(all_games, staffs) if r["season"] >= FIRST_SEASON]
 
     groups = {
         "offense": lambda r: bool(r["off_reunion"]),
@@ -332,7 +338,7 @@ async def main() -> None:
     baseline = [r for r in rows if not (r["off_reunion"] or r["def_reunion"] or r["off_division"] or r["def_division"])]
     result = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "seasons": [seasons[0], seasons[-1]], "lookback_seasons": LOOKBACK,
+        "seasons": [FIRST_SEASON, seasons[-1]], "lookback_seasons": LOOKBACK,
         "baseline": summarize(baseline),
         "groups": {},
         "source": "Coaching staffs: Wikipedia team-season articles (CC BY-SA 4.0). Games and lines: nflverse.",
