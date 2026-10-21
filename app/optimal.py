@@ -197,3 +197,24 @@ async def get_optimal(season: int, week: int, slate_id: str, now: datetime | Non
                 return _response("final", saved)
 
     return _response("saved" if saved else "none", saved)
+
+
+def track_record() -> list[dict]:
+    """How the saved optimal lineups did, newest week first: for each finished slate, each lineup's
+    projection and actual score, and the best possible (hindsight) score -- the "How we did" page."""
+    out = []
+    for season, weeks in _load_all().items():
+        if not season.isdigit():
+            continue
+        for week, slates in weeks.items():
+            for slate_id, entry in (slates or {}).items():
+                scored = [lu for lu in entry.get("lineups") or [] if lu.get("actual") is not None]
+                if not scored:
+                    continue
+                out.append({
+                    "season": int(season), "week": int(week), "slate_id": slate_id,
+                    "lineups": [{"label": lu.get("label"), "metric": lu.get("metric"), "proj_points": lu.get("proj_points"),
+                                 "ceiling": lu.get("ceiling"), "actual": lu.get("actual")} for lu in scored],
+                    "best_possible": (entry.get("hindsight") or {}).get("actual"),
+                })
+    return sorted(out, key=lambda r: (-r["season"], -r["week"], r["slate_id"] != "classic_sunday", r["slate_id"]))

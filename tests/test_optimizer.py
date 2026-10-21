@@ -276,3 +276,19 @@ def test_locked_players_are_forced_in_even_when_now_ineligible():
     lineup = optimize([benched] + pool[2:], "classic", "proj_points", locked={2})
     assert lineup and 2 in {p["dk_draftable_id"] for p in lineup}
     assert optimize(pool, "classic", "proj_points", locked={999}) is None   # a lock that isn't in the pool
+
+
+def test_build_many_makes_distinct_lineups_within_exposure_and_keeps_locks():
+    from app.optimizer import build_many
+
+    pool = _classic_pool() + [_p(16, "WR6", "WR", "C", 3200, 8, game="C@D"), _p(17, "RB4", "RB", "D", 3800, 9, game="C@D"),
+                              _p(18, "TE3", "TE", "B", 2800, 6), _p(19, "QB Mid", "QB", "B", 6000, 19)]
+    lineups = build_many(pool, "classic", "proj_points", 3, locked={7}, excluded={1}, max_exposure=0.67)
+    assert len(lineups) == 3
+    ids = [{p["dk_draftable_id"] for p in lu} for lu in lineups]
+    assert all(7 in s and 1 not in s for s in ids)                   # WR1 locked in, QB Star left out
+    assert all(len(a - b) >= 2 for i, a in enumerate(ids) for b in ids[:i])
+    counts = {pid: sum(pid in s for s in ids) for s in ids for pid in s}
+    assert all(n <= 2 for pid, n in counts.items() if pid != 7)       # 67% of 3 lineups, except the lock
+    first = optimize(pool, "classic", "proj_points", locked={7}, excluded={1})
+    assert ids[0] == {p["dk_draftable_id"] for p in first}            # best first

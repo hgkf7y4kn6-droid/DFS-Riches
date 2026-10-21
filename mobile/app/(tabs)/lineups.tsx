@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import AlertsCard from '@/components/AlertsCard';
 import BrandHeader from '@/components/BrandHeader';
 import LineupBuilder from '@/components/LineupBuilder';
 import ListHeading from '@/components/ListHeading';
@@ -79,6 +80,7 @@ export default function Lineups() {
           <Glossed text="Pick a slate and a contest, then tap players to fill each slot under the $50,000 salary cap. Start from a projected optimal lineup if you like." />
         </Text>
         <StatusView loading={weekData.loading && !data} error={weekData.error} onRetry={refresh} />
+        <AlertsCard />
         {data && editing ? (
           <>
             <ListHeading title="Edit your entry" subtitle="Late swap: change players whose games haven't started" />

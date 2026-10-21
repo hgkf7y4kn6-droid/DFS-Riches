@@ -13,9 +13,9 @@ export const tabs: AppTab[] = [
 ];
 
 // Screens in app/(tabs) that aren't in the tab bar: Settings (the header's
-// gear), Lines & Performance (Home and Settings) and the glossary (Settings
-// and any definition sheet).
-export const HIDDEN_TAB_ROUTES = ['settings', 'lines', 'glossary'] as const;
+// gear), Lines & Performance (Home and Settings), the glossary (Settings
+// and any definition sheet) and How we did (Home's More and Settings).
+export const HIDDEN_TAB_ROUTES = ['settings', 'lines', 'glossary', 'results'] as const;
 
 // Home header greeting (above the signed-in user's username).
 export const HOME_GREETING = 'Welcome back';

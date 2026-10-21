@@ -74,6 +74,9 @@ native code changes the fingerprint and needs a new build.
 | `lib/onboarding-context.tsx`, `components/StartHereCard.tsx` | First-run intro and Home's Start here card (remembered on the device) |
 | `lib/prefs-context.tsx` | The "prefs" synced document: what the user plays, weekly budget, last slate / tab, builder sorts |
 | `components/WhatsNew.tsx`, `constants/whats-new.ts` | A note after updates for returning users |
+| `components/BuildForMe.tsx`, `lib/dk-export.ts` | "Build for me" (`POST /api/slates/{id}/build`: up to 5 distinct lineups, locks, exposure cap) and the DraftKings upload file |
+| `components/AlertsCard.tsx` | Alerts: players ruled out in your lineups, lineups locking within the hour, new salaries |
+| `app/(tabs)/results.tsx` | How we did: saved optimal lineups vs actual scores (`/api/track-record`) |
 | `lib/analytics.tsx` | PostHog: screen views, sign-ins, intro / Start here steps, glossary taps, lineup builder funnel, DFS Model scroll depth |
 | `lib/games.ts` | Turns API games into the `UpcomingGame` cards (team logos from Sleeper's CDN) |
 | `type.d.ts` | Global types for tabs, Home data and every API response |

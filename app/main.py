@@ -339,6 +339,52 @@ async def api_slate_players(slate_id: str, season: Season = DEFAULT_SEASON, week
         raise HTTPException(status_code=502, detail=f"Could not load slate players: {exc}") from exc
 
 
+@app.post("/api/slates/{slate_id}/build")
+async def api_build(request: Request, slate_id: str, body: dict = Body(...)):
+    """"Build for me": up to 5 distinct lineups for a slate from the model's projections
+    {season, week, metric: proj_points|ceiling, count, locked: [dk ids], excluded: [dk ids], max_exposure}.
+    More than one lineup is a Pro feature (multiple_lineups)."""
+    from app.optimizer import build_many
+    try:
+        season, week, _ = _slate_args({**body, "slate_id": slate_id})
+        metric = str(body.get("metric") or "proj_points")
+        if metric not in ("proj_points", "ceiling"):
+            raise ValueError("metric must be proj_points or ceiling")
+        count = max(1, min(5, int(body.get("count") or 1)))
+        exposure = max(0.2, min(1.0, float(body.get("max_exposure") or 1.0)))
+        locked = {int(x) for x in (body.get("locked") or [])[:9]}
+        excluded = {int(x) for x in (body.get("excluded") or [])[:200]}
+    except (KeyError, ValueError, TypeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if count > 1:
+        await _require_feature(request, "multiple_lineups")
+    try:
+        _, slate_list = await slates.list_slates(season, week)
+        slate = next((s for s in slate_list if s.slate_id == slate_id), None)
+        if slate is None or not slate.available:
+            raise HTTPException(status_code=404, detail="That slate has no salaries yet.")
+        players = (await slates.get_slate_players(season, week, slate_id)).players
+        built = await asyncio.to_thread(build_many, players, slate.slate_type, metric, count,
+                                        locked=locked, excluded=excluded, max_exposure=exposure)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not build lineups: {exc}") from exc
+    slots = optimal_module._slots(slate.slate_type)
+    return {"lineups": [{
+        "players": [{"slot": slot, "dk_draftable_id": p.dk_draftable_id, "name": p.name, "team": p.team} for slot, p in zip(slots, lu)],
+        "salary": sum(p.salary for p in lu),
+        "proj_points": round(sum(p.proj_points or 0 for p in lu), 2),
+        "ceiling": round(sum(p.ceiling or 0 for p in lu), 2),
+    } for lu in built], "requested": count}
+
+
+@app.get("/api/track-record")
+async def api_track_record():
+    """How the saved optimal lineups scored against their projections, per finished slate (app.optimal)."""
+    return {"slates": optimal_module.track_record()}
+
+
 @memoize_async(ttl_seconds=60)
 async def _optimal(season: int, week: int, slate_id: str) -> dict:
     return await optimal_module.get_optimal(season, week, slate_id)

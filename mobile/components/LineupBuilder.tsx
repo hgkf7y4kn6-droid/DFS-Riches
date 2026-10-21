@@ -19,6 +19,8 @@ import { track } from '@/lib/analytics';
 import { usePrefs } from '@/lib/prefs-context';
 import { useAccountSync } from '@/lib/account-sync';
 import { ProSheet } from '@/components/ProLock';
+import BuildForMe from '@/components/BuildForMe';
+import { dkUploadCsv, shareDkUpload } from '@/lib/dk-export';
 import { formatCurrency, formatEt, formatPoints, salariesPendingText } from '@/lib/utils';
 import { evenWeights, type Factor, setWeight, totalWeight, type Weights, weightedRank } from '@/lib/weighted-sort';
 import { type LineupScope, useLineups, useWeek } from '@/lib/week-context';
@@ -85,7 +87,8 @@ export interface BuildField {
  */
 export default function LineupBuilder({ scope = '', field }: { scope?: LineupScope; field?: BuildField } = {}) {
   const { selectedSlate, players, weekData } = useWeek();
-  const { lineups, activeLineup, setActiveLineup, setLineup, addLineup, deleteLineup, saveLineups, savedAt, unsaved } = useLineups(scope);
+  const { lineups, activeLineup, setActiveLineup, setLineup, addLineup, replaceLineups, deleteLineup, saveLineups, savedAt, unsaved } = useLineups(scope);
+  const [buildOpen, setBuildOpen] = useState(false);
   // Late swap: a logged entry's lineup open for editing (scope "edit").
   const { editing, updateLineup, stopEditing } = useSubmissions();
   const editMode = scope === 'edit' && editing != null;
@@ -382,6 +385,37 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
         </Pressable>
       </View>
       ) : null}
+
+      {/* Build for me, and the DraftKings upload file */}
+      {!editMode ? (
+        <View className="tool-row">
+          <Pressable className="btn-accent flex-1" onPress={() => setBuildOpen(true)} accessibilityRole="button">
+            <Text className="btn-text">Build for me</Text>
+          </Pressable>
+          <Pressable
+            className="btn-outline flex-1 justify-center"
+            onPress={() => {
+              const { csv, count } = dkUploadCsv(lineups, slateType);
+              if (!count) return setMessage({ text: 'Fill a lineup first: only complete lineups are exported.', error: true });
+              track('dk_export', { count, slate_type: slateType });
+              shareDkUpload(csv, `DKLineups-${selectedSlate.slate_id}.csv`).catch(() => {});
+              setMessage({ text: `Exported ${count} lineup${count === 1 ? '' : 's'}. Upload the file on DraftKings' lineup upload page.` });
+            }}
+            accessibilityRole="button">
+            <Text className="btn-outline-text text-center">Export for DraftKings</Text>
+          </Pressable>
+        </View>
+      ) : null}
+      <BuildForMe
+        visible={buildOpen}
+        onClose={() => setBuildOpen(false)}
+        current={lineup}
+        pool={pool}
+        onBuilt={(built, text) => {
+          replaceLineups(built);
+          setMessage({ text });
+        }}
+      />
 
       {/* Lineup switcher */}
       {!editMode ? (

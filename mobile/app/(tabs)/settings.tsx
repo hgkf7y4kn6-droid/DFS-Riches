@@ -169,6 +169,7 @@ export default function SettingsScreen() {
         <View className="settings-group mt-0">
           <Row label="Lineup builder" value="All slates ›" onPress={() => router.push('/lineups')} />
           <Row label="Lines & Performance" value="Every game ›" onPress={() => router.push('/lines')} />
+          <Row label="How we did" value="Our lineups vs results ›" onPress={() => router.push('/results')} />
           <Row label="Classic website" value="Original pages ›" onPress={openClassic} last />
         </View>
 

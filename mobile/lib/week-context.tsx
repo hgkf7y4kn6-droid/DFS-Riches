@@ -47,6 +47,8 @@ interface LineupBuilderState {
   setActiveLineup: (i: number) => void;
   setLineup: (i: number, lineup: BuilderLineup) => void;
   addLineup: () => void;
+  /** Replaces every lineup at once ("Build for me"), opening the first. */
+  replaceLineups: (lineups: BuilderLineup[]) => void;
   deleteLineup: (i: number) => void;
   /** Saves these lineups; they're restored next time the slate opens. */
   saveLineups: () => void;
@@ -224,6 +226,7 @@ export function WeekProvider({ children }: { children: ReactNode }) {
       activeLineup: current.active,
       setActiveLineup: (i) => update((c) => ({ ...c, active: i })),
       setLineup: (i, lineup) => update((c) => ({ ...c, lineups: c.lineups.map((l, j) => (j === i ? lineup : l)) })),
+      replaceLineups: (lineups) => update(() => ({ lineups: lineups.slice(0, MAX_LINEUPS), active: 0 })),
       addLineup: () =>
         update((c) =>
           c.lineups.length >= MAX_LINEUPS ? c : { lineups: [...c.lineups, emptyLineup(slateType)], active: c.lineups.length },

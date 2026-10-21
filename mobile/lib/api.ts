@@ -59,6 +59,63 @@ async function getJson<T>(path: string): Promise<T> {
 
 const q = (season: number, week: number) => `season=${season}&week=${week}`;
 
+/** POST JSON with the session token (same retry and rejection handling as getJson). */
+async function postJson<T>(path: string, body: unknown): Promise<T> {
+  const call = async (fresh: boolean) => {
+    const token = await (await source)(fresh);
+    return fetch(`${API_BASE_URL}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify(body),
+    });
+  };
+  let res = await call(false);
+  if (res.status === 401) {
+    res = await call(true);
+    if (res.status === 401) onRejected?.();
+  }
+  if (!res.ok) {
+    let detail = `${res.status} ${res.statusText}`;
+    try {
+      detail = ((await res.json()) as { detail?: string }).detail ?? detail;
+    } catch {
+      // not JSON
+    }
+    throw Object.assign(new Error(detail), { status: res.status });
+  }
+  return (await res.json()) as T;
+}
+
+export interface BuiltLineup {
+  players: { slot: string; dk_draftable_id: number; name: string; team: string }[];
+  salary: number;
+  proj_points: number;
+  ceiling: number;
+}
+
+/** "Build for me": up to 5 distinct lineups from the model (more than one is Pro). */
+export function buildLineups(
+  season: number,
+  week: number,
+  slateId: string,
+  opts: { metric: 'proj_points' | 'ceiling'; count: number; locked: number[]; excluded: number[]; max_exposure: number },
+) {
+  return postJson<{ lineups: BuiltLineup[]; requested: number }>(`/api/slates/${encodeURIComponent(slateId)}/build`, { season, week, ...opts });
+}
+
+export interface TrackRecordSlate {
+  season: number;
+  week: number;
+  slate_id: string;
+  lineups: { label: string; metric: string; proj_points: number; ceiling: number; actual: number }[];
+  best_possible: number | null;
+}
+
+/** How the saved optimal lineups scored against their projections, newest first. */
+export function getTrackRecord() {
+  return getJson<{ slates: TrackRecordSlate[] }>('/api/track-record');
+}
+
 /** Sleeper's current NFL state: { season, week, display_week, season_type, ... }; display_week moves on once that week's games are all complete. */
 export function getNflState() {
   return getJson<{ season: string; week: number; display_week?: number; season_type: string }>('/api/state');

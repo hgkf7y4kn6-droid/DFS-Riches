@@ -1410,4 +1410,43 @@
   .pro-lock-title {
     @apply text-center text-base font-sans-bold text-foreground;
   }
+
+  /* Lineup builder: Build for me / Export for DraftKings. */
+  .tool-row {
+    @apply mb-3 flex-row gap-2;
+  }
+
+  /* How we did. */
+  .result-big {
+    @apply text-2xl font-sans-extrabold text-foreground;
+  }
+  .result-card {
+    @apply mb-3 rounded-2xl border border-border bg-card p-4;
+  }
+  .result-title {
+    @apply mb-1 text-base font-sans-bold text-foreground;
+  }
+  .result-row {
+    @apply flex-row items-center gap-3 py-1;
+  }
+  .result-score {
+    @apply w-14 text-right text-base font-sans-bold;
+  }
+
+  /* Personal alerts (Home, Lineups). */
+  .alert {
+    @apply rounded-xl border px-3 py-2.5;
+  }
+  .alert-danger {
+    @apply border-danger bg-danger/10;
+  }
+  .alert-warning {
+    @apply border-warning bg-warning/10;
+  }
+  .alert-info {
+    @apply border-info bg-info/10;
+  }
+  .alert-text {
+    @apply text-sm font-sans-semibold text-foreground;
+  }
 }

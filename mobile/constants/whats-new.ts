@@ -10,14 +10,15 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
-    version: '1.1.29',
+    version: '1.1.31',
     title: "What's new",
     items: [
-      'Tell us what you play (Settings → Your game): Home leads with your top plays and Best contests with fees that fit your budget.',
-      'Your last slate, tab and builder sorts follow you to every device.',
-      'One lineup builder: open Lineups and switch between Cash and Tournament to see that field’s ownership.',
-      'Faster: the model is ready the moment you open it, and the last week stays readable offline.',
-      'Bigger, easier-to-read text throughout.',
+      'Build for me: the model builds up to 5 different lineups at once, keeping the players you picked.',
+      'Export for DraftKings: download your lineups as DraftKings\u2019 upload file.',
+      'Alerts when a player in your lineups is ruled out, when salaries come out, and before lineups lock.',
+      'How we did: our projected lineups against what they actually scored, every week.',
+      'Tell us what you play (Settings → Your game) and Home leads with your top plays.',
+      'One lineup builder in Lineups, a faster model, offline reading and bigger text.',
     ],
   },
 ];

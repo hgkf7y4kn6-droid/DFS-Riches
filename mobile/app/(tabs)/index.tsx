@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import AlertsCard from '@/components/AlertsCard';
 import BestContests from '@/components/BestContests';
 import BrandHeader from '@/components/BrandHeader';
 import BalanceStats from '@/components/BalanceStats';
@@ -96,6 +97,9 @@ export default function Home() {
             </View>
           </View>
         </View>
+
+        {/* Alerts: players ruled out in the user's lineups, locks within the hour, new salaries */}
+        <AlertsCard />
 
         {/* Start here: pick a slate, see its top plays, build a lineup */}
         {!startHereHidden ? <StartHereCard /> : null}
@@ -190,7 +194,12 @@ export default function Home() {
         ) : null}
 
         {/* More: tools that aren't part of building this week's lineups */}
-        <ListHeading title="More" subtitle="Contest picks, your results and Vegas lines" />
+        <ListHeading
+          title="More"
+          subtitle="Contest picks, your results, Vegas lines and our track record"
+          buttonText="How we did"
+          onPress={() => router.push('/results')}
+        />
 
         {/* Best contests: lowest-rake GPPs by max entries and entry fee */}
         <ExpandableCard
