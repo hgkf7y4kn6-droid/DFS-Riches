@@ -9,7 +9,7 @@
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="/static/style.css?v={{ asset_version }}" />
 </head>
-<body>
+<body data-require-sign-in="{{ '1' if require_sign_in else '0' }}">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar">
     <a class="brand" href="/classic?season={{ season }}&amp;week={{ week }}" aria-label="DFSRiches classic home">
@@ -36,6 +36,11 @@
 
   <footer class="site-footer">{% block footer %}{% endblock %}</footer>
 
+  {%- if require_sign_in %}
+  <!-- Clerk (sign-in): the API needs the signed-in user's session token (static/common.js). -->
+  <script async crossorigin="anonymous" data-clerk-publishable-key="{{ clerk_publishable_key }}"
+          src="https://{{ clerk_frontend_api }}/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
+  {%- endif %}
   <script src="/static/common.js?v={{ asset_version }}"></script>
 {% block scripts %}{% endblock %}
 </body>

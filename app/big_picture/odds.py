@@ -321,18 +321,17 @@ async def snapshot_via_runner(site: str) -> dict:
         season, week = info["season"], info["week"]
         if info.get("status") == "ok":
             return {"via": "site", **info}
-        wk = (await client.get(f"{site}/api/week", params={"season": season, "week": week})).json()
-        nxt = (await client.get(f"{site}/api/week", params={"season": season, "week": week + 1})).json() if week < 18 else {}
+    # The week's games come with the summary (the rest of the site's API needs a signed-in account).
+    matchups = info.get("matchups") or {}
 
-    def pairs(w: dict) -> list[tuple[str, str]]:
-        sched = (w or {}).get("schedule") or {}
-        return [(g["away"], g["home"]) for g in (sched.get("games") or []) + (sched.get("isolated_games") or [])]
+    def pairs(key: str) -> list[tuple[str, str]]:
+        return [(away, home) for away, home in matchups.get(key) or []]
 
-    games = pairs(wk)
+    games = pairs("games")
     if not store._url():
         quotes, status = await fetch()
         return {"via": "runner", "status": status, "quotes": len(quotes), "stored": 0, "note": "no DATABASE_URL: nothing stored"}
-    out = await snapshot(season, week, games, force=True, next_games=pairs(nxt) or None)
+    out = await snapshot(season, week, games, force=True, next_games=pairs("next_games") or None)
     return {"via": "runner", "season": season, "week": week, **out}
 
 

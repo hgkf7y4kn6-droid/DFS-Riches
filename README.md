@@ -922,7 +922,7 @@ uvicorn app.main:app --reload
 ```
 
 The website is the mobile app's web build (`mobile/`): Home, DFS Model,
-Cash, GPP and Settings. The Dockerfile builds it (`npx expo export
+Safe Plays, Tournaments and Lineups, with Settings behind the header's gear. The Dockerfile builds it (`npx expo export
 --platform web`) into `web/`, and the server serves it at `/`. Locally,
 build it the same way (`cd mobile && npx expo export --platform web
 --output-dir ../web`); without a build, `/` redirects to the original
@@ -935,6 +935,17 @@ back to `app/config.py`'s default if Sleeper is unreachable. Change either
 field and the page reloads on its own. The choice travels with you through
 the nav links (`?season=&week=` in the URL) and stays for the rest of the
 browser session. Any past or future week works the same way.
+
+### Sign-in required
+
+The app, the classic pages and the API are for signed-in accounts (Clerk).
+Every `/api/` request needs the user's Clerk session token
+(`Authorization: Bearer ...`): the app attaches it to each request, and the
+classic pages load clerk-js, which shares the app's session on the same
+domain, and send theirs (signed out, both go to `/sign-in`). The one open
+endpoint is `/api/odds` (DraftKings sportsbook lines), which the odds-snapshot
+and Big Picture GitHub workflows read. Locally, `REQUIRE_SIGN_IN=0` turns the
+check off (Clerk's production sign-in only works on the site's own domain).
 
 ### Warm starts and performance logging
 

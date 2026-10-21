@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@clerk/expo';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
-import { getAccount, putAccountDoc } from '@/lib/api';
+import { getAccount, putAccountDoc, setTokenSource } from '@/lib/api';
 
 type Status = 'signed-out' | 'loading' | 'synced' | 'saving' | 'offline' | 'error';
 
@@ -46,6 +46,10 @@ export function AccountSyncProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     tokenRef.current = getToken;
   }, [getToken]);
+  // Every API request carries the signed-in user's session token (lib/api.ts).
+  useEffect(() => {
+    setTokenSource(me ? () => tokenRef.current() : null);
+  }, [me]);
 
   useEffect(() => {
     if (!me) return;

@@ -30,7 +30,7 @@ from typing import Annotated
 from fastapi import Body, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -158,9 +158,35 @@ async def _canonical_host(request: Request, call_next):
     return await call_next(request)
 
 
+# The data behind the app is for signed-in accounts: every /api/ request needs
+# a Clerk session token (`Authorization: Bearer`), which the app sends with each
+# request and the classic pages send from clerk-js (static/common.js). Open:
+# /api/odds -- DraftKings sportsbook lines and capture status, read by the
+# odds-snapshot and Big Picture GitHub workflows. Preflights pass to CORS.
+# REQUIRE_SIGN_IN=0 turns the check off (local development).
+OPEN_API_PATHS = ("/api/odds",)
+
+
+def sign_in_required() -> bool:
+    return os.environ.get("REQUIRE_SIGN_IN", "1") != "0"
+
+
+@app.middleware("http")
+async def _require_sign_in(request: Request, call_next):
+    path = request.url.path
+    if not path.startswith("/api/") or path in OPEN_API_PATHS or request.method == "OPTIONS" or not sign_in_required():
+        return await call_next(request)
+    try:
+        request.state.user_id = await accounts.verify(request.headers.get("authorization"))
+    except accounts.AuthError as exc:
+        return JSONResponse({"detail": f"Sign in to DFSRiches to use this ({exc})."}, status_code=401,
+                            headers={"WWW-Authenticate": "Bearer"})
+    return await call_next(request)
+
+
 app.add_middleware(GZipMiddleware, minimum_size=1000)
-# The mobile app (mobile/) reads the public JSON API; its web build runs on
-# another origin, so allow cross-origin GETs. Writes stay same-origin.
+# The mobile app (mobile/) reads the JSON API with the user's session token; its
+# web build can run on another origin, so allow cross-origin requests.
 # Account sync adds authenticated PUTs (Bearer token, no cookies).
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "PUT", "POST"], allow_headers=["*"])
 # Outermost: per-client rate limits and body-size caps on /api/ (app.guard).
@@ -235,8 +261,13 @@ async def _page(request: Request, template: str, active: str, season_q: str | No
     season, week = _int(season_q), _int(week_q)
     if not (season and week and 2000 <= season <= 2100 and 1 <= week <= 18):
         season, week = await current_season_week()
+    # The page itself holds no data: its scripts load clerk-js and call the API
+    # with the signed-in user's token, and send signed-out visitors to /sign-in.
     return templates.TemplateResponse(request, template, {"season": season, "week": week, "active": active,
-                                                          "asset_version": ASSET_VERSION})
+                                                          "asset_version": ASSET_VERSION,
+                                                          "require_sign_in": sign_in_required(),
+                                                          "clerk_publishable_key": accounts.publishable_key(),
+                                                          "clerk_frontend_api": accounts.frontend_api()})
 
 
 @app.get("/classic", response_class=HTMLResponse)
@@ -799,6 +830,7 @@ async def api_odds(season: Annotated[int | None, Query(ge=2000, le=2100)] = None
             except Exception:
                 next_games = None
         snap = await odds_module.snapshot(season, week, games, next_games=next_games)
+        matchups = {"games": games, "next_games": next_games or []}
         history = await asyncio.to_thread(bp_store.odds_history, season, week)
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not load odds: {exc}") from exc
@@ -807,7 +839,9 @@ async def api_odds(season: Annotated[int | None, Query(ge=2000, le=2100)] = None
            "via": snap.get("via"), "credits_remaining": (snap.get("credits") or {}).get("remaining"),
            "quotes_total": len(history), "next_week_quotes": snap.get("next_week_quotes"),
            "next_week_stored": snap.get("next_week_stored")}
-    if not summary:
+    if summary:
+        out["matchups"] = matchups     # the runner's fallback stores these weeks' quotes itself
+    else:
         out["games"] = odds_module.summarize(history)
     return out
 

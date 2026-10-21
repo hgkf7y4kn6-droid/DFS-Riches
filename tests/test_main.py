@@ -214,3 +214,32 @@ def test_an_upload_without_a_slate_goes_to_the_slate_its_data_matches(client, mo
     assert r.status_code == 200, r.text
     assert r.json()["slate"]["week"] == 6 and r.json()["added"] == 1
     assert ownership_store.load(2026, 6, "classic_sunday")["observations"][0]["pct"] == 16.73
+
+
+def test_api_needs_a_signed_in_account(client, monkeypatch):
+    monkeypatch.setenv("REQUIRE_SIGN_IN", "1")
+
+    async def verify(authorization):
+        if authorization != "Bearer good":
+            raise main.accounts.AuthError("sign in required")
+        return "user_1"
+    monkeypatch.setattr(main.accounts, "verify", verify)
+    r = client.get("/api/slates/nope/ownership?season=2026&week=3")
+    assert r.status_code == 401 and "Sign in" in r.json()["detail"]
+    assert client.get("/api/nope", headers={"authorization": "Bearer bad"}).status_code == 401
+    assert client.get("/api/nope", headers={"authorization": "Bearer good"}).status_code == 404   # through to routing
+    assert client.options("/api/week", headers={"origin": "https://x.example", "access-control-request-method": "GET"}).status_code == 200
+    assert client.get("/healthz").status_code == 200                   # pages, health and odds stay open
+    assert "/api/odds" in main.OPEN_API_PATHS
+
+
+def test_classic_pages_load_clerk_when_sign_in_is_required(client, monkeypatch):
+    async def week():
+        return 2026, 7
+    monkeypatch.setattr(main, "current_season_week", week)
+    monkeypatch.setenv("REQUIRE_SIGN_IN", "1")
+    html = client.get("/classic").text
+    assert 'data-require-sign-in="1"' in html and "clerk.browser.js" in html
+    assert main.accounts.publishable_key() in html
+    monkeypatch.setenv("REQUIRE_SIGN_IN", "0")
+    assert "clerk.browser.js" not in client.get("/classic").text

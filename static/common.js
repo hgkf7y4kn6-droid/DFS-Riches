@@ -83,6 +83,31 @@
   }
   document.getElementById("week-form").addEventListener("submit", (e) => { e.preventDefault(); onInput(); });
 
+  /* Sign-in: the API is for signed-in accounts. clerk-js (loaded by the page)
+     shares the new app's session on this domain and hands out a fresh session
+     token for each request; signed out, the visitor goes to the app's sign-in. */
+  const signInRequired = document.body.dataset.requireSignIn === "1";
+  const clerkReady = !signInRequired ? Promise.resolve(null) : new Promise((resolve, reject) => {
+    const started = Date.now();
+    (function wait() {
+      if (window.Clerk) return void window.Clerk.load().then(() => resolve(window.Clerk), reject);
+      if (Date.now() - started > 20000) return void reject(new Error("Couldn't load sign-in. Check your connection and reload."));
+      setTimeout(wait, 50);
+    })();
+  });
+  clerkReady.then((clerk) => { if (clerk && !clerk.session) location.assign("/sign-in"); }, () => {});
+
+  async function authHeaders() {
+    const clerk = await clerkReady;
+    if (!clerk) return {};
+    if (!clerk.session) {
+      location.assign("/sign-in");
+      throw new Error("Sign in to DFSRiches to see this.");
+    }
+    const token = await clerk.session.getToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
   /* fetch JSON; a newer request on the same channel aborts the older one, so a
      slow response for a previous week can never overwrite the current one. */
   async function getJson(url, channel, options) {
@@ -93,7 +118,9 @@
       inFlight.set(channel, controller);
     }
     try {
-      const res = await fetch(url, { ...(options || {}), signal: controller ? controller.signal : undefined });
+      const opts = options || {};
+      const headers = { ...(opts.headers || {}), ...(await authHeaders()) };
+      const res = await fetch(url, { ...opts, headers, signal: controller ? controller.signal : undefined });
       const body = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(body.detail || `Request failed: ${res.status}`);
       return body;

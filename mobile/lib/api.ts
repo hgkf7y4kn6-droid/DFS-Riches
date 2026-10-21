@@ -3,8 +3,31 @@ import { Platform } from 'react-native';
 
 import { API_BASE_URL } from '@/constants/config';
 
+type TokenSource = () => Promise<string | null>;
+let resolveSource: ((fn: TokenSource) => void) | null = null;
+let source: Promise<TokenSource> = new Promise((resolve) => (resolveSource = resolve));
+
+/**
+ * The signed-in user's Clerk session token, for every API request (the server
+ * answers only signed-in accounts). lib/account-sync.tsx sets it once someone
+ * is signed in and clears it on sign-out; requests made before then wait.
+ */
+export function setTokenSource(fn: TokenSource | null) {
+  if (fn && resolveSource) {
+    resolveSource(fn);
+    resolveSource = null;
+  } else if (fn) {
+    source = Promise.resolve(fn);
+  } else if (!resolveSource) {
+    source = new Promise((resolve) => (resolveSource = resolve));
+  }
+}
+
 async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, { headers: { Accept: 'application/json' } });
+  const token = await (await source)();
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    headers: { Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+  });
   if (!res.ok) {
     let detail = `${res.status} ${res.statusText}`;
     try {
