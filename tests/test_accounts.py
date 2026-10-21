@@ -181,7 +181,33 @@ def test_plans_come_from_the_token_then_metadata_and_masters_are_admin(monkeypat
     assert asyncio.run(accounts.plan("payer")) == "pro"
     assert asyncio.run(accounts.plan("someone")) == "free"
     monkeypatch.delenv("PRO_GATING", raising=False)
-    assert accounts.entitled("free", "ownership")                 # gating off: everything is open
+    assert accounts.entitled("free", "ownership")                 # default: only optimal lineups are locked
+    assert not accounts.entitled("free", "optimal") and accounts.entitled("pro", "optimal") and accounts.entitled("admin", "optimal")
+    monkeypatch.setenv("PRO_GATING", "optimal,ownership")
+    assert accounts.gated_features() == ("optimal", "ownership")
+    monkeypatch.setenv("PRO_GATING", "0")
+    assert accounts.entitled("free", "optimal")
     monkeypatch.setenv("PRO_GATING", "1")
     assert not accounts.entitled("free", "ownership") and accounts.entitled("pro", "ownership")
     assert accounts.entitled("free", "projections")              # not a Pro feature
+
+
+def test_founding_accounts_get_pro_once(monkeypatch):
+    monkeypatch.setenv("CLERK_SECRET_KEY", "sk_test")
+    monkeypatch.setattr(accounts, "FOUNDING_PRO_BEFORE", "2026-10-21T21:00:00+00:00")
+    before, after = 1761000000000, 1861000000000            # 2025 and 2028, in ms
+    users = [{"id": "u_old", "created_at": before, "public_metadata": {"role": "master"}},
+             {"id": "u_old2", "created_at": before, "public_metadata": {}},
+             {"id": "u_paid", "created_at": before, "public_metadata": {"plan": "pro"}},
+             {"id": "u_new", "created_at": after, "public_metadata": {}}]
+    calls = []
+
+    async def clerk(method, path, body=None):
+        calls.append((method, path, body))
+        return users if method == "GET" else {}
+    monkeypatch.setattr(accounts, "_clerk", clerk)
+    out = asyncio.run(accounts.grant_founding_pro())
+    assert out == {"granted": 2, "already_had_a_plan": 1, "accounts_checked": 4}
+    patched = [(p, b) for m, p, b in calls if m == "PATCH"]
+    assert patched == [("/users/u_old/metadata", {"public_metadata": {"plan": "pro"}}),
+                       ("/users/u_old2/metadata", {"public_metadata": {"plan": "pro"}})]   # metadata merge keeps the master's role

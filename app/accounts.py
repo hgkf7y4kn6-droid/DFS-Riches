@@ -191,13 +191,28 @@ async def is_master(user_id: str) -> bool:
 
 # ------------------------------------------------------------------ plans
 PLANS = ("free", "pro", "admin")
-# What each plan unlocks once billing is on (PRO_GATING=1). Free: projections, slates, one saved lineup.
-PRO_FEATURES = ("ownership", "leverage", "multiple_lineups", "big_picture", "alerts")
+# Pro features. Free: projections, slates, the builder, one saved lineup.
+PRO_FEATURES = ("optimal", "ownership", "leverage", "multiple_lineups", "big_picture", "alerts")
+# Locked for free accounts now: the projected optimal lineups (and "Build for me", which makes them).
+DEFAULT_GATED = ("optimal",)
+
+
+def gated_features() -> tuple[str, ...]:
+    """The Pro features locked for free accounts: PRO_GATING=1 (or "all") locks every one, 0 (or "none")
+    none, a comma list ("optimal,ownership") those; unset, DEFAULT_GATED."""
+    raw = os.environ.get("PRO_GATING")
+    if raw is None:
+        return DEFAULT_GATED
+    raw = raw.strip().lower()
+    if raw in ("1", "all", "true"):
+        return PRO_FEATURES
+    if raw in ("", "0", "none", "false"):
+        return ()
+    return tuple(f for f in (x.strip() for x in raw.split(",")) if f in PRO_FEATURES)
 
 
 def pro_gating() -> bool:
-    """Off until billing is set up: every account gets Pro features (the app still marks them Pro)."""
-    return os.environ.get("PRO_GATING", "0") == "1"
+    return bool(gated_features())
 
 
 async def plan(user_id: str, claims: dict | None = None) -> str:
@@ -218,7 +233,32 @@ async def plan(user_id: str, claims: dict | None = None) -> str:
 
 
 def entitled(plan_name: str, feature: str) -> bool:
-    return not pro_gating() or feature not in PRO_FEATURES or plan_name in ("pro", "admin")
+    return feature not in gated_features() or plan_name in ("pro", "admin")
+
+
+# Accounts created before this get Pro (the founding accounts); masters stay Admin either way.
+FOUNDING_PRO_BEFORE = os.environ.get("FOUNDING_PRO_BEFORE", "2026-10-21T21:00:00+00:00")
+
+
+async def grant_founding_pro() -> dict:
+    """Sets public_metadata.plan = "pro" on every Clerk account created before FOUNDING_PRO_BEFORE that
+    has no plan yet. Idempotent (accounts with a plan are skipped), so it runs at each server start.
+    Clerk deep-merges metadata, so a master's role stays (and is_master keeps them Admin)."""
+    if not _secret():
+        return {"skipped": "no CLERK_SECRET_KEY"}
+    cutoff_ms = datetime.fromisoformat(FOUNDING_PRO_BEFORE).timestamp() * 1000
+    users = await _clerk("GET", "/users?limit=100&order_by=created_at") or []
+    granted, already = [], 0
+    for u in users:
+        if (u.get("created_at") or 0) >= cutoff_ms:
+            continue
+        if (u.get("public_metadata") or {}).get("plan") in ("pro", "free"):
+            already += 1
+            continue
+        await _clerk("PATCH", f"/users/{u['id']}/metadata", {"public_metadata": {"plan": "pro"}})
+        _USERS.pop(u["id"], None)
+        granted.append(u["id"])
+    return {"granted": len(granted), "already_had_a_plan": already, "accounts_checked": len(users)}
 
 
 # ----------------------------------------------------------- retention
@@ -336,7 +376,7 @@ async def load(user_id: str, claims: dict | None = None) -> dict:
     mode = storage_mode()
     docs = await _db_load(user_id) if mode == "neon" else await _meta_load(user_id) if mode == "clerk" else {}
     return {"user_id": user_id, "master": master, "storage": mode, "data": docs,
-            "plan": await plan(user_id, claims), "pro_gating": pro_gating(), "pro_features": list(PRO_FEATURES)}
+            "plan": await plan(user_id, claims), "pro_gating": pro_gating(), "pro_features": list(gated_features())}
 
 
 async def delete_account(user_id: str) -> dict:

@@ -1064,7 +1064,7 @@ interface AccountData {
 }
 
 type Plan = 'free' | 'pro' | 'admin';
-type ProFeature = 'ownership' | 'leverage' | 'multiple_lineups' | 'big_picture' | 'alerts';
+type ProFeature = 'optimal' | 'ownership' | 'leverage' | 'multiple_lineups' | 'big_picture' | 'alerts';
 
 // ------------------------------------------------------------- Big Picture (master-only pilot)
 interface BigPictureRow {

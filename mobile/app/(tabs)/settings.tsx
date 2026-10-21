@@ -79,7 +79,7 @@ export default function SettingsScreen() {
   const { submissions, clear } = useSubmissions();
   const { pools, clearAll: clearPoolTags } = usePoolTags();
   const { showIntro, startHereHidden, setStartHereHidden } = useOnboarding();
-  const { plan, locked } = useAccountSync();
+  const { plan } = useAccountSync();
   const { getToken, signOut } = useAuth();
   const { user } = useUser();
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -123,7 +123,7 @@ export default function SettingsScreen() {
         <View className="settings-group mt-2">
           <Row
             label="Plan"
-            value={`${PLAN_LABEL[plan]}${plan === 'free' && !locked('ownership') ? ' · Pro features open during the beta' : ''}${plan === 'free' ? ' ›' : ''}`}
+            value={`${PLAN_LABEL[plan]}${plan === 'free' ? ' · see what Pro adds ›' : ''}`}
             onPress={plan === 'free' ? () => setProOpen(true) : undefined}
           />
           <Row label="Appearance" value={`${scheme === 'dark' ? 'Dark' : 'Light'} (follows your device)`} last />

@@ -95,6 +95,21 @@ async def _warm_contests() -> None:
 
 
 @app.on_event("startup")
+async def _founding_pro() -> None:
+    """The accounts created before FOUNDING_PRO_BEFORE get Pro (accounts.grant_founding_pro; idempotent,
+    so it's safe at every start). FOUNDING_PRO=0 turns it off."""
+    if os.environ.get("FOUNDING_PRO", "1") == "0":
+        return
+
+    async def run() -> None:
+        try:
+            log.info("founding Pro: %s", await accounts.grant_founding_pro())
+        except Exception as exc:
+            log.warning("founding Pro grant failed: %s", exc)
+    asyncio.ensure_future(run())
+
+
+@app.on_event("startup")
 async def _warm_slates() -> None:
     """The current week's Classic slates (schedule, lines, projections, every index and model input behind the
     player table), so the first visit after a deploy -- when the disk cache starts empty -- doesn't wait on them."""
@@ -343,7 +358,7 @@ async def api_slate_players(slate_id: str, season: Season = DEFAULT_SEASON, week
 async def api_build(request: Request, slate_id: str, body: dict = Body(...)):
     """"Build for me": up to 5 distinct lineups for a slate from the model's projections
     {season, week, metric: proj_points|ceiling, count, locked: [dk ids], excluded: [dk ids], max_exposure}.
-    More than one lineup is a Pro feature (multiple_lineups)."""
+    Pro (it builds optimal lineups); more than one lineup is also multiple_lineups."""
     from app.optimizer import build_many
     try:
         season, week, _ = _slate_args({**body, "slate_id": slate_id})
@@ -356,6 +371,7 @@ async def api_build(request: Request, slate_id: str, body: dict = Body(...)):
         excluded = {int(x) for x in (body.get("excluded") or [])[:200]}
     except (KeyError, ValueError, TypeError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    await _require_feature(request, "optimal")          # it builds optimal lineups
     if count > 1:
         await _require_feature(request, "multiple_lineups")
     try:
@@ -391,7 +407,9 @@ async def _optimal(season: int, week: int, slate_id: str) -> dict:
 
 
 @app.get("/api/slates/{slate_id}/optimal")
-async def api_slate_optimal(slate_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
+async def api_slate_optimal(request: Request, slate_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
+    """The slate's projected optimal lineups (Pro)."""
+    await _require_feature(request, "optimal")
     try:
         return await _optimal(season, week, slate_id)
     except ValueError as exc:

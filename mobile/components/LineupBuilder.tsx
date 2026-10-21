@@ -390,7 +390,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
       {!editMode ? (
         <View className="tool-row">
           <Pressable className="btn-accent flex-1" onPress={() => setBuildOpen(true)} accessibilityRole="button">
-            <Text className="btn-text">Build for me</Text>
+            <Text className="btn-text">{locked('optimal') ? 'Build for me · Pro' : 'Build for me'}</Text>
           </Pressable>
           <Pressable
             className="btn-outline flex-1 justify-center"

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { useSyncedDoc } from '@/lib/account-sync';
+import { useAccountSync, useSyncedDoc } from '@/lib/account-sync';
 import { getNflState, getOptimal, getSlatePlayers, getWeek } from '@/lib/api';
 import { emptyLineup } from '@/lib/lineups';
 import { MAX_LINEUPS } from '@/constants/config';
@@ -92,6 +92,8 @@ export function WeekProvider({ children }: { children: ReactNode }) {
   const [saved, setSaved] = useState<Record<string, SavedSlateLineups>>({});
   const [savedLoaded, setSavedLoaded] = useState(false);
   const [offlineSince, setOfflineSince] = useState<string | null>(null);
+  // Optimal lineups are Pro: free accounts don't fetch them (the server would answer 402).
+  const optimalLocked = useAccountSync().locked('optimal');
 
   useEffect(() => {
     AsyncStorage.getItem(SAVED_KEY)
@@ -164,11 +166,13 @@ export function WeekProvider({ children }: { children: ReactNode }) {
     if (!season || !week || !selectedSlate) return;
     let cancelled = false;
     const id = selectedSlate.slate_id;
-    setOptimal({ data: null, loading: true, error: null });
+    setOptimal({ data: null, loading: !optimalLocked, error: null });
     setPlayers({ data: null, loading: selectedSlate.available, error: null });
-    getOptimal(season, week, id)
-      .then((data) => !cancelled && setOptimal({ data, loading: false, error: null }))
-      .catch((e) => !cancelled && setOptimal({ data: null, loading: false, error: message(e) }));
+    if (!optimalLocked) {
+      getOptimal(season, week, id)
+        .then((data) => !cancelled && setOptimal({ data, loading: false, error: null }))
+        .catch((e) => !cancelled && setOptimal({ data: null, loading: false, error: message(e) }));
+    }
     if (selectedSlate.available) {
       getSlatePlayers(season, week, id)
         .then((data) => !cancelled && setPlayers({ data, loading: false, error: null }))
@@ -177,7 +181,7 @@ export function WeekProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [season, week, selectedSlate]);
+  }, [season, week, selectedSlate, optimalLocked]);
 
   const slateKey = selectedSlate?.slate_id ?? '';
   // Saved lineups are per season/week/slate, plus ":cash" / ":gpp" for the Cash and GPP tabs' sets.

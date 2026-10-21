@@ -45,7 +45,7 @@ export default function BuildForMe({
 
   const run = async () => {
     if (!season || !week || !selectedSlate) return;
-    if (count > 1 && proLocked('multiple_lineups')) return setProOpen(true);
+    if (proLocked('optimal') || (count > 1 && proLocked('multiple_lineups'))) return setProOpen(true);
     setBusy(true);
     setError(null);
     try {
@@ -129,7 +129,7 @@ export default function BuildForMe({
           </View>
         </Pressable>
       </Pressable>
-      <ProSheet feature="multiple_lineups" visible={proOpen} onClose={() => setProOpen(false)} />
+      <ProSheet feature={proLocked('optimal') ? 'optimal' : 'multiple_lineups'} visible={proOpen} onClose={() => setProOpen(false)} />
     </Modal>
   );
 }

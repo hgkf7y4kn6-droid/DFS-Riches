@@ -5,6 +5,7 @@ import { useAccountSync } from '@/lib/account-sync';
 import { track } from '@/lib/analytics';
 
 const FEATURE_LABEL: Record<ProFeature, string> = {
+  optimal: 'Projected optimal lineups',
   ownership: 'Expected ownership',
   leverage: 'Leverage',
   multiple_lineups: 'Multiple lineups',
@@ -21,6 +22,7 @@ export function ProSheet({ feature, visible, onClose }: { feature: ProFeature; v
           <Text className="intro-kicker">DFSRiches Pro</Text>
           <Text className="intro-title">{FEATURE_LABEL[feature]} is part of Pro</Text>
           <Text className="intro-text">Pro adds what the field doesn&apos;t see:</Text>
+          <Text className="intro-text">• Projected optimal lineups, and Build for me</Text>
           <Text className="intro-text">• Expected ownership for cash and tournament fields</Text>
           <Text className="intro-text">• Leverage: who the crowd is under- and over-playing</Text>
           <Text className="intro-text">• Up to 5 lineups per slate, and alerts when a player in one is ruled out</Text>
@@ -36,18 +38,29 @@ export function ProSheet({ feature, visible, onClose }: { feature: ProFeature; v
 }
 
 /**
- * A Pro feature for free accounts once billing is on: a faded preview with
- * "Unlock with Pro" on top, instead of hiding it. Shows the feature as-is
- * while it's open to everyone (gating off) or for Pro and admin accounts.
+ * A locked Pro feature for a free account: a faded preview with "Unlock
+ * with Pro" on top, instead of hiding it. Shows the feature as-is for Pro
+ * and admin accounts, and while the feature isn't locked (accounts.gated_features).
  */
-export default function ProLock({ feature, children, minHeight = 160 }: { feature: ProFeature; children: ReactNode; minHeight?: number }) {
+export default function ProLock({
+  feature,
+  children,
+  minHeight = 160,
+  preview,
+}: {
+  feature: ProFeature;
+  children: ReactNode;
+  minHeight?: number;
+  /** Shown faded instead of the children when locked (when rendering them would load the locked data). */
+  preview?: ReactNode;
+}) {
   const { locked } = useAccountSync();
   const [open, setOpen] = useState(false);
   if (!locked(feature)) return <>{children}</>;
   return (
     <View className="pro-lock" style={{ minHeight }}>
       <View pointerEvents="none" style={{ opacity: 0.18, maxHeight: 360, overflow: 'hidden' }} aria-hidden>
-        {children}
+        {preview ?? children}
       </View>
       <View className="pro-lock-overlay">
         <Text className="pro-lock-title">{FEATURE_LABEL[feature]}</Text>

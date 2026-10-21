@@ -952,10 +952,13 @@ check off (Clerk's production sign-in only works on the site's own domain).
 Accounts are Free, Pro or Admin (`app/accounts.py`): masters are Admin; otherwise
 the session token's `plan` claim (customize Clerk's session token with
 `{"plan": "{{user.public_metadata.plan}}"}`) or, without it, the account's
-`public_metadata.plan`. Pro features are expected ownership, leverage, multiple
-lineups, the Big Picture and alerts. They stay open to everyone until
-`PRO_GATING=1`; after that the server answers free accounts' Pro endpoints with
-402 and the app shows a faded preview with "Unlock with Pro". `DELETE /api/me`
+`public_metadata.plan`. Pro features are the projected optimal lineups (and
+"Build for me"), expected ownership, leverage, multiple lineups, the Big Picture
+and alerts. Locked for free accounts now: the optimal lineups (`DEFAULT_GATED`);
+`PRO_GATING=1` locks every Pro feature, `0` none, or a comma list picks them.
+Locked endpoints answer free accounts with 402 and the app shows a faded preview
+with "Unlock with Pro". Accounts created before `FOUNDING_PRO_BEFORE` get Pro at
+server start (`grant_founding_pro`); masters stay Admin. `DELETE /api/me`
 (Settings > Delete account) deletes the account's data and, with
 `CLERK_SECRET_KEY`, the Clerk account. Legal drafts for review are in `docs/legal/`.
 

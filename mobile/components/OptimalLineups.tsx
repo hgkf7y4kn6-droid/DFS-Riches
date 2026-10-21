@@ -8,6 +8,9 @@ import icons from "@/constants/icons";
 import { useThemeColors } from "@/constants/theme";
 import { fromOptimal } from "@/lib/lineups";
 import { formatCurrency, formatEt, formatPoints, salariesPendingText } from "@/lib/utils";
+import { useAccountSync } from "@/lib/account-sync";
+import ProLock from "@/components/ProLock";
+import { SkeletonRows } from "@/components/Skeleton";
 import { type LineupScope, useLineups, useWeek } from "@/lib/week-context";
 
 function statusLine(opt: OptimalResponse): string {
@@ -139,8 +142,17 @@ export default function OptimalLineups({
   collapsible?: boolean;
 }) {
   const { selectedSlate, optimal, players } = useWeek();
+  const { locked } = useAccountSync();
   const { activeLineup, setLineup } = useLineups(scope);
   if (!selectedSlate) return null;
+  // A Pro feature: free accounts see placeholder rows under "Unlock with Pro" (nothing is fetched).
+  if (locked("optimal")) {
+    return (
+      <ProLock feature="optimal" minHeight={200} preview={<SkeletonRows rows={6} />}>
+        {null}
+      </ProLock>
+    );
+  }
   const opt = optimal.data;
   const pool = players.data?.players ?? [];
   const editable =

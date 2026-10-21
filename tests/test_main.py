@@ -257,7 +257,12 @@ def test_pro_features_need_pro_once_gating_is_on(client, monkeypatch):
     monkeypatch.setattr(main.accounts, "verify_claims", verify_claims)
     monkeypatch.setattr(main.accounts, "is_master", not_master)
     url = "/api/slates/nope/ownership?season=2026&week=3"
-    assert client.get(url, headers={"authorization": "Bearer free"}).status_code == 404     # gating off: everyone gets Pro
+    monkeypatch.delenv("PRO_GATING", raising=False)                                         # default: optimal lineups only
+    assert client.get(url, headers={"authorization": "Bearer free"}).status_code == 404
+    optimal = "/api/slates/nope/optimal?season=2026&week=3"
+    assert client.get(optimal, headers={"authorization": "Bearer free"}).status_code == 402
+    assert client.post("/api/slates/classic/build", json={"season": 2026, "week": 3},
+                       headers={"authorization": "Bearer free"}).status_code == 402      # "Build for me" makes them
     monkeypatch.setenv("PRO_GATING", "1")
     assert client.get(url, headers={"authorization": "Bearer free"}).status_code == 402
     assert client.get(url, headers={"authorization": "Bearer pro"}).status_code == 404
