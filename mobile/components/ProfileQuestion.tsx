@@ -21,10 +21,10 @@ function Chip({ label, hint, active, onPress }: { label: string; hint?: string; 
  */
 export default function ProfileQuestion() {
   const { prefs, settled, asked, update } = usePrefs();
-  const { introOpen } = useOnboarding();
+  const { introOpen, whatsNewOpen } = useOnboarding();
   const [focus, setFocus] = useState<ContestFocus | undefined>(prefs.focus);
   const [spend, setSpend] = useState<WeeklySpend | undefined>(prefs.spend);
-  const visible = settled && !asked && !introOpen;
+  const visible = settled && !asked && !introOpen && !whatsNewOpen;
 
   const finish = (skipped: boolean) => {
     track(skipped ? 'profile_question_skipped' : 'profile_question_answered', { focus: focus ?? 'none', spend: spend ?? 'none' });

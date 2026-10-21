@@ -17,6 +17,8 @@ interface WeekContextValue {
   week: number | null;
   weekData: Loadable<WeekData>;
   refresh: () => Promise<void>;
+  /** Offline: when the week data shown was saved (the server couldn't be reached); null when live. */
+  offlineSince: string | null;
   /** The NFL's current season and week (Sleeper), whatever week is being viewed. */
   current: { season: number; week: number } | null;
   /** View another season / week (every tab follows); null returns to the current week. */
@@ -36,6 +38,7 @@ interface WeekContextValue {
 export type LineupScope = '' | 'cash' | 'gpp' | 'edit';
 // 'edit' (a logged entry open for late swap) is never saved as builder lineups.
 const SCOPES: LineupScope[] = ['', 'cash', 'gpp'];
+const WEEK_CACHE_KEY = 'dfsriches:week-cache:v1';
 
 interface LineupBuilderState {
   /** Builder lineups for the selected slate (kept per slate and scope for the session). */
@@ -86,6 +89,7 @@ export function WeekProvider({ children }: { children: ReactNode }) {
   const [builder, setBuilder] = useState<Record<string, { lineups: BuilderLineup[]; active: number }>>({});
   const [saved, setSaved] = useState<Record<string, SavedSlateLineups>>({});
   const [savedLoaded, setSavedLoaded] = useState(false);
+  const [offlineSince, setOfflineSince] = useState<string | null>(null);
 
   useEffect(() => {
     AsyncStorage.getItem(SAVED_KEY)
@@ -124,9 +128,23 @@ export function WeekProvider({ children }: { children: ReactNode }) {
       setSeason(szn);
       setWeek(wk);
       setWeekData({ data, loading: false, error: null });
+      setOfflineSince(null);
       setSelectedId((cur) => (cur && data.slates.some((s) => s.slate_id === cur) ? cur : defaultSlate(data.slates)?.slate_id ?? null));
+      AsyncStorage.setItem(WEEK_CACHE_KEY, JSON.stringify({ season: szn, week: wk, savedAt: new Date().toISOString(), data })).catch(() => {});
     } catch (e) {
-      setWeekData((s) => ({ ...s, loading: false, error: message(e) }));
+      // Offline (or the server is down): the last week this device loaded, marked as such.
+      const cached = await AsyncStorage.getItem(WEEK_CACHE_KEY)
+        .then((raw) => (raw ? (JSON.parse(raw) as { season: number; week: number; savedAt: string; data: WeekData }) : null))
+        .catch(() => null);
+      if (cached && (!chosen || (chosen.season === cached.season && chosen.week === cached.week))) {
+        setSeason(cached.season);
+        setWeek(cached.week);
+        setWeekData({ data: cached.data, loading: false, error: null });
+        setOfflineSince(cached.savedAt);
+        setSelectedId((cur) => (cur && cached.data.slates.some((s) => s.slate_id === cur) ? cur : defaultSlate(cached.data.slates)?.slate_id ?? null));
+      } else {
+        setWeekData((s) => ({ ...s, loading: false, error: message(e) }));
+      }
     }
   }, [chosen]);
 
@@ -233,6 +251,7 @@ export function WeekProvider({ children }: { children: ReactNode }) {
     season,
     week,
     weekData,
+    offlineSince,
     refresh: load,
     current,
     setSeasonWeek: (sw) => setChosen(sw && current && sw.season === current.season && sw.week === current.week ? null : sw),

@@ -103,7 +103,7 @@ export default function Home() {
         {/* What they play (Settings or the first-run question): its top play at each position */}
         <HomeTopPlays />
 
-        <StatusView loading={weekData.loading && !data} error={weekData.error} />
+        <StatusView loading={weekData.loading && !data} error={weekData.error} onRetry={refresh} />
 
         {/* This week's slates first: every DraftKings slate (Sunday Main, Full Week, each Showdown) and its optimal lineups */}
         {data ? (
@@ -188,6 +188,9 @@ export default function Home() {
             </View>
           </>
         ) : null}
+
+        {/* More: tools that aren't part of building this week's lineups */}
+        <ListHeading title="More" subtitle="Contest picks, your results and Vegas lines" />
 
         {/* Best contests: lowest-rake GPPs by max entries and entry fee */}
         <ExpandableCard

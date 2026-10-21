@@ -124,14 +124,17 @@ async def cached_fetch(
             del _in_flight[key]
 
 
-def memoize_async(ttl_seconds: float, max_entries: int = 32):
+def memoize_async(ttl_seconds: float, max_entries: int = 32, stale_seconds: float = 0):
     """In-memory memoization for an async function, keyed by its arguments.
     For deriving a Python object from data that's already cheap to fetch
     (via cached_fetch) but non-trivial to rebuild each call -- e.g. a name
     lookup index, or a whole request's worth of orchestration that multiple
     routes independently repeat. Concurrent calls with the same arguments
     share one underlying computation. Holds at most max_entries results
-    (oldest evicted), so arbitrary request parameters can't grow memory."""
+    (oldest evicted), so arbitrary request parameters can't grow memory.
+    With stale_seconds, a result up to that much past its TTL is returned
+    at once while a fresh one is computed in the background (stale while
+    revalidate), so a slow build is only ever waited on the first time."""
 
     def decorator(fn: Callable[..., Awaitable[Any]]) -> Callable[..., Awaitable[Any]]:
         store: dict[tuple, tuple[float, Any]] = {}
@@ -147,6 +150,7 @@ def memoize_async(ttl_seconds: float, max_entries: int = 32):
             if hit is not None and now - hit[0] < ttl_seconds:
                 metrics.memo_event(name, True)
                 return hit[1]
+            stale = hit is not None and now - hit[0] < ttl_seconds + stale_seconds
 
             task = in_flight.get(key)
             if task is None:
@@ -163,11 +167,17 @@ def memoize_async(ttl_seconds: float, max_entries: int = 32):
 
                 task = asyncio.ensure_future(run())
                 in_flight[key] = task
-            try:
-                return await task
-            finally:
-                if in_flight.get(key) is task:
-                    del in_flight[key]
+
+                def done(t: asyncio.Task, key=key) -> None:
+                    if in_flight.get(key) is t:
+                        del in_flight[key]
+                    if not t.cancelled():
+                        t.exception()      # a failed background refresh is retried on the next call
+                task.add_done_callback(done)
+            if stale:
+                metrics.memo_event(name, True)
+                return hit[1]
+            return await task
 
         return wrapper
 

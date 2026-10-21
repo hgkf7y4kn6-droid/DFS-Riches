@@ -1,22 +1,18 @@
-import { useFocusEffect } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { useMemo } from 'react';
+import { FlatList, Pressable, RefreshControl, ScrollView, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import MatchupModeToggle from '@/components/MatchupModeToggle';
 import BrandHeader from '@/components/BrandHeader';
-import ExpandableCard from '@/components/ExpandableCard';
-import LineupBuilder, { type BuildField } from '@/components/LineupBuilder';
 import ListHeading from '@/components/ListHeading';
 import OwnershipList from '@/components/plays/OwnershipList';
-import OptimalLineups from '@/components/OptimalLineups';
 import OwnershipModelNote from '@/components/plays/OwnershipModelNote';
 import ActualOwnershipCard from '@/components/plays/ActualOwnershipCard';
 import LeverageCard from '@/components/plays/LeverageCard';
 import PlayRankingCard from '@/components/plays/PlayRankingCard';
 import WeatherCard, { weatherGames } from '@/components/plays/WeatherCard';
 import RoleShiftsCard from '@/components/plays/RoleShiftsCard';
-import SlateList from '@/components/SlateList';
 import SafeAreaView from '@/components/SafeAreaView';
 import StatusView from '@/components/StatusView';
 import { Glossed } from '@/components/Term';
@@ -92,64 +88,24 @@ function cards(data: PlaysResponse, contest: PlayContest, weather: boolean): Car
   return list;
 }
 
-type GppField = 'large_gpp' | 'small_gpp';
-const FIELD_LABEL: Record<OwnershipContest, string> = { cash: 'Cash', small_gpp: 'Small-field GPP', large_gpp: 'Large-field GPP' };
-const BUILD_NOTE: Record<PlayContest, string> = {
-  cash: 'Cash lineups lean on floor and utilization -- every player shows expected cash ownership and the model floor',
-  gpp: 'Every player shows expected ownership for the field you pick',
-};
-
-/** The field's ownership (and, for cash, the model floor) by DK draftable id, for the lineup builder. */
-function buildField(players: PlayPlayer[], field: OwnershipContest): BuildField {
-  const ownership = new Map<number, number>();
-  const floor = new Map<number, number>();
-  const env = new Map<number, number>();
-  const leverage = new Map<number, number>();
-  const leverageDetail = new Map<number, LeverageDetail>();
-  for (const p of players) {
-    const own = p.ownership[field];
-    if (own != null) ownership.set(p.id, own);
-    floor.set(p.id, p.floor);
-    if (p.parts.env != null) env.set(p.id, p.parts.env);
-    // Fair minus projected ownership for this tab's contest (app/leverage.py; cash: odds of 2.5x salary).
-    if (p.leverage != null) leverage.set(p.id, p.leverage);
-    if (p.leverage_detail) leverageDetail.set(p.id, p.leverage_detail);
-  }
-  return { label: FIELD_LABEL[field], ownership, floor: field === 'cash' ? floor : undefined, env, leverage, leverageDetail };
-}
-
 /**
- * The Cash and GPP tabs: top plays by position (horizontal), field ownership
- * by position (horizontal), then this contest's own lineup builder.
+ * The Safe Plays (cash) and Tournaments (GPP) tabs: top plays by position
+ * (horizontal), field ownership by position, then a way into the Lineups
+ * tab's builder set up for this contest.
  */
 export default function PlaysScreen({ contest }: { contest: PlayContest }) {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
   const { data, loading, refreshing, error, refresh } = usePlays(contest);
-  const { season, week, weekData, selectedSlate, selectSlate } = useWeek();
+  const { season, week, weekData } = useWeek();
   const copy = COPY[contest];
   const ready = data?.available ? data : null;
   const pool = usePool(ready && season && week ? poolKey(season, week, ready.slate.slate_id, contest) : null);
   const columns: OwnershipContest[] = contest === 'cash' ? ['cash'] : ['small_gpp', 'large_gpp'];
-  const [gppField, setGppField] = useState<GppField>('large_gpp');
-  const fieldKey: OwnershipContest = contest === 'cash' ? 'cash' : gppField;
-  const field = useMemo(() => (ready ? buildField(ready.players, fieldKey) : undefined), [ready, fieldKey]);
   const schedule = weekData.data?.schedule;
   const weather = useMemo(
     () => (ready && schedule ? weatherGames([...schedule.games, ...schedule.isolated_games], ready.players) : []),
     [ready, schedule],
-  );
-
-  // The builder can work on any slate this week (Showdowns included); it starts on, and
-  // follows, the slate this tab analyzes, and only that slate has the field's ownership.
-  const slateId = ready?.slate.slate_id;
-  const [pick, setPick] = useState<{ forSlate: string; id: string } | null>(null);
-  const buildSlateId = pick && pick.forSlate === slateId ? pick.id : slateId;
-  const onPlaysSlate = buildSlateId === slateId;
-  useFocusEffect(
-    useCallback(() => {
-      if (buildSlateId && selectedSlate?.slate_id !== buildSlateId) selectSlate(buildSlateId);
-    }, [buildSlateId, selectedSlate?.slate_id, selectSlate]),
   );
 
   return (
@@ -164,7 +120,7 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
           <Glossed text={copy.description} />
         </Text>
         <MatchupModeToggle />
-        <StatusView loading={loading} error={error} />
+        <StatusView loading={loading} error={error} onRetry={refresh} />
         {loading ? <Text className="empty-text">Simulating the field -- this can take a few seconds.</Text> : null}
         {data && !data.available ? <Text className="home-empty-state">{data.reason}</Text> : null}
 
@@ -202,44 +158,13 @@ export default function PlaysScreen({ contest }: { contest: PlayContest }) {
             <ActualOwnershipCard contest={contest} plays={ready} onUploaded={refresh} />
             <OwnershipList players={ready.players} columns={columns} pool={pool} />
 
-            <ListHeading
-              title={`Build ${contest === 'cash' ? 'cash' : 'tournament'} lineups`}
-              subtitle={onPlaysSlate ? BUILD_NOTE[contest] : 'Field ownership is modeled for this tab\'s Classic slate only.'}
-            />
-            <View className="mb-3">
-              <SlateList
-                slates={weekData.data?.slates ?? []}
-                selectedId={buildSlateId ?? null}
-                onSelect={(id) => slateId && setPick({ forSlate: slateId, id })}
-              />
-            </View>
-            {contest === 'gpp' && onPlaysSlate ? (
-              <View className="chip-row-content mb-2 flex-row">
-                {(['large_gpp', 'small_gpp'] as GppField[]).map((f) => {
-                  const active = f === gppField;
-                  return (
-                    <Pressable
-                      key={f}
-                      className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
-                      onPress={() => setGppField(f)}
-                      accessibilityRole="button"
-                      aria-pressed={active}>
-                      <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>
-                        {f === 'large_gpp' ? 'Large field' : 'Small field'}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            ) : null}
-            {buildSlateId && selectedSlate?.slate_id === buildSlateId ? (
-              <>
-                <ExpandableCard title="Projected optimal" subtitle="Highest-projected lineups · copy one into the builder" defaultExpanded={false}>
-                  <OptimalLineups scope={contest} collapsible />
-                </ExpandableCard>
-                <LineupBuilder scope={contest} field={onPlaysSlate ? field : undefined} />
-              </>
-            ) : null}
+            {/* One builder for every contest, in the Lineups tab (set to this one). */}
+            <Pressable
+              className="btn mt-4"
+              onPress={() => router.push({ pathname: '/lineups', params: { contest } })}
+              accessibilityRole="button">
+              <Text className="btn-text">{contest === 'cash' ? 'Build cash lineups ›' : 'Build tournament lineups ›'}</Text>
+            </Pressable>
           </>
         ) : null}
       </ScrollView>

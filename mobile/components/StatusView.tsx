@@ -1,18 +1,35 @@
-import { ActivityIndicator, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
-import { useThemeColors } from '@/constants/theme';
+import { SkeletonRows } from '@/components/Skeleton';
 
-/** Loading spinner, error or empty message for a section; null when there's data to show. */
-export default function StatusView({ loading, error, empty }: { loading?: boolean; error?: string | null; empty?: string | null }) {
-  const colors = useThemeColors();
-  if (loading) {
+/**
+ * A section's loading placeholder, error (with "Try again" when it can
+ * retry) or empty message; null when there's data to show.
+ */
+export default function StatusView({
+  loading,
+  error,
+  empty,
+  onRetry,
+}: {
+  loading?: boolean;
+  error?: string | null;
+  empty?: string | null;
+  onRetry?: () => void;
+}) {
+  if (loading) return <SkeletonRows rows={3} />;
+  if (error) {
     return (
-      <View className="py-4">
-        <ActivityIndicator color={colors.accent} />
+      <View className="items-center py-3">
+        <Text className="error-text py-0">{error}</Text>
+        {onRetry ? (
+          <Pressable className="btn-outline mt-2 px-6" onPress={onRetry} accessibilityRole="button">
+            <Text className="btn-outline-text">Try again</Text>
+          </Pressable>
+        ) : null}
       </View>
     );
   }
-  if (error) return <Text className="error-text">{error}</Text>;
   if (empty) return <Text className="empty-text">{empty}</Text>;
   return null;
 }

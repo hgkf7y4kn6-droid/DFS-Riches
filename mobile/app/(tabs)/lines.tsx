@@ -13,7 +13,7 @@ import { useWeek } from '@/lib/week-context';
 
 export default function Lines() {
   const insets = useSafeAreaInsets();
-  const { week, weekData } = useWeek();
+  const { week, weekData, refresh } = useWeek();
   const data = weekData.data;
 
   return (
@@ -27,7 +27,7 @@ export default function Lines() {
             text={`${week ? `Week ${week}: ` : ''}what Vegas expects in each game (spread, total, implied totals) and how it played out. Tap a game for recent form and pace.`}
           />
         </Text>
-        <StatusView loading={weekData.loading && !data} error={weekData.error} />
+        <StatusView loading={weekData.loading && !data} error={weekData.error} onRetry={refresh} />
         {data ? <LinesList games={data.schedule.games} /> : null}
       </ScrollView>
     </SafeAreaView>

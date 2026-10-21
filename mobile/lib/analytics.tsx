@@ -5,7 +5,12 @@ import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 
 import { POSTHOG_HOST, POSTHOG_KEY } from '@/constants/config';
 
-type Client = { screen(name: string): unknown; identify(id: string, props?: Record<string, string>): unknown; reset(): unknown };
+type Client = {
+  screen(name: string): unknown;
+  identify(id: string, props?: Record<string, string>): unknown;
+  reset(): unknown;
+  captureException(error: unknown, props?: Record<string, string>): unknown;
+};
 
 // PostHog is a large module: it loads as its own chunk after the app renders,
 // so it never delays first paint. Calls made before then wait for it, in order.
@@ -13,7 +18,14 @@ let client: Promise<Client | null> | null = null;
 function send(fn: (c: Client) => unknown) {
   if (!POSTHOG_KEY) return;
   client ??= import('posthog-react-native')
-    .then(({ PostHog }) => new PostHog(POSTHOG_KEY!, { host: POSTHOG_HOST }) as Client)
+    // Error tracking: uncaught errors and unhandled promise rejections go to PostHog too.
+    .then(
+      ({ PostHog }) =>
+        new PostHog(POSTHOG_KEY!, {
+          host: POSTHOG_HOST,
+          errorTracking: { autocapture: { uncaughtExceptions: true, unhandledRejections: true } },
+        }) as unknown as Client,
+    )
     .catch(() => null);
   client.then((c) => c && fn(c));
 }
@@ -21,6 +33,11 @@ function send(fn: (c: Client) => unknown) {
 /** A one-off analytics event (no-op without a PostHog key). */
 export function track(event: string, properties?: Record<string, string | number | boolean>) {
   send((c) => (c as Client & { capture(e: string, p?: object): unknown }).capture(event, properties));
+}
+
+/** A caught error (e.g. one a screen's error boundary showed) for PostHog's error tracking. */
+export function captureError(error: unknown, where?: string) {
+  send((c) => c.captureException(error, where ? { where } : undefined));
 }
 
 /**

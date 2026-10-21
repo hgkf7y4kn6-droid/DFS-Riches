@@ -7,6 +7,7 @@ import IntroTour from '@/components/IntroTour';
 import ProfileQuestion from '@/components/ProfileQuestion';
 import RememberPlace from '@/components/RememberPlace';
 import SessionGuard from '@/components/SessionGuard';
+import WhatsNew from '@/components/WhatsNew';
 import { HIDDEN_TAB_ROUTES, tabs } from '@/constants/data';
 import { FLOATING_TAB_BAR, fonts, useThemeColors } from '@/constants/theme';
 import { useAccountSync } from '@/lib/account-sync';
@@ -19,12 +20,12 @@ export default function TabLayout() {
   const { master } = useAccountSync();
   const { isLoaded, isSignedIn } = useAuth();
   const pathname = usePathname();
-  // Labels shrink (10px down to 8px) so the longest, "Tournaments", fits its slot
-  // on narrow phones and when the master-only tab makes six.
+  // Labels as large as their slot allows (up to 11px) so the longest,
+  // "Tournaments", fits on narrow phones and when the master-only tab makes six.
   const { width } = useWindowDimensions();
   const visible = tabs.filter((t) => !t.masterOnly || master).length;
   const perTab = (Math.min(width, FLOATING_TAB_BAR.maxWidth + 2 * FLOATING_TAB_BAR.margin) - 2 * FLOATING_TAB_BAR.margin - 2) / visible;
-  const labelSize = Math.max(8, Math.min(10, Math.floor(((perTab - 4) / 6.3) * 2) / 2));
+  const labelSize = Math.max(8.5, Math.min(11, Math.floor(((perTab - 2) / 6.3) * 2) / 2));
   // On web, the stylesheet's theme variables (they follow the device's light/dark
   // setting instantly, even on the pre-rendered page); native uses the palette.
   const colors =
@@ -89,7 +90,7 @@ export default function TabLayout() {
             elevation: 10,
           },
           tabBarLabelPosition: 'below-icon',
-          tabBarLabelStyle: { fontSize: labelSize, lineHeight: 13, fontFamily: fonts.semibold, marginTop: 3, marginHorizontal: 0 },
+          tabBarLabelStyle: { fontSize: labelSize, lineHeight: 14, fontFamily: fonts.semibold, marginTop: 3, marginHorizontal: 0 },
           tabBarIconStyle: { height: 28 },
           tabBarItemStyle: { justifyContent: 'center', paddingVertical: 0, paddingHorizontal: 0 },
         }}>
@@ -122,6 +123,7 @@ export default function TabLayout() {
       <ProfileQuestion />
       <RememberPlace />
       <SessionGuard />
+      <WhatsNew />
     </>
   );
 }

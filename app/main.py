@@ -110,6 +110,16 @@ async def _warm_current_slates() -> None:
         log.info("slate warm-up: %s", await prewarm.warm())
     except Exception as exc:           # warming is best effort; requests still build everything on demand
         log.warning("slate warm-up failed: %s", exc)
+    # Then the DFS model and both plays tabs for the default slate, so the first visitor doesn't wait on them.
+    try:
+        season, week = await current_season_week()
+        version = ownership_store.data_version()
+        await _dfs_model(season, week, None, "gpp", None, version)
+        for contest in ("cash", "gpp"):
+            await _plays(season, week, None, contest, version)
+        log.info("model warm-up done for %s week %s", season, week)
+    except Exception as exc:
+        log.warning("model warm-up failed: %s", exc)
 
 
 # Sign-in (Clerk production) only works on the site's own domain, so pages opened on
@@ -384,7 +394,9 @@ def _json_default(o):
     raise TypeError(f"Not JSON serializable: {type(o).__name__}")
 
 
-@memoize_async(ttl_seconds=120)
+# Stale while revalidate: after the first build, visitors get the model at once while a fresh copy
+# builds in the background (it takes seconds), for up to a day past its two minutes.
+@memoize_async(ttl_seconds=120, stale_seconds=86400)
 async def _dfs_model(season: int, week: int, slate_id: str | None, contest: str, contest_size: int | None,
                      version: tuple) -> bytes:
     """The model, serialized once: repeat requests reuse the bytes."""
@@ -392,7 +404,7 @@ async def _dfs_model(season: int, week: int, slate_id: str | None, contest: str,
     return json.dumps(result, separators=(",", ":"), default=_json_default).encode()
 
 
-@memoize_async(ttl_seconds=120)
+@memoize_async(ttl_seconds=120, stale_seconds=86400)
 async def _plays(season: int, week: int, slate_id: str | None, contest: str, version: tuple) -> bytes:
     model = json.loads(await _dfs_model(season, week, slate_id, "gpp", None, version))
     if not model.get("available"):

@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import AppErrorScreen from '@/components/AppErrorScreen';
 import { CLERK_PUBLISHABLE_KEY } from '@/constants/config';
 import { FONTS } from '@/constants/fonts';
 import { darkColors, lightColors } from '@/constants/theme';
@@ -30,6 +31,9 @@ import { WeekProvider } from '@/lib/week-context';
 import { useColorScheme } from '@/lib/color-scheme';
 
 SplashScreen.preventAutoHideAsync();
+
+// A crash anywhere below shows a friendly screen with "Try again" (and is reported to PostHog).
+export { AppErrorScreen as ErrorBoundary };
 
 // Navigation chrome (screen backgrounds behind content, headers) in the
 // app's palette, so nothing flashes white in dark mode.

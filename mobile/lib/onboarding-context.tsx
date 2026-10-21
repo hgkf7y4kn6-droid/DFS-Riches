@@ -15,6 +15,9 @@ interface OnboardingValue {
   /** The user hid Home's "Start here" card. */
   startHereHidden: boolean;
   setStartHereHidden: (hidden: boolean) => void;
+  /** The "What's new" sheet is up (other first-run sheets wait for it). */
+  whatsNewOpen: boolean;
+  setWhatsNewOpen: (open: boolean) => void;
 }
 
 const OnboardingContext = createContext<OnboardingValue | null>(null);
@@ -27,6 +30,7 @@ const OnboardingContext = createContext<OnboardingValue | null>(null);
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [introOpen, setIntroOpen] = useState(false);
   const [startHereHidden, setHidden] = useState(false);
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
 
   useEffect(() => {
     AsyncStorage.multiGet([INTRO_KEY, START_HERE_KEY])
@@ -50,8 +54,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ introOpen, showIntro, closeIntro, startHereHidden, setStartHereHidden }),
-    [introOpen, showIntro, closeIntro, startHereHidden, setStartHereHidden],
+    () => ({ introOpen, showIntro, closeIntro, startHereHidden, setStartHereHidden, whatsNewOpen, setWhatsNewOpen }),
+    [introOpen, showIntro, closeIntro, startHereHidden, setStartHereHidden, whatsNewOpen],
   );
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;
 }

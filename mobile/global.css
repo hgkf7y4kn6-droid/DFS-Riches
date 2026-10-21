@@ -132,7 +132,7 @@
     @apply rounded-full border border-gold px-2 py-0.5;
   }
   .account-master-text {
-    @apply text-[10px] font-sans-bold uppercase text-gold;
+    @apply text-[11px] font-sans-bold uppercase text-gold;
   }
   .account-sync {
     @apply mt-3 text-xs font-sans-semibold text-foreground;
@@ -212,7 +212,7 @@
     @apply items-end;
   }
   .home-balance-date-label {
-    @apply text-[11px] font-sans-medium text-hero-foreground/60;
+    @apply text-xs font-sans-medium text-hero-foreground/60;
   }
   .home-balance-date {
     @apply text-base font-sans-bold text-accent;
@@ -227,7 +227,7 @@
     @apply text-base font-sans-bold text-hero-foreground;
   }
   .home-balance-stat-label {
-    @apply mt-0.5 text-[11px] font-sans-medium text-hero-foreground/60;
+    @apply mt-0.5 text-xs font-sans-medium text-hero-foreground/60;
   }
   .home-balance-positive {
     @apply text-hero-positive;
@@ -276,7 +276,7 @@
     @apply text-lg font-sans-extrabold text-foreground;
   }
   .upcoming-countdown {
-    @apply text-[11px] font-sans-bold uppercase text-accent-ink;
+    @apply text-xs font-sans-bold uppercase text-accent-ink;
   }
   .upcoming-info {
     @apply mt-3 gap-0.5 border-t border-border pt-3;
@@ -293,7 +293,7 @@
   }
 
   .upcoming-expand-hint {
-    @apply mt-2 text-[11px] font-sans-semibold text-accent-ink;
+    @apply mt-2 text-xs font-sans-semibold text-accent-ink;
   }
 
   /* --------------------------- game detail (weekly breakdown in a card) */
@@ -328,13 +328,13 @@
     @apply min-w-[46%] flex-1 rounded-xl bg-muted px-3 py-2;
   }
   .detail-tile-label {
-    @apply text-[10px] font-sans-semibold uppercase text-muted-foreground;
+    @apply text-[11px] font-sans-semibold uppercase text-muted-foreground;
   }
   .detail-tile-value {
     @apply text-base font-sans-bold text-foreground;
   }
   .detail-tile-sub {
-    @apply text-[10px] font-sans-medium text-muted-foreground;
+    @apply text-[11px] font-sans-medium text-muted-foreground;
   }
   .detail-row {
     @apply flex-row items-center border-b border-border py-1.5;
@@ -346,26 +346,26 @@
     @apply w-24 text-right text-xs font-sans-semibold text-foreground;
   }
   .detail-row-head {
-    @apply text-[10px] font-sans-bold uppercase text-muted-foreground;
+    @apply text-[11px] font-sans-bold uppercase text-muted-foreground;
   }
   .detail-row-value-compact {
     @apply w-16 text-right text-xs font-sans-semibold text-foreground;
   }
   .detail-note {
-    @apply text-[11px] font-sans-regular text-muted-foreground;
+    @apply text-xs font-sans-regular text-muted-foreground;
   }
   /* Breakdown charts (components/breakdown/charts): thin bars on a muted track. */
   .chart-heading {
     @apply mb-0.5 text-xs font-sans-semibold text-foreground;
   }
   .chart-heading-sub {
-    @apply text-[11px] font-sans-medium text-muted-foreground;
+    @apply text-xs font-sans-medium text-muted-foreground;
   }
   .chart-row {
     @apply flex-row items-center gap-2 py-0.5;
   }
   .chart-label {
-    @apply w-[84px] text-[11px] font-sans-semibold text-muted-foreground;
+    @apply w-[84px] text-xs font-sans-semibold text-muted-foreground;
   }
   .chart-track {
     @apply relative h-2.5 flex-1 overflow-hidden rounded-full bg-muted;
@@ -380,16 +380,16 @@
     @apply absolute bottom-0 left-1/2 top-0 w-px bg-muted-foreground/60;
   }
   .chart-value {
-    @apply w-[92px] pr-1 text-right text-[11px] font-sans-semibold text-foreground;
+    @apply w-[92px] pr-1 text-right text-xs font-sans-semibold text-foreground;
   }
   .chart-rank {
-    @apply text-[11px] font-sans-bold text-accent-ink;
+    @apply text-xs font-sans-bold text-accent-ink;
   }
   .chart-diverging-row {
     @apply py-1;
   }
   .chart-diverging-label {
-    @apply mb-0.5 text-[11px] font-sans-medium text-foreground;
+    @apply mb-0.5 text-xs font-sans-medium text-foreground;
   }
   .chart-diverging-line {
     @apply flex-row items-center gap-2;
@@ -398,7 +398,7 @@
     @apply mr-[100px] mt-0.5 flex-row justify-between;
   }
   .chart-axis-text {
-    @apply text-[10px] font-sans-medium text-muted-foreground;
+    @apply text-[11px] font-sans-medium text-muted-foreground;
   }
   .detail-target {
     @apply border-b border-border py-2;
@@ -407,7 +407,7 @@
     @apply flex-1 pr-2 text-sm font-sans-semibold text-foreground;
   }
   .detail-target-meta {
-    @apply text-[11px] font-sans-medium text-muted-foreground;
+    @apply text-xs font-sans-medium text-muted-foreground;
   }
 
   /* ------------------------------------------- DFS model / Cash / GPP */
@@ -415,7 +415,7 @@
     @apply mr-3 w-72 rounded-2xl border border-border bg-card p-4;
   }
   .dfs-card-kicker {
-    @apply text-[11px] font-sans-bold uppercase text-accent-ink;
+    @apply text-xs font-sans-bold uppercase text-accent-ink;
   }
   .dfs-card-title {
     @apply mt-0.5 text-lg font-sans-extrabold text-foreground;
@@ -452,16 +452,16 @@
     @apply text-xs font-sans-semibold text-foreground;
   }
   .actual-miss-head {
-    @apply mt-1 text-[10px] font-sans-bold uppercase text-muted-foreground;
+    @apply mt-1 text-[11px] font-sans-bold uppercase text-muted-foreground;
   }
   .actual-miss {
     @apply text-xs font-sans-medium text-foreground;
   }
   .actual-help {
-    @apply text-[11px] font-sans-regular text-muted-foreground;
+    @apply text-xs font-sans-regular text-muted-foreground;
   }
   .own-actual {
-    @apply text-[10px] font-sans-bold text-accent-ink;
+    @apply text-[11px] font-sans-bold text-accent-ink;
   }
   /* Profit / loss: most played and most profitable players and teams. */
   .pl-exposure-title {
@@ -494,7 +494,7 @@
     @apply border-accent;
   }
   .week-pill-season {
-    @apply text-[11px] font-sans-semibold text-muted-foreground;
+    @apply text-xs font-sans-semibold text-muted-foreground;
   }
   .week-pill-week {
     @apply text-sm font-sans-bold text-foreground;
@@ -523,7 +523,7 @@
     @apply text-xs font-sans-bold text-foreground;
   }
   .weight-help {
-    @apply mt-0.5 text-[11px] font-sans-regular text-muted-foreground;
+    @apply mt-0.5 text-xs font-sans-regular text-muted-foreground;
   }
   .weight-row {
     @apply mt-1.5 flex-row items-center gap-1.5;
@@ -535,7 +535,7 @@
     @apply rounded-md border border-border bg-muted px-2 py-1;
   }
   .weight-dir-text {
-    @apply text-[11px] font-sans-semibold text-foreground;
+    @apply text-xs font-sans-semibold text-foreground;
   }
   .weight-step {
     @apply h-7 w-7 items-center justify-center rounded-full border border-border;
@@ -554,26 +554,26 @@
     @apply ml-1.5;
   }
   .lev-badge-text {
-    @apply text-[11px] font-sans-bold;
+    @apply text-xs font-sans-bold;
   }
   .lev-detail {
-    @apply mt-1 text-[11px] font-sans-medium text-muted-foreground;
+    @apply mt-1 text-xs font-sans-medium text-muted-foreground;
   }
   /* Trailing L3/L6/L9 trend chips (fill set inline from lib/trend). */
   .trend-chips {
     @apply mt-1 flex-row flex-wrap items-center gap-1;
   }
   .trend-chips-label {
-    @apply mr-0.5 text-[11px] font-sans-semibold text-muted-foreground;
+    @apply mr-0.5 text-xs font-sans-semibold text-muted-foreground;
   }
   .trend-chip {
     @apply rounded-md px-1.5 py-0.5;
   }
   .trend-chip-text {
-    @apply text-[11px] font-sans-semibold text-foreground;
+    @apply text-xs font-sans-semibold text-foreground;
   }
   .trend-chip-key {
-    @apply text-[10px] font-sans-bold text-foreground;
+    @apply text-[11px] font-sans-bold text-foreground;
   }
   /* Touch / FP share after the snap %: same size as the meta line, ranks in the accent. */
   .team-share {
@@ -589,10 +589,10 @@
     @apply text-xs font-sans-bold text-success;
   }
   .dfs-stats {
-    @apply mt-1 text-[11px] font-sans-medium text-muted-foreground;
+    @apply mt-1 text-xs font-sans-medium text-muted-foreground;
   }
   .dfs-reason {
-    @apply mt-0.5 text-[11px] font-sans-regular text-foreground/80;
+    @apply mt-0.5 text-xs font-sans-regular text-foreground/80;
   }
   .env-card {
     @apply mb-3 rounded-2xl border border-border bg-card p-4;
@@ -618,7 +618,7 @@
     @apply mt-1 rounded-full px-2 py-0.5;
   }
   .tag-pill-text {
-    @apply text-[10px] font-sans-bold uppercase;
+    @apply text-[11px] font-sans-bold uppercase;
   }
   .tag-prioritize {
     @apply bg-success/15;
@@ -651,7 +651,7 @@
     @apply bg-danger/15;
   }
   .part-chip-text {
-    @apply text-[10px] font-sans-semibold text-foreground;
+    @apply text-[11px] font-sans-semibold text-foreground;
   }
   .own-row {
     @apply border-b border-border py-3;
@@ -663,7 +663,7 @@
     @apply text-base font-sans-extrabold text-foreground;
   }
   .own-label {
-    @apply text-[10px] font-sans-medium text-muted-foreground;
+    @apply text-[11px] font-sans-medium text-muted-foreground;
   }
   .own-detail {
     @apply mt-2 rounded-lg bg-muted p-2;
@@ -681,16 +681,16 @@
     @apply w-6 rounded-sm;
   }
   .shift-bar-value {
-    @apply mb-0.5 text-[10px] font-sans-semibold text-foreground;
+    @apply mb-0.5 text-[11px] font-sans-semibold text-foreground;
   }
   .shift-bar-week {
-    @apply mt-0.5 text-[10px] font-sans-medium text-muted-foreground;
+    @apply mt-0.5 text-[11px] font-sans-medium text-muted-foreground;
   }
   .shift-bar-opps {
-    @apply text-[10px] font-sans-bold text-foreground;
+    @apply text-[11px] font-sans-bold text-foreground;
   }
   .shift-legend {
-    @apply mt-1 text-[10px] font-sans-medium text-muted-foreground;
+    @apply mt-1 text-[11px] font-sans-medium text-muted-foreground;
   }
   .trend-arrow {
     @apply ml-1 px-0.5;
@@ -699,13 +699,13 @@
     @apply text-xs font-sans-bold;
   }
   .trend-note {
-    @apply mt-1 text-[11px] font-sans-medium;
+    @apply mt-1 text-xs font-sans-medium;
   }
   .matchup-badge {
     @apply mt-1 self-start rounded-md px-1.5 py-0.5;
   }
   .matchup-text {
-    @apply text-[10px] font-sans-semibold;
+    @apply text-[11px] font-sans-semibold;
   }
   .matchup-soft {
     @apply bg-success/15;
@@ -756,13 +756,13 @@
     @apply flex-1 items-center rounded-lg border border-border py-1.5;
   }
   .tag-choice-text {
-    @apply text-[11px] font-sans-bold uppercase text-muted-foreground;
+    @apply text-xs font-sans-bold uppercase text-muted-foreground;
   }
   .tag-choice-label {
-    @apply text-[11px] font-sans-semibold text-muted-foreground;
+    @apply text-xs font-sans-semibold text-muted-foreground;
   }
   .tag-choice-reset {
-    @apply mt-1.5 text-[11px] font-sans-semibold text-accent-ink;
+    @apply mt-1.5 text-xs font-sans-semibold text-accent-ink;
   }
   .pool-summary {
     @apply mb-2 flex-row items-center justify-between rounded-xl bg-muted px-3 py-2;
@@ -774,13 +774,13 @@
     @apply mt-2 rounded-lg border border-border bg-card p-2;
   }
   .game-log-title {
-    @apply text-[11px] font-sans-bold uppercase text-muted-foreground;
+    @apply text-xs font-sans-bold uppercase text-muted-foreground;
   }
   .game-log-summary {
     @apply mt-0.5 text-xs font-sans-semibold text-foreground;
   }
   .game-log-rank {
-    @apply text-[11px] font-sans-bold text-muted-foreground;
+    @apply text-xs font-sans-bold text-muted-foreground;
   }
   .game-log-schedule {
     @apply mt-1 font-sans-medium;
@@ -798,10 +798,10 @@
     @apply text-sm font-sans-extrabold text-foreground;
   }
   .game-log-snaps {
-    @apply text-[11px] font-sans-semibold text-muted-foreground;
+    @apply text-xs font-sans-semibold text-muted-foreground;
   }
   .game-log-line {
-    @apply mt-0.5 text-[11px] font-sans-medium text-foreground/80;
+    @apply mt-0.5 text-xs font-sans-medium text-foreground/80;
   }
   .game-log-group {
     @apply font-sans-bold text-muted-foreground;
@@ -840,7 +840,7 @@
     @apply mt-0.5 text-xs font-sans-medium text-muted-foreground;
   }
   .slate-card-status {
-    @apply text-[11px] font-sans-bold uppercase text-accent-ink;
+    @apply text-xs font-sans-bold uppercase text-accent-ink;
   }
   .slate-card-body {
     @apply mt-4 border-t border-border pt-4;
@@ -875,7 +875,7 @@
     @apply size-4;
   }
   .label {
-    @apply text-[11px] font-sans-semibold uppercase tracking-wide text-muted-foreground;
+    @apply text-xs font-sans-semibold uppercase tracking-wide text-muted-foreground;
   }
   .caption {
     @apply text-xs font-sans-medium text-muted-foreground;
@@ -908,7 +908,7 @@
     @apply border-primary bg-primary;
   }
   .slate-chip-kicker {
-    @apply text-[10px] font-sans-bold uppercase text-accent-ink;
+    @apply text-[11px] font-sans-bold uppercase text-accent-ink;
   }
   .slate-chip-kicker-active {
     @apply text-primary-foreground/70;
@@ -958,7 +958,7 @@
     @apply text-xs font-sans-medium text-muted-foreground;
   }
   .lineup-player-note {
-    @apply text-[11px] font-sans-regular text-muted-foreground;
+    @apply text-xs font-sans-regular text-muted-foreground;
   }
   .lineup-numbers {
     @apply max-w-[46%] items-end;
@@ -976,7 +976,7 @@
     @apply w-1/3;
   }
   .lineup-total-label {
-    @apply text-[11px] font-sans-medium text-muted-foreground;
+    @apply text-xs font-sans-medium text-muted-foreground;
   }
   .lineup-total-value {
     @apply text-sm font-sans-bold text-foreground;
@@ -1035,7 +1035,7 @@
     @apply text-base font-sans-extrabold text-foreground;
   }
   .bp-badge {
-    @apply overflow-hidden rounded-full px-2 py-0.5 text-[11px] font-sans-bold;
+    @apply overflow-hidden rounded-full px-2 py-0.5 text-xs font-sans-bold;
   }
   .bp-badge-ok {
     @apply bg-success text-white;
@@ -1092,7 +1092,7 @@
     @apply text-xs font-sans-medium text-muted-foreground;
   }
   .bp-class {
-    @apply text-[11px] font-sans-bold;
+    @apply text-xs font-sans-bold;
   }
   .bp-class-strong {
     @apply text-success;
@@ -1113,7 +1113,7 @@
     @apply mt-1 text-xs font-sans-medium text-muted-foreground;
   }
   .bp-author {
-    @apply mt-2 text-[11px] font-sans-medium text-muted-foreground;
+    @apply mt-2 text-xs font-sans-medium text-muted-foreground;
   }
 
   /* ------------------------------------------------- buttons and chips */
@@ -1192,7 +1192,7 @@
     @apply text-xs font-sans-semibold text-foreground;
   }
   .pl-stat-label {
-    @apply text-[10px] font-sans-medium text-muted-foreground;
+    @apply text-[11px] font-sans-medium text-muted-foreground;
   }
   .pl-bar-track {
     @apply mt-2 h-1.5 overflow-hidden rounded-full bg-muted;
@@ -1230,13 +1230,13 @@
     @apply w-full;
   }
   .lines-label {
-    @apply text-[11px] font-sans-semibold uppercase text-muted-foreground;
+    @apply text-xs font-sans-semibold uppercase text-muted-foreground;
   }
   .lines-value {
     @apply text-sm font-sans-bold text-foreground;
   }
   .lines-sub {
-    @apply text-[11px] font-sans-regular text-muted-foreground;
+    @apply text-xs font-sans-regular text-muted-foreground;
   }
 
   /* ------------------------------------------------------ status text */
@@ -1288,7 +1288,7 @@
   }
   /* "lev" before a leverage number. */
   .lev-badge-label {
-    @apply text-[10px] font-sans-semibold text-muted-foreground;
+    @apply text-[11px] font-sans-semibold text-muted-foreground;
   }
   /* Home's "Start here" card. */
   .start-card {
@@ -1317,7 +1317,7 @@
     @apply p-5;
   }
   .intro-kicker {
-    @apply text-[11px] font-sans-bold uppercase text-accent-ink;
+    @apply text-xs font-sans-bold uppercase text-accent-ink;
   }
   .intro-title {
     @apply mb-2 mt-2 text-2xl font-sans-bold text-foreground;
@@ -1390,5 +1390,13 @@
   }
   .top-play-pos {
     @apply w-9 text-xs font-sans-bold text-accent-ink;
+  }
+
+  /* Offline: showing the copy of the week saved on this device. */
+  .offline-banner {
+    @apply mb-3 rounded-xl border border-warning bg-warning/10 px-3 py-2;
+  }
+  .offline-banner-text {
+    @apply text-xs font-sans-semibold text-warning;
   }
 }
