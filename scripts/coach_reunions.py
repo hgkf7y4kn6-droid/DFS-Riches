@@ -10,7 +10,8 @@ total. Likewise a defensive coordinator facing the offense he just left.
 1. Coaching staffs: each team-season's head coach, offensive coordinator and
    defensive coordinator, 2006 on, from the infobox (and, where the infobox
    leaves coordinators out, the staff section) of Wikipedia's "<season> <team>
-   season" articles (CC BY-SA 4.0). Cached in data/cache/wiki_staffs_<season>.json.
+   season" articles (CC BY-SA 4.0), read one page at a time. Cached in
+   data/cache/wiki_staffs_<season>.json.
 2. Games: nflverse schedules (closing spread and total, final score),
    regular season and playoffs, 2006 on.
 3. A team-game is a reunion when one of the team's coaches held a head coach
@@ -19,7 +20,12 @@ total. Likewise a defensive coordinator facing the offense he just left.
                  (an offensive head coach, usually the play caller)
      defense  -- its DC, or its head coach if he's been a DC in the data
    "First meeting" is the coach's first game against that team after leaving.
-4. Against every other game: the game total vs the closing total (signed, the
+   Former division mates: the opponent was in the division of a team the
+   coach was with in those three seasons (so he faced it twice a year), it
+   isn't that team itself, and it isn't in his current team's division
+   (current division games carry that familiarity for both sides).
+   Divisions come from nflverse's division-game flags.
+4. Against games with no coach connection at all: the game total vs the closing total (signed, the
    over rate, the miss size, how often it misses by 10+), the reunion team's
    points vs its implied total, and its cover rate. p-values from 20,000
    within-season permutations of the reunion label.
@@ -48,7 +54,7 @@ CACHE = ROOT / "data" / "cache"
 OUT = ROOT / "data" / "coach_reunions.json"
 FIRST_SEASON = 2006
 LOOKBACK = 3
-API = "https://en.wikipedia.org/w/api.php"
+RAW = "https://en.wikipedia.org/w/index.php"
 HEADERS = {"User-Agent": "DFSRichesResearch/1.0 (https://dfsriches.richesdigitalventures.com; coach-history study)"}
 
 # Franchise ids across relocations (nflverse's older abbreviations).
@@ -114,32 +120,26 @@ def parse_staff(text: str) -> dict:
     return {"hc": hc, "oc": oc, "dc": dc}
 
 
-def wiki_pages(titles: list[str], section0: bool) -> dict[str, str]:
-    """Wikitext by requested title, batched, retrying through Wikimedia's rate limits."""
-    out: dict[str, str] = {}
-    step = 50 if section0 else 10
-    for i in range(0, len(titles), step):
-        batch = titles[i:i + step]
-        params = {"action": "query", "prop": "revisions", "rvprop": "content", "rvslots": "main", "redirects": 1,
-                  "format": "json", "maxlag": 5, "titles": "|".join(batch)}
-        if section0:
-            params["rvsection"] = 0
+def wiki_page(title: str) -> str | None:
+    """A page's wikitext (index.php?action=raw), following redirects, retrying through rate limits."""
+    for _ in range(3):                        # redirect hops
+        text = None
         for attempt in range(8):
-            r = httpx.get(API, params=params, headers=HEADERS, timeout=60)
+            r = httpx.get(RAW, params={"title": title, "action": "raw"}, headers=HEADERS, timeout=60)
             if r.status_code == 200:
+                text = r.text
                 break
-            time.sleep(20 * (attempt + 1))
-        r.raise_for_status()
-        q = r.json()["query"]
-        back = {x["to"]: x["from"] for x in q.get("normalized", []) + q.get("redirects", [])}
-        for p in q["pages"].values():
-            title = p.get("title", "")
-            while title in back:
-                title = back[title]
-            if "revisions" in p:
-                out[title] = p["revisions"][0]["slots"]["main"]["*"]
-        time.sleep(3)
-    return out
+            if r.status_code == 404:
+                return None
+            time.sleep(15 * (attempt + 1))
+        time.sleep(1.0)                       # a polite pace
+        if text is None:
+            raise RuntimeError(f"Wikipedia kept refusing {title!r}")
+        m = re.match(r"\s*#REDIRECT\s*\[\[([^\]|#]+)", text, flags=re.I)
+        if not m:
+            return text
+        title = m.group(1).strip()
+    return None
 
 
 def staffs_for(season: int, teams: list[str]) -> dict[str, dict]:
@@ -148,16 +148,11 @@ def staffs_for(season: int, teams: list[str]) -> dict[str, dict]:
         cached = json.loads(path.read_text())
         if set(teams) <= set(cached):
             return cached
-    titles = {f"{season} {team_name(t, season)} season": t for t in teams}
-    found = wiki_pages(list(titles), section0=True)
-    staffs = {titles[title]: parse_staff(text) for title, text in found.items() if title in titles}
-    missing = [title for title, t in titles.items() if t in staffs and (not staffs[t]["oc"] or not staffs[t]["dc"])]
-    if missing:   # coordinators only in the staff section: the whole article
-        for title, text in wiki_pages(missing, section0=False).items():
-            if title in titles:
-                full = parse_staff(text)
-                cur = staffs[titles[title]]
-                staffs[titles[title]] = {k: cur[k] or full[k] for k in cur}
+    staffs = {}
+    for t in teams:
+        text = wiki_page(f"{season} {team_name(t, season)} season")
+        if text:
+            staffs[t] = parse_staff(text)
     for t in teams:
         staffs.setdefault(t, {"hc": [], "oc": [], "dc": []})
     path.write_text(json.dumps(staffs, indent=1))
@@ -182,7 +177,7 @@ async def games() -> list[dict]:
         hs, as_, total, spread = f(r["home_score"]), f(r["away_score"]), f(r["total_line"]), f(r["spread_line"])
         if s < FIRST_SEASON or hs is None or as_ is None or total is None or spread is None:
             continue
-        out.append({"season": s, "week": int(r["week"]), "gameday": r["gameday"], "type": r["game_type"],
+        out.append({"season": s, "week": int(r["week"]), "gameday": r["gameday"], "type": r["game_type"], "div": r["div_game"] == "1",
                     "home": r["home_team"], "away": r["away_team"], "hs": hs, "as": as_, "total": total, "spread": spread})
     return sorted(out, key=lambda g: (g["gameday"], g["home"]))
 
@@ -200,6 +195,25 @@ def reunions(all_games: list[dict], staffs: dict[int, dict[str, dict]]) -> list[
             for role in ("hc", "oc", "dc"):
                 for name in st[role]:
                     roles.setdefault(name, []).append((season, fr(t), role))
+
+    # Divisions per season: teams joined by division games.
+    division: dict[int, dict[str, frozenset]] = {}
+    for season in {g["season"] for g in all_games}:
+        links: dict[str, set] = {}
+        for g in all_games:
+            if g["season"] == season and g["div"]:
+                a, b = fr(g["home"]), fr(g["away"])
+                links.setdefault(a, set()).add(b)
+                links.setdefault(b, set()).add(a)
+        for t, mates in links.items():
+            division.setdefault(season, {})[t] = frozenset(mates | {t})
+
+    def former_division(name: str, team: str, opp: str, season: int) -> bool:
+        current = division.get(season, {}).get(team, frozenset())
+        if opp in current:
+            return False
+        return any(season - LOOKBACK <= s < season and t not in (team, opp) and opp in division.get(s, {}).get(t, ())
+                   for s, t, _ in roles.get(name, []))
 
     def been(name: str, role: str, before: int) -> bool:
         return any(s < before and r == role for s, _, r in roles.get(name, []))
@@ -224,6 +238,8 @@ def reunions(all_games: list[dict], staffs: dict[int, dict[str, dict]]) -> list[
             defense = list(s["dc"]) + [h for h in s["hc"] if been(h, "dc", g["season"] + 1)]
             off_r = sorted({c for c in offense if coached(c, fr(opp), g["season"])})
             def_r = sorted({c for c in defense if coached(c, fr(opp), g["season"])})
+            off_d = sorted({c for c in offense if c not in off_r and former_division(c, fr(team), fr(opp), g["season"])})
+            def_d = sorted({c for c in defense if c not in def_r and former_division(c, fr(team), fr(opp), g["season"])})
             first = False
             for c in off_r + def_r:
                 key = (c, fr(team), fr(opp))
@@ -233,6 +249,7 @@ def reunions(all_games: list[dict], staffs: dict[int, dict[str, dict]]) -> list[
             rows.append({
                 "season": g["season"], "week": g["week"], "type": g["type"], "team": team, "opp": opp,
                 "game": f"{g['away']}@{g['home']}", "off_reunion": off_r, "def_reunion": def_r, "first": first,
+                "off_division": off_d, "def_division": def_d,
                 "resid": g["hs"] + g["as"] - g["total"], "team_vs_implied": pts - implied,
                 "cover": margin - exp_margin, "points": pts, "implied": round(implied, 1),
             })
@@ -308,8 +325,11 @@ async def main() -> None:
         "offense_first_meeting": lambda r: bool(r["off_reunion"]) and r["first"],
         "defense": lambda r: bool(r["def_reunion"]),
         "any": lambda r: bool(r["off_reunion"] or r["def_reunion"]),
+        "offense_former_division": lambda r: bool(r["off_division"]) and not r["off_reunion"],
+        "defense_former_division": lambda r: bool(r["def_division"]) and not r["def_reunion"],
+        "any_former_division": lambda r: bool(r["off_division"] or r["def_division"]) and not (r["off_reunion"] or r["def_reunion"]),
     }
-    baseline = [r for r in rows if not (r["off_reunion"] or r["def_reunion"])]
+    baseline = [r for r in rows if not (r["off_reunion"] or r["def_reunion"] or r["off_division"] or r["def_division"])]
     result = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "seasons": [seasons[0], seasons[-1]], "lookback_seasons": LOOKBACK,
@@ -317,11 +337,14 @@ async def main() -> None:
         "groups": {},
         "source": "Coaching staffs: Wikipedia team-season articles (CC BY-SA 4.0). Games and lines: nflverse.",
     }
+    # Each group against the games with no coach connection at all.
+    plain = {id(r) for r in baseline}
     for name, flag in groups.items():
         sel = [r for r in rows if flag(r)]
-        result["groups"][name] = {"summary": summarize(sel), "vs_rest": permutation_p(rows, flag, n=5000 if name != "offense" else 20000)}
+        pool = sel + [r for r in rows if id(r) in plain]
+        result["groups"][name] = {"summary": summarize(sel), "vs_baseline": permutation_p(pool, flag, n=10000)}
         print(name, result["groups"][name]["summary"])
-        print("   vs rest", result["groups"][name]["vs_rest"])
+        print("   vs baseline", result["groups"][name]["vs_baseline"])
     print("baseline", result["baseline"])
     result["offense_examples"] = [
         {k: r[k] for k in ("season", "week", "team", "opp", "off_reunion", "first", "resid", "team_vs_implied", "points", "implied")}
