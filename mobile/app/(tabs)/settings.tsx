@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AccountCard from '@/components/AccountCard';
 import MatchupModeToggle from '@/components/MatchupModeToggle';
+import PrefsEditor from '@/components/PrefsEditor';
 import BackLink from '@/components/BackLink';
 import BrandHeader from '@/components/BrandHeader';
 import SafeAreaView from '@/components/SafeAreaView';
@@ -81,6 +82,9 @@ export default function SettingsScreen() {
         <View className="settings-group mt-2">
           <Row label="Appearance" value={`${scheme === 'dark' ? 'Dark' : 'Light'} (follows your device)`} last />
         </View>
+
+        <Text className="settings-group-title">Your game</Text>
+        <PrefsEditor />
 
         <Text className="settings-group-title">Help</Text>
         <View className="settings-group mt-0">

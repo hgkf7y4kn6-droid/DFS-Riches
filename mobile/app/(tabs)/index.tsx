@@ -15,6 +15,7 @@ import OptimalLineups from '@/components/OptimalLineups';
 import ProfitLossTracker from '@/components/ProfitLossTracker';
 import SafeAreaView from '@/components/SafeAreaView';
 import SlateList from '@/components/SlateList';
+import HomeTopPlays from '@/components/HomeTopPlays';
 import StartHereCard from '@/components/StartHereCard';
 import StatusView from '@/components/StatusView';
 import SubmissionForm from '@/components/SubmissionForm';
@@ -98,6 +99,9 @@ export default function Home() {
 
         {/* Start here: pick a slate, see its top plays, build a lineup */}
         {!startHereHidden ? <StartHereCard /> : null}
+
+        {/* What they play (Settings or the first-run question): its top play at each position */}
+        <HomeTopPlays />
 
         <StatusView loading={weekData.loading && !data} error={weekData.error} />
 

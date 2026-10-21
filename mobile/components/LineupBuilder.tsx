@@ -16,6 +16,7 @@ import { useLeverage } from '@/lib/leverage-context';
 import { useSubmissions } from '@/lib/submissions-context';
 import { matchupScore, useMatchups } from '@/lib/matchups-context';
 import { track } from '@/lib/analytics';
+import { usePrefs } from '@/lib/prefs-context';
 import { formatCurrency, formatEt, formatPoints, salariesPendingText } from '@/lib/utils';
 import { evenWeights, type Factor, setWeight, totalWeight, type Weights, weightedRank } from '@/lib/weighted-sort';
 import { type LineupScope, useLineups, useWeek } from '@/lib/week-context';
@@ -95,6 +96,27 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   const [weights, setWeights] = useState<Weights<SortKey>>({ proj: 100 });
   // Per sort: lower values rank higher (e.g. cheaper salary, lower ownership). Tap the only sort again to flip it.
   const [lowFirst, setLowFirst] = useState<Partial<Record<SortKey, boolean>>>({});
+  // The sorts follow the user between sessions and devices (prefs.builder).
+  const { prefs, loaded: prefsLoaded, update: updatePrefs } = usePrefs();
+  const [prefsApplied, setPrefsApplied] = useState(false);
+  // Applied once, when prefs first load (state adjusted during render, React's pattern for it).
+  if (!prefsApplied && prefsLoaded) {
+    setPrefsApplied(true);
+    const saved = prefs.builder;
+    const keys = (saved?.selected ?? []).filter((k): k is SortKey => SORTS.some((o) => o.key === k));
+    if (keys.length) {
+      const w = saved?.weights as Weights<SortKey> | undefined;
+      setSelected(keys);
+      setWeights(w && totalWeight(w, keys) === 100 ? w : evenWeights(keys));
+    }
+  }
+  useEffect(() => {
+    if (!prefsApplied) return;
+    const next = { selected, weights: weights as Record<string, number> };
+    if (JSON.stringify(next) !== JSON.stringify(prefs.builder)) updatePrefs({ builder: next });
+    // prefs.builder is compared, not followed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefsApplied, selected, weights, updatePrefs]);
   const sortBy = selected[0];
   const blended = selected.length > 1;
   const ascending = Boolean(lowFirst[sortBy]);

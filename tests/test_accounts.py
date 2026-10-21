@@ -60,6 +60,7 @@ def test_validate_rejects_unknown_keys_and_oversized_values():
     with pytest.raises(ValueError):
         accounts.validate("settings", big, master=False)
     accounts.validate("settings", big, master=True)                           # masters get more room
+    accounts.validate("prefs", {"focus": "cash", "spend": "25-100", "lastTab": "/cash"}, master=False)   # the app's preferences doc
 
 
 def test_master_from_env_or_clerk_role(monkeypatch):

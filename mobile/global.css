@@ -1345,4 +1345,50 @@
   .auth-gate {
     @apply flex-1 items-center justify-center bg-background;
   }
+
+  /* "What do you play?" choices. */
+  .choice-row {
+    @apply mt-2 gap-2;
+  }
+  .choice {
+    @apply rounded-xl border border-border bg-card px-4 py-3;
+  }
+  .choice-active {
+    @apply border-primary bg-primary;
+  }
+  .choice-label {
+    @apply text-base font-sans-bold text-foreground;
+  }
+  .choice-label-active {
+    @apply text-primary-foreground;
+  }
+  .choice-hint {
+    @apply mt-0.5 text-xs font-sans-medium text-muted-foreground;
+  }
+  .choice-hint-active {
+    @apply text-primary-foreground/80;
+  }
+  /* Sign-up's 18+ confirmation. */
+  .check-row {
+    @apply mb-3 flex-row items-center gap-3 py-1;
+  }
+  .check-box {
+    @apply size-6 items-center justify-center rounded-md border-2 border-border bg-card;
+  }
+  .check-box-on {
+    @apply border-primary bg-primary;
+  }
+  .check-mark {
+    @apply text-sm font-sans-bold text-primary-foreground;
+  }
+  .check-label {
+    @apply flex-1 text-sm font-sans-medium text-foreground;
+  }
+  /* Home's top play at each position. */
+  .top-play-row {
+    @apply flex-row items-center gap-3 border-b border-border py-2.5;
+  }
+  .top-play-pos {
+    @apply w-9 text-xs font-sans-bold text-accent-ink;
+  }
 }

@@ -1,9 +1,12 @@
 import { useAuth } from '@clerk/expo';
-import { Redirect, Tabs } from 'expo-router';
+import { Redirect, Tabs, usePathname } from 'expo-router';
 import { ActivityIndicator, Image, Platform, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import IntroTour from '@/components/IntroTour';
+import ProfileQuestion from '@/components/ProfileQuestion';
+import RememberPlace from '@/components/RememberPlace';
+import SessionGuard from '@/components/SessionGuard';
 import { HIDDEN_TAB_ROUTES, tabs } from '@/constants/data';
 import { FLOATING_TAB_BAR, fonts, useThemeColors } from '@/constants/theme';
 import { useAccountSync } from '@/lib/account-sync';
@@ -15,6 +18,7 @@ export default function TabLayout() {
   const theme = useThemeColors();
   const { master } = useAccountSync();
   const { isLoaded, isSignedIn } = useAuth();
+  const pathname = usePathname();
   // Labels shrink (10px down to 8px) so the longest, "Tournaments", fits its slot
   // on narrow phones and when the master-only tab makes six.
   const { width } = useWindowDimensions();
@@ -48,72 +52,76 @@ export default function TabLayout() {
       </View>
     );
   }
-  if (!isSignedIn) return <Redirect href="/sign-in" />;
+  // Back to this page once they're in.
+  if (!isSignedIn) return <Redirect href={{ pathname: '/sign-in', params: pathname && pathname !== '/' ? { next: pathname } : {} }} />;
 
   return (
     <>
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        sceneStyle: { backgroundColor: colors.background },
-        tabBarActiveTintColor: colors.accentInk,
-        tabBarInactiveTintColor: colors.mutedForeground,
-        tabBarStyle: {
-          // Floating: inset from the edges and the bottom, rounded, with a shadow.
-          position: 'absolute',
-          // Full width less the margins on phones; centered at maxWidth on wider screens
-          // (pure layout, so the pre-rendered page already has it right).
-          left: FLOATING_TAB_BAR.margin,
-          right: FLOATING_TAB_BAR.margin,
-          maxWidth: FLOATING_TAB_BAR.maxWidth,
-          marginHorizontal: 'auto',
-          bottom: insets.bottom + FLOATING_TAB_BAR.gap,
-          height: FLOATING_TAB_BAR.height,
-          paddingTop: 10,
-          paddingBottom: 16,
-          borderRadius: FLOATING_TAB_BAR.height / 2,
-          borderTopWidth: 1,
-          borderWidth: 1,
-          borderColor: colors.border,
-          borderTopColor: colors.border,
-          backgroundColor: colors.card,
-          shadowColor: '#000',
-          shadowOpacity: 0.18,
-          shadowRadius: 16,
-          shadowOffset: { width: 0, height: 6 },
-          elevation: 10,
-        },
-        tabBarLabelPosition: 'below-icon',
-        tabBarLabelStyle: { fontSize: labelSize, lineHeight: 13, fontFamily: fonts.semibold, marginTop: 3, marginHorizontal: 0 },
-        tabBarIconStyle: { height: 28 },
-        tabBarItemStyle: { justifyContent: 'center', paddingVertical: 0, paddingHorizontal: 0 },
-      }}>
-      {tabs.map((tab) => (
-        <Tabs.Screen
-          key={tab.id}
-          name={tab.name}
-          options={{
-            title: tab.title,
-            ...(tab.masterOnly && !master ? { href: null } : null),
-            tabBarIcon: ({ focused }) => (
-              <View className={`tabs-pill ${focused ? 'tabs-active' : ''}`}>
-                <Image
-                  source={tab.icon}
-                  className="tabs-icon"
-                  // size-6 is 24px; set here too because react-native-web ignores className sizes on Image
-                  style={{ width: 22, height: 22, tintColor: focused ? theme.accentForeground : theme.mutedForeground }}
-                  resizeMode="contain"
-                />
-              </View>
-            ),
-          }}
-        />
-      ))}
-      {HIDDEN_TAB_ROUTES.map((name) => (
-        <Tabs.Screen key={name} name={name} options={{ href: null }} />
-      ))}
-    </Tabs>
-    <IntroTour />
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          sceneStyle: { backgroundColor: colors.background },
+          tabBarActiveTintColor: colors.accentInk,
+          tabBarInactiveTintColor: colors.mutedForeground,
+          tabBarStyle: {
+            // Floating: inset from the edges and the bottom, rounded, with a shadow.
+            position: 'absolute',
+            // Full width less the margins on phones; centered at maxWidth on wider screens
+            // (pure layout, so the pre-rendered page already has it right).
+            left: FLOATING_TAB_BAR.margin,
+            right: FLOATING_TAB_BAR.margin,
+            maxWidth: FLOATING_TAB_BAR.maxWidth,
+            marginHorizontal: 'auto',
+            bottom: insets.bottom + FLOATING_TAB_BAR.gap,
+            height: FLOATING_TAB_BAR.height,
+            paddingTop: 10,
+            paddingBottom: 16,
+            borderRadius: FLOATING_TAB_BAR.height / 2,
+            borderTopWidth: 1,
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderTopColor: colors.border,
+            backgroundColor: colors.card,
+            shadowColor: '#000',
+            shadowOpacity: 0.18,
+            shadowRadius: 16,
+            shadowOffset: { width: 0, height: 6 },
+            elevation: 10,
+          },
+          tabBarLabelPosition: 'below-icon',
+          tabBarLabelStyle: { fontSize: labelSize, lineHeight: 13, fontFamily: fonts.semibold, marginTop: 3, marginHorizontal: 0 },
+          tabBarIconStyle: { height: 28 },
+          tabBarItemStyle: { justifyContent: 'center', paddingVertical: 0, paddingHorizontal: 0 },
+        }}>
+        {tabs.map((tab) => (
+          <Tabs.Screen
+            key={tab.id}
+            name={tab.name}
+            options={{
+              title: tab.title,
+              ...(tab.masterOnly && !master ? { href: null } : null),
+              tabBarIcon: ({ focused }) => (
+                <View className={`tabs-pill ${focused ? 'tabs-active' : ''}`}>
+                  <Image
+                    source={tab.icon}
+                    className="tabs-icon"
+                    // size-6 is 24px; set here too because react-native-web ignores className sizes on Image
+                    style={{ width: 22, height: 22, tintColor: focused ? theme.accentForeground : theme.mutedForeground }}
+                    resizeMode="contain"
+                  />
+                </View>
+              ),
+            }}
+          />
+        ))}
+        {HIDDEN_TAB_ROUTES.map((name) => (
+          <Tabs.Screen key={name} name={name} options={{ href: null }} />
+        ))}
+      </Tabs>
+      <IntroTour />
+      <ProfileQuestion />
+      <RememberPlace />
+      <SessionGuard />
     </>
   );
 }

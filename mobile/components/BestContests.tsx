@@ -5,6 +5,7 @@ import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import StatusView from '@/components/StatusView';
 import { getBestContests } from '@/lib/api';
 import { createFetchCache, useCachedFetch } from '@/lib/cached-fetch';
+import { FEES_FOR_SPEND, usePrefs } from '@/lib/prefs-context';
 import { formatEt, formatPercent } from '@/lib/utils';
 
 const cache = createFetchCache<BestContestsResponse>();
@@ -68,14 +69,17 @@ const savedWeights = (w: unknown): Record<ContestFactor, number> => {
 const only = <T extends string>(ids: unknown, options: Option<T>[]): T[] =>
   Array.isArray(ids) ? options.map((o) => o.id).filter((id) => ids.includes(id)) : [];
 
-/** The card's filters, remembered on this device. */
+/** The card's filters, remembered on this device; until they're set, the fees fit the user's weekly budget. */
 function useFilters() {
   const [filters, setFilters] = useState<Filters>({ entries: [], fees: [], hidden: [], weights: DEFAULT_WEIGHTS });
   const [loaded, setLoaded] = useState(false);
+  const { prefs, loaded: prefsLoaded } = usePrefs();
+  const budgetFees = prefs.spend ? FEES_FOR_SPEND[prefs.spend] : [];
   useEffect(() => {
+    if (!prefsLoaded) return;
     Promise.all([AsyncStorage.getItem(STORAGE_KEY), AsyncStorage.getItem(OLD_HIDDEN_KEY)])
       .then(([raw, oldHidden]) => {
-        const saved = raw ? JSON.parse(raw) : { hidden: oldHidden ? JSON.parse(oldHidden) : [] };
+        const saved = raw ? JSON.parse(raw) : { hidden: oldHidden ? JSON.parse(oldHidden) : [], fees: budgetFees };
         setFilters({
           entries: only(saved.entries, ENTRY_GROUPS),
           fees: only(saved.fees, FEE_GROUPS),
@@ -85,7 +89,9 @@ function useFilters() {
       })
       .catch(() => {})
       .finally(() => setLoaded(true));
-  }, []);
+    // read once prefs are in; a budget set later applies through a fresh mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefsLoaded, prefs.spend]);
   const update = (patch: Partial<Filters>) =>
     setFilters((f) => {
       const next = { ...f, ...patch };

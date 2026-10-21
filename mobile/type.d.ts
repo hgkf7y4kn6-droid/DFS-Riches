@@ -1041,7 +1041,7 @@ interface DefenseVsPosition {
 // ---------------------------------------------------------- account sync
 
 /** The saved data that follows a signed-in user between devices. */
-type SyncKey = 'saved_lineups' | 'submissions' | 'pool_tags' | 'settings';
+type SyncKey = 'saved_lineups' | 'submissions' | 'pool_tags' | 'settings' | 'prefs';
 
 interface SyncedDoc {
   value: unknown;

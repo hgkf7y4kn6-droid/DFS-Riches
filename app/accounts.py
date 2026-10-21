@@ -39,7 +39,7 @@ import jwt
 
 from app.config import DEFAULT_CLERK_PUBLISHABLE_KEY
 
-KEYS = ("saved_lineups", "submissions", "pool_tags", "settings")
+KEYS = ("saved_lineups", "submissions", "pool_tags", "settings", "prefs")
 MAX_BYTES = 512 * 1024              # per key, for regular accounts
 MASTER_MAX_BYTES = 8 * 1024 * 1024
 RETAIN_WEEKS = 6

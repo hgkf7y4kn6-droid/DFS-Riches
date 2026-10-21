@@ -1,17 +1,16 @@
 import { useAuth } from '@clerk/expo';
 import { useSignIn } from '@clerk/expo/legacy';
-import { Link, router } from 'expo-router';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { AuthShell, clerkMessage, Field, FormError, SubmitButton, useSlowLoadNotice } from '@/components/auth/AuthShell';
 import { track } from '@/lib/analytics';
+import { safeNext } from '@/lib/session';
 
 type Step = 'password' | 'first_code' | 'second_code';
 type Factor = { strategy: string; emailAddressId?: string; phoneNumberId?: string };
 
-// Into the app (signing in is the way in: app/(tabs)/_layout.tsx sends signed-out visitors here).
-const leave = () => router.replace('/');
 
 /**
  * Clerk sign-in: email or username + password, or a one-time code by email
@@ -22,6 +21,9 @@ export default function SignInScreen() {
   const { isLoaded, signIn, setActive } = useSignIn();
   const slowNotice = useSlowLoadNotice(isLoaded);
   const { isSignedIn } = useAuth();
+  // Back to the page they were on (app/(tabs)/_layout.tsx and SessionGuard pass it), else Home.
+  const { next, expired } = useLocalSearchParams<{ next?: string; expired?: string }>();
+  const leave = () => router.replace(safeNext(next));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
@@ -32,8 +34,8 @@ export default function SignInScreen() {
 
   // Already signed in (this app allows one session at a time): nothing to do here.
   useEffect(() => {
-    if (isSignedIn) leave();
-  }, [isSignedIn]);
+    if (isSignedIn) router.replace(safeNext(next));
+  }, [isSignedIn, next]);
 
   const finish = async (sessionId: string | null) => {
     await setActive!({ session: sessionId });
@@ -89,7 +91,11 @@ export default function SignInScreen() {
         return;
       }
       if (!email.trim()) return setError('Enter your email or username.');
-      if (!password) return setError('Enter your password, or tap "Email me a sign-in code".');
+      // No password (accounts can be passwordless): email a one-time code instead.
+      if (!password) {
+        const first = await signIn!.create({ identifier: email.trim() });
+        return sendFirstCode(first.supportedFirstFactors as Factor[] | null);
+      }
       const res = await signIn!.create({ identifier: email.trim(), password });
       if (res.status === 'complete') return finish(res.createdSessionId);
       return afterFirst(res);
@@ -135,13 +141,15 @@ export default function SignInScreen() {
       subtitle={
         coding
           ? `Enter the code we sent to your ${where}.`
-          : 'Sign in, or create a free account, to see this week\'s projections and build lineups. Your lineups and entries follow you to every device.'
+          : expired === '1'
+            ? 'Your session ended. Please sign in again to pick up where you left off.'
+            : 'Sign in, or create a free account, to see this week\'s projections and build lineups. Leave the password empty to get a code by email.'
       }
       footer={
         coding ? null : (
           <View className="w-full max-w-[420px] items-center">
             <Text className="mb-2 text-sm font-sans-medium text-muted-foreground">New to DFSRiches?</Text>
-            <Link href="/sign-up" replace asChild>
+            <Link href={{ pathname: '/sign-up', params: next ? { next } : {} }} replace asChild>
               <Pressable className="btn-outline w-full justify-center" accessibilityRole="link">
                 <Text className="btn-outline-text">Create a free account</Text>
               </Pressable>
@@ -155,10 +163,10 @@ export default function SignInScreen() {
       ) : (
         <>
           <Field label="Email or username" value={email} onChangeText={setEmail} keyboardType="email-address" autoComplete="email" placeholder="you@example.com" />
-          <Field label="Password" value={password} onChangeText={setPassword} secure autoComplete="current-password" />
+          <Field label="Password (optional)" value={password} onChangeText={setPassword} secure autoComplete="current-password" />
         </>
       )}
-      <SubmitButton label={coding ? 'Verify' : 'Sign in'} onPress={submit} busy={busy} ready={isLoaded} />
+      <SubmitButton label={coding ? 'Verify' : password ? 'Sign in' : 'Email me a code'} onPress={submit} busy={busy} ready={isLoaded} />
       <Pressable className="mt-3 items-center" onPress={coding ? back : emailCode} accessibilityRole="button" disabled={busy || !isLoaded}>
         <Text className="link-text text-sm">{coding ? 'Use a different email or password' : 'Forgot password? Email me a sign-in code'}</Text>
       </Pressable>

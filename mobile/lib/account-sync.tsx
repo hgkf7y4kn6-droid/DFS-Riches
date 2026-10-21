@@ -48,7 +48,7 @@ export function AccountSyncProvider({ children }: { children: ReactNode }) {
   }, [getToken]);
   // Every API request carries the signed-in user's session token (lib/api.ts).
   useEffect(() => {
-    setTokenSource(me ? () => tokenRef.current() : null);
+    setTokenSource(me ? (fresh) => tokenRef.current(fresh ? { skipCache: true } : undefined) : null);
   }, [me]);
 
   useEffect(() => {

@@ -2,10 +2,12 @@ import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { SkeletonCards } from '@/components/Skeleton';
 import SlateList, { slateTitle } from '@/components/SlateList';
 import { Term } from '@/components/Term';
 import { track } from '@/lib/analytics';
 import { useOnboarding } from '@/lib/onboarding-context';
+import { PLAYS_ROUTE, usePrefs } from '@/lib/prefs-context';
 import { useChooseSlate } from '@/lib/slate-choice';
 import { salariesPendingText } from '@/lib/utils';
 import { useWeek } from '@/lib/week-context';
@@ -36,8 +38,17 @@ export default function StartHereCard() {
   const slates = weekData.data?.slates ?? [];
   const s = selectedSlate;
   const name = s ? slateTitle(s) : '';
+  // Step 2 opens the tab for what they play (lib/prefs-context.tsx).
+  const { prefs } = usePrefs();
+  const playsRoute = PLAYS_ROUTE[prefs.focus ?? 'both'];
+  const playsCopy =
+    prefs.focus === 'cash'
+      ? { text: 'The safest cash-game plays on this slate, by position.', button: `Safe plays for ${name} ›` }
+      : prefs.focus === 'gpp'
+        ? { text: 'The best tournament plays on this slate, with ceilings the field is overlooking.', button: `Tournament plays for ${name} ›` }
+        : { text: "The model's projections, best values and best games on this slate.", button: `Top plays for ${name} ›` };
 
-  const go = (step: number, path: '/dfs-model' | '/lineups') => {
+  const go = (step: number, path: '/dfs-model' | '/cash' | '/gpp' | '/lineups') => {
     if (!s) return;
     choose(s.slate_id);
     track('start_here_step', { step, slate_type: s.slate_type });
@@ -71,6 +82,10 @@ export default function StartHereCard() {
               }}
             />
           </View>
+        ) : !weekData.data ? (
+          <View className="mt-2">
+            <SkeletonCards count={2} height={76} />
+          </View>
         ) : (
           <Text className="start-step-text mt-1">{"DraftKings hasn't posted this week's slates yet."}</Text>
         )}
@@ -90,9 +105,9 @@ export default function StartHereCard() {
           </>
         ) : s ? (
           <>
-            <Text className="start-step-text">The model&apos;s projections, best values and best games on this slate.</Text>
-            <Pressable className="btn-outline mt-2" onPress={() => go(2, '/dfs-model')} accessibilityRole="button">
-              <Text className="btn-outline-text">Top plays for {name} ›</Text>
+            <Text className="start-step-text">{playsCopy.text}</Text>
+            <Pressable className="btn-outline mt-2" onPress={() => go(2, playsRoute)} accessibilityRole="button">
+              <Text className="btn-outline-text">{playsCopy.button}</Text>
             </Pressable>
           </>
         ) : null}

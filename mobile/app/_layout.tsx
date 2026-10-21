@@ -21,6 +21,7 @@ import '@/lib/clerk-diagnostics';
 import { DfsModelProvider } from '@/lib/dfs-model-context';
 import { GlossaryProvider } from '@/lib/glossary-context';
 import { OnboardingProvider } from '@/lib/onboarding-context';
+import { PrefsProvider } from '@/lib/prefs-context';
 import { LeverageProvider } from '@/lib/leverage-context';
 import { MatchupsProvider } from '@/lib/matchups-context';
 import { PoolTagsProvider } from '@/lib/pool-tags-context';
@@ -60,32 +61,34 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <ThemeProvider value={navTheme(dark)}>
             <AccountSyncProvider>
-              <SubmissionsProvider>
-                <WeekProvider>
-                  <DfsModelProvider>
-                    <LeverageProvider>
-                      <PoolTagsProvider>
-                        <MatchupsProvider>
-                          <OnboardingProvider>
-                            <GlossaryProvider>
-                              <Head>
-                                <title>DFSRiches</title>
-                              </Head>
-                              <StatusBar style={dark ? 'light' : 'dark'} />
-                              {/* Signing in is the way into the app (app/(tabs)/_layout.tsx), so these are full pages, not modals. */}
-                              <Stack screenOptions={{ headerShown: false }}>
-                                <Stack.Screen name="(tabs)" />
-                                <Stack.Screen name="sign-in" options={{ gestureEnabled: false }} />
-                                <Stack.Screen name="sign-up" />
-                              </Stack>
-                            </GlossaryProvider>
-                          </OnboardingProvider>
-                        </MatchupsProvider>
-                      </PoolTagsProvider>
-                    </LeverageProvider>
-                  </DfsModelProvider>
-                </WeekProvider>
-              </SubmissionsProvider>
+              <PrefsProvider>
+                <SubmissionsProvider>
+                  <WeekProvider>
+                    <DfsModelProvider>
+                      <LeverageProvider>
+                        <PoolTagsProvider>
+                          <MatchupsProvider>
+                            <OnboardingProvider>
+                              <GlossaryProvider>
+                                <Head>
+                                  <title>DFSRiches</title>
+                                </Head>
+                                <StatusBar style={dark ? 'light' : 'dark'} />
+                                {/* Signing in is the way into the app (app/(tabs)/_layout.tsx), so these are full pages, not modals. */}
+                                <Stack screenOptions={{ headerShown: false }}>
+                                  <Stack.Screen name="(tabs)" />
+                                  <Stack.Screen name="sign-in" options={{ gestureEnabled: false }} />
+                                  <Stack.Screen name="sign-up" />
+                                </Stack>
+                              </GlossaryProvider>
+                            </OnboardingProvider>
+                          </MatchupsProvider>
+                        </PoolTagsProvider>
+                      </LeverageProvider>
+                    </DfsModelProvider>
+                  </WeekProvider>
+                </SubmissionsProvider>
+              </PrefsProvider>
             </AccountSyncProvider>
           </ThemeProvider>
         </SafeAreaProvider>

@@ -3,7 +3,8 @@ import { Platform } from 'react-native';
 
 import { API_BASE_URL } from '@/constants/config';
 
-type TokenSource = () => Promise<string | null>;
+/** The session token; `fresh` skips Clerk's cached copy (after the server turned one down). */
+type TokenSource = (fresh?: boolean) => Promise<string | null>;
 let resolveSource: ((fn: TokenSource) => void) | null = null;
 let source: Promise<TokenSource> = new Promise((resolve) => (resolveSource = resolve));
 
@@ -23,11 +24,26 @@ export function setTokenSource(fn: TokenSource | null) {
   }
 }
 
+let onRejected: (() => void) | null = null;
+
+/** Called when the server still turns the session down after a fresh token (components/SessionGuard.tsx). */
+export function setSessionRejectedHandler(fn: (() => void) | null) {
+  onRejected = fn;
+}
+
 async function getJson<T>(path: string): Promise<T> {
-  const token = await (await source)();
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-  });
+  const call = async (fresh: boolean) => {
+    const token = await (await source)(fresh);
+    return fetch(`${API_BASE_URL}${path}`, {
+      headers: { Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    });
+  };
+  // A turned-down session gets one quiet retry with a fresh token before the user hears about it.
+  let res = await call(false);
+  if (res.status === 401) {
+    res = await call(true);
+    if (res.status === 401) onRejected?.();
+  }
   if (!res.ok) {
     let detail = `${res.status} ${res.statusText}`;
     try {
