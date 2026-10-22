@@ -7,65 +7,65 @@
  "params": {
   "pass_yd|QB": {
    "shift": 400,
-   "bias": -0.0013,
-   "sigma": 0.1138,
+   "bias": -0.0017,
+   "sigma": 0.1137,
    "two_piece": {
     "power": 0.0,
-    "offset": 0.0265,
-    "lo": 68.4291,
-    "hi": 73.495
+    "offset": -0.0101,
+    "lo": 68.0648,
+    "hi": 73.7787
    },
    "tail_from": 200,
    "n_train": 1537
   },
   "rush_yd|QB": {
    "shift": 20,
-   "bias": -0.1061,
-   "sigma": 0.4701,
+   "bias": -0.1057,
+   "sigma": 0.4695,
    "two_piece": {
     "power": 0.5,
-    "offset": -0.0002,
-    "lo": 1.5868,
-    "hi": 3.4172
+    "offset": -0.0009,
+    "lo": 1.5855,
+    "hi": 3.4087
    },
    "tail_from": 75,
    "n_train": 1206
   },
   "rush_yd|RB": {
    "shift": 40,
-   "bias": -0.049,
-   "sigma": 0.344,
+   "bias": -0.0496,
+   "sigma": 0.3403,
    "two_piece": {
     "power": 1.0,
     "offset": -0.0,
-    "lo": 0.2529,
-    "hi": 0.39
+    "lo": 0.2525,
+    "hi": 0.3914
    },
    "tail_from": null,
-   "n_train": 2903
+   "n_train": 2907
   },
   "rec_yd|RB": {
    "shift": 20,
-   "bias": -0.1006,
-   "sigma": 0.4791,
+   "bias": -0.1,
+   "sigma": 0.4776,
    "two_piece": {
     "power": 1.0,
     "offset": 0.0,
-    "lo": 0.2758,
-    "hi": 0.5697
+    "lo": 0.2748,
+    "hi": 0.5618
    },
    "tail_from": 100,
-   "n_train": 2244
+   "n_train": 2250
   },
   "rec_yd|WR": {
    "shift": 40,
    "bias": -0.0725,
-   "sigma": 0.3876,
+   "sigma": 0.3873,
    "two_piece": {
     "power": 1.0,
     "offset": 0.0,
-    "lo": 0.2592,
-    "hi": 0.4437
+    "lo": 0.2595,
+    "hi": 0.4442
    },
    "tail_from": null,
    "n_train": 4734
@@ -73,7 +73,7 @@
   "rec_yd|TE": {
    "shift": 80,
    "bias": -0.0226,
-   "sigma": 0.23,
+   "sigma": 0.2299,
    "two_piece": {
     "power": 1.0,
     "offset": 0.0,
@@ -85,39 +85,39 @@
   },
   "rec|RB": {
    "shift": 2,
-   "bias": -0.0428,
-   "sigma": 0.3979,
+   "bias": -0.0445,
+   "sigma": 0.401,
    "two_piece": {
     "power": 0.5,
-    "offset": 0.0001,
-    "lo": 0.6436,
-    "hi": 0.9445
+    "offset": 0.0,
+    "lo": 0.641,
+    "hi": 0.9387
    },
    "tail_from": 6,
    "n_train": 2331
   },
   "rec|WR": {
    "shift": 4,
-   "bias": -0.0286,
-   "sigma": 0.2701,
+   "bias": -0.0287,
+   "sigma": 0.2696,
    "two_piece": {
     "power": 1.0,
-    "offset": 0.0,
-    "lo": 0.2269,
-    "hi": 0.3044
+    "offset": -0.0,
+    "lo": 0.2265,
+    "hi": 0.3036
    },
    "tail_from": null,
-   "n_train": 4602
+   "n_train": 4601
   },
   "rec|TE": {
    "shift": 2,
-   "bias": 0.0044,
-   "sigma": 0.3828,
+   "bias": 0.005,
+   "sigma": 0.3826,
    "two_piece": {
     "power": 0.5,
-    "offset": -0.0,
-    "lo": 0.7375,
-    "hi": 1.0207
+    "offset": -0.0001,
+    "lo": 0.7389,
+    "hi": 1.0197
    },
    "tail_from": 7,
    "n_train": 1857
@@ -127,35 +127,35 @@
   "test_2026": {
    "n": 2398,
    "share_above": {
-    "average": 0.436,
-    "median": 0.487
+    "average": 0.437,
+    "median": 0.488
    },
    "mae": {
-    "average": 15.44,
-    "median": 15.14
+    "average": 15.43,
+    "median": 15.13
    },
    "standard_lines": {
     "normal_at_average": {
-     "brier": 0.2329,
-     "logloss": 0.6577,
+     "brier": 0.2326,
+     "logloss": 0.6571,
      "avg_p_over": 0.5
     },
     "two_piece_at_average": {
-     "brier": 0.2345,
-     "logloss": 0.6616,
+     "brier": 0.2342,
+     "logloss": 0.661,
      "avg_p_over": 0.508
     },
     "lognormal_at_median": {
-     "brier": 0.2277,
-     "logloss": 0.6467,
-     "avg_p_over": 0.455
+     "brier": 0.2274,
+     "logloss": 0.6462,
+     "avg_p_over": 0.454
     },
     "median_pricer": {
-     "brier": 0.2276,
-     "logloss": 0.6465,
-     "avg_p_over": 0.455
+     "brier": 0.2274,
+     "logloss": 0.646,
+     "avg_p_over": 0.454
     },
-    "actual_over_rate": 0.442
+    "actual_over_rate": 0.441
    },
    "calibration_median_pricer": [
     {
@@ -166,56 +166,56 @@
     },
     {
      "bin": "0.1-0.2",
-     "n": 121,
-     "predicted": 0.166,
-     "actual": 0.149
+     "n": 125,
+     "predicted": 0.167,
+     "actual": 0.144
     },
     {
      "bin": "0.2-0.3",
      "n": 1074,
-     "predicted": 0.266,
-     "actual": 0.266
+     "predicted": 0.265,
+     "actual": 0.263
     },
     {
      "bin": "0.3-0.4",
-     "n": 2641,
-     "predicted": 0.349,
+     "n": 2651,
+     "predicted": 0.348,
      "actual": 0.341
     },
     {
      "bin": "0.4-0.5",
-     "n": 2722,
-     "predicted": 0.449,
+     "n": 2708,
+     "predicted": 0.448,
      "actual": 0.429
     },
     {
      "bin": "0.5-0.6",
-     "n": 1886,
+     "n": 1897,
      "predicted": 0.542,
-     "actual": 0.517
+     "actual": 0.519
     },
     {
      "bin": "0.6-0.7",
-     "n": 1030,
+     "n": 1026,
      "predicted": 0.649,
-     "actual": 0.639
+     "actual": 0.635
     },
     {
      "bin": "0.7-0.8",
-     "n": 385,
+     "n": 380,
      "predicted": 0.738,
-     "actual": 0.74
+     "actual": 0.747
     },
     {
      "bin": "0.8-0.9",
-     "n": 156,
+     "n": 157,
      "predicted": 0.836,
-     "actual": 0.859
+     "actual": 0.86
     },
     {
      "bin": "0.9-1.0",
-     "n": 5,
-     "predicted": 0.909,
+     "n": 4,
+     "predicted": 0.911,
      "actual": 1.0
     }
    ],
@@ -225,129 +225,129 @@
       "base_rate": 0.654,
       "normal_at_average": 0.2097,
       "two_piece_at_average": 0.2097,
-      "lognormal_at_median": 0.2103,
-      "median_pricer": 0.2103
+      "lognormal_at_median": 0.2104,
+      "median_pricer": 0.2104
      },
      "225": {
       "base_rate": 0.536,
-      "normal_at_average": 0.2236,
-      "two_piece_at_average": 0.2233,
-      "lognormal_at_median": 0.2242,
-      "median_pricer": 0.2234
+      "normal_at_average": 0.2237,
+      "two_piece_at_average": 0.2235,
+      "lognormal_at_median": 0.2244,
+      "median_pricer": 0.2236
      },
      "250": {
       "base_rate": 0.412,
       "normal_at_average": 0.2157,
       "two_piece_at_average": 0.2156,
-      "lognormal_at_median": 0.2162,
+      "lognormal_at_median": 0.2163,
       "median_pricer": 0.2158
      },
      "275": {
       "base_rate": 0.275,
-      "normal_at_average": 0.1792,
-      "two_piece_at_average": 0.1794,
-      "lognormal_at_median": 0.1791,
-      "median_pricer": 0.1795
+      "normal_at_average": 0.1791,
+      "two_piece_at_average": 0.1792,
+      "lognormal_at_median": 0.1789,
+      "median_pricer": 0.1794
      },
      "300": {
       "base_rate": 0.17,
-      "normal_at_average": 0.1289,
-      "two_piece_at_average": 0.1289,
-      "lognormal_at_median": 0.1289,
-      "median_pricer": 0.1289
+      "normal_at_average": 0.1287,
+      "two_piece_at_average": 0.1288,
+      "lognormal_at_median": 0.1287,
+      "median_pricer": 0.1287
      },
      "325": {
       "base_rate": 0.111,
-      "normal_at_average": 0.0915,
-      "two_piece_at_average": 0.0915,
-      "lognormal_at_median": 0.0915,
-      "median_pricer": 0.0915
+      "normal_at_average": 0.0913,
+      "two_piece_at_average": 0.0913,
+      "lognormal_at_median": 0.0913,
+      "median_pricer": 0.0913
      }
     },
     "rush_yd": {
      "25": {
       "base_rate": 0.49,
-      "normal_at_average": 0.1865,
-      "two_piece_at_average": 0.1902,
-      "lognormal_at_median": 0.177,
-      "median_pricer": 0.177
+      "normal_at_average": 0.1864,
+      "two_piece_at_average": 0.19,
+      "lognormal_at_median": 0.1768,
+      "median_pricer": 0.1768
      },
      "50": {
       "base_rate": 0.268,
-      "normal_at_average": 0.1294,
-      "two_piece_at_average": 0.1302,
-      "lognormal_at_median": 0.124,
-      "median_pricer": 0.124
+      "normal_at_average": 0.1289,
+      "two_piece_at_average": 0.1295,
+      "lognormal_at_median": 0.1235,
+      "median_pricer": 0.1235
      },
      "75": {
       "base_rate": 0.116,
-      "normal_at_average": 0.0767,
-      "two_piece_at_average": 0.0772,
-      "lognormal_at_median": 0.0733,
-      "median_pricer": 0.0733
+      "normal_at_average": 0.0765,
+      "two_piece_at_average": 0.0771,
+      "lognormal_at_median": 0.0729,
+      "median_pricer": 0.0729
      },
      "100": {
       "base_rate": 0.05,
       "normal_at_average": 0.0445,
       "two_piece_at_average": 0.0448,
-      "lognormal_at_median": 0.043,
-      "median_pricer": 0.0433
+      "lognormal_at_median": 0.0428,
+      "median_pricer": 0.0431
      },
      "125": {
       "base_rate": 0.023,
       "normal_at_average": 0.021,
-      "two_piece_at_average": 0.0212,
+      "two_piece_at_average": 0.0211,
       "lognormal_at_median": 0.021,
       "median_pricer": 0.021
      }
     },
     "rec_yd": {
      "25": {
-      "base_rate": 0.511,
-      "normal_at_average": 0.1984,
-      "two_piece_at_average": 0.2017,
-      "lognormal_at_median": 0.196,
-      "median_pricer": 0.196
+      "base_rate": 0.51,
+      "normal_at_average": 0.1983,
+      "two_piece_at_average": 0.2016,
+      "lognormal_at_median": 0.1958,
+      "median_pricer": 0.1958
      },
      "50": {
       "base_rate": 0.261,
-      "normal_at_average": 0.1542,
-      "two_piece_at_average": 0.1554,
-      "lognormal_at_median": 0.1505,
-      "median_pricer": 0.1505
+      "normal_at_average": 0.154,
+      "two_piece_at_average": 0.1552,
+      "lognormal_at_median": 0.1503,
+      "median_pricer": 0.1503
      },
      "75": {
       "base_rate": 0.127,
-      "normal_at_average": 0.086,
-      "two_piece_at_average": 0.0862,
-      "lognormal_at_median": 0.0858,
-      "median_pricer": 0.0858
+      "normal_at_average": 0.0859,
+      "two_piece_at_average": 0.0861,
+      "lognormal_at_median": 0.0857,
+      "median_pricer": 0.0857
      },
      "100": {
       "base_rate": 0.053,
       "normal_at_average": 0.041,
-      "two_piece_at_average": 0.0412,
-      "lognormal_at_median": 0.0411,
-      "median_pricer": 0.0411
+      "two_piece_at_average": 0.0411,
+      "lognormal_at_median": 0.041,
+      "median_pricer": 0.041
      },
      "125": {
       "base_rate": 0.021,
-      "normal_at_average": 0.0181,
+      "normal_at_average": 0.018,
       "two_piece_at_average": 0.0182,
-      "lognormal_at_median": 0.0177,
+      "lognormal_at_median": 0.0176,
       "median_pricer": 0.0176
      }
     },
     "rec": {
      "3": {
-      "base_rate": 0.52,
+      "base_rate": 0.521,
       "normal_at_average": 0.1967,
       "two_piece_at_average": 0.1986,
-      "lognormal_at_median": 0.1937,
-      "median_pricer": 0.1937
+      "lognormal_at_median": 0.1938,
+      "median_pricer": 0.1938
      },
      "4": {
-      "base_rate": 0.359,
+      "base_rate": 0.36,
       "normal_at_average": 0.1837,
       "two_piece_at_average": 0.1848,
       "lognormal_at_median": 0.1809,
@@ -355,15 +355,15 @@
      },
      "5": {
       "base_rate": 0.259,
-      "normal_at_average": 0.1543,
-      "two_piece_at_average": 0.1548,
-      "lognormal_at_median": 0.1543,
-      "median_pricer": 0.1543
+      "normal_at_average": 0.1544,
+      "two_piece_at_average": 0.1549,
+      "lognormal_at_median": 0.1544,
+      "median_pricer": 0.1544
      },
      "6": {
-      "base_rate": 0.167,
-      "normal_at_average": 0.1094,
-      "two_piece_at_average": 0.1094,
+      "base_rate": 0.168,
+      "normal_at_average": 0.1095,
+      "two_piece_at_average": 0.1095,
       "lognormal_at_median": 0.1099,
       "median_pricer": 0.1099
      },
@@ -371,97 +371,97 @@
       "base_rate": 0.098,
       "normal_at_average": 0.0709,
       "two_piece_at_average": 0.0707,
-      "lognormal_at_median": 0.0709,
-      "median_pricer": 0.0706
+      "lognormal_at_median": 0.071,
+      "median_pricer": 0.0707
      },
      "8": {
       "base_rate": 0.057,
       "normal_at_average": 0.0449,
       "two_piece_at_average": 0.0449,
-      "lognormal_at_median": 0.0444,
-      "median_pricer": 0.0441
+      "lognormal_at_median": 0.0445,
+      "median_pricer": 0.0442
      }
     }
    },
    "vs_sleeper_line_55pct": {
     "normal_at_average": {
-     "overs": 357,
-     "over_hit": 0.543,
-     "unders": 361,
-     "under_hit": 0.632,
-     "hit": 0.588
+     "overs": 362,
+     "over_hit": 0.539,
+     "unders": 363,
+     "under_hit": 0.639,
+     "hit": 0.589
     },
     "two_piece_at_average": {
-     "overs": 438,
+     "overs": 436,
      "over_hit": 0.534,
-     "unders": 369,
-     "under_hit": 0.626,
-     "hit": 0.576
+     "unders": 367,
+     "under_hit": 0.638,
+     "hit": 0.582
     },
     "lognormal_at_median": {
-     "overs": 180,
-     "over_hit": 0.611,
-     "unders": 1407,
+     "overs": 175,
+     "over_hit": 0.606,
+     "unders": 1418,
      "under_hit": 0.618,
-     "hit": 0.618
+     "hit": 0.616
     },
     "median_pricer": {
-     "overs": 184,
-     "over_hit": 0.614,
-     "unders": 1406,
-     "under_hit": 0.619,
-     "hit": 0.618
+     "overs": 178,
+     "over_hit": 0.607,
+     "unders": 1417,
+     "under_hit": 0.618,
+     "hit": 0.617
     }
    },
    "by_stat": {
     "pass_yd|QB": {
      "n": 153,
-     "share_above_average": 0.523,
+     "share_above_average": 0.529,
      "share_above_median": 0.529,
-     "brier_median_pricer": 0.1873,
-     "brier_two_piece_at_average": 0.1873
+     "brier_median_pricer": 0.1882,
+     "brier_two_piece_at_average": 0.1882
     },
     "rec_yd|RB": {
-     "n": 232,
-     "share_above_average": 0.392,
+     "n": 234,
+     "share_above_average": 0.397,
      "share_above_median": 0.496,
      "brier_median_pricer": 0.2379,
-     "brier_two_piece_at_average": 0.2483
+     "brier_two_piece_at_average": 0.2472
     },
     "rec_yd|TE": {
      "n": 214,
      "share_above_average": 0.421,
      "share_above_median": 0.435,
-     "brier_median_pricer": 0.2377,
-     "brier_two_piece_at_average": 0.2453
+     "brier_median_pricer": 0.2376,
+     "brier_two_piece_at_average": 0.2452
     },
     "rec_yd|WR": {
-     "n": 462,
-     "share_above_average": 0.455,
-     "share_above_median": 0.519,
-     "brier_median_pricer": 0.2377,
+     "n": 461,
+     "share_above_average": 0.451,
+     "share_above_median": 0.521,
+     "brier_median_pricer": 0.2374,
      "brier_two_piece_at_average": 0.2407
     },
     "rec|RB": {
-     "n": 243,
-     "share_above_average": 0.416,
-     "share_above_median": 0.473,
-     "brier_median_pricer": 0.2178,
-     "brier_two_piece_at_average": 0.2238
+     "n": 242,
+     "share_above_average": 0.417,
+     "share_above_median": 0.475,
+     "brier_median_pricer": 0.2152,
+     "brier_two_piece_at_average": 0.2203
     },
     "rec|TE": {
      "n": 211,
      "share_above_average": 0.502,
      "share_above_median": 0.498,
-     "brier_median_pricer": 0.2263,
+     "brier_median_pricer": 0.2262,
      "brier_two_piece_at_average": 0.2266
     },
     "rec|WR": {
      "n": 442,
      "share_above_average": 0.493,
      "share_above_median": 0.534,
-     "brier_median_pricer": 0.2233,
-     "brier_two_piece_at_average": 0.2248
+     "brier_median_pricer": 0.2228,
+     "brier_two_piece_at_average": 0.2242
     },
     "rush_yd|QB": {
      "n": 134,
@@ -473,26 +473,26 @@
     "rush_yd|RB": {
      "n": 307,
      "share_above_average": 0.349,
-     "share_above_median": 0.42,
+     "share_above_median": 0.423,
      "brier_median_pricer": 0.2255,
-     "brier_two_piece_at_average": 0.2372
+     "brier_two_piece_at_average": 0.2377
     }
    }
   },
   "train": {
-   "n": 23295,
+   "n": 23304,
    "share_above": {
     "average": 0.446,
     "median": 0.5
    },
    "mae": {
     "average": 15.69,
-    "median": 15.51
+    "median": 15.5
    },
    "standard_lines": {
     "normal_at_average": {
      "brier": 0.2321,
-     "logloss": 0.6563,
+     "logloss": 0.6562,
      "avg_p_over": 0.5
     },
     "two_piece_at_average": {
@@ -502,12 +502,12 @@
     },
     "lognormal_at_median": {
      "brier": 0.2286,
-     "logloss": 0.6488,
+     "logloss": 0.6486,
      "avg_p_over": 0.455
     },
     "median_pricer": {
-     "brier": 0.2286,
-     "logloss": 0.6487,
+     "brier": 0.2285,
+     "logloss": 0.6485,
      "avg_p_over": 0.455
     },
     "actual_over_rate": 0.454
@@ -515,63 +515,63 @@
    "calibration_median_pricer": [
     {
      "bin": "0.0-0.1",
-     "n": 9,
-     "predicted": 0.095,
-     "actual": 0.111
+     "n": 8,
+     "predicted": 0.094,
+     "actual": 0.125
     },
     {
      "bin": "0.1-0.2",
-     "n": 1162,
-     "predicted": 0.163,
+     "n": 1175,
+     "predicted": 0.164,
      "actual": 0.151
     },
     {
      "bin": "0.2-0.3",
-     "n": 10711,
+     "n": 10785,
      "predicted": 0.266,
-     "actual": 0.264
+     "actual": 0.265
     },
     {
      "bin": "0.3-0.4",
-     "n": 25544,
+     "n": 25516,
      "predicted": 0.349,
      "actual": 0.349
     },
     {
      "bin": "0.4-0.5",
-     "n": 26211,
+     "n": 26185,
      "predicted": 0.449,
-     "actual": 0.448
+     "actual": 0.449
     },
     {
      "bin": "0.5-0.6",
-     "n": 18118,
+     "n": 18139,
      "predicted": 0.542,
-     "actual": 0.54
+     "actual": 0.539
     },
     {
      "bin": "0.6-0.7",
-     "n": 10124,
+     "n": 10142,
      "predicted": 0.648,
-     "actual": 0.655
+     "actual": 0.656
     },
     {
      "bin": "0.7-0.8",
-     "n": 3937,
+     "n": 3932,
      "predicted": 0.74,
-     "actual": 0.718
+     "actual": 0.719
     },
     {
      "bin": "0.8-0.9",
-     "n": 1440,
+     "n": 1439,
      "predicted": 0.838,
-     "actual": 0.833
+     "actual": 0.83
     },
     {
      "bin": "0.9-1.0",
-     "n": 42,
+     "n": 44,
      "predicted": 0.907,
-     "actual": 0.881
+     "actual": 0.886
     }
    ],
    "ladders": {
@@ -585,30 +585,30 @@
      },
      "225": {
       "base_rate": 0.501,
-      "normal_at_average": 0.2305,
+      "normal_at_average": 0.2304,
       "two_piece_at_average": 0.2308,
       "lognormal_at_median": 0.231,
       "median_pricer": 0.2308
      },
      "250": {
       "base_rate": 0.376,
-      "normal_at_average": 0.2176,
+      "normal_at_average": 0.2175,
       "two_piece_at_average": 0.2177,
       "lognormal_at_median": 0.2178,
       "median_pricer": 0.2176
      },
      "275": {
       "base_rate": 0.258,
-      "normal_at_average": 0.1812,
-      "two_piece_at_average": 0.1813,
-      "lognormal_at_median": 0.1812,
-      "median_pricer": 0.1811
+      "normal_at_average": 0.1811,
+      "two_piece_at_average": 0.1812,
+      "lognormal_at_median": 0.1811,
+      "median_pricer": 0.181
      },
      "300": {
       "base_rate": 0.161,
-      "normal_at_average": 0.129,
-      "two_piece_at_average": 0.129,
-      "lognormal_at_median": 0.1292,
+      "normal_at_average": 0.1291,
+      "two_piece_at_average": 0.1291,
+      "lognormal_at_median": 0.1291,
       "median_pricer": 0.1289
      },
      "325": {
@@ -623,60 +623,60 @@
      "25": {
       "base_rate": 0.561,
       "normal_at_average": 0.1754,
-      "two_piece_at_average": 0.1769,
+      "two_piece_at_average": 0.1768,
       "lognormal_at_median": 0.1723,
       "median_pricer": 0.1723
      },
      "50": {
       "base_rate": 0.299,
-      "normal_at_average": 0.1489,
-      "two_piece_at_average": 0.1503,
-      "lognormal_at_median": 0.1458,
-      "median_pricer": 0.1458
+      "normal_at_average": 0.1487,
+      "two_piece_at_average": 0.15,
+      "lognormal_at_median": 0.1456,
+      "median_pricer": 0.1456
      },
      "75": {
       "base_rate": 0.144,
-      "normal_at_average": 0.0983,
-      "two_piece_at_average": 0.099,
-      "lognormal_at_median": 0.0971,
-      "median_pricer": 0.0971
+      "normal_at_average": 0.0981,
+      "two_piece_at_average": 0.0988,
+      "lognormal_at_median": 0.097,
+      "median_pricer": 0.097
      },
      "100": {
       "base_rate": 0.066,
-      "normal_at_average": 0.054,
-      "two_piece_at_average": 0.0544,
-      "lognormal_at_median": 0.0538,
-      "median_pricer": 0.0536
+      "normal_at_average": 0.0539,
+      "two_piece_at_average": 0.0543,
+      "lognormal_at_median": 0.0536,
+      "median_pricer": 0.0535
      },
      "125": {
       "base_rate": 0.027,
-      "normal_at_average": 0.0244,
+      "normal_at_average": 0.0243,
       "two_piece_at_average": 0.0245,
-      "lognormal_at_median": 0.0244,
-      "median_pricer": 0.0244
+      "lognormal_at_median": 0.0243,
+      "median_pricer": 0.0243
      }
     },
     "rec_yd": {
      "25": {
       "base_rate": 0.523,
-      "normal_at_average": 0.1946,
-      "two_piece_at_average": 0.1964,
-      "lognormal_at_median": 0.1919,
-      "median_pricer": 0.1919
+      "normal_at_average": 0.1945,
+      "two_piece_at_average": 0.1963,
+      "lognormal_at_median": 0.1917,
+      "median_pricer": 0.1917
      },
      "50": {
       "base_rate": 0.263,
       "normal_at_average": 0.152,
-      "two_piece_at_average": 0.153,
-      "lognormal_at_median": 0.1494,
-      "median_pricer": 0.1494
+      "two_piece_at_average": 0.1529,
+      "lognormal_at_median": 0.1493,
+      "median_pricer": 0.1493
      },
      "75": {
       "base_rate": 0.124,
-      "normal_at_average": 0.0895,
+      "normal_at_average": 0.0894,
       "two_piece_at_average": 0.0895,
-      "lognormal_at_median": 0.0888,
-      "median_pricer": 0.0888
+      "lognormal_at_median": 0.0887,
+      "median_pricer": 0.0887
      },
      "100": {
       "base_rate": 0.054,
@@ -688,7 +688,7 @@
      "125": {
       "base_rate": 0.022,
       "normal_at_average": 0.0203,
-      "two_piece_at_average": 0.0205,
+      "two_piece_at_average": 0.0204,
       "lognormal_at_median": 0.0201,
       "median_pricer": 0.0201
      }
@@ -696,31 +696,31 @@
     "rec": {
      "3": {
       "base_rate": 0.535,
-      "normal_at_average": 0.1983,
-      "two_piece_at_average": 0.1997,
-      "lognormal_at_median": 0.1965,
-      "median_pricer": 0.1965
+      "normal_at_average": 0.1982,
+      "two_piece_at_average": 0.1996,
+      "lognormal_at_median": 0.1964,
+      "median_pricer": 0.1964
      },
      "4": {
       "base_rate": 0.371,
-      "normal_at_average": 0.1817,
-      "two_piece_at_average": 0.1825,
+      "normal_at_average": 0.1818,
+      "two_piece_at_average": 0.1826,
       "lognormal_at_median": 0.1798,
       "median_pricer": 0.1798
      },
      "5": {
       "base_rate": 0.245,
-      "normal_at_average": 0.145,
-      "two_piece_at_average": 0.1454,
-      "lognormal_at_median": 0.144,
-      "median_pricer": 0.144
+      "normal_at_average": 0.1451,
+      "two_piece_at_average": 0.1455,
+      "lognormal_at_median": 0.1441,
+      "median_pricer": 0.1441
      },
      "6": {
       "base_rate": 0.156,
-      "normal_at_average": 0.1063,
-      "two_piece_at_average": 0.1064,
-      "lognormal_at_median": 0.1059,
-      "median_pricer": 0.1059
+      "normal_at_average": 0.1064,
+      "two_piece_at_average": 0.1065,
+      "lognormal_at_median": 0.106,
+      "median_pricer": 0.106
      },
      "7": {
       "base_rate": 0.095,
@@ -734,54 +734,54 @@
       "normal_at_average": 0.0467,
       "two_piece_at_average": 0.0467,
       "lognormal_at_median": 0.0465,
-      "median_pricer": 0.0462
+      "median_pricer": 0.0463
      }
     }
    },
    "vs_sleeper_line_55pct": {
     "normal_at_average": {
-     "overs": 3484,
-     "over_hit": 0.543,
-     "unders": 3906,
+     "overs": 3521,
+     "over_hit": 0.545,
+     "unders": 3893,
      "under_hit": 0.634,
      "hit": 0.591
     },
     "two_piece_at_average": {
-     "overs": 4215,
-     "over_hit": 0.539,
-     "unders": 3973,
-     "under_hit": 0.633,
-     "hit": 0.584
+     "overs": 4266,
+     "over_hit": 0.536,
+     "unders": 3950,
+     "under_hit": 0.632,
+     "hit": 0.582
     },
     "lognormal_at_median": {
-     "overs": 1727,
-     "over_hit": 0.57,
-     "unders": 13653,
-     "under_hit": 0.595,
-     "hit": 0.592
+     "overs": 1728,
+     "over_hit": 0.575,
+     "unders": 13741,
+     "under_hit": 0.596,
+     "hit": 0.594
     },
     "median_pricer": {
-     "overs": 1742,
-     "over_hit": 0.572,
-     "unders": 13649,
-     "under_hit": 0.595,
-     "hit": 0.592
+     "overs": 1737,
+     "over_hit": 0.576,
+     "unders": 13739,
+     "under_hit": 0.596,
+     "hit": 0.594
     }
    },
    "by_stat": {
     "pass_yd|QB": {
      "n": 1537,
-     "share_above_average": 0.495,
+     "share_above_average": 0.494,
      "share_above_median": 0.5,
-     "brier_median_pricer": 0.1937,
-     "brier_two_piece_at_average": 0.1938
+     "brier_median_pricer": 0.1936,
+     "brier_two_piece_at_average": 0.1937
     },
     "rec_yd|RB": {
-     "n": 2244,
-     "share_above_average": 0.41,
+     "n": 2250,
+     "share_above_average": 0.408,
      "share_above_median": 0.5,
      "brier_median_pricer": 0.2378,
-     "brier_two_piece_at_average": 0.2462
+     "brier_two_piece_at_average": 0.2464
     },
     "rec_yd|TE": {
      "n": 1881,
@@ -795,42 +795,42 @@
      "share_above_average": 0.421,
      "share_above_median": 0.5,
      "brier_median_pricer": 0.2342,
-     "brier_two_piece_at_average": 0.2405
+     "brier_two_piece_at_average": 0.2406
     },
     "rec|RB": {
      "n": 2331,
      "share_above_average": 0.446,
      "share_above_median": 0.5,
-     "brier_median_pricer": 0.2248,
-     "brier_two_piece_at_average": 0.2282
+     "brier_median_pricer": 0.225,
+     "brier_two_piece_at_average": 0.2285
     },
     "rec|TE": {
      "n": 1857,
      "share_above_average": 0.508,
      "share_above_median": 0.5,
-     "brier_median_pricer": 0.2231,
+     "brier_median_pricer": 0.223,
      "brier_two_piece_at_average": 0.2244
     },
     "rec|WR": {
-     "n": 4602,
-     "share_above_average": 0.453,
+     "n": 4601,
+     "share_above_average": 0.454,
      "share_above_median": 0.5,
-     "brier_median_pricer": 0.2205,
-     "brier_two_piece_at_average": 0.2231
+     "brier_median_pricer": 0.2204,
+     "brier_two_piece_at_average": 0.223
     },
     "rush_yd|QB": {
      "n": 1206,
      "share_above_average": 0.401,
      "share_above_median": 0.5,
-     "brier_median_pricer": 0.2356,
-     "brier_two_piece_at_average": 0.2457
+     "brier_median_pricer": 0.2357,
+     "brier_two_piece_at_average": 0.2459
     },
     "rush_yd|RB": {
-     "n": 2903,
-     "share_above_average": 0.439,
+     "n": 2907,
+     "share_above_average": 0.438,
      "share_above_median": 0.5,
-     "brier_median_pricer": 0.233,
-     "brier_two_piece_at_average": 0.2378
+     "brier_median_pricer": 0.2326,
+     "brier_two_piece_at_average": 0.2374
     }
    }
   }

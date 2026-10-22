@@ -18,7 +18,9 @@ Steps (numbered as in the framework):
                        classification (strong / fragile / overpriced / ...)
   8  Leverage          player-vs-player, same-team, salary, game, ownership
   9-10 Stacks          basic / double / full-game stacks; the bring-back
-                       compares the opposing WR1 with WR2
+                       compares the opposing WR1 with WR2; stack credit
+                       follows how tightly each QB type's points move
+                       with his pass catchers (and pass-catching backs)
   11-17 Lineups        Cash (floor, volume, stability) and GPP (projection
                        discounted by ownership, QB stacks; tuned on how
                        often lineups reached the field's top 1% on past
@@ -64,6 +66,14 @@ SLOTS = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
 CHEAP = {"QB": 5200, "RB": 5000, "WR": 4200, "TE": 4000, "DST": 2800}
 POP_WEIGHT = {"High": 1.0, "Medium": 0.4, "Low": 0.05}
 LEVERAGE_CEILING_SHARE = 0.80   # a leverage alternative needs 80%+ of the chalk player's ceiling
+# Same-game correlation of points beyond projection, 2023-2026 (scripts/test_archetype_distributions.py): a QB's top
+# two pass catchers move with him 0.45 when he's a pocket passer, 0.35 with some legs and 0.26 when he's mobile (his
+# rushing points don't flow to them); his lead back 0.12 when that's a workhorse pass catcher, about 0 otherwise, and
+# -0.04 with a mobile QB (they split the rushing and goal-line work). Stack credit per teammate follows those.
+QB_MATE_CREDIT = {"pocket": 2.0, "some legs": 1.55, "mobile": 1.15}
+CATCHING_RB_CREDIT = 0.5
+MOBILE_QB_RUSH_SHARE, SOME_LEGS_RUSH_SHARE = 0.25, 0.12
+WORKHORSE_CARRIES, WORKHORSE_TARGETS = 12, 3.5
 
 MISSING_DATA = [
     ("Player props", "no props feed is connected"),
@@ -825,16 +835,32 @@ def build_stacks(pool: list[dict], games_by_team: dict) -> list[dict]:
 
 
 # --------------------------------------------------------- 11-17. lineups
+def qb_type(qb: dict) -> str:
+    """mobile / some legs / pocket, from the share of his projection that comes from rushing."""
+    share = qb.get("rush_share") or 0
+    return "mobile" if share >= MOBILE_QB_RUSH_SHARE else "some legs" if share >= SOME_LEGS_RUSH_SHARE else "pocket"
+
+
+def workhorse_catcher(p: dict) -> bool:
+    """A back projected for 12+ carries and 3.5+ targets."""
+    return (p["position"] == "RB" and (p.get("proj_carries") or 0) >= WORKHORSE_CARRIES
+            and (p.get("proj_targets") or 0) >= WORKHORSE_TARGETS)
+
+
 def correlation(lineup: list[dict]) -> dict:
     qb = next(p for p in lineup if p["position"] == "QB")
     dst = next(p for p in lineup if p["position"] == "DST")
     pos, neg, groups = [], [], {}
+    kind = qb_type(qb)
     mates = [p for p in lineup if p["team"] == qb["team"] and p["position"] in ("WR", "TE")]
-    qb_rb = [p for p in lineup if p["team"] == qb["team"] and p["position"] == "RB"]
+    qb_rb = [p for p in lineup if p["team"] == qb["team"] and p["position"] == "RB" and workhorse_catcher(p) and kind != "mobile"]
     bring = [p for p in lineup if p["team"] == qb["opponent"] and p["position"] in ("RB", "WR", "TE")]
-    score = 2.0 * len(mates) + 0.5 * len(qb_rb) + 1.5 * min(len(bring), 2)
+    score = QB_MATE_CREDIT[kind] * len(mates) + CATCHING_RB_CREDIT * len(qb_rb) + 1.5 * min(len(bring), 2)
     for m in mates:
-        pos.append(f"{qb['name']} + {m['name']} (QB-{m['position']})")
+        pos.append(f"{qb['name']} + {m['name']} (QB-{m['position']}" + (", lighter tie: his rushing points don't reach "
+                                                                      "his receivers)" if kind == "mobile" else ")"))
+    for b in qb_rb:
+        pos.append(f"{qb['name']} + {b['name']} (pass-catching back)")
     for b in bring:
         pos.append(f"{b['name']} brings back {qb['team']}'s stack")
     by_team: dict[str, list] = {}
@@ -859,7 +885,7 @@ def correlation(lineup: list[dict]) -> dict:
     stacked_games = {qb["game"]} | {ps[0]["game"] for ps in mini}
     unrelated = [p["name"] for p in lineup if p["position"] not in ("QB",) and p["game"] not in stacked_games]
     return {"score": round(score, 1), "positive": pos, "negative": neg, "unrelated": unrelated,
-            "qb_mates": [m["name"] for m in mates], "bring_backs": [b["name"] for b in bring],
+            "qb_mates": [m["name"] for m in mates], "bring_backs": [b["name"] for b in bring], "qb_type": kind,
             "double_stack": len(mates) >= 2, "game_stack": bool(mates and bring)}
 
 

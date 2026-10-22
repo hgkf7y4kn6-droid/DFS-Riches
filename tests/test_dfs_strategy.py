@@ -130,3 +130,18 @@ def test_correlation_scores_stacks_and_penalizes_conflicts():
     assert c["double_stack"] and c["game_stack"]
     assert any("Two C RBs" in n for n in c["negative"])
     assert any("faces your own players" in n for n in c["negative"])
+
+
+def test_stack_credit_follows_the_qb_type():
+    qb = {"name": "Q", "position": "QB", "team": "A", "opponent": "B", "game": "A@B"}
+    wr = {"name": "W", "position": "WR", "team": "A", "opponent": "B", "game": "A@B"}
+    rb = {"name": "R", "position": "RB", "team": "A", "opponent": "B", "game": "A@B", "proj_carries": 16, "proj_targets": 4.5}
+    dst = {"name": "D", "position": "DST", "team": "C", "opponent": "E", "game": "C@E"}
+    pocket = ds.correlation([{**qb, "rush_share": 0.05}, wr, rb, dst])
+    mobile = ds.correlation([{**qb, "rush_share": 0.32}, wr, rb, dst])
+    assert pocket["qb_type"] == "pocket" and mobile["qb_type"] == "mobile"
+    assert pocket["score"] > mobile["score"]                   # receivers and the pass-catching back move less with a mobile QB
+    assert any("pass-catching back" in t for t in pocket["positive"])
+    assert not any("pass-catching back" in t for t in mobile["positive"])
+    grinder = ds.correlation([{**qb, "rush_share": 0.05}, wr, {**rb, "proj_targets": 1.5}, dst])
+    assert grinder["score"] < pocket["score"]

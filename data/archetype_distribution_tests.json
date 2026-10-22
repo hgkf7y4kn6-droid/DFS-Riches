@@ -1,0 +1,570 @@
+{
+ "archetype_counts": {
+  "mobile QB": 294,
+  "other RB": 917,
+  "pocket QB": 688,
+  "receiving back": 1013,
+  "some legs QB": 712,
+  "workhorse grinder": 849,
+  "workhorse pass catcher": 521
+ },
+ "A_floor_median_ceiling": {
+  "current (position x range)": {
+   "loso": {
+    "all QB/RB": {
+     "n": 4530,
+     "pinball_15": 1.377,
+     "below_q15": 0.152,
+     "pinball_50": 2.778,
+     "below_q50": 0.502,
+     "pinball_85": 1.894,
+     "below_q85": 0.845
+    },
+    "all positions": {
+     "n": 11175,
+     "pinball_15": 1.261,
+     "below_q15": 0.137,
+     "pinball_50": 2.649,
+     "below_q50": 0.502,
+     "pinball_85": 1.881,
+     "below_q85": 0.848
+    },
+    "mobile QB": {
+     "n": 265,
+     "pinball_15": 1.91,
+     "below_q15": 0.159,
+     "pinball_50": 3.219,
+     "below_q50": 0.517,
+     "pinball_85": 2.036,
+     "below_q85": 0.849
+    },
+    "other RB": {
+     "n": 831,
+     "pinball_15": 0.941,
+     "below_q15": 0.157,
+     "pinball_50": 2.128,
+     "below_q50": 0.508,
+     "pinball_85": 1.668,
+     "below_q85": 0.841
+    },
+    "pocket QB": {
+     "n": 646,
+     "pinball_15": 1.66,
+     "below_q15": 0.147,
+     "pinball_50": 3.161,
+     "below_q50": 0.517,
+     "pinball_85": 2.017,
+     "below_q85": 0.828
+    },
+    "receiving back": {
+     "n": 915,
+     "pinball_15": 0.933,
+     "below_q15": 0.151,
+     "pinball_50": 2.071,
+     "below_q50": 0.502,
+     "pinball_85": 1.575,
+     "below_q85": 0.841
+    },
+    "some legs QB": {
+     "n": 630,
+     "pinball_15": 1.663,
+     "below_q15": 0.153,
+     "pinball_50": 2.951,
+     "below_q50": 0.487,
+     "pinball_85": 1.857,
+     "below_q85": 0.854
+    },
+    "workhorse grinder": {
+     "n": 769,
+     "pinball_15": 1.518,
+     "below_q15": 0.144,
+     "pinball_50": 3.236,
+     "below_q50": 0.487,
+     "pinball_85": 2.142,
+     "below_q85": 0.853
+    },
+    "workhorse pass catcher": {
+     "n": 474,
+     "pinball_15": 1.714,
+     "below_q15": 0.162,
+     "pinball_50": 3.545,
+     "below_q50": 0.504,
+     "pinball_85": 2.311,
+     "below_q85": 0.856
+    }
+   },
+   "test_2026": {
+    "all QB/RB": {
+     "n": 464,
+     "pinball_15": 1.269,
+     "below_q15": 0.147,
+     "pinball_50": 2.652,
+     "below_q50": 0.554,
+     "pinball_85": 1.754,
+     "below_q85": 0.871
+    },
+    "all positions": {
+     "n": 1140,
+     "pinball_15": 1.229,
+     "below_q15": 0.134,
+     "pinball_50": 2.638,
+     "below_q50": 0.514,
+     "pinball_85": 1.831,
+     "below_q85": 0.851
+    },
+    "mobile QB": {
+     "n": 29,
+     "pinball_15": 1.739,
+     "below_q15": 0.069,
+     "pinball_50": 3.456,
+     "below_q50": 0.621,
+     "pinball_85": 2.371,
+     "below_q85": 0.793
+    },
+    "other RB": {
+     "n": 86,
+     "pinball_15": 0.787,
+     "below_q15": 0.186,
+     "pinball_50": 1.896,
+     "below_q50": 0.57,
+     "pinball_85": 1.57,
+     "below_q85": 0.907
+    },
+    "pocket QB": {
+     "n": 42,
+     "pinball_15": 1.707,
+     "below_q15": 0.095,
+     "pinball_50": 3.054,
+     "below_q50": 0.381,
+     "pinball_85": 1.584,
+     "below_q85": 0.762
+    },
+    "receiving back": {
+     "n": 98,
+     "pinball_15": 0.846,
+     "below_q15": 0.153,
+     "pinball_50": 1.95,
+     "below_q50": 0.561,
+     "pinball_85": 1.287,
+     "below_q85": 0.857
+    },
+    "some legs QB": {
+     "n": 82,
+     "pinball_15": 1.414,
+     "below_q15": 0.122,
+     "pinball_50": 2.962,
+     "below_q50": 0.634,
+     "pinball_85": 1.737,
+     "below_q85": 0.902
+    },
+    "workhorse grinder": {
+     "n": 80,
+     "pinball_15": 1.536,
+     "below_q15": 0.2,
+     "pinball_50": 2.978,
+     "below_q50": 0.525,
+     "pinball_85": 2.127,
+     "below_q85": 0.887
+    },
+    "workhorse pass catcher": {
+     "n": 47,
+     "pinball_15": 1.639,
+     "below_q15": 0.106,
+     "pinball_50": 3.548,
+     "below_q50": 0.532,
+     "pinball_85": 2.233,
+     "below_q85": 0.894
+    }
+   }
+  },
+  "with archetype": {
+   "loso": {
+    "all QB/RB": {
+     "n": 4530,
+     "pinball_15": 1.391,
+     "below_q15": 0.153,
+     "pinball_50": 2.794,
+     "below_q50": 0.5,
+     "pinball_85": 1.917,
+     "below_q85": 0.841
+    },
+    "all positions": {
+     "n": 11175,
+     "pinball_15": 1.266,
+     "below_q15": 0.138,
+     "pinball_50": 2.656,
+     "below_q50": 0.501,
+     "pinball_85": 1.89,
+     "below_q85": 0.846
+    },
+    "mobile QB": {
+     "n": 265,
+     "pinball_15": 1.922,
+     "below_q15": 0.155,
+     "pinball_50": 3.226,
+     "below_q50": 0.506,
+     "pinball_85": 2.122,
+     "below_q85": 0.807
+    },
+    "other RB": {
+     "n": 831,
+     "pinball_15": 0.944,
+     "below_q15": 0.145,
+     "pinball_50": 2.136,
+     "below_q50": 0.493,
+     "pinball_85": 1.676,
+     "below_q85": 0.839
+    },
+    "pocket QB": {
+     "n": 646,
+     "pinball_15": 1.67,
+     "below_q15": 0.144,
+     "pinball_50": 3.162,
+     "below_q50": 0.494,
+     "pinball_85": 2.009,
+     "below_q85": 0.851
+    },
+    "receiving back": {
+     "n": 915,
+     "pinball_15": 0.952,
+     "below_q15": 0.153,
+     "pinball_50": 2.088,
+     "below_q50": 0.496,
+     "pinball_85": 1.579,
+     "below_q85": 0.846
+    },
+    "some legs QB": {
+     "n": 630,
+     "pinball_15": 1.67,
+     "below_q15": 0.162,
+     "pinball_50": 2.955,
+     "below_q50": 0.516,
+     "pinball_85": 1.885,
+     "below_q85": 0.849
+    },
+    "workhorse grinder": {
+     "n": 769,
+     "pinball_15": 1.542,
+     "below_q15": 0.156,
+     "pinball_50": 3.284,
+     "below_q50": 0.495,
+     "pinball_85": 2.167,
+     "below_q85": 0.832
+    },
+    "workhorse pass catcher": {
+     "n": 474,
+     "pinball_15": 1.726,
+     "below_q15": 0.165,
+     "pinball_50": 3.557,
+     "below_q50": 0.506,
+     "pinball_85": 2.39,
+     "below_q85": 0.839
+    }
+   },
+   "test_2026": {
+    "all QB/RB": {
+     "n": 464,
+     "pinball_15": 1.273,
+     "below_q15": 0.147,
+     "pinball_50": 2.675,
+     "below_q50": 0.556,
+     "pinball_85": 1.752,
+     "below_q85": 0.864
+    },
+    "all positions": {
+     "n": 1140,
+     "pinball_15": 1.228,
+     "below_q15": 0.134,
+     "pinball_50": 2.647,
+     "below_q50": 0.515,
+     "pinball_85": 1.83,
+     "below_q85": 0.847
+    },
+    "mobile QB": {
+     "n": 29,
+     "pinball_15": 1.769,
+     "below_q15": 0.069,
+     "pinball_50": 3.469,
+     "below_q50": 0.621,
+     "pinball_85": 2.394,
+     "below_q85": 0.793
+    },
+    "other RB": {
+     "n": 86,
+     "pinball_15": 0.785,
+     "below_q15": 0.14,
+     "pinball_50": 1.863,
+     "below_q50": 0.558,
+     "pinball_85": 1.578,
+     "below_q85": 0.907
+    },
+    "pocket QB": {
+     "n": 42,
+     "pinball_15": 1.703,
+     "below_q15": 0.095,
+     "pinball_50": 3.157,
+     "below_q50": 0.357,
+     "pinball_85": 1.568,
+     "below_q85": 0.762
+    },
+    "receiving back": {
+     "n": 98,
+     "pinball_15": 0.844,
+     "below_q15": 0.153,
+     "pinball_50": 1.956,
+     "below_q50": 0.551,
+     "pinball_85": 1.292,
+     "below_q85": 0.867
+    },
+    "some legs QB": {
+     "n": 82,
+     "pinball_15": 1.436,
+     "below_q15": 0.146,
+     "pinball_50": 3.001,
+     "below_q50": 0.622,
+     "pinball_85": 1.701,
+     "below_q85": 0.866
+    },
+    "workhorse grinder": {
+     "n": 80,
+     "pinball_15": 1.503,
+     "below_q15": 0.212,
+     "pinball_50": 3.021,
+     "below_q50": 0.562,
+     "pinball_85": 2.126,
+     "below_q85": 0.887
+    },
+    "workhorse pass catcher": {
+     "n": 47,
+     "pinball_15": 1.692,
+     "below_q15": 0.128,
+     "pinball_50": 3.577,
+     "below_q50": 0.574,
+     "pinball_85": 2.25,
+     "below_q85": 0.872
+    }
+   }
+  }
+ },
+ "A_multiples_2023_2025": {
+  "RB|5-10|other RB": [
+   0.254,
+   0.811,
+   1.781
+  ],
+  "RB|other RB": [
+   0.228,
+   0.801,
+   1.923
+  ],
+  "QB|20-25|mobile QB": [
+   0.673,
+   1.053,
+   1.391
+  ],
+  "QB|mobile QB": [
+   0.556,
+   1.012,
+   1.487
+  ],
+  "QB|15-20|pocket QB": [
+   0.527,
+   0.947,
+   1.509
+  ],
+  "QB|pocket QB": [
+   0.527,
+   0.993,
+   1.566
+  ],
+  "RB|10-15|receiving back": [
+   0.422,
+   0.889,
+   1.792
+  ],
+  "RB|receiving back": [
+   0.26,
+   0.831,
+   1.942
+  ],
+  "RB|0-5|other RB": [
+   0.142,
+   0.741,
+   2.319
+  ],
+  "RB|5-10|receiving back": [
+   0.295,
+   0.859,
+   1.871
+  ],
+  "QB|15-20|some legs QB": [
+   0.579,
+   1.061,
+   1.466
+  ],
+  "QB|some legs QB": [
+   0.528,
+   1.02,
+   1.516
+  ],
+  "RB|10-15|workhorse pass catcher": [
+   0.424,
+   0.895,
+   1.83
+  ],
+  "RB|workhorse pass catcher": [
+   0.477,
+   0.957,
+   1.561
+  ],
+  "QB|15-20|mobile QB": [
+   0.486,
+   0.963,
+   1.447
+  ],
+  "RB|0-5|receiving back": [
+   0.144,
+   0.73,
+   2.172
+  ],
+  "RB|15-20|workhorse pass catcher": [
+   0.514,
+   0.972,
+   1.52
+  ],
+  "RB|10-15|workhorse grinder": [
+   0.476,
+   0.989,
+   1.689
+  ],
+  "RB|workhorse grinder": [
+   0.476,
+   0.955,
+   1.679
+  ],
+  "RB|15-20|workhorse grinder": [
+   0.51,
+   0.925,
+   1.584
+  ],
+  "QB|10-15|pocket QB": [
+   0.458,
+   1.01,
+   1.721
+  ],
+  "RB|10-15|other RB": [
+   0.425,
+   0.889,
+   1.796
+  ],
+  "QB|20-25|some legs QB": [
+   0.643,
+   0.926,
+   1.386
+  ],
+  "QB|10-15|some legs QB": [
+   0.449,
+   0.998,
+   1.595
+  ],
+  "RB|20-25|workhorse pass catcher": [
+   0.54,
+   0.965,
+   1.551
+  ],
+  "QB|20-25|pocket QB": [
+   0.706,
+   1.062,
+   1.399
+  ]
+ },
+ "B_correlation_2023_2026": {
+  "qb_with_top2_pass_catchers": {
+   "mobile QB": {
+    "pairs": 582,
+    "residual_corr": 0.26,
+    "raw_points_corr": 0.264,
+    "catcher_booms_when_qb_booms": 0.372,
+    "catcher_boom_rate_overall": 0.211
+   },
+   "pocket QB": {
+    "pairs": 1366,
+    "residual_corr": 0.451,
+    "raw_points_corr": 0.468,
+    "catcher_booms_when_qb_booms": 0.492,
+    "catcher_boom_rate_overall": 0.234
+   },
+   "some legs QB": {
+    "pairs": 1404,
+    "residual_corr": 0.35,
+    "raw_points_corr": 0.342,
+    "catcher_booms_when_qb_booms": 0.399,
+    "catcher_boom_rate_overall": 0.204
+   }
+  },
+  "qb_with_lead_rb_by_qb_type": {
+   "mobile QB": {
+    "pairs": 291,
+    "residual_corr": -0.037
+   },
+   "pocket QB": {
+    "pairs": 683,
+    "residual_corr": 0.076
+   },
+   "some legs QB": {
+    "pairs": 701,
+    "residual_corr": 0.087
+   }
+  },
+  "lead_rb_with_qb_by_rb_type": {
+   "receiving back": {
+    "pairs": 193,
+    "residual_corr": -0.003
+   },
+   "workhorse grinder": {
+    "pairs": 811,
+    "residual_corr": 0.028
+   },
+   "workhorse pass catcher": {
+    "pairs": 517,
+    "residual_corr": 0.121
+   },
+   "other RB": {
+    "pairs": 154,
+    "residual_corr": 0.053
+   }
+  }
+ },
+ "C_game_script_2023_2026": {
+  "workhorse pass catcher": {
+   "n": 521,
+   "points_per_point_of_final_margin": 0.205,
+   "points_per_point_of_spread": 0.144,
+   "miss_when_losing_by_10plus": -3.92,
+   "n_losing": 121,
+   "miss_when_winning_by_10plus": 4.92,
+   "n_winning": 129,
+   "bust_rate_losing_by_10plus": 0.298
+  },
+  "workhorse grinder": {
+   "n": 849,
+   "points_per_point_of_final_margin": 0.16,
+   "points_per_point_of_spread": -0.043,
+   "miss_when_losing_by_10plus": -2.98,
+   "n_losing": 179,
+   "miss_when_winning_by_10plus": 3.38,
+   "n_winning": 182,
+   "bust_rate_losing_by_10plus": 0.313
+  },
+  "receiving back": {
+   "n": 1013,
+   "points_per_point_of_final_margin": 0.062,
+   "points_per_point_of_spread": 0.01,
+   "miss_when_losing_by_10plus": 0.04,
+   "n_losing": 225,
+   "miss_when_winning_by_10plus": 1.65,
+   "n_winning": 218,
+   "bust_rate_losing_by_10plus": 0.276
+  }
+ }
+}

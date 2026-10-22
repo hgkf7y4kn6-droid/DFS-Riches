@@ -3,8 +3,9 @@
 For each QB / RB / WR / TE the model predicts (actual DK points - Sleeper's projected DK points) from what the
 projection may lag: target share and carry share over the last three games and their change against the
 season so far, snap share and its trend, recent production against the projection, the team's implied total
-and spread (game script), for running backs the opponent's front-seven starters out (they beat their
-projections against a depleted front), and the projection itself (to correct over- or under-dispersed projections). One
+and spread (game script) -- with its own spread term for workhorse pass-catching backs (12+ projected carries and
+3.5+ targets), whose scoring swings with game script more than the projection allows -- for running backs the
+opponent's front-seven starters out (they beat their projections against a depleted front), and the projection itself (to correct over- or under-dispersed projections). One
 ridge regression per position, fit on 2023-2025 by scripts/train_player_model.py and stored in
 data/player_model.json with its out-of-sample record. Every input comes from games before the one projected.
 """
@@ -21,9 +22,10 @@ from app.matching import normalize_name
 
 MODEL_FILE = Path(__file__).resolve().parent.parent / "data" / "player_model.json"
 FEATURES = ("proj", "ts_l3", "ts_trend", "cs_l3", "cs_trend", "snap_l3", "snap_trend", "form", "implied", "spread",
-            "spread_x_rb", "games", "opp_pressure", "ol_out", "front7_out")
+            "spread_x_rb", "games", "opp_pressure", "ol_out", "front7_out", "spread_x_wpc")
 POSITIONS = ("QB", "RB", "WR", "TE")
 MAX_ADJ = 0.35          # never move a projection by more than this share (or 3 points, whichever is larger)
+WPC_CARRIES, WPC_TARGETS = 12.0, 3.5     # a workhorse pass-catching back's projected carries and targets
 
 
 def key(name: str, position: str) -> str:
@@ -59,15 +61,18 @@ def history(player_rows: list[dict], snap_rows: list[dict], team_of=lambda t: t,
 
 def features(h: dict[int, dict] | None, week: int, proj: float, position: str, implied: float | None,
              spread: float | None, proj_hist: dict[int, float] | None = None, opp_pressure: float = 0.0,
-             ol_out: float = 0.0, front7_out: float = 0.0) -> dict:
+             ol_out: float = 0.0, front7_out: float = 0.0, line: dict | None = None) -> dict:
     """spread: the team's expected margin (positive = favored); opp_pressure: the opponent's four-man sack + QB-hit
     rate above the league (app.game_model, shrunk toward last season); ol_out: own offensive-line starters out;
-    front7_out: the opponent's front-seven starters out (4 linemen + 2 linebackers), an input for running backs."""
+    front7_out: the opponent's front-seven starters out (4 linemen + 2 linebackers), an input for running backs;
+    line: Sleeper's projected stat line (a workhorse pass-catching back's carries and targets)."""
     games = sorted(w for w in (h or {}) if w < week)
     g = [h[w] for w in games]
     l3 = g[-3:]
     mean = lambda xs: statistics.fmean(xs) if xs else 0.0  # noqa: E731
     snaps = [x["snap"] for x in g if x.get("snap") is not None]
+    workhorse_catcher = (position == "RB" and float((line or {}).get("rush_att") or 0) >= WPC_CARRIES
+                         and float((line or {}).get("rec_tgt") or 0) >= WPC_TARGETS)
     form = 0.0
     if proj_hist:
         diffs = [h[w]["pts"] - proj_hist[w] for w in games[-3:] if w in proj_hist and h[w].get("pts") is not None]
@@ -80,6 +85,7 @@ def features(h: dict[int, dict] | None, week: int, proj: float, position: str, i
         "spread_x_rb": (spread or 0.0) if position == "RB" else 0.0, "games": float(len(g)),
         "opp_pressure": opp_pressure or 0.0, "ol_out": float(ol_out or 0),
         "front7_out": float(front7_out or 0) if position == "RB" else 0.0,
+        "spread_x_wpc": (spread or 0.0) if workhorse_catcher else 0.0,
     }
 
 
