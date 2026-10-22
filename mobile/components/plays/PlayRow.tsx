@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
+import CornersOutNote from '@/components/CornersOutNote';
 import MatchupBadge from '@/components/MatchupBadge';
 import TeamShareText from '@/components/TeamShare';
 import GameLog from '@/components/plays/GameLog';
@@ -59,6 +60,7 @@ export default function PlayRow({ player, contest, pool }: { player: PlayPlayer;
             </Text>
           ) : null}
           <MatchupBadge opponent={p.opponent} position={p.position} />
+          <CornersOutNote opponent={p.opponent} count={p.opp_cb_out} position={p.position} />
           <UsageTrendNote trend={p.usage_trend} open={trendOpen} />
         </View>
         <View className="items-end">

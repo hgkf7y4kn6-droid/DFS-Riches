@@ -23,7 +23,8 @@
     "ol_out",
     "front7_out",
     "spread_x_wpc",
-    "adot_x_opp_explosive"
+    "adot_x_opp_explosive",
+    "cb_out_x_wr"
    ],
    "weights": [
     -2.0177043807518342,
@@ -40,6 +41,7 @@
     -0.027960979523113116,
     0.1459523624711429,
     -0.09135284520572658,
+    0.0,
     0.0,
     0.0,
     0.0
@@ -61,6 +63,7 @@
     0.5405580791693705,
     0.0,
     0.0,
+    0.0,
     0.0
    ],
    "sds": [
@@ -78,6 +81,7 @@
     4.290684390568655,
     0.021034379411606605,
     0.7244300586202375,
+    1.0,
     1.0,
     1.0,
     1.0
@@ -103,7 +107,8 @@
     "ol_out",
     "front7_out",
     "spread_x_wpc",
-    "adot_x_opp_explosive"
+    "adot_x_opp_explosive",
+    "cb_out_x_wr"
    ],
    "weights": [
     -0.036828500456669105,
@@ -122,6 +127,7 @@
     -0.07015364144125848,
     0.25271368935650657,
     0.25655542456312863,
+    0.0,
     0.0
    ],
    "means": [
@@ -141,6 +147,7 @@
     0.5276012044161927,
     0.3619939779190365,
     0.01722984275677484,
+    0.0,
     0.0
    ],
    "sds": [
@@ -160,6 +167,7 @@
     0.7304890273063264,
     0.6472843949555934,
     2.443155182874644,
+    1.0,
     1.0
    ],
    "intercept": -1.1102230246251565e-16,
@@ -183,26 +191,28 @@
     "ol_out",
     "front7_out",
     "spread_x_wpc",
-    "adot_x_opp_explosive"
+    "adot_x_opp_explosive",
+    "cb_out_x_wr"
    ],
    "weights": [
-    -0.23743797575236722,
-    0.14052240302668234,
-    0.13116698775049426,
-    0.0017852408317531364,
-    0.3092956273227317,
-    0.4708839792243918,
-    -0.0379411879986203,
-    -0.03452456380440387,
-    0.33997494978673765,
-    -0.10738776059839418,
+    -0.2366510136602066,
+    0.1414892431304466,
+    0.13292496483767835,
+    0.0029174529170723543,
+    0.30454914584173565,
+    0.4684002917872237,
+    -0.045569198462974976,
+    -0.03284691750204967,
+    0.3478280237267725,
+    -0.12229479953682916,
     0.0,
-    -0.10511179336384452,
-    0.11093331283079412,
-    -0.0950790524521824,
+    -0.11633078004527521,
+    0.11264438804832556,
+    -0.09344725083686228,
     0.0,
     0.0,
-    0.07753525476272534
+    0.07721597288837911,
+    0.2034278111778203
    ],
    "means": [
     9.502425711275027,
@@ -221,7 +231,8 @@
     0.5414120126448894,
     0.0,
     0.0,
-    0.1101005646525427
+    0.1101005646525427,
+    0.19114857744994732
    ],
    "sds": [
     4.2593243298809185,
@@ -240,7 +251,8 @@
     0.7270351385091608,
     1.0,
     1.0,
-    3.750990240152928
+    3.750990240152928,
+    0.4161209397671892
    ],
    "intercept": 0.0,
    "alpha": 300
@@ -263,7 +275,8 @@
     "ol_out",
     "front7_out",
     "spread_x_wpc",
-    "adot_x_opp_explosive"
+    "adot_x_opp_explosive",
+    "cb_out_x_wr"
    ],
    "weights": [
     -0.843937898956992,
@@ -282,7 +295,8 @@
     0.35908889484315126,
     0.0,
     0.0,
-    -0.25383116431340347
+    -0.25383116431340347,
+    0.0
    ],
    "means": [
     7.651515789473684,
@@ -301,7 +315,8 @@
     0.5168421052631579,
     0.0,
     0.0,
-    0.018591061517770017
+    0.018591061517770017,
+    0.0
    ],
    "sds": [
     3.165779494476112,
@@ -320,7 +335,8 @@
     0.7072783463953767,
     1.0,
     1.0,
-    4.166412592624381
+    4.166412592624381,
+    1.0
    ],
    "intercept": 3.3306690738754696e-16,
    "alpha": 100
@@ -330,26 +346,26 @@
   "train": {
    "n": 11175,
    "mae_sleeper": 5.383,
-   "mae_corrected": 5.324,
+   "mae_corrected": 5.322,
    "rank_rho_sleeper": 0.486,
-   "rank_rho_corrected": 0.504,
-   "adj_vs_miss_rho": 0.11,
-   "top_third_boom": 0.269,
-   "top_third_bust": 0.187,
-   "bottom_third_boom": 0.195,
-   "bottom_third_bust": 0.306
+   "rank_rho_corrected": 0.505,
+   "adj_vs_miss_rho": 0.115,
+   "top_third_boom": 0.27,
+   "top_third_bust": 0.185,
+   "bottom_third_boom": 0.194,
+   "bottom_third_bust": 0.305
   },
   "test": {
    "n": 1140,
    "mae_sleeper": 5.369,
-   "mae_corrected": 5.32,
+   "mae_corrected": 5.318,
    "rank_rho_sleeper": 0.468,
    "rank_rho_corrected": 0.486,
-   "adj_vs_miss_rho": 0.099,
-   "top_third_boom": 0.268,
-   "top_third_bust": 0.182,
+   "adj_vs_miss_rho": 0.096,
+   "top_third_boom": 0.261,
+   "top_third_bust": 0.197,
    "bottom_third_boom": 0.192,
-   "bottom_third_bust": 0.276
+   "bottom_third_bust": 0.279
   },
   "test_role_script_only": {
    "n": 1140,
@@ -438,14 +454,14 @@
   "test_wr_te": {
    "n": 676,
    "mae_sleeper": 5.307,
-   "mae_corrected": 5.279,
+   "mae_corrected": 5.276,
    "rank_rho_sleeper": 0.447,
    "rank_rho_corrected": 0.455,
-   "adj_vs_miss_rho": 0.076,
-   "top_third_boom": 0.298,
-   "top_third_bust": 0.196,
-   "bottom_third_boom": 0.209,
-   "bottom_third_bust": 0.302
+   "adj_vs_miss_rho": 0.069,
+   "top_third_boom": 0.289,
+   "top_third_bust": 0.213,
+   "bottom_third_boom": 0.204,
+   "bottom_third_bust": 0.316
   },
   "test_wr_te_without_adot_x_opp_explosive": {
    "n": 676,
@@ -459,17 +475,53 @@
    "bottom_third_boom": 0.213,
    "bottom_third_bust": 0.293
   },
+  "test_without_cb_out": {
+   "n": 1140,
+   "mae_sleeper": 5.369,
+   "mae_corrected": 5.32,
+   "rank_rho_sleeper": 0.468,
+   "rank_rho_corrected": 0.486,
+   "adj_vs_miss_rho": 0.099,
+   "top_third_boom": 0.268,
+   "top_third_bust": 0.182,
+   "bottom_third_boom": 0.192,
+   "bottom_third_bust": 0.276
+  },
+  "test_wr_rb": {
+   "n": 773,
+   "mae_sleeper": 5.262,
+   "mae_corrected": 5.231,
+   "rank_rho_sleeper": 0.571,
+   "rank_rho_corrected": 0.579,
+   "adj_vs_miss_rho": 0.073,
+   "top_third_boom": 0.253,
+   "top_third_bust": 0.21,
+   "bottom_third_boom": 0.191,
+   "bottom_third_bust": 0.296
+  },
+  "test_wr_rb_without_cb_out": {
+   "n": 773,
+   "mae_sleeper": 5.262,
+   "mae_corrected": 5.234,
+   "rank_rho_sleeper": 0.571,
+   "rank_rho_corrected": 0.578,
+   "adj_vs_miss_rho": 0.08,
+   "top_third_boom": 0.265,
+   "top_third_bust": 0.187,
+   "bottom_third_boom": 0.195,
+   "bottom_third_bust": 0.284
+  },
   "test_previous_model": {
    "n": 1140,
    "mae_sleeper": 5.369,
-   "mae_corrected": 5.324,
+   "mae_corrected": 5.32,
    "rank_rho_sleeper": 0.468,
-   "rank_rho_corrected": 0.487,
-   "adj_vs_miss_rho": 0.096,
-   "top_third_boom": 0.261,
-   "top_third_bust": 0.184,
+   "rank_rho_corrected": 0.486,
+   "adj_vs_miss_rho": 0.099,
+   "top_third_boom": 0.268,
+   "top_third_bust": 0.182,
    "bottom_third_boom": 0.192,
-   "bottom_third_bust": 0.271
+   "bottom_third_bust": 0.276
   }
  }
 }

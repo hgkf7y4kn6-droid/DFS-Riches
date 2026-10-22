@@ -107,7 +107,7 @@ export interface TrackRecordSlate {
   season: number;
   week: number;
   slate_id: string;
-  lineups: { label: string; metric: string; proj_points: number; ceiling: number; actual: number }[];
+  lineups: { label: string; metric: string; proj_points: number; ceiling: number; actual: number; note?: string | null }[];
   best_possible: number | null;
 }
 

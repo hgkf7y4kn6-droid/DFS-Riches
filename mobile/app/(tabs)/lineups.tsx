@@ -39,7 +39,7 @@ const NOTE: Record<Mode, string> = {
 
 /**
  * The one lineup builder: pick a slate and a contest (any, cash, or a
- * tournament field), see the projected optimal lineups, then build. Cash and
+ * tournament field), see the model lineups (Safe and Tournament), then build. Cash and
  * tournament modes add that field's ownership, floor and leverage on the
  * model's Classic slate; each mode keeps its own saved lineups.
  */
@@ -77,7 +77,7 @@ export default function Lineups() {
         keyboardShouldPersistTaps="handled">
         <BrandHeader title="Lineups" slate="week" />
         <Text className="screen-subtitle">
-          <Glossed text="Pick a slate and a contest, then tap players to fill each slot under the $50,000 salary cap. Start from a projected optimal lineup if you like." />
+          <Glossed text="Pick a slate and a contest, then tap players to fill each slot under the $50,000 salary cap. Start from a model lineup (Safe or Tournament) if you like." />
         </Text>
         <StatusView loading={weekData.loading && !data} error={weekData.error} onRetry={refresh} />
         <AlertsCard />
@@ -131,7 +131,7 @@ export default function Lineups() {
                 />
               </>
             ) : null}
-            <ListHeading title="Projected optimal" />
+            <ListHeading title="Model lineups" subtitle="Safe lineup to cash · Tournament lineup to win" />
             <OptimalLineups scope={scope} />
             <ListHeading title={mode === 'cash' ? 'Build cash lineups' : mode === 'any' ? 'Build lineups' : 'Build tournament lineups'} />
             <View>

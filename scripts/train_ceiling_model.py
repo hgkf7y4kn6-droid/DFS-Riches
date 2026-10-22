@@ -47,7 +47,8 @@ def rows_for(d: Path, year: int, weeks) -> list[dict]:
         past = [g[2] for g in sorted(games.get(r["key"], [])) if (g[0], g[1]) < (year, r["week"])]
         out.append({"season": year, "week": r["week"], "key": r["key"], "pos": r["pos"], "actual": r["actual"],
                     "proj": r["proj"] + (pm.adjustment(r["pos"], r["f"]) or 0.0), "history": past[-12:], "line": r["line"],
-                    "implied": r["implied"], "spread": r["spread"], "ts_l3": r["f"]["ts_l3"], "snap_l3": r["f"]["snap_l3"]})
+                    "implied": r["implied"], "spread": r["spread"], "ts_l3": r["f"]["ts_l3"], "snap_l3": r["f"]["snap_l3"],
+                    "opp_cb_out": r.get("opp_cb_out", 0)})
     return out
 
 

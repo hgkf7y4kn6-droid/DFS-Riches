@@ -5,7 +5,7 @@ import { useAccountSync } from '@/lib/account-sync';
 import { track } from '@/lib/analytics';
 
 const FEATURE_LABEL: Record<ProFeature, string> = {
-  optimal: 'Projected optimal lineups',
+  optimal: 'Model lineups',
   ownership: 'Expected ownership',
   leverage: 'Leverage',
   multiple_lineups: 'Multiple lineups',
@@ -23,7 +23,7 @@ export function ProSheet({ feature, visible, onClose }: { feature: ProFeature; v
           <Text className="intro-kicker">DFSRiches Pro</Text>
           <Text className="intro-title">{FEATURE_LABEL[feature]} is part of Pro</Text>
           <Text className="intro-text">Pro adds what the field doesn&apos;t see:</Text>
-          <Text className="intro-text">• Projected optimal lineups, and Build for me</Text>
+          <Text className="intro-text">• Model lineups (Safe and stacked Tournament), and Build for me</Text>
           <Text className="intro-text">• Expected ownership for cash and tournament fields</Text>
           <Text className="intro-text">• Leverage: who the crowd is under- and over-playing</Text>
           <Text className="intro-text">• Up to 5 lineups per slate, and alerts when a player in one is ruled out</Text>

@@ -86,13 +86,17 @@ ol_out = gm.ol_out_played   # starting linemen (top 5 by snaps, last 3 games) wh
 
 
 def snap_def(d: Path, year: int) -> dict[str, dict[tuple[int, str], dict[str, float]]]:
-    """{unit: {(week, team): {player: defensive snaps}}} for defensive linemen, linebackers and backs."""
+    """{unit: {(week, team): {player: defensive snaps}}} for defensive linemen, linebackers and backs, plus "CB" for
+    the corners alone."""
     out: dict[str, dict] = {u: {} for u in gm.DEF_UNITS}
+    out["CB"] = {}
     path = fetch(f"{REL}/snap_counts/snap_counts_{year}.csv", d / f"snap_counts_{year}.csv")
     for r in csv.DictReader(open(path, newline="")):
         u = gm.def_unit(r.get("position"))
         if r.get("game_type") == "REG" and u:
             out[u].setdefault((int(r["week"]), r["team"]), {})[r["pfr_player_id"]] = gm._f(r.get("defense_snaps")) or 0.0
+            if r.get("position") in gm.CB_POSITIONS:
+                out["CB"].setdefault((int(r["week"]), r["team"]), {})[r["pfr_player_id"]] = gm._f(r.get("defense_snaps")) or 0.0
     return out
 
 

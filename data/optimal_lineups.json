@@ -1112,13 +1112,14 @@
                 "opponent": "CLE",
                 "roster_slot": "",
                 "salary": 5600,
-                "proj_points": 29.8,
+                "proj_points": 16.39,
                 "ceiling": 28.8,
                 "sleeper_proj": 16.39,
                 "game_info": "CAR @ CLE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44224394,
-                "actual": 14.64
+                "actual": 14.64,
+                "rescored_from": 29.8
               },
               {
                 "slot": "RB",
@@ -1128,13 +1129,14 @@
                 "opponent": "MIA",
                 "roster_slot": "",
                 "salary": 7400,
-                "proj_points": 32.0,
+                "proj_points": 21.57,
                 "ceiling": 45.0,
                 "sleeper_proj": 20.61,
                 "game_info": "KC @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44224495,
-                "actual": 21.3
+                "actual": 21.3,
+                "rescored_from": 32.0
               },
               {
                 "slot": "RB",
@@ -1144,13 +1146,14 @@
                 "opponent": "PHI",
                 "roster_slot": "",
                 "salary": 6200,
-                "proj_points": 24.7,
+                "proj_points": 13.66,
                 "ceiling": 25.7,
                 "sleeper_proj": 13.66,
                 "game_info": "PHI @ CHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44224517,
-                "actual": 10.8
+                "actual": 10.8,
+                "rescored_from": 24.7
               },
               {
                 "slot": "WR",
@@ -1160,13 +1163,14 @@
                 "opponent": "WAS",
                 "roster_slot": "",
                 "salary": 8600,
-                "proj_points": 37.4,
+                "proj_points": 22.42,
                 "ceiling": 48.3,
                 "sleeper_proj": 21.57,
                 "game_info": "SEA @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44224861,
-                "actual": 38.36
+                "actual": 38.36,
+                "rescored_from": 37.4
               },
               {
                 "slot": "WR",
@@ -1176,13 +1180,14 @@
                 "opponent": "DAL",
                 "roster_slot": "",
                 "salary": 6900,
-                "proj_points": 29.0,
+                "proj_points": 17.03,
                 "ceiling": 37.5,
                 "sleeper_proj": 17.03,
                 "game_info": "BAL @ DAL",
                 "injury": "Q",
                 "dk_draftable_id": 44224879,
-                "actual": 15.4
+                "actual": 15.4,
+                "rescored_from": 29.0
               },
               {
                 "slot": "WR",
@@ -1192,13 +1197,14 @@
                 "opponent": "CLE",
                 "roster_slot": "",
                 "salary": 5500,
-                "proj_points": 25.7,
+                "proj_points": 15.08,
                 "ceiling": 33.7,
                 "sleeper_proj": 14.54,
                 "game_info": "CAR @ CLE",
                 "injury": "Q",
                 "dk_draftable_id": 44224919,
-                "actual": 3.8
+                "actual": 3.8,
+                "rescored_from": 25.7
               },
               {
                 "slot": "TE",
@@ -1208,13 +1214,14 @@
                 "opponent": "IND",
                 "roster_slot": "",
                 "salary": 4200,
-                "proj_points": 18.3,
+                "proj_points": 11.96,
                 "ceiling": 24.9,
                 "sleeper_proj": 10.24,
                 "game_info": "HOU @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44225487,
-                "actual": 6.0
+                "actual": 6.0,
+                "rescored_from": 18.3
               },
               {
                 "slot": "FLEX",
@@ -1224,13 +1231,14 @@
                 "opponent": "DEN",
                 "roster_slot": "",
                 "salary": 2700,
-                "proj_points": 8.7,
+                "proj_points": 3.58,
                 "ceiling": 13.6,
                 "sleeper_proj": 3.58,
                 "game_info": "LAR @ DEN",
                 "injury": "Q",
                 "dk_draftable_id": 44225543,
-                "actual": 1.9
+                "actual": 1.9,
+                "rescored_from": 8.7
               },
               {
                 "slot": "DST",
@@ -1240,19 +1248,21 @@
                 "opponent": "PIT",
                 "roster_slot": "",
                 "salary": 2900,
-                "proj_points": 14.5,
+                "proj_points": 7.74,
                 "ceiling": 15.2,
                 "sleeper_proj": 7.74,
                 "game_info": "CIN @ PIT",
                 "injury": "Healthy",
                 "dk_draftable_id": 44225845,
-                "actual": 3.0
+                "actual": 3.0,
+                "rescored_from": 14.5
               }
             ],
             "salary": 50000,
-            "proj_points": 220.1,
+            "proj_points": 129.43,
             "ceiling": 272.7,
-            "actual": 115.2
+            "actual": 115.2,
+            "note": "Projections rescored on 2026-10-22: this lineup was saved on Sept 24 with a scoring bug (fixed Oct 1) that put projections about 1.8x too high. Each player's projection is now his Week 3 Sunday Main projection (saved a day later with DraftKings scoring) or, when he wasn't on that slate, his Sleeper DraftKings projection. Ceilings, players and actual points are unchanged."
           },
           {
             "metric": "ceiling",
@@ -1266,13 +1276,14 @@
                 "opponent": "NYJ",
                 "roster_slot": "",
                 "salary": 6300,
-                "proj_points": 24.6,
+                "proj_points": 18.8,
                 "ceiling": 38.3,
                 "sleeper_proj": 18.8,
                 "game_info": "NYJ @ DET",
                 "injury": "Healthy",
                 "dk_draftable_id": 44224385,
-                "actual": 19.36
+                "actual": 19.36,
+                "rescored_from": 24.6
               },
               {
                 "slot": "RB",
@@ -1282,13 +1293,14 @@
                 "opponent": "DAL",
                 "roster_slot": "",
                 "salary": 7700,
-                "proj_points": 28.0,
+                "proj_points": 18.35,
                 "ceiling": 47.4,
                 "sleeper_proj": 18.63,
                 "game_info": "BAL @ DAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44224491,
-                "actual": 21.9
+                "actual": 21.9,
+                "rescored_from": 28.0
               },
               {
                 "slot": "RB",
@@ -1298,13 +1310,14 @@
                 "opponent": "MIA",
                 "roster_slot": "",
                 "salary": 7400,
-                "proj_points": 32.0,
+                "proj_points": 21.57,
                 "ceiling": 45.0,
                 "sleeper_proj": 20.61,
                 "game_info": "KC @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44224495,
-                "actual": 21.3
+                "actual": 21.3,
+                "rescored_from": 32.0
               },
               {
                 "slot": "WR",
@@ -1314,13 +1327,14 @@
                 "opponent": "NYJ",
                 "roster_slot": "",
                 "salary": 7900,
-                "proj_points": 33.5,
+                "proj_points": 18.42,
                 "ceiling": 49.6,
                 "sleeper_proj": 19.29,
                 "game_info": "NYJ @ DET",
                 "injury": "Healthy",
                 "dk_draftable_id": 44224865,
-                "actual": 11.9
+                "actual": 11.9,
+                "rescored_from": 33.5
               },
               {
                 "slot": "WR",
@@ -1330,13 +1344,14 @@
                 "opponent": "CLE",
                 "roster_slot": "",
                 "salary": 5500,
-                "proj_points": 25.7,
+                "proj_points": 15.08,
                 "ceiling": 33.7,
                 "sleeper_proj": 14.54,
                 "game_info": "CAR @ CLE",
                 "injury": "Q",
                 "dk_draftable_id": 44224919,
-                "actual": 3.8
+                "actual": 3.8,
+                "rescored_from": 25.7
               },
               {
                 "slot": "WR",
@@ -1346,13 +1361,14 @@
                 "opponent": "CAR",
                 "roster_slot": "",
                 "salary": 4500,
-                "proj_points": 17.2,
+                "proj_points": 9.74,
                 "ceiling": 28.2,
                 "sleeper_proj": 9.88,
                 "game_info": "CAR @ CLE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44224967,
-                "actual": 8.1
+                "actual": 8.1,
+                "rescored_from": 17.2
               },
               {
                 "slot": "TE",
@@ -1362,13 +1378,14 @@
                 "opponent": "IND",
                 "roster_slot": "",
                 "salary": 4200,
-                "proj_points": 18.3,
+                "proj_points": 11.96,
                 "ceiling": 24.9,
                 "sleeper_proj": 10.24,
                 "game_info": "HOU @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44225487,
-                "actual": 6.0
+                "actual": 6.0,
+                "rescored_from": 18.3
               },
               {
                 "slot": "FLEX",
@@ -1378,13 +1395,14 @@
                 "opponent": "LAC",
                 "roster_slot": "",
                 "salary": 3500,
-                "proj_points": 10.9,
+                "proj_points": 1.89,
                 "ceiling": 23.7,
                 "sleeper_proj": 1.89,
                 "game_info": "LAC @ BUF",
                 "injury": "Healthy",
                 "dk_draftable_id": 44225043,
-                "actual": 0.0
+                "actual": 0.0,
+                "rescored_from": 10.9
               },
               {
                 "slot": "DST",
@@ -1394,19 +1412,21 @@
                 "opponent": "CLE",
                 "roster_slot": "",
                 "salary": 3000,
-                "proj_points": 13.0,
+                "proj_points": 7.78,
                 "ceiling": 21.1,
                 "sleeper_proj": 8.54,
                 "game_info": "CAR @ CLE",
                 "injury": "Healthy",
                 "dk_draftable_id": 44225844,
-                "actual": 4.0
+                "actual": 4.0,
+                "rescored_from": 13.0
               }
             ],
             "salary": 50000,
-            "proj_points": 203.2,
+            "proj_points": 123.59,
             "ceiling": 311.9,
-            "actual": 96.36
+            "actual": 96.36,
+            "note": "Projections rescored on 2026-10-22: this lineup was saved on Sept 24 with a scoring bug (fixed Oct 1) that put projections about 1.8x too high. Each player's projection is now his Week 3 Sunday Main projection (saved a day later with DraftKings scoring) or, when he wasn't on that slate, his Sleeper DraftKings projection. Ceilings, players and actual points are unchanged."
           }
         ],
         "hindsight": {

@@ -105,6 +105,7 @@ class Player(BaseModel):
     role_adj: float | None = None     # DK points added by the role & script model (app.player_model), already in proj_points
     dst_adj: float | None = None      # DST: the DST model's change to Sleeper's line (app.dst_model), already in proj_points
     ceiling_model: bool = False       # the ceiling came from app.ceiling_model (vs app.ceiling's formula)
+    opp_cb_out: int | None = None     # RB/WR/TE: the opponent's starting corners out (app.game_model), when any
 
 
 class Slate(BaseModel):

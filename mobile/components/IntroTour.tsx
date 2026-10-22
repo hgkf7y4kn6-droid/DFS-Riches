@@ -26,7 +26,7 @@ const PAGES: { kicker: string; title: string; body: string[] }[] = [
     title: 'Build a lineup',
     body: [
       'Open the Lineups tab, pick a slate and tap players to add them. Lineups have to fit under the $50,000 salary cap, and players who no longer fit are dimmed with the reason.',
-      'Start from a projected optimal lineup if you like. Your saved lineups sync to your account.',
+      'Start from a model lineup (Safe or Tournament) if you like. Your saved lineups sync to your account.',
       'Tap any word with a dotted underline to see what it means. The full glossary is in Settings (the gear at the top).',
     ],
   },

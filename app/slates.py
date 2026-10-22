@@ -194,19 +194,22 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         from_model = False
         imp, spr = team_lines.get(row["team"], (None, None))
         line_pts = projections.dk_points_from_line(line["stats"], row["position"]) if line and line.get("stats") else 0.0
+        tc = team_ctx.get(row["team"]) or {}
+        opp_cb_out = int(tc.get("opp_cb_out") or 0) if row["position"] in ("RB", "WR", "TE") else 0
         if role_ctx and row["position"] in player_model.POSITIONS and line_pts >= 3:
             k = player_model.key(row["name"], row["position"])
-            tc = team_ctx.get(row["team"]) or {}
             role_feats = player_model.features(
                 role_ctx["hist"].get(k), week, line_pts, row["position"], imp, spr, role_ctx["proj_hist"].get(k),
                 opp_pressure=tc.get("opp_pressure", 0.0), ol_out=tc.get("ol_out", 0),
                 front7_out=tc.get("opp_front7_out", 0), line=line.get("stats") if line else None,
-                opp_explosive=tc.get("opp_explosive", 0.0))
+                opp_explosive=tc.get("opp_explosive", 0.0), opp_cb_out=opp_cb_out)
             role_adj = player_model.adjustment(row["position"], role_feats)
             if role_adj:
                 base_proj = round(max(0.0, base_proj + role_adj), 2)
+                cb_note = (f"; {row['opponent']} missing {opp_cb_out} starting corner{'s' if opp_cb_out > 1 else ''}"
+                           if opp_cb_out and row["position"] == "WR" else "")
                 proj_notes = proj_notes + [f"Role & script model: {role_adj:+.1f} (target, carry and snap share trends; "
-                                           f"team total and spread)"]
+                                           f"team total and spread{cb_note})"]
 
         if row["position"] == "DST" and line_pts > 0 and dst_rates and row["team"] in team_lines and row["opponent"] in team_lines:
             opp_qb = team_ctx.get(row["opponent"]) or {}
@@ -255,6 +258,11 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
             if (model_ceiling := ceiling_model.ceiling(row["position"], x)) is not None:
                 player_ceiling, ceiling_notes = model_ceiling, ceiling_model.notes(model_ceiling, x, row["position"])
                 from_model = True
+                if (boost := ceiling_model.cb_out_boost(row["position"], line["stats"], opp_cb_out)) != 1.0:
+                    player_ceiling = round(player_ceiling * boost, 1)
+                    ceiling_notes = ceiling_notes + [
+                        f"x{boost:.2f}: a workhorse pass-catching back vs {row['opponent']}, missing {opp_cb_out} starting "
+                        f"corner{'s' if opp_cb_out > 1 else ''} (these backs beat their ceilings 22% of the time in such games, not 15%)"]
         if player_ceiling is not None and not projections.has_projected_role(projection_ctx, sleeper_id, row["position"]):
             player_ceiling = round(player_ceiling * 0.5, 1)
             ceiling_notes = ceiling_notes + ["Role x0.50: no meaningful projected stat line this week (backup or inactive)"]
@@ -288,6 +296,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
                 role_adj=role_adj,
                 dst_adj=dst_adj,
                 ceiling_model=from_model,
+                opp_cb_out=opp_cb_out or None,
             )
         )
 

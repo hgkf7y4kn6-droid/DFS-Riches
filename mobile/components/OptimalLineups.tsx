@@ -27,6 +27,13 @@ function statusLine(opt: OptimalResponse): string {
   return OPTIMAL_STATUS_TEXT.none;
 }
 
+/** What each lineup is for, under its name. */
+const PURPOSE: Record<string, string> = {
+  proj_points: "The most projected points: a high floor that cashes often. Built for cash games, not to win a tournament.",
+  tournament: "Stacked for upside: the QB, two of his pass catchers and an opposing receiver. Built to win tournaments.",
+  ceiling: "The old Ceiling lineup, retired in favor of the Tournament lineup.",
+};
+
 function summary(lineup: OptimalLineup): string {
   const parts = [formatCurrency(lineup.salary)];
   if (lineup.metric !== "actual")
@@ -52,7 +59,12 @@ function OptimalCard({
   const colors = useThemeColors();
   // Collapsible (Home): starts minimized to its totals; tap the header to show the players.
   const [open, setOpen] = useState(!collapsible);
-  const title = <Text className="lineup-title">{lineup.label}</Text>;
+  const title = (
+    <View className="flex-1">
+      <Text className="lineup-title">{lineup.label}</Text>
+      {PURPOSE[lineup.metric] ? <Text className="caption mt-0.5">{PURPOSE[lineup.metric]}</Text> : null}
+    </View>
+  );
   return (
     <View className="lineup-card">
       <View className="lineup-card-header">
@@ -132,7 +144,7 @@ function OptimalCard({
   );
 }
 
-/** The projected optimal lineups for the selected slate (and, once final, the best possible);
+/** The model lineups (Safe and Tournament) for the selected slate (and, once final, the best possible);
  *  "Edit in builder" copies one into the `scope` builder's active lineup. */
 export default function OptimalLineups({
   scope = "",

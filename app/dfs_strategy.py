@@ -147,6 +147,10 @@ def _q(r: dict) -> float:
     return Q_DISCOUNT if r["injury"] == "Q" else 1.0
 
 
+def _cb_txt(n: int) -> str:
+    return f"{n} starting corner{'s' if n > 1 else ''}"
+
+
 def _num(v, d=1):
     return "-" if v is None else f"{v:.{d}f}"
 
@@ -163,7 +167,7 @@ def _own_txt(r: dict) -> str:
 
 def card(r: dict, **extra) -> dict:
     keys = ("id", "name", "position", "team", "opponent", "salary", "final", "floor", "ceiling", "value",
-            "ownership", "popularity", "injury", "uncertainty_label", "n_sources")
+            "ownership", "popularity", "injury", "uncertainty_label", "n_sources", "opp_cb_out")
     return {**{k: r.get(k) for k in keys}, **extra}
 
 
@@ -473,6 +477,9 @@ def rb_pool(pool: list[dict]) -> dict:
             reasons.append(f"Receiving role: {_num(r.get('proj_targets') or r.get('proj_rec'))} projected targets, {_pct_txt(u.get('target_share'))} target share")
         if r.get("injury_opportunity"):
             reasons.append(f"Injury-driven work: {', '.join(r['injury_opportunity'])}")
+        if r.get("opp_cb_out") and (r.get("proj_carries") or 0) >= WORKHORSE_CARRIES and (r.get("proj_targets") or 0) >= WORKHORSE_TARGETS:
+            reasons.append(f"{r['opponent']} missing {_cb_txt(r['opp_cb_out'])}: workhorse pass catchers beat their ceilings "
+                           "22% of the time in these games (not 15%) -- ceiling raised")
         if spread <= -3:
             reasons.append(f"Favored by {abs(spread):g}: positive script for carries")
         elif spread >= 6.5:
@@ -513,6 +520,9 @@ def wr_pool(pool: list[dict], wd) -> dict:
             reasons.append(f"Air yards: {_pct_txt(ays)} of team air yards, aDOT {_num(u.get('adot'))} -- big-play path")
         if r.get("injury_opportunity"):
             reasons.append(f"Injury-driven targets: {', '.join(r['injury_opportunity'])}")
+        if r.get("opp_cb_out"):
+            reasons.append(f"{r['opponent']} missing {_cb_txt(r['opp_cb_out'])}: receivers beat their projections vs a "
+                           "depleted secondary (in his projection)")
         if r.get("implied") and r["implied"] >= 24:
             reasons.append(f"{r['team']} implied {r['implied']:g}")
         pr = wd.pass_rate_rank.get(r["team"]) if wd else None

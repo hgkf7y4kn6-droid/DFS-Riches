@@ -250,9 +250,10 @@ export const GLOSSARY: GlossaryEntry[] = [
   },
   {
     id: 'optimal',
-    term: 'Projected optimal',
-    match: ['optimal lineup', 'optimal lineups', 'optimal'],
-    definition: 'The highest-projected lineups that fit the salary cap. Copy one into the builder to start from it.',
+    term: 'Model lineups',
+    match: ['optimal lineup', 'optimal lineups', 'optimal', 'projected optimal', 'model lineup'],
+    definition:
+      "The model's two lineups for a slate. The Safe lineup has the most projected points: a high floor that cashes often, built for cash games rather than to win a tournament. The Tournament lineup is stacked for upside (the QB, two of his pass catchers and an opposing receiver), built to win big fields. Copy either into the builder to start from it.",
   },
   {
     id: 'late-swap',

@@ -194,6 +194,7 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
             "role": getattr(p, "role", None), "snap_pct": getattr(p, "snap_pct", None),
             "usage_trend": getattr(p, "usage_trend", None), "team_share": getattr(p, "team_share", None),
             "props": _props(c.line, pos, final),
+            "opp_cb_out": getattr(p, "opp_cb_out", None),
         })
     return rows
 
@@ -483,7 +484,7 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
             "id", "name", "position", "team", "opponent", "salary", "injury", "consensus", "median_src", "low", "high", "sd",
             "n_sources", "by_source", "missing", "final", "adjustments", "floor", "median", "ceiling", "app_ceiling", "value",
             "ownership", "popularity", "uncertainty", "uncertainty_label", "uncertainty_reasons", "role", "snap_pct",
-            "usage_trend", "team_share", "props")}
+            "usage_trend", "team_share", "props", "opp_cb_out")}
             for r in table],
         "no_source_players": no_source,
         "lineups": strategy["lineups"],

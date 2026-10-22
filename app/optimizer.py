@@ -21,6 +21,7 @@ SALARY_CAP = 50000
 ELIGIBLE_STATUSES = {"Healthy", "Q"}
 ROLE_POSITIONS = {"QB", "RB", "WR", "TE"}
 MIN_ROLE_PROJ = 3.0   # a QB/RB/WR/TE projected under this has no real role this week
+PUNT_SALARY = 4500    # a "punt": a QB/RB/WR/TE priced under this (the safe lineup allows at most one)
 CLASSIC_SLOTS = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "DST"]
 
 
@@ -50,7 +51,7 @@ def _solve(values, rows, lows, highs):
 
 def optimize(players: list, slate_type: str, metric: str, *, hindsight: bool = False,
              locked: set | None = None, excluded: set | None = None, avoid: list[set] | None = None,
-             min_unique: int = 2) -> list | None:
+             min_unique: int = 2, max_punts: int | None = None) -> list | None:
     """Returns the optimal lineup's players in DraftKings slot order (Classic:
     QB, RB, RB, WR, WR, WR, TE, FLEX, DST; Showdown: CPT then FLEX by salary),
     or None if no valid lineup exists. metric is the player field to maximize,
@@ -59,7 +60,8 @@ def optimize(players: list, slate_type: str, metric: str, *, hindsight: bool = F
     (DK draftable ids) must be in the lineup -- players whose games have
     already kicked off -- whatever their numbers now. `excluded` ids are left
     out; each set in `avoid` (an earlier lineup's ids) must differ from this
-    lineup by at least `min_unique` players."""
+    lineup by at least `min_unique` players. Classic: `max_punts` caps the
+    QB/RB/WR/TE under PUNT_SALARY (locked players count)."""
     locked = locked or set()
     excluded = (excluded or set()) - locked
     # DK season FPPG > 0 means the player has actually played this season --
@@ -102,6 +104,8 @@ def optimize(players: list, slate_type: str, metric: str, *, hindsight: bool = F
             add([x == position for x in pos], lo, hi)
         for game in {_attr(p, "game_info") for p in pool}:
             add([_attr(p, "game_info") == game for p in pool], 0, 8)
+        if max_punts is not None:
+            add([x != "DST" and _attr(p, "salary") < PUNT_SALARY for p, x in zip(pool, pos)], 0, max_punts)
 
     for p in pool:
         if _attr(p, "dk_draftable_id") in locked:

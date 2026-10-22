@@ -10,6 +10,14 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.38',
+    title: "What's new",
+    items: [
+      'Model lineups: a Safe lineup (the most projected points, built to cash) and a stacked Tournament lineup (QB, two of his pass catchers and an opposing receiver) replace the Ceiling lineup.',
+      'Corners out: when a defense is missing starting cornerbacks, receivers\u2019 projections and workhorse pass-catching backs\u2019 ceilings go up, and the player cards say so.',
+    ],
+  },
+  {
     version: '1.1.34',
     title: "What's new",
     items: [

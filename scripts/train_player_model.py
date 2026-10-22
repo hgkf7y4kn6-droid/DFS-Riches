@@ -51,7 +51,8 @@ def lines(d: Path, season: int) -> dict[tuple[int, str], tuple[float, float]]:
 def player_weeks(d: Path, season: int, weeks):
     """The model inputs shared by the player and ceiling trainers, one dict per Sleeper-projected QB/RB/WR/TE
     player-week that played, had 3+ projected DK points and a closing line: {week, key, pos, proj (Sleeper),
-    f (app.player_model.features), actual, line (Sleeper's stat line), implied, spread}. Inputs use only earlier games."""
+    f (app.player_model.features), actual, line (Sleeper's stat line), implied, spread, opp_cb_out}. Inputs use only
+    earlier games."""
     stats = list(csv.DictReader(open(fetch(f"{REL}/stats_player/stats_player_week_{season}.csv",
                                            d / f"stats_player_week_{season}.csv"), newline="")))
     snaps = list(csv.DictReader(open(fetch(f"{REL}/snap_counts/snap_counts_{season}.csv", d / f"snap_counts_{season}.csv"), newline="")))
@@ -101,9 +102,10 @@ def player_weeks(d: Path, season: int, weeks):
             opp = TEAM_FIX.get(e.get("opponent") or "", e.get("opponent") or "")
             f = pm.features(h, w, p, pos, imp, spr, ph, opp_pressure=opp_pressure(w, opp), ol_out=tgm.ol_out(ol, team, w),
                             front7_out=sum(n for u, n in gm.def_out_played(dsnaps, opp, w).items() if u in gm.FRONT7),
-                            line=e.get("stats") or {}, opp_explosive=opp_explosive(w, opp))
+                            line=e.get("stats") or {}, opp_explosive=opp_explosive(w, opp),
+                            opp_cb_out=gm.cb_out_played(dsnaps, opp, w))
             yield {"week": w, "key": k, "pos": pos, "proj": p, "f": f, "actual": h[w]["pts"], "line": e.get("stats") or {},
-                   "implied": imp, "spread": spr}
+                   "implied": imp, "spread": spr, "opp_cb_out": gm.cb_out_played(dsnaps, opp, w)}
 
 
 def rows_for(d: Path, season: int, weeks) -> list[dict]:
@@ -202,16 +204,19 @@ def main():
     test = [r for r in rows_for(d, args.test_season, range(1, args.test_weeks + 1)) if r["week"] >= 2]
     print(f"train player-weeks {len(train)} ({seasons}), test {len(test)}")
     base_feats = tuple(f for f in pm.FEATURES if f not in ("opp_pressure", "ol_out", "front7_out", "spread_x_wpc",
-                                                           "adot_x_opp_explosive"))
+                                                           "adot_x_opp_explosive", "cb_out_x_wr"))
     print("-- role & script only")
     base = fit_all(train, base_feats, seasons)
     print("-- plus opponent pressure and offensive-line starters out")
-    no_f7 = fit_all(train, tuple(f for f in pm.FEATURES if f not in ("front7_out", "spread_x_wpc", "adot_x_opp_explosive")), seasons)
+    no_f7 = fit_all(train, tuple(f for f in pm.FEATURES if f not in ("front7_out", "spread_x_wpc", "adot_x_opp_explosive",
+                                                                   "cb_out_x_wr")), seasons)
     print("-- plus the opponent's front-seven starters out (running backs)")
-    no_wpc = fit_all(train, tuple(f for f in pm.FEATURES if f not in ("spread_x_wpc", "adot_x_opp_explosive")), seasons)
+    no_wpc = fit_all(train, tuple(f for f in pm.FEATURES if f not in ("spread_x_wpc", "adot_x_opp_explosive", "cb_out_x_wr")), seasons)
     print("-- plus the spread for workhorse pass-catching backs")
-    no_adot = fit_all(train, tuple(f for f in pm.FEATURES if f != "adot_x_opp_explosive"), seasons)
+    no_adot = fit_all(train, tuple(f for f in pm.FEATURES if f not in ("adot_x_opp_explosive", "cb_out_x_wr")), seasons)
     print("-- plus receivers' depth of target x the opponent's explosive plays allowed")
+    no_cb = fit_all(train, tuple(f for f in pm.FEATURES if f != "cb_out_x_wr"), seasons)
+    print("-- plus the opponent's starting corners out")
     models = fit_all(train, pm.FEATURES, seasons)
     rb = [r for r in test if r["pos"] == "RB"]
     rec = {"train": evaluate(train, models), "test": evaluate(test, models),
@@ -220,7 +225,10 @@ def main():
            "test_without_spread_x_wpc": evaluate(test, no_wpc), "test_rb_without_spread_x_wpc": evaluate(rb, no_wpc),
            "test_without_adot_x_opp_explosive": evaluate(test, no_adot),
            "test_wr_te": evaluate([r for r in test if r["pos"] in ("WR", "TE")], models),
-           "test_wr_te_without_adot_x_opp_explosive": evaluate([r for r in test if r["pos"] in ("WR", "TE")], no_adot)}
+           "test_wr_te_without_adot_x_opp_explosive": evaluate([r for r in test if r["pos"] in ("WR", "TE")], no_adot),
+           "test_without_cb_out": evaluate(test, no_cb),
+           "test_wr_rb": evaluate([r for r in test if r["pos"] in ("WR", "RB")], models),
+           "test_wr_rb_without_cb_out": evaluate([r for r in test if r["pos"] in ("WR", "RB")], no_cb)}
     previous = json.loads(pm.MODEL_FILE.read_text()).get("records") if pm.MODEL_FILE.exists() else None
     if previous:
         rec["test_previous_model"] = previous.get("test")

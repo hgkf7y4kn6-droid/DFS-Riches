@@ -411,6 +411,10 @@ OL_POSITIONS = ("OL", "T", "G", "C")
 DEF_UNITS = {"DL": (("DE", "DT", "DL", "NT"), 4), "LB": (("LB", "ILB", "OLB", "MLB"), 2),
              "DB": (("CB", "S", "SS", "FS", "DB"), 4)}
 FRONT7 = ("DL", "LB")
+# Corners, tracked on their own (inside the DB unit above): the 2 with the most defensive snaps over the last three
+# games. With one out, short-area receivers and workhorse pass-catching backs beat their projections
+# (scripts/test_defensive_injuries.py); app.player_model reads it for receivers.
+CB_POSITIONS, CB_STARTERS = ("CB",), 2
 
 
 def def_unit(position: str | None) -> str | None:
@@ -419,7 +423,7 @@ def def_unit(position: str | None) -> str | None:
 
 async def _line_snaps(season: int) -> tuple[dict, dict]:
     """(offensive-line snaps {(week, nflverse team): {lineman: offense snaps}}, defensive snaps
-    {unit: {(week, team): {player: defense snaps}}}) from nflverse snap counts."""
+    {unit: {(week, team): {player: defense snaps}}}, plus "CB": corners alone) from nflverse snap counts."""
     import csv
     import io
 
@@ -440,10 +444,13 @@ async def _line_snaps(season: int) -> tuple[dict, dict]:
         rows = []
     ol: dict[tuple[int, str], dict[str, float]] = {}
     dsnaps: dict[str, dict] = {u: {} for u in DEF_UNITS}
+    dsnaps["CB"] = {}
     for w, t, p, pos, off, de in rows:
         u = def_unit(pos)
         if u:
             dsnaps[u].setdefault((w, t), {})[p] = de
+            if pos in CB_POSITIONS:
+                dsnaps["CB"].setdefault((w, t), {})[p] = de
         else:
             ol.setdefault((w, t), {})[p] = off
     return ol, dsnaps
@@ -471,6 +478,16 @@ def def_out_played(dsnaps: dict[str, dict], team: str, week: int) -> dict[str, i
         played = (dsnaps.get(u) or {}).get((week, team))
         out[u] = sum(1 for p in starters if (played.get(p) or 0) <= 0) if starters and played is not None else 0
     return out
+
+
+def cb_starters(dsnaps: dict[str, dict], team: str, week: int) -> list[str]:
+    return ol_starters(dsnaps.get("CB") or {}, team, week, CB_STARTERS)
+
+
+def cb_out_played(dsnaps: dict[str, dict], team: str, week: int) -> int:
+    """Starting corners who played no defensive snaps in a finished game (0 when the game has no snap counts)."""
+    starters, played = cb_starters(dsnaps, team, week), (dsnaps.get("CB") or {}).get((week, team))
+    return sum(1 for p in starters if (played.get(p) or 0) <= 0) if starters and played is not None else 0
 
 
 def ol_out_played(snaps: dict, team: str, week: int) -> int:
@@ -518,7 +535,7 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
         if total is None or margin is None or a not in est or h not in est:
             continue
         out_now = lambda t, p: (news.get((nc.to_app_team(t), normalize_name(p))) or {}).get("code") in ("OUT", "IR", "D")  # noqa: E731
-        ol, dout = {}, {}
+        ol, dout, cb = {}, {}, {}
         for t in (a, h):
             if (week, t) in snaps:
                 ol[t] = ol_out_played(snaps, t, week)
@@ -528,6 +545,8 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
                 dout[t] = def_out_played(dsnaps, t, week)
             else:       # ESPN's feed carries Out/IR/Doubtful and, on game day, the final inactives (as Out)
                 dout[t] = {u: sum(1 for p in ps if out_now(t, p)) for u, ps in def_starters(dsnaps, t, week).items()}
+            cb[t] = (cb_out_played(dsnaps, t, week) if (week, t) in (dsnaps.get("CB") or {})
+                     else sum(1 for p in cb_starters(dsnaps, t, week) if out_now(t, p)))
         qb = {t: qb_estimate(hist, r.get(f"{side}_qb_id"), lg["pass_epa"]) for t, side in ((a, "away"), (h, "home"))}
         w_mph = (wind or {}).get(key)
         feats = game_features(a, h, est, lg, total_line=total, spread_line=margin, qb=qb, ol_out=ol,
@@ -546,6 +565,8 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
             "ol_out": {nc.to_app_team(t): n for t, n in ol.items()},
             # each defense's starters out by unit (DL of 4, LB of 2, DB of 4)
             "def_out": {nc.to_app_team(t): v for t, v in dout.items()},
+            # each defense's starting corners out
+            "cb_out": {nc.to_app_team(t): n for t, n in cb.items()},
             # each offense's opponent: four-man sack + QB-hit rate above the league (shrunk toward last season)
             "opp_pressure": {nc.to_app_team(a): round(est[h]["d_pressure4"] - lg["d_pressure4"], 4),
                              nc.to_app_team(h): round(est[a]["d_pressure4"] - lg["d_pressure4"], 4)},
@@ -560,8 +581,8 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
 
 
 async def team_context(season: int, week: int) -> dict[str, dict]:
-    """{app team: {"opp_pressure", "opp_explosive", "ol_out", "opp_front7_out", "qb_epa", "qb_dropbacks"}} for this
-    week's offenses
+    """{app team: {"opp_pressure", "opp_explosive", "ol_out", "opp_front7_out", "opp_cb_out", "qb_epa", "qb_dropbacks"}}
+    for this week's offenses
     (app.player_model and app.dst_model inputs)."""
     out = {}
     for key, g in (await _week_games_cached(season, week)).items():
@@ -572,6 +593,7 @@ async def team_context(season: int, week: int) -> dict[str, dict]:
             out[t] = {"ol_out": n, "opp_pressure": g["opp_pressure"].get(t, 0.0),
                       "opp_explosive": (g.get("opp_explosive") or {}).get(t, 0.0),
                       "opp_front7_out": sum(opp.get(u, 0) for u in FRONT7),
+                      "opp_cb_out": (g.get("cb_out") or {}).get(home if t == away else away, 0),
                       "qb_epa": qb.get("dropback_epa"), "qb_dropbacks": qb.get("dropbacks", 0)}
     return out
 

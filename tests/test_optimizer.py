@@ -9,9 +9,12 @@ from app.optimizer import optimize
 pytestmark = pytest.mark.anyio
 
 
-def _p(pid, name, pos, team, salary, proj, *, game="A@B", slot="", injury="Healthy", ceiling=None):
-    return dict(dk_draftable_id=pid, name=name, position=pos, team=team, salary=salary, proj_points=proj, dk_fppg=proj,
-                ceiling=ceiling if ceiling is not None else proj * 1.5, roster_slot=slot, game_info=game, injury=injury)
+def _p(pid, name, pos, team, salary, proj, *, game="A@B", slot="", injury="Healthy", ceiling=None, opponent=None):
+    out = dict(dk_draftable_id=pid, name=name, position=pos, team=team, salary=salary, proj_points=proj, dk_fppg=proj,
+               ceiling=ceiling if ceiling is not None else proj * 1.5, roster_slot=slot, game_info=game, injury=injury)
+    if opponent is not None:
+        out["opponent"] = opponent
+    return out
 
 
 def _classic_pool():
@@ -108,7 +111,8 @@ async def test_get_optimal_saves_before_kickoff_and_serves_frozen_copy_after(mon
 
     before = await optimal.get_optimal(2026, 3, "classic", now=kickoff - timedelta(hours=2))
     assert before["status"] == "live"
-    assert [lu["metric"] for lu in before["lineups"]] == ["proj_points", "ceiling"]
+    assert [lu["metric"] for lu in before["lineups"]] == ["proj_points", "tournament"]
+    assert [lu["label"] for lu in before["lineups"]] == ["Safe lineup (high floor)", "Tournament lineup (stacked)"]
     saved = optimal.load_saved(2026, 3, "classic")
     assert saved["lineups"] == before["lineups"]
 
@@ -292,3 +296,40 @@ def test_build_many_makes_distinct_lineups_within_exposure_and_keeps_locks():
     assert all(n <= 2 for pid, n in counts.items() if pid != 7)       # 67% of 3 lineups, except the lock
     first = optimize(pool, "classic", "proj_points", locked={7}, excluded={1})
     assert ids[0] == {p["dk_draftable_id"] for p in first}            # best first
+
+
+def _stack_pool():
+    """Two games with enough receivers for a QB double stack and an opposing WR bring-back."""
+    pool = []
+    i = 1
+    for team, opp, game in (("A", "B", "A@B"), ("B", "A", "A@B"), ("C", "D", "C@D"), ("D", "C", "C@D")):
+        for pos, n, sal, pts in (("QB", 1, 7000, 20), ("RB", 2, 6200, 13), ("WR", 3, 5700, 12), ("TE", 1, 4500, 8), ("DST", 1, 3000, 7)):
+            for k in range(n):
+                pool.append(_p(i, f"{team}-{pos}{k}", pos, team, sal - 300 * k, pts - k, game=game, opponent=opp))
+                i += 1
+    return pool
+
+
+def test_tournament_lineup_stacks_its_qb_with_two_pass_catchers_and_an_opposing_wr():
+    pool = [Player(**{**p, "value_per_1k": 0.0}) for p in _stack_pool()]
+    lineup = optimal._tournament(pool, set())
+    assert lineup and len(lineup) == 9
+    qb = next(p for p in lineup if p.position == "QB")
+    assert sum(1 for p in lineup if p.team == qb.team and p.position in ("WR", "TE")) >= 2
+    assert any(p.team == qb.opponent and p.position == "WR" for p in lineup)
+    rbs = [p.team for p in lineup if p.position == "RB"]
+    assert len(rbs) == len(set(rbs))
+    locked = next(p for p in pool if p.name == "C-WR2")
+    assert locked in optimal._tournament(pool, {locked.dk_draftable_id})
+
+
+def test_punt_cap_limits_cheap_skill_players():
+    pool = _classic_pool() + [_p(20 + k, f"Punt WR{k}", "WR", "B", 3000, 9) for k in range(3)]
+    capped = optimize(pool, "classic", "proj_points", max_punts=1)
+    assert sum(1 for p in capped if p["position"] != "DST" and p["salary"] < 4500) <= 1
+
+
+def test_saved_classic_lineups_are_served_under_their_current_names():
+    saved = [{"metric": "proj_points", "label": "Optimal - Proj"}, {"metric": "ceiling", "label": "Optimal - Ceiling"}]
+    assert [lu["label"] for lu in optimal._relabel(saved)] == ["Safe lineup (high floor)", "Ceiling lineup (retired)"]
+    assert optimal._relabel(saved, "showdown") == saved

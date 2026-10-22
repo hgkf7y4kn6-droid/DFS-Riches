@@ -41,8 +41,9 @@ export default function Results() {
         <BrandHeader title="How we did" />
         <BackLink />
         <Text className="screen-subtitle">
-          Each slate&apos;s <Term id="optimal">projected optimal</Term> lineups, saved before kickoff: what they were projected for, what they
-          scored, and the best lineup possible in hindsight.
+          Each slate&apos;s <Term id="optimal">model lineups</Term>, saved before kickoff: what they were projected for, what they scored,
+          and the best lineup possible in hindsight. The Safe lineup is built to cash, not to win: the best possible lineup is a
+          once-a-week outlier that usually scores close to double.
         </Text>
         <StatusView loading={loading && !data} error={error} onRetry={refresh} />
         {avgProj != null && avgActual != null ? (
@@ -74,9 +75,10 @@ export default function Results() {
             </Text>
             {s.lineups.map((l) => (
               <View key={l.label} className="result-row">
-                <Text className="dfs-name flex-1">{l.label.replace('Optimal - ', 'Optimal · ')}</Text>
+                <Text className="dfs-name flex-1">{l.label}</Text>
                 <Text className="dfs-meta">proj {l.proj_points.toFixed(1)}</Text>
                 <Text className={`result-score ${l.actual >= l.proj_points ? 'text-positive' : 'text-negative'}`}>{l.actual.toFixed(1)}</Text>
+                {l.note ? <Text className="caption mt-1 w-full">{l.note}</Text> : null}
               </View>
             ))}
             {s.best_possible != null ? <Text className="dfs-meta mt-1">Best possible: {s.best_possible.toFixed(1)}</Text> : null}

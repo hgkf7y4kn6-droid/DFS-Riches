@@ -22,3 +22,29 @@ def test_receivers_depth_of_target_meets_the_opponents_big_plays_allowed():
     few = {1: deep[1], 2: deep[2]}                       # fewer than 3 games: no read yet
     assert pm.features(few, 4, 12.0, "WR", 23.0, 0.0, opp_explosive=0.01)["adot_x_opp_explosive"] == 0.0
     assert pm.features(deep, 4, 12.0, "RB", 23.0, 0.0, opp_explosive=0.01)["adot_x_opp_explosive"] == 0.0
+
+
+def test_wide_receivers_read_the_opponents_starting_corners_out():
+    hist = {1: {"ts": 0.2, "cs": 0.0, "snap": 80.0, "pts": 12.0, "team": "A", "air": 60.0, "tgt": 6.0}}
+    assert pm.features(hist, 2, 12.0, "WR", 23.0, 0.0, opp_cb_out=2)["cb_out_x_wr"] == 2.0
+    assert pm.features(hist, 2, 12.0, "TE", 23.0, 0.0, opp_cb_out=2)["cb_out_x_wr"] == 0.0
+    assert pm.features(hist, 2, 12.0, "WR", 23.0, 0.0)["cb_out_x_wr"] == 0.0
+
+
+def test_workhorse_pass_catching_backs_get_a_ceiling_lift_vs_corners_out():
+    from app import ceiling_model as cm
+    catcher = {"rush_att": 15, "rec_tgt": 4.5}
+    assert cm.cb_out_boost("RB", catcher, 1) == cm.CB_OUT_CATCHER_BOOST
+    assert cm.cb_out_boost("RB", catcher, 0) == 1.0
+    assert cm.cb_out_boost("RB", {"rush_att": 18, "rec_tgt": 1.5}, 2) == 1.0
+    assert cm.cb_out_boost("WR", catcher, 2) == 1.0
+
+
+def test_corners_out_counts_starters_who_played_no_snaps():
+    from app import game_model as gm
+    cb = {(1, "A"): {"c1": 60, "c2": 55, "c3": 10}, (2, "A"): {"c1": 58, "c2": 50, "c3": 12},
+          (3, "A"): {"c2": 61, "c3": 40, "c1": 0}}
+    dsnaps = {"CB": cb}
+    assert gm.cb_starters(dsnaps, "A", 3) == ["c1", "c2"]
+    assert gm.cb_out_played(dsnaps, "A", 3) == 1
+    assert gm.cb_out_played(dsnaps, "A", 9) == 0          # no snap counts for that game yet

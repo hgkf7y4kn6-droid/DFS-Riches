@@ -298,7 +298,8 @@ interface LineupPlayer {
 }
 
 interface OptimalLineup {
-  metric: 'proj_points' | 'ceiling' | string;
+  /** proj_points: the Safe lineup; tournament: the stacked Tournament lineup; ceiling: retired (old records, Showdown). */
+  metric: 'proj_points' | 'tournament' | 'ceiling' | string;
   label: string;
   players: LineupPlayer[];
   salary: number;
@@ -622,6 +623,8 @@ interface DfsPlayer {
   snap_pct?: number | null;
   usage_trend?: UsageTrend | null;
   team_share?: TeamShare | null;
+  /** RB/WR/TE: the opponent's starting corners out (already in his projection or ceiling). */
+  opp_cb_out?: number | null;
   /** Prop medians and ladder chances by stat (pass_yd, rush_yd, rec_yd, rec), from app.prop_pricer; Pro only (left out for free accounts). */
   props?: Record<string, PropPrice> | null;
 }
@@ -817,6 +820,8 @@ interface LeverageDetail {
 }
 
 interface PlayPlayer {
+  /** RB/WR/TE: the opponent's starting corners out (already in his projection or ceiling). */
+  opp_cb_out?: number | null;
   /** The projection's weather adjustment (outdoor games where weather moved it). */
   weather?: { factor: number; text: string | null } | null;
   /** 1-based strength-of-play rank in a ranking list; null in the full player list. */

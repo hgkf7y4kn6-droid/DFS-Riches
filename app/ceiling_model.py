@@ -29,6 +29,13 @@ HISTORY_GAMES = 12
 PRIOR_GAMES = 4
 Z_85 = 1.04
 
+# A workhorse pass-catching back (12+ projected carries, 3.5+ targets) facing a defense missing a starting corner
+# beat this ceiling 22% of the time in 2023-2025, not 15% (more of his targets go uncovered): his ceiling is raised by
+# the 85th-percentile actual/ceiling multiple in those games (each season held out in turn, it pulled the beat rate
+# from 22% toward 17%). scripts/test_defensive_injuries.py found the pattern.
+CB_OUT_CATCHER_BOOST = 1.067
+WORKHORSE_CARRIES, WORKHORSE_TARGETS = 12.0, 3.5
+
 _MODEL: dict | None = None
 
 
@@ -75,6 +82,14 @@ def ceiling(position: str, x: dict | None, model: dict | None = None) -> float |
         return None
     v = p["b"][0] + sum(b * (x[f] - mu) / sd for f, b, mu, sd in zip(p["features"], p["b"][1:], p["mu"], p["sd"]))
     return round(max(x["proj"], v), 1)
+
+
+def cb_out_boost(position: str, line: dict | None, opp_cb_out: int) -> float:
+    """The ceiling multiple for a workhorse pass-catching back facing starting corners out (1.0 otherwise)."""
+    g = lambda k: float((line or {}).get(k) or 0)  # noqa: E731
+    if position == "RB" and opp_cb_out and g("rush_att") >= WORKHORSE_CARRIES and g("rec_tgt") >= WORKHORSE_TARGETS:
+        return CB_OUT_CATCHER_BOOST
+    return 1.0
 
 
 def notes(value: float, x: dict, position: str) -> list[str]:

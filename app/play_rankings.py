@@ -306,6 +306,8 @@ def _player(r: dict, contest: str, own_contests: list[str], rank: int | None = N
         "snap_pct": r.get("snap_pct"),
         "usage_trend": r.get("usage_trend"),
         "team_share": r.get("team_share"),
+        # the opponent's starting corners out (app.game_model): already in his projection (WR) or ceiling (pass-catching RB)
+        "opp_cb_out": r.get("opp_cb_out"),
         "final": _round(r["final"]),
         "floor": _round(r["floor"]),
         "ceiling": _round(r["ceiling"]),
