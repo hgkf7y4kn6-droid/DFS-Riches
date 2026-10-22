@@ -978,6 +978,40 @@
   .lineup-open {
     @apply flex-1 text-sm font-sans-medium text-muted-foreground;
   }
+  .lineup-open-select {
+    @apply font-sans-semibold text-accent-ink;
+  }
+  /* The builder's full-screen slot list ("Draft QB"). */
+  .picker-header {
+    @apply flex-row items-center justify-between border-b border-border px-4 py-3;
+  }
+  .picker-back {
+    @apply w-20;
+  }
+  .picker-back-text {
+    @apply text-sm font-sans-bold text-accent-ink;
+  }
+  .picker-title {
+    @apply text-base font-sans-bold text-foreground;
+  }
+  .picker-current {
+    @apply mb-2 rounded-xl border border-border bg-card px-3 pt-2;
+  }
+  .picker-section {
+    @apply mt-3 flex-row items-center justify-between border-b border-border pb-1.5;
+  }
+  .picker-section-title {
+    @apply text-sm font-sans-bold text-foreground;
+  }
+  .picker-bar {
+    @apply flex-row items-center justify-between border-t border-border bg-card px-4 py-3;
+  }
+  .picker-bar-label {
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .picker-bar-value {
+    @apply text-sm font-sans-bold text-foreground;
+  }
   .lineup-player {
     @apply flex-1 pr-2;
   }

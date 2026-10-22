@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
@@ -69,10 +69,26 @@ function pointsLine(p: RowPlayer): string {
  * team and opponent underneath, then salary and projection on the right --
  * readable on a phone without a wide table.
  */
-export function LineupRow({ slot, player, right, note }: { slot: string; player: RowPlayer | null; right?: React.ReactNode; note?: string | null }) {
+export function LineupRow({
+  slot,
+  player,
+  right,
+  note,
+  onPress,
+  pressLabel,
+}: {
+  slot: string;
+  player: RowPlayer | null;
+  right?: React.ReactNode;
+  note?: string | null;
+  /** Makes the row a button (the builder: open this slot's player list); an empty slot then reads "Select QB ›". */
+  onPress?: () => void;
+  pressLabel?: string;
+}) {
   const [trendOpen, setTrendOpen] = useState(false);
+  const Row = onPress ? Pressable : View;
   return (
-    <View className="lineup-row">
+    <Row className="lineup-row" {...(onPress ? { onPress, accessibilityRole: 'button' as const, accessibilityLabel: pressLabel } : {})}>
       <Text className="lineup-slot">{slot}</Text>
       {player ? (
         <>
@@ -106,10 +122,10 @@ export function LineupRow({ slot, player, right, note }: { slot: string; player:
           </View>
         </>
       ) : (
-        <Text className="lineup-open">Open</Text>
+        <Text className={onPress ? 'lineup-open lineup-open-select' : 'lineup-open'}>{onPress ? `Select ${slot} ›` : 'Open'}</Text>
       )}
       {right}
-    </View>
+    </Row>
   );
 }
 

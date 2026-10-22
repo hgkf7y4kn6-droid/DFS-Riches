@@ -152,3 +152,57 @@ export function summarize(slots: BuilderLineup, slateType: SlateType): LineupSum
     errors,
   };
 }
+
+/** Whether a player can fill this slot (position, or Showdown CPT / FLEX). */
+export function slotTakes(slateType: SlateType, index: number, player: Player): boolean {
+  const def = template(slateType)[index];
+  return !!def && slotAccepts(def, player);
+}
+
+/** Puts a player into one slot (replacing whoever is there), as when he's picked from that slot's list. */
+export function placeAt(slots: BuilderLineup, slateType: SlateType, index: number, player: Player): AddResult {
+  const defs = template(slateType);
+  if (!defs[index] || !slotAccepts(defs[index], player)) return { ok: false, reason: `${player.name} can't play ${defs[index]?.label ?? 'there'}.` };
+  const dupe = slots.find((p, i) => i !== index && p != null && samePerson(p, player));
+  if (dupe) return { ok: false, reason: `${player.name} is already in this lineup as ${dupe.roster_slot || dupe.position}.` };
+  const next = slots.slice();
+  next[index] = player;
+  return { ok: true, slots: next, index };
+}
+
+export type SlotFit = { ok: true } | { ok: false; kind: 'salary' | 'unavailable'; reason: string };
+
+/**
+ * Who can fill one slot: eligible for it, not already rostered elsewhere, and priced so the lineup (with this slot's
+ * current player swapped out) still leaves enough to fill every other open slot with the cheapest eligible players.
+ * kind "salary" = only the price stands in the way.
+ */
+export function slotFitChecker(slots: BuilderLineup, slateType: SlateType, pool: Player[], index: number) {
+  const defs = template(slateType);
+  const others = slots.map((p, i) => (i === index ? null : p));
+  const filled = others.filter((p): p is Player => p != null);
+  const remaining = SALARY_CAP - filled.reduce((s, p) => s + p.salary, 0);
+  const open = defs.map((_, i) => i).filter((i) => i !== index && !others[i]);
+  const available = pool.filter((p) => !filled.some((f) => samePerson(f, p))).sort((a, b) => a.salary - b.salary);
+  const cheapest: Record<number, Player[]> = {};
+  for (const i of open) cheapest[i] = available.filter((p) => slotAccepts(defs[i], p));
+  const order = open.slice().sort((a, b) => cheapest[a].length - cheapest[b].length);
+
+  return (player: Player): SlotFit => {
+    const dupe = filled.find((p) => samePerson(p, player));
+    if (dupe) return { ok: false, kind: 'unavailable', reason: `Already in as ${dupe.roster_slot || dupe.position}` };
+    let need = 0;
+    const taken = [player];
+    for (const i of order) {
+      const pick = cheapest[i].find((p) => !taken.some((t) => samePerson(t, p)));
+      if (!pick) return { ok: false, kind: 'unavailable', reason: 'Not enough eligible players left for the other slots' };
+      taken.push(pick);
+      need += pick.salary;
+    }
+    if (player.salary + need > remaining) {
+      const max = remaining - need;
+      return { ok: false, kind: 'salary', reason: max > 0 ? `Over your $${max.toLocaleString('en-US')} limit for this slot` : 'No salary left for this slot' };
+    }
+    return { ok: true };
+  };
+}

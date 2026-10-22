@@ -1,15 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import MatchupModeToggle from '@/components/MatchupModeToggle';
 import { LineupRow, type RowPlayer, Totals } from '@/components/LineupRows';
 import StatusView from '@/components/StatusView';
+import SlotPicker, { type SlotChoice } from '@/components/SlotPicker';
 import SubmissionForm from '@/components/SubmissionForm';
 import { MAX_LINEUPS } from '@/constants/config';
 import { PLAYABLE_STATUSES, POSITION_FILTERS } from '@/constants/data';
 import icons from '@/constants/icons';
 import { useThemeColors } from '@/constants/theme';
-import { addPlayer, fitChecker, indexOfPlayer, removeAt, summarize, template } from '@/lib/lineups';
+import { addPlayer, fitChecker, indexOfPlayer, placeAt, removeAt, slotFitChecker, slotTakes, summarize, template } from '@/lib/lineups';
 import { sortByMatchup } from '@/lib/matchup-sort';
 import { useSlateOwnership } from '@/lib/slate-ownership';
 import { useLeverage } from '@/lib/leverage-context';
@@ -83,7 +84,9 @@ export interface BuildField {
  * as a stacked vertical list of slots (tap x to remove), its totals, then the
  * player pool -- filter by position, search, tap + to add. Players that
  * can't fit (no open slot, or too little salary left to fill the rest) are
- * dimmed with the reason.
+ * dimmed with the reason. Tapping a slot opens that slot's player list full
+ * screen (SlotPicker): the players who fit the remaining salary first, in the
+ * current sort or blend, with the salary bar always in view.
  */
 export default function LineupBuilder({ scope = '', field }: { scope?: LineupScope; field?: BuildField } = {}) {
   const { selectedSlate, players, weekData } = useWeek();
@@ -201,16 +204,8 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
       p ? [{ slot: defs[i].label, dk_draftable_id: p.dk_draftable_id, name: p.name, team: p.team, position: p.position, salary: p.salary }] : [],
     );
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const list = pool
-      .filter((p) => showAll || PLAYABLE_STATUSES.has(p.injury ?? 'Healthy'))
-      .filter((p) => {
-        if (position === 'All') return true;
-        if (slateType === 'showdown') return p.roster_slot === position;
-        return position === 'FLEX' ? FLEX_POSITIONS.has(p.position) : p.position === position;
-      })
-      .filter((p) => !q || p.name.toLowerCase().includes(q) || p.team.toLowerCase() === q);
+  /** Ranks a list of players by the current sort, or by the weighted blend of several sorts (percentiles within the list). */
+  const rank = useCallback((list: Player[]): { player: Player; blend: number | null }[] => {
     const ownership = own.ownership;
     const value: Record<SortKey, (p: Player) => number | null | undefined> = {
       proj: (p) => p.proj_points,
@@ -261,7 +256,54 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
         return dir * (va - vb) || b.proj_points - a.proj_points;
       })
       .map((p) => ({ player: p, blend: null as number | null }));
-  }, [pool, position, query, showAll, slateType, selected, weights, lowFirst, blended, sortBy, ascending, lookup, own.ownership, field, implied, leverageOf]);
+  }, [selected, weights, lowFirst, blended, sortBy, ascending, lookup, own.ownership, field, implied, leverageOf]);
+
+  const matchesQuery = (p: Player, text: string) => {
+    const q = text.trim().toLowerCase();
+    return !q || p.name.toLowerCase().includes(q) || p.team.toLowerCase() === q;
+  };
+  const filtered = useMemo(
+    () =>
+      rank(
+        pool
+          .filter((p) => showAll || PLAYABLE_STATUSES.has(p.injury ?? 'Healthy'))
+          .filter((p) => {
+            if (position === 'All') return true;
+            if (slateType === 'showdown') return p.roster_slot === position;
+            return position === 'FLEX' ? FLEX_POSITIONS.has(p.position) : p.position === position;
+          })
+          .filter((p) => matchesQuery(p, query)),
+      ),
+    [pool, position, query, showAll, slateType, rank],
+  );
+
+  // The full-screen list for one slot: eligible players in the current sort / blend, split into who fits the
+  // remaining salary, who's priced out, and who's unavailable (already in the lineup, or locked in late swap).
+  const [pickerSlot, setPickerSlot] = useState<number | null>(null);
+  const [pickerQuery, setPickerQuery] = useState('');
+  const pickerChoices = useMemo(() => {
+    const out: { fits: SlotChoice[]; salary: SlotChoice[]; unavailable: SlotChoice[] } = { fits: [], salary: [], unavailable: [] };
+    if (pickerSlot == null) return out;
+    const occupant = lineup[pickerSlot];
+    const fit = slotFitChecker(lineup, slateType, pool, pickerSlot);
+    const eligible = pool.filter(
+      (p) =>
+        slotTakes(slateType, pickerSlot, p) &&
+        (showAll || PLAYABLE_STATUSES.has(p.injury ?? 'Healthy')) &&
+        p.dk_draftable_id !== occupant?.dk_draftable_id &&
+        matchesQuery(p, pickerQuery),
+    );
+    for (const { player, blend } of rank(eligible)) {
+      if (lockedTeams.has(player.team)) {
+        out.unavailable.push({ player, blend, reason: 'Game started: locked' });
+        continue;
+      }
+      const f = fit(player);
+      if (f.ok) out.fits.push({ player, blend, reason: null });
+      else out[f.kind === 'salary' ? 'salary' : 'unavailable'].push({ player, blend, reason: f.reason });
+    }
+    return out;
+  }, [pickerSlot, pickerQuery, lineup, slateType, pool, showAll, rank, lockedTeams]);
 
   /** Tap a sort: add it (weights reset to an even split), or remove it; tapping the only sort flips its direction. */
   const pressSort = (key: SortKey) => {
@@ -332,6 +374,123 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
     if (filled === 1) track('lineup_started', { scope: scope || 'lineups', slate_type: slateType });
     if (filled === defs.length) track('lineup_completed', { scope: scope || 'lineups', slate_type: slateType });
   };
+
+  const openSlot = (i: number) => {
+    const p = lineup[i];
+    if (p && lockedTeams.has(p.team)) {
+      setMessage({ text: `${p.name}'s game has started: he's locked.`, error: true });
+      return;
+    }
+    setPickerQuery('');
+    setPickerSlot(i);
+    track('slot_picker_opened', { slot: defs[i].label, slate_type: slateType });
+  };
+  const pickForSlot = (player: Player) => {
+    if (pickerSlot == null) return;
+    const res = placeAt(lineup, slateType, pickerSlot, player);
+    if (!res.ok) {
+      setMessage({ text: res.reason, error: true });
+      return;
+    }
+    const replaced = lineup[pickerSlot];
+    setLineup(activeLineup, res.slots);
+    setMessage({ text: replaced ? `Swapped ${replaced.name} for ${player.name} at ${defs[pickerSlot].label}.` : `Added ${player.name} at ${defs[pickerSlot].label}.` });
+    setPickerSlot(null);
+    const filled = res.slots.filter(Boolean).length;
+    if (filled === 1 && !replaced) track('lineup_started', { scope: scope || 'lineups', slate_type: slateType });
+    if (filled === defs.length) track('lineup_completed', { scope: scope || 'lineups', slate_type: slateType });
+  };
+
+  // The sort chips, the blend's weights and what the sort means: shared by the pool and the slot lists.
+  const sortControls = (
+    <>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
+        <Text className="matchup-toggle-label mr-1 self-center">Sort</Text>
+        {sorts.map((o) => {
+          const active = selected.includes(o.key);
+          const showDir = active && !blended && o.key !== 'matchup';
+          return (
+            <Pressable
+              key={o.key}
+              className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
+              onPress={() => pressSort(o.key)}
+              accessibilityRole="button"
+              aria-pressed={active}
+              accessibilityHint={active ? (blended ? 'Removes this sort from the blend' : 'Flips the order') : 'Adds this sort'}>
+              <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>
+                {o.label}
+                {showDir ? (ascending ? ' ▲' : ' ▼') : ''}
+                {active && blended ? ` ${weights[o.key] ?? 0}%` : ''}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+      {blended ? (
+        <View className="weight-panel">
+          <View className="flex-row items-center justify-between">
+            <Text className="weight-title">Sort weights · total {totalWeight(weights, selected)}%</Text>
+            <Pressable onPress={() => setWeights(evenWeights(selected))} hitSlop={8} accessibilityRole="button">
+              <Text className="link-text text-xs">Even split</Text>
+            </Pressable>
+          </View>
+          <Text className="weight-help">
+            Players rank on a blend of their percentile in this pool for each sort. Change one weight and the others rescale so the total stays 100%. Tap a
+            sort chip again to drop it.
+          </Text>
+          {selected.map((k) => (
+            <View key={k} className="weight-row">
+              <Text className="weight-label" numberOfLines={1}>
+                {SORT_LABEL[k]}
+              </Text>
+              {k !== 'matchup' ? (
+                <Pressable
+                  className="weight-dir"
+                  onPress={() => setLowFirst((d) => ({ ...d, [k]: !d[k] }))}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${SORT_LABEL[k]}: ${lowFirst[k] ? 'lower is better' : 'higher is better'}; tap to flip`}>
+                  <Text className="weight-dir-text">{lowFirst[k] ? 'Low ▲' : 'High ▼'}</Text>
+                </Pressable>
+              ) : (
+                <Text className="weight-dir-text px-2">Softest</Text>
+              )}
+              <Pressable className="weight-step" onPress={() => changeWeight(k, (weights[k] ?? 0) - STEP)} accessibilityRole="button" accessibilityLabel={`Lower ${SORT_LABEL[k]} weight`}>
+                <Text className="weight-step-text">−</Text>
+              </Pressable>
+              <TextInput
+                className="weight-input"
+                keyboardType="number-pad"
+                defaultValue={String(weights[k] ?? 0)}
+                key={`${k}-${weights[k]}`}
+                onEndEditing={(e) => changeWeight(k, Number(e.nativeEvent.text))}
+                onSubmitEditing={(e) => changeWeight(k, Number(e.nativeEvent.text))}
+                maxLength={3}
+                selectTextOnFocus
+                accessibilityLabel={`${SORT_LABEL[k]} weight percent`}
+              />
+              <Text className="weight-pct">%</Text>
+              <Pressable className="weight-step" onPress={() => changeWeight(k, (weights[k] ?? 0) + STEP)} accessibilityRole="button" accessibilityLabel={`Raise ${SORT_LABEL[k]} weight`}>
+                <Text className="weight-step-text">+</Text>
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      ) : null}
+      <Text className="dfs-reason mb-2">
+        {blended
+          ? 'Blend score (0-100) shown on each player: 100 = best in this pool on every selected sort.'
+          : sortBy === 'own' && field
+            ? `Expected ${field.label.toLowerCase()} ownership`
+            : SORT_NOTE[sortBy]}
+        {!blended && sortBy !== 'matchup' ? (ascending ? ' · lowest first (tap again to flip)' : ' · highest first (tap again to flip)') : ''}
+        {!blended ? ' · tap more sorts to blend them' : ''}
+        {selected.includes('own') && !own.available ? ' · ownership not available for Showdown slates (no DFS model)' : ''}
+        {selected.includes('own') && own.loading ? ' · loading the DFS model…' : ''}
+        {selected.includes('own') && own.error ? ` · couldn't load ownership: ${own.error}` : ''}
+        {position === 'FLEX' && pickerSlot == null ? ' · FLEX: RBs, WRs and TEs -- adding one fills an open RB / WR / TE slot first, then FLEX' : ''}
+      </Text>
+    </>
+  );
 
   return (
     <View>
@@ -468,6 +627,8 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
               key={i}
               slot={def.label}
               player={p}
+              onPress={() => openSlot(i)}
+              pressLabel={p ? `${def.label}: ${p.name}. Change player` : `Select a ${def.label}`}
               note={p && lockedTeams.has(p.team) ? 'Locked: game started' : null}
               right={
                 p && lockedTeams.has(p.team) ? (
@@ -525,6 +686,27 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
 
       {message ? <Text className={`lineup-message ${message.error ? 'text-negative' : ''}`}>{message.text}</Text> : null}
 
+      <SlotPicker
+        visible={pickerSlot != null}
+        slot={pickerSlot != null ? defs[pickerSlot].label : ''}
+        current={pickerSlot != null ? lineup[pickerSlot] ?? null : null}
+        choices={pickerChoices}
+        query={pickerQuery}
+        onQuery={setPickerQuery}
+        controls={sortControls}
+        summary={summary}
+        rowPlayer={rowPlayer}
+        onPick={pickForSlot}
+        onRemove={() => {
+          if (pickerSlot == null) return;
+          const p = lineup[pickerSlot];
+          setLineup(activeLineup, removeAt(lineup, pickerSlot));
+          if (p) setMessage({ text: `Removed ${p.name}.` });
+          setPickerSlot(null);
+        }}
+        onClose={() => setPickerSlot(null)}
+      />
+
       {/* Player pool */}
       <Text className="section-title mb-2">Player pool</Text>
       <MatchupModeToggle />
@@ -553,91 +735,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
           <Text className={`filter-chip-text ${showAll ? 'filter-chip-text-active' : ''}`}>Incl. Out/Doubtful</Text>
         </Pressable>
       </ScrollView>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
-        <Text className="matchup-toggle-label mr-1 self-center">Sort</Text>
-        {sorts.map((o) => {
-          const active = selected.includes(o.key);
-          const showDir = active && !blended && o.key !== 'matchup';
-          return (
-            <Pressable
-              key={o.key}
-              className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
-              onPress={() => pressSort(o.key)}
-              accessibilityRole="button"
-              aria-pressed={active}
-              accessibilityHint={active ? (blended ? 'Removes this sort from the blend' : 'Flips the order') : 'Adds this sort'}>
-              <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>
-                {o.label}
-                {showDir ? (ascending ? ' ▲' : ' ▼') : ''}
-                {active && blended ? ` ${weights[o.key] ?? 0}%` : ''}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-      {blended ? (
-        <View className="weight-panel">
-          <View className="flex-row items-center justify-between">
-            <Text className="weight-title">Sort weights · total {totalWeight(weights, selected)}%</Text>
-            <Pressable onPress={() => setWeights(evenWeights(selected))} hitSlop={8} accessibilityRole="button">
-              <Text className="link-text text-xs">Even split</Text>
-            </Pressable>
-          </View>
-          <Text className="weight-help">
-            Players rank on a blend of their percentile in this pool for each sort. Change one weight and the others rescale so the total stays 100%. Tap a
-            sort chip again to drop it.
-          </Text>
-          {selected.map((k) => (
-            <View key={k} className="weight-row">
-              <Text className="weight-label" numberOfLines={1}>
-                {SORT_LABEL[k]}
-              </Text>
-              {k !== 'matchup' ? (
-                <Pressable
-                  className="weight-dir"
-                  onPress={() => setLowFirst((d) => ({ ...d, [k]: !d[k] }))}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${SORT_LABEL[k]}: ${lowFirst[k] ? 'lower is better' : 'higher is better'}; tap to flip`}>
-                  <Text className="weight-dir-text">{lowFirst[k] ? 'Low ▲' : 'High ▼'}</Text>
-                </Pressable>
-              ) : (
-                <Text className="weight-dir-text px-2">Softest</Text>
-              )}
-              <Pressable className="weight-step" onPress={() => changeWeight(k, (weights[k] ?? 0) - STEP)} accessibilityRole="button" accessibilityLabel={`Lower ${SORT_LABEL[k]} weight`}>
-                <Text className="weight-step-text">−</Text>
-              </Pressable>
-              <TextInput
-                className="weight-input"
-                keyboardType="number-pad"
-                defaultValue={String(weights[k] ?? 0)}
-                key={`${k}-${weights[k]}`}
-                onEndEditing={(e) => changeWeight(k, Number(e.nativeEvent.text))}
-                onSubmitEditing={(e) => changeWeight(k, Number(e.nativeEvent.text))}
-                maxLength={3}
-                selectTextOnFocus
-                accessibilityLabel={`${SORT_LABEL[k]} weight percent`}
-              />
-              <Text className="weight-pct">%</Text>
-              <Pressable className="weight-step" onPress={() => changeWeight(k, (weights[k] ?? 0) + STEP)} accessibilityRole="button" accessibilityLabel={`Raise ${SORT_LABEL[k]} weight`}>
-                <Text className="weight-step-text">+</Text>
-              </Pressable>
-            </View>
-          ))}
-        </View>
-      ) : null}
-      <Text className="dfs-reason mb-2">
-        {blended
-          ? 'Blend score (0-100) shown on each player: 100 = best in this pool on every selected sort.'
-          : sortBy === 'own' && field
-            ? `Expected ${field.label.toLowerCase()} ownership`
-            : SORT_NOTE[sortBy]}
-        {!blended && sortBy !== 'matchup' ? (ascending ? ' · lowest first (tap again to flip)' : ' · highest first (tap again to flip)') : ''}
-        {!blended ? ' · tap more sorts to blend them' : ''}
-        {selected.includes('own') && !own.available ? ' · ownership not available for Showdown slates (no DFS model)' : ''}
-        {selected.includes('own') && own.loading ? ' · loading the DFS model…' : ''}
-        {selected.includes('own') && own.error ? ` · couldn't load ownership: ${own.error}` : ''}
-        {position === 'FLEX' ? ' · FLEX: RBs, WRs and TEs -- adding one fills an open RB / WR / TE slot first, then FLEX' : ''}
-      </Text>
+      {sortControls}
       <TextInput
         className="input mb-2"
         placeholder="Search player or team (e.g. BUF)"

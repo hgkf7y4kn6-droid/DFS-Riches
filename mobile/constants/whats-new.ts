@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.39',
+    title: "What's new",
+    items: [
+      'Tap any slot in your lineup (QB, RB, FLEX, CPT...) to see just the players for it, in your current sort or blend. Players who fit your remaining salary come first, the rest fold away, and your salary left stays in view at the bottom.',
+    ],
+  },
+  {
     version: '1.1.38',
     title: "What's new",
     items: [
