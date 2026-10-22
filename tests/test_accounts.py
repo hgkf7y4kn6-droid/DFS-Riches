@@ -181,8 +181,9 @@ def test_plans_come_from_the_token_then_metadata_and_masters_are_admin(monkeypat
     assert asyncio.run(accounts.plan("payer")) == "pro"
     assert asyncio.run(accounts.plan("someone")) == "free"
     monkeypatch.delenv("PRO_GATING", raising=False)
-    assert accounts.entitled("free", "ownership")                 # default: only optimal lineups are locked
+    assert accounts.entitled("free", "ownership")                 # default: optimal lineups and props are locked
     assert not accounts.entitled("free", "optimal") and accounts.entitled("pro", "optimal") and accounts.entitled("admin", "optimal")
+    assert not accounts.entitled("free", "props") and accounts.entitled("pro", "props")
     monkeypatch.setenv("PRO_GATING", "optimal,ownership")
     assert accounts.gated_features() == ("optimal", "ownership")
     monkeypatch.setenv("PRO_GATING", "0")

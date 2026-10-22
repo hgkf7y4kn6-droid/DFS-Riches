@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 import pytest
 from fastapi.testclient import TestClient
@@ -257,7 +258,7 @@ def test_pro_features_need_pro_once_gating_is_on(client, monkeypatch):
     monkeypatch.setattr(main.accounts, "verify_claims", verify_claims)
     monkeypatch.setattr(main.accounts, "is_master", not_master)
     url = "/api/slates/nope/ownership?season=2026&week=3"
-    monkeypatch.delenv("PRO_GATING", raising=False)                                         # default: optimal lineups only
+    monkeypatch.delenv("PRO_GATING", raising=False)                                  # default: optimal lineups and props
     assert client.get(url, headers={"authorization": "Bearer free"}).status_code == 404
     optimal = "/api/slates/nope/optimal?season=2026&week=3"
     assert client.get(optimal, headers={"authorization": "Bearer free"}).status_code == 402
@@ -266,6 +267,27 @@ def test_pro_features_need_pro_once_gating_is_on(client, monkeypatch):
     monkeypatch.setenv("PRO_GATING", "1")
     assert client.get(url, headers={"authorization": "Bearer free"}).status_code == 402
     assert client.get(url, headers={"authorization": "Bearer pro"}).status_code == 404
+
+
+def test_props_are_left_out_of_the_model_for_free_accounts(client, monkeypatch):
+    monkeypatch.setenv("REQUIRE_SIGN_IN", "1")
+    monkeypatch.delenv("PRO_GATING", raising=False)
+    plans = {"Bearer free": "free", "Bearer pro": "pro"}
+
+    async def verify_claims(authorization):
+        return {"sub": "u", "plan": plans[authorization]}
+
+    async def not_master(user_id):
+        return False
+
+    async def model(*args):
+        return json.dumps({"available": True, "table": [{"name": "A", "props": {"rec": {"median": 4.5}}}]}).encode()
+    monkeypatch.setattr(main.accounts, "verify_claims", verify_claims)
+    monkeypatch.setattr(main.accounts, "is_master", not_master)
+    monkeypatch.setattr(main, "_dfs_model", model)
+    url = "/api/dfs-model?season=2026&week=3&slate_id=props_test"
+    assert "props" not in client.get(url, headers={"authorization": "Bearer free"}).json()["table"][0]
+    assert client.get(url, headers={"authorization": "Bearer pro"}).json()["table"][0]["props"]["rec"]["median"] == 4.5
 
 
 def test_deleting_the_account_removes_its_data(client, monkeypatch):

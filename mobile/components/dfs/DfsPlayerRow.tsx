@@ -5,17 +5,22 @@ import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
 import { formatCurrency, formatPercent } from '@/lib/utils';
 import LeverageBadge from '@/components/LeverageBadge';
+import { ProSheet } from '@/components/ProLock';
 import PropLadder from '@/components/dfs/PropLadder';
+import { useAccountSync } from '@/lib/account-sync';
 import { track } from '@/lib/analytics';
 
 export type DfsMetric = 'final' | 'value' | 'ceiling';
 
 const METRIC_LABEL: Record<DfsMetric, string> = { final: 'proj', value: 'pts/$1k', ceiling: 'ceil' };
+// The positions app.prop_pricer prices.
+const PROP_POSITIONS = new Set(['QB', 'RB', 'WR', 'TE']);
 
 /**
  * One player, stacked for a phone: rank and name (with injury status), position
  * and matchup, salary; then projection, ceiling, value and expected roster %.
- * `metric` is shown first and bold. "Props" opens his prop medians and ladder.
+ * `metric` is shown first and bold. "Props" opens his prop medians and ladder
+ * (a Pro feature: for free accounts it opens what Pro adds).
  */
 export default function DfsPlayerRow({
   player,
@@ -32,6 +37,8 @@ export default function DfsPlayerRow({
   const p = player;
   const [trendOpen, setTrendOpen] = useState(false);
   const [propsOpen, setPropsOpen] = useState(false);
+  const [proOpen, setProOpen] = useState(false);
+  const propsLocked = useAccountSync().locked('props');
   const stats: [DfsMetric | 'own', string][] = [
     ['final', `${p.final.toFixed(1)} proj`],
     ['ceiling', p.ceiling != null ? `${p.ceiling.toFixed(1)} ceil` : ''],
@@ -69,7 +76,18 @@ export default function DfsPlayerRow({
       </View>
       <View className="flex-row items-center justify-between">
         <Text className="dfs-stats flex-shrink">{rest.map(([, v]) => v).join(' · ')}</Text>
-        {p.props && Object.keys(p.props).length ? (
+        {propsLocked && PROP_POSITIONS.has(p.position) ? (
+          <Pressable
+            onPress={() => {
+              track('pro_unlock_tapped', { feature: 'props' });
+              setProOpen(true);
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Props, a Pro feature"
+            hitSlop={8}>
+            <Text className="link-text mt-1">Props · Pro</Text>
+          </Pressable>
+        ) : p.props && Object.keys(p.props).length ? (
           <Pressable
             onPress={() => {
               if (!propsOpen) track('props_opened', { position: p.position });
@@ -82,7 +100,8 @@ export default function DfsPlayerRow({
           </Pressable>
         ) : null}
       </View>
-      {propsOpen && p.props ? <PropLadder props={p.props} /> : null}
+      {propsOpen && p.props && !propsLocked ? <PropLadder props={p.props} /> : null}
+      {propsLocked ? <ProSheet feature="props" visible={proOpen} onClose={() => setProOpen(false)} /> : null}
       {reasons.map((r, i) => (
         <Text key={i} className="dfs-reason">
           • {r}

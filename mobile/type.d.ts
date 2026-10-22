@@ -622,7 +622,7 @@ interface DfsPlayer {
   snap_pct?: number | null;
   usage_trend?: UsageTrend | null;
   team_share?: TeamShare | null;
-  /** Prop medians and ladder chances by stat (pass_yd, rush_yd, rec_yd, rec), from app.prop_pricer. */
+  /** Prop medians and ladder chances by stat (pass_yd, rush_yd, rec_yd, rec), from app.prop_pricer; Pro only (left out for free accounts). */
   props?: Record<string, PropPrice> | null;
 }
 
@@ -1072,7 +1072,7 @@ interface AccountData {
 }
 
 type Plan = 'free' | 'pro' | 'admin';
-type ProFeature = 'optimal' | 'ownership' | 'leverage' | 'multiple_lineups' | 'big_picture' | 'alerts';
+type ProFeature = 'optimal' | 'ownership' | 'leverage' | 'multiple_lineups' | 'big_picture' | 'alerts' | 'props';
 
 // ------------------------------------------------------------- Big Picture (master-only pilot)
 interface BigPictureRow {

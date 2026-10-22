@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.34',
+    title: "What's new",
+    items: [
+      'Player props are now part of DFSRiches Pro: median yards and catches for every player in DFS Model, and his chances at each ladder rung.',
+    ],
+  },
+  {
     version: '1.1.33',
     title: "What's new",
     items: [

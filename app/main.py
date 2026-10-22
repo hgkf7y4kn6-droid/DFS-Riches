@@ -130,6 +130,7 @@ async def _warm_current_slates() -> None:
         season, week = await current_season_week()
         version = ownership_store.data_version()
         await _dfs_model(season, week, None, "gpp", None, version)
+        await _dfs_model_without_props(season, week, None, "gpp", None, version)
         for contest in ("cash", "gpp"):
             await _plays(season, week, None, contest, version)
         log.info("model warm-up done for %s week %s", season, week)
@@ -470,6 +471,16 @@ async def _dfs_model(season: int, week: int, slate_id: str | None, contest: str,
 
 
 @memoize_async(ttl_seconds=120, stale_seconds=86400)
+async def _dfs_model_without_props(season: int, week: int, slate_id: str | None, contest: str, contest_size: int | None,
+                                   version: tuple) -> bytes:
+    """The model for accounts without Pro: every player's props (a Pro feature) left out."""
+    model = json.loads(await _dfs_model(season, week, slate_id, contest, contest_size, version))
+    for row in model.get("table") or []:
+        row.pop("props", None)
+    return json.dumps(model, separators=(",", ":"), default=_json_default).encode()
+
+
+@memoize_async(ttl_seconds=120, stale_seconds=86400)
 async def _plays(season: int, week: int, slate_id: str | None, contest: str, version: tuple) -> bytes:
     model = json.loads(await _dfs_model(season, week, slate_id, "gpp", None, version))
     if not model.get("available"):
@@ -521,12 +532,17 @@ async def _user(authorization: str | None) -> str:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
 
 
-async def _require_feature(request: Request, feature: str) -> None:
-    """A Pro feature (accounts.PRO_FEATURES): with PRO_GATING on, free accounts get a 402."""
+async def _entitled(request: Request, feature: str) -> bool:
+    """Whether this request may see a Pro feature (accounts.PRO_FEATURES); always, with PRO_GATING off."""
     if not accounts.pro_gating() or not sign_in_required():
-        return
+        return True
     claims = getattr(request.state, "claims", None) or {}
-    if not accounts.entitled(await accounts.plan(claims.get("sub", ""), claims), feature):
+    return accounts.entitled(await accounts.plan(claims.get("sub", ""), claims), feature)
+
+
+async def _require_feature(request: Request, feature: str) -> None:
+    """A Pro feature: with PRO_GATING on, free accounts get a 402."""
+    if not await _entitled(request, feature):
         raise HTTPException(status_code=402, detail="This is a DFSRiches Pro feature.")
 
 
@@ -691,14 +707,16 @@ async def api_slate_ownership(request: Request, slate_id: str, season: Season = 
 
 
 @app.get("/api/dfs-model")
-async def api_dfs_model(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, slate_id: str | None = None,
-                        contest: str = "gpp", contest_size: int | None = None):
-    """Weekly projection, ownership & lineup analysis for a Classic slate (app.dfs_model)."""
+async def api_dfs_model(request: Request, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK,
+                        slate_id: str | None = None, contest: str = "gpp", contest_size: int | None = None):
+    """Weekly projection, ownership & lineup analysis for a Classic slate (app.dfs_model). Players' props
+    (a Pro feature) are left out for free accounts."""
     _check_contest(contest)
     if contest_size is not None and not 2 <= contest_size <= 2_000_000:
         raise HTTPException(status_code=400, detail="contest_size must be between 2 and 2,000,000")
+    build = _dfs_model if await _entitled(request, "props") else _dfs_model_without_props
     try:
-        body = await _dfs_model(season, week, slate_id, contest, contest_size, ownership_store.data_version())
+        body = await build(season, week, slate_id, contest, contest_size, ownership_store.data_version())
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not build the DFS model: {exc}") from exc
     return Response(body, media_type="application/json")

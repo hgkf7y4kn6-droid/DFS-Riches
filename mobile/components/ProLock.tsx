@@ -11,6 +11,7 @@ const FEATURE_LABEL: Record<ProFeature, string> = {
   multiple_lineups: 'Multiple lineups',
   big_picture: 'The Big Picture',
   alerts: 'Lineup alerts',
+  props: 'Player props',
 };
 
 /** The sheet behind "Unlock with Pro": what Pro adds. Checkout comes with billing; until then it counts interest. */
@@ -26,6 +27,7 @@ export function ProSheet({ feature, visible, onClose }: { feature: ProFeature; v
           <Text className="intro-text">• Expected ownership for cash and tournament fields</Text>
           <Text className="intro-text">• Leverage: who the crowd is under- and over-playing</Text>
           <Text className="intro-text">• Up to 5 lineups per slate, and alerts when a player in one is ruled out</Text>
+          <Text className="intro-text">• Player props: median yards and catches, and the chance he reaches each ladder rung</Text>
           <Text className="intro-text">• The Big Picture research desk</Text>
           <Text className="caption mt-2">Pro sign-ups open soon. We&apos;ll let you know in the app.</Text>
           <Pressable className="btn mt-4" onPress={onClose} accessibilityRole="button">

@@ -192,9 +192,10 @@ async def is_master(user_id: str) -> bool:
 # ------------------------------------------------------------------ plans
 PLANS = ("free", "pro", "admin")
 # Pro features. Free: projections, slates, the builder, one saved lineup.
-PRO_FEATURES = ("optimal", "ownership", "leverage", "multiple_lineups", "big_picture", "alerts")
-# Locked for free accounts now: the projected optimal lineups (and "Build for me", which makes them).
-DEFAULT_GATED = ("optimal",)
+PRO_FEATURES = ("optimal", "ownership", "leverage", "multiple_lineups", "big_picture", "alerts", "props")
+# Locked for free accounts now: the projected optimal lineups (and "Build for me", which makes them), and
+# player props (prop medians and ladder chances, app.prop_pricer).
+DEFAULT_GATED = ("optimal", "props")
 
 
 def gated_features() -> tuple[str, ...]:
