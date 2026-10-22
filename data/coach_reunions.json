@@ -1,458 +1,6463 @@
 {
- "generated_at": "2026-10-21T22:53:14Z",
+ "generated_at": "2026-10-21T23:34:07Z",
  "seasons": [
-  2021,
+  2006,
   2026
  ],
  "lookback_seasons": 3,
  "baseline": {
-  "team_games": 2788,
-  "total_resid_mean": 0.63,
-  "over_rate": 0.487,
-  "abs_miss_mean": 10.34,
-  "miss_10plus_rate": 0.439,
-  "team_vs_implied_mean": 0.32,
+  "team_games": 9888,
+  "total_resid_mean": 0.69,
+  "over_rate": 0.499,
+  "abs_miss_mean": 10.54,
+  "miss_10plus_rate": 0.457,
+  "team_vs_implied_mean": 0.34,
   "team_beat_implied_rate": 0.495,
-  "cover_rate": 0.498,
-  "opp_vs_implied_mean": 0.31,
-  "opp_held_under_implied_rate": 0.495
+  "cover_rate": 0.5,
+  "opp_vs_implied_mean": 0.35,
+  "opp_held_under_implied_rate": 0.497
  },
  "groups": {
   "offense": {
    "summary": {
-    "team_games": 52,
-    "total_resid_mean": -2.59,
-    "over_rate": 0.442,
-    "abs_miss_mean": 11.64,
-    "miss_10plus_rate": 0.558,
-    "team_vs_implied_mean": -0.69,
-    "team_beat_implied_rate": 0.385,
-    "cover_rate": 0.52,
-    "opp_vs_implied_mean": -1.9,
-    "opp_held_under_implied_rate": 0.635
+    "team_games": 199,
+    "total_resid_mean": -1.1,
+    "over_rate": 0.48,
+    "abs_miss_mean": 9.38,
+    "miss_10plus_rate": 0.392,
+    "team_vs_implied_mean": -0.52,
+    "team_beat_implied_rate": 0.447,
+    "cover_rate": 0.503,
+    "opp_vs_implied_mean": -0.58,
+    "opp_held_under_implied_rate": 0.528
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -3.215,
-     "p": 0.0787
+     "diff": -1.789,
+     "p": 0.0596
     },
     "over_rate": {
-     "diff": -0.045,
-     "p": 0.5539
+     "diff": -0.019,
+     "p": 0.6089
     },
     "abs_miss_mean": {
-     "diff": 1.306,
-     "p": 0.2411
+     "diff": -1.157,
+     "p": 0.0453
     },
     "miss_10plus_rate": {
-     "diff": 0.118,
-     "p": 0.0893
+     "diff": -0.065,
+     "p": 0.0711
     },
     "team_vs_implied_mean": {
-     "diff": -1.007,
-     "p": 0.4283
+     "diff": -0.868,
+     "p": 0.1947
     },
     "cover_rate": {
-     "diff": 0.022,
-     "p": 0.7456
+     "diff": 0.003,
+     "p": 0.9605
     },
     "opp_vs_implied_mean": {
-     "diff": -2.208,
-     "p": 0.0853
+     "diff": -0.922,
+     "p": 0.1662
     },
     "opp_held_under_implied_rate": {
-     "diff": 0.14,
-     "p": 0.0469
+     "diff": 0.031,
+     "p": 0.3876
     }
    }
   },
   "offense_first_meeting": {
    "summary": {
-    "team_games": 34,
-    "total_resid_mean": -2.35,
-    "over_rate": 0.471,
-    "abs_miss_mean": 11.74,
-    "miss_10plus_rate": 0.471,
-    "team_vs_implied_mean": 0.17,
-    "team_beat_implied_rate": 0.441,
-    "cover_rate": 0.562,
-    "opp_vs_implied_mean": -2.52,
-    "opp_held_under_implied_rate": 0.618
+    "team_games": 134,
+    "total_resid_mean": -0.66,
+    "over_rate": 0.504,
+    "abs_miss_mean": 9.15,
+    "miss_10plus_rate": 0.373,
+    "team_vs_implied_mean": -0.11,
+    "team_beat_implied_rate": 0.47,
+    "cover_rate": 0.519,
+    "opp_vs_implied_mean": -0.55,
+    "opp_held_under_implied_rate": 0.522
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -2.982,
-     "p": 0.1825
+     "diff": -1.355,
+     "p": 0.2408
     },
     "over_rate": {
-     "diff": -0.017,
-     "p": 0.8654
+     "diff": 0.005,
+     "p": 0.9287
     },
     "abs_miss_mean": {
-     "diff": 1.397,
-     "p": 0.3111
+     "diff": -1.392,
+     "p": 0.045
     },
     "miss_10plus_rate": {
-     "diff": 0.031,
-     "p": 0.7301
+     "diff": -0.083,
+     "p": 0.0538
     },
     "team_vs_implied_mean": {
-     "diff": -0.15,
-     "p": 0.9218
+     "diff": -0.455,
+     "p": 0.5841
     },
     "cover_rate": {
-     "diff": 0.065,
-     "p": 0.4502
+     "diff": 0.019,
+     "p": 0.686
     },
     "opp_vs_implied_mean": {
-     "diff": -2.831,
-     "p": 0.0727
+     "diff": -0.9,
+     "p": 0.2647
     },
     "opp_held_under_implied_rate": {
-     "diff": 0.123,
-     "p": 0.1654
+     "diff": 0.026,
+     "p": 0.5977
     }
    }
   },
   "defense": {
    "summary": {
-    "team_games": 35,
-    "total_resid_mean": 2.56,
-    "over_rate": 0.543,
-    "abs_miss_mean": 8.56,
-    "miss_10plus_rate": 0.343,
-    "team_vs_implied_mean": 2.36,
-    "team_beat_implied_rate": 0.6,
-    "cover_rate": 0.5,
-    "opp_vs_implied_mean": 0.2,
-    "opp_held_under_implied_rate": 0.486
+    "team_games": 178,
+    "total_resid_mean": 0.54,
+    "over_rate": 0.492,
+    "abs_miss_mean": 9.83,
+    "miss_10plus_rate": 0.433,
+    "team_vs_implied_mean": 0.0,
+    "team_beat_implied_rate": 0.478,
+    "cover_rate": 0.43,
+    "opp_vs_implied_mean": 0.54,
+    "opp_held_under_implied_rate": 0.5
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": 1.928,
-     "p": 0.3822
+     "diff": -0.152,
+     "p": 0.8809
     },
     "over_rate": {
-     "diff": 0.056,
-     "p": 0.5903
+     "diff": -0.007,
+     "p": 0.876
     },
     "abs_miss_mean": {
-     "diff": -1.781,
-     "p": 0.1889
+     "diff": -0.71,
+     "p": 0.2455
     },
     "miss_10plus_rate": {
-     "diff": -0.097,
-     "p": 0.3064
+     "diff": -0.024,
+     "p": 0.5452
     },
     "team_vs_implied_mean": {
-     "diff": 2.038,
-     "p": 0.1822
+     "diff": -0.344,
+     "p": 0.6246
     },
     "cover_rate": {
-     "diff": 0.002,
-     "p": 0.9909
+     "diff": -0.07,
+     "p": 0.068
     },
     "opp_vs_implied_mean": {
-     "diff": -0.109,
-     "p": 0.9453
+     "diff": 0.192,
+     "p": 0.7894
     },
     "opp_held_under_implied_rate": {
-     "diff": -0.009,
-     "p": 1.0
+     "diff": 0.003,
+     "p": 0.939
     }
    }
   },
   "any": {
    "summary": {
-    "team_games": 86,
-    "total_resid_mean": -0.59,
-    "over_rate": 0.477,
-    "abs_miss_mean": 10.46,
-    "miss_10plus_rate": 0.477,
-    "team_vs_implied_mean": 0.51,
-    "team_beat_implied_rate": 0.465,
-    "cover_rate": 0.512,
-    "opp_vs_implied_mean": -1.1,
-    "opp_held_under_implied_rate": 0.581
+    "team_games": 369,
+    "total_resid_mean": -0.4,
+    "over_rate": 0.482,
+    "abs_miss_mean": 9.63,
+    "miss_10plus_rate": 0.415,
+    "team_vs_implied_mean": -0.32,
+    "team_beat_implied_rate": 0.458,
+    "cover_rate": 0.469,
+    "opp_vs_implied_mean": -0.07,
+    "opp_held_under_implied_rate": 0.515
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -1.216,
-     "p": 0.3954
+     "diff": -1.088,
+     "p": 0.122
     },
     "over_rate": {
-     "diff": -0.01,
-     "p": 0.8805
+     "diff": -0.016,
+     "p": 0.54
     },
     "abs_miss_mean": {
-     "diff": 0.121,
-     "p": 0.8925
+     "diff": -0.911,
+     "p": 0.0329
     },
     "miss_10plus_rate": {
-     "diff": 0.037,
-     "p": 0.5067
+     "diff": -0.042,
+     "p": 0.1222
     },
     "team_vs_implied_mean": {
-     "diff": 0.192,
-     "p": 0.8396
+     "diff": -0.667,
+     "p": 0.1783
     },
     "cover_rate": {
-     "diff": 0.014,
-     "p": 0.8177
+     "diff": -0.031,
+     "p": 0.2555
     },
     "opp_vs_implied_mean": {
-     "diff": -1.408,
-     "p": 0.1613
+     "diff": -0.421,
+     "p": 0.396
     },
     "opp_held_under_implied_rate": {
-     "diff": 0.087,
-     "p": 0.1264
+     "diff": 0.018,
+     "p": 0.5218
     }
    }
   },
   "offense_former_division": {
    "summary": {
-    "team_games": 88,
-    "total_resid_mean": -0.32,
-    "over_rate": 0.443,
-    "abs_miss_mean": 9.58,
-    "miss_10plus_rate": 0.375,
-    "team_vs_implied_mean": -0.97,
-    "team_beat_implied_rate": 0.42,
-    "cover_rate": 0.483,
-    "opp_vs_implied_mean": 0.66,
-    "opp_held_under_implied_rate": 0.455
+    "team_games": 346,
+    "total_resid_mean": 0.63,
+    "over_rate": 0.487,
+    "abs_miss_mean": 10.49,
+    "miss_10plus_rate": 0.408,
+    "team_vs_implied_mean": 0.48,
+    "team_beat_implied_rate": 0.471,
+    "cover_rate": 0.51,
+    "opp_vs_implied_mean": 0.14,
+    "opp_held_under_implied_rate": 0.517
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -0.947,
-     "p": 0.5
+     "diff": -0.066,
+     "p": 0.9307
     },
     "over_rate": {
-     "diff": -0.044,
-     "p": 0.4489
+     "diff": -0.012,
+     "p": 0.6639
     },
     "abs_miss_mean": {
-     "diff": -0.759,
-     "p": 0.3871
+     "diff": -0.048,
+     "p": 0.9146
     },
     "miss_10plus_rate": {
-     "diff": -0.064,
-     "p": 0.2808
+     "diff": -0.049,
+     "p": 0.0822
     },
     "team_vs_implied_mean": {
-     "diff": -1.294,
-     "p": 0.1849
+     "diff": 0.136,
+     "p": 0.7855
     },
     "cover_rate": {
-     "diff": -0.015,
-     "p": 0.7861
+     "diff": 0.01,
+     "p": 0.7203
     },
     "opp_vs_implied_mean": {
-     "diff": 0.347,
-     "p": 0.7198
+     "diff": -0.202,
+     "p": 0.6979
     },
     "opp_held_under_implied_rate": {
-     "diff": -0.04,
-     "p": 0.5163
+     "diff": 0.021,
+     "p": 0.476
     }
    }
   },
   "defense_former_division": {
    "summary": {
-    "team_games": 75,
-    "total_resid_mean": 0.5,
-    "over_rate": 0.514,
-    "abs_miss_mean": 10.71,
-    "miss_10plus_rate": 0.48,
-    "team_vs_implied_mean": 0.15,
-    "team_beat_implied_rate": 0.507,
-    "cover_rate": 0.592,
-    "opp_vs_implied_mean": 0.35,
-    "opp_held_under_implied_rate": 0.533
+    "team_games": 327,
+    "total_resid_mean": 0.76,
+    "over_rate": 0.506,
+    "abs_miss_mean": 11.08,
+    "miss_10plus_rate": 0.44,
+    "team_vs_implied_mean": 0.83,
+    "team_beat_implied_rate": 0.52,
+    "cover_rate": 0.562,
+    "opp_vs_implied_mean": -0.08,
+    "opp_held_under_implied_rate": 0.492
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -0.129,
-     "p": 0.9369
+     "diff": 0.064,
+     "p": 0.9304
     },
     "over_rate": {
-     "diff": 0.026,
-     "p": 0.6729
+     "diff": 0.008,
+     "p": 0.7963
     },
     "abs_miss_mean": {
-     "diff": 0.375,
-     "p": 0.6896
+     "diff": 0.539,
+     "p": 0.24
     },
     "miss_10plus_rate": {
-     "diff": 0.041,
-     "p": 0.555
+     "diff": -0.016,
+     "p": 0.5829
     },
     "team_vs_implied_mean": {
-     "diff": -0.166,
-     "p": 0.8749
+     "diff": 0.488,
+     "p": 0.3562
     },
     "cover_rate": {
-     "diff": 0.094,
-     "p": 0.1087
+     "diff": 0.062,
+     "p": 0.0297
     },
     "opp_vs_implied_mean": {
-     "diff": 0.037,
-     "p": 0.9731
+     "diff": -0.424,
+     "p": 0.4313
     },
     "opp_held_under_implied_rate": {
-     "diff": 0.039,
-     "p": 0.5684
+     "diff": -0.004,
+     "p": 0.9152
     }
    }
   },
   "any_former_division": {
    "summary": {
-    "team_games": 158,
-    "total_resid_mean": 0.02,
-    "over_rate": 0.471,
-    "abs_miss_mean": 10.17,
-    "miss_10plus_rate": 0.43,
-    "team_vs_implied_mean": -0.55,
-    "team_beat_implied_rate": 0.462,
-    "cover_rate": 0.529,
-    "opp_vs_implied_mean": 0.56,
-    "opp_held_under_implied_rate": 0.487
+    "team_games": 656,
+    "total_resid_mean": 0.82,
+    "over_rate": 0.5,
+    "abs_miss_mean": 10.83,
+    "miss_10plus_rate": 0.427,
+    "team_vs_implied_mean": 0.71,
+    "team_beat_implied_rate": 0.502,
+    "cover_rate": 0.535,
+    "opp_vs_implied_mean": 0.1,
+    "opp_held_under_implied_rate": 0.498
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -0.613,
-     "p": 0.5737
+     "diff": 0.126,
+     "p": 0.8195
     },
     "over_rate": {
-     "diff": -0.016,
-     "p": 0.7098
+     "diff": 0.001,
+     "p": 0.9419
     },
     "abs_miss_mean": {
-     "diff": -0.165,
-     "p": 0.802
+     "diff": 0.293,
+     "p": 0.3684
     },
     "miss_10plus_rate": {
-     "diff": -0.009,
-     "p": 0.8649
+     "diff": -0.03,
+     "p": 0.1367
     },
     "team_vs_implied_mean": {
-     "diff": -0.865,
-     "p": 0.2511
+     "diff": 0.369,
+     "p": 0.3248
     },
     "cover_rate": {
-     "diff": 0.031,
-     "p": 0.4483
+     "diff": 0.035,
+     "p": 0.0858
     },
     "opp_vs_implied_mean": {
-     "diff": 0.252,
-     "p": 0.7372
+     "diff": -0.243,
+     "p": 0.5241
     },
     "opp_held_under_implied_rate": {
-     "diff": -0.007,
-     "p": 0.8755
+     "diff": 0.002,
+     "p": 0.9378
     }
    }
   },
   "knows_opp_offense": {
    "summary": {
-    "team_games": 29,
-    "total_resid_mean": -2.97,
-    "over_rate": 0.414,
-    "abs_miss_mean": 12.0,
-    "miss_10plus_rate": 0.621,
-    "team_vs_implied_mean": -2.27,
-    "team_beat_implied_rate": 0.345,
-    "cover_rate": 0.483,
-    "opp_vs_implied_mean": -0.7,
-    "opp_held_under_implied_rate": 0.586
+    "team_games": 89,
+    "total_resid_mean": -0.43,
+    "over_rate": 0.511,
+    "abs_miss_mean": 9.08,
+    "miss_10plus_rate": 0.427,
+    "team_vs_implied_mean": -0.69,
+    "team_beat_implied_rate": 0.449,
+    "cover_rate": 0.477,
+    "opp_vs_implied_mean": 0.26,
+    "opp_held_under_implied_rate": 0.483
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": -3.594,
-     "p": 0.1386
+     "diff": -1.118,
+     "p": 0.4352
     },
     "over_rate": {
-     "diff": -0.073,
-     "p": 0.4439
+     "diff": 0.013,
+     "p": 0.8311
     },
     "abs_miss_mean": {
-     "diff": 1.661,
-     "p": 0.2651
+     "diff": -1.462,
+     "p": 0.0909
     },
     "miss_10plus_rate": {
-     "diff": 0.181,
-     "p": 0.0571
+     "diff": -0.03,
+     "p": 0.5897
     },
     "team_vs_implied_mean": {
-     "diff": -2.587,
-     "p": 0.1206
+     "diff": -1.036,
+     "p": 0.2971
     },
     "cover_rate": {
-     "diff": -0.015,
-     "p": 0.9441
+     "diff": -0.023,
+     "p": 0.7156
     },
     "opp_vs_implied_mean": {
-     "diff": -1.008,
-     "p": 0.5577
+     "diff": -0.082,
+     "p": 0.9329
     },
     "opp_held_under_implied_rate": {
-     "diff": 0.092,
-     "p": 0.35
+     "diff": -0.014,
+     "p": 0.8319
     }
    }
   },
   "knows_opp_defense": {
    "summary": {
-    "team_games": 17,
-    "total_resid_mean": 1.74,
-    "over_rate": 0.471,
-    "abs_miss_mean": 7.44,
-    "miss_10plus_rate": 0.353,
-    "team_vs_implied_mean": 3.01,
-    "team_beat_implied_rate": 0.647,
-    "cover_rate": 0.625,
-    "opp_vs_implied_mean": -1.28,
-    "opp_held_under_implied_rate": 0.647
+    "team_games": 85,
+    "total_resid_mean": 1.81,
+    "over_rate": 0.518,
+    "abs_miss_mean": 10.06,
+    "miss_10plus_rate": 0.412,
+    "team_vs_implied_mean": 1.43,
+    "team_beat_implied_rate": 0.565,
+    "cover_rate": 0.561,
+    "opp_vs_implied_mean": 0.37,
+    "opp_held_under_implied_rate": 0.518
    },
    "vs_baseline": {
     "total_resid_mean": {
-     "diff": 1.107,
-     "p": 0.7262
+     "diff": 1.115,
+     "p": 0.4445
     },
     "over_rate": {
-     "diff": -0.017,
-     "p": 0.979
+     "diff": 0.02,
+     "p": 0.7238
     },
     "abs_miss_mean": {
-     "diff": -2.897,
-     "p": 0.1355
+     "diff": -0.476,
+     "p": 0.5998
     },
     "miss_10plus_rate": {
-     "diff": -0.086,
-     "p": 0.6238
+     "diff": -0.045,
+     "p": 0.4427
     },
     "team_vs_implied_mean": {
-     "diff": 2.695,
-     "p": 0.2184
+     "diff": 1.087,
+     "p": 0.2851
     },
     "cover_rate": {
-     "diff": 0.127,
-     "p": 0.3312
+     "diff": 0.061,
+     "p": 0.2775
     },
     "opp_vs_implied_mean": {
-     "diff": -1.589,
-     "p": 0.4723
+     "diff": 0.027,
+     "p": 0.9763
     },
     "opp_held_under_implied_rate": {
-     "diff": 0.152,
-     "p": 0.2258
+     "diff": 0.021,
+     "p": 0.7429
+    }
+   }
+  },
+  "promo_oc_to_hc": {
+   "summary": {
+    "team_games": 71,
+    "total_resid_mean": -1.15,
+    "over_rate": 0.514,
+    "abs_miss_mean": 9.17,
+    "miss_10plus_rate": 0.352,
+    "team_vs_implied_mean": -0.08,
+    "team_beat_implied_rate": 0.451,
+    "cover_rate": 0.543,
+    "opp_vs_implied_mean": -1.07,
+    "opp_held_under_implied_rate": 0.549
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": -1.846,
+     "p": 0.2436
+    },
+    "over_rate": {
+     "diff": 0.016,
+     "p": 0.8097
+    },
+    "abs_miss_mean": {
+     "diff": -1.372,
+     "p": 0.1519
+    },
+    "miss_10plus_rate": {
+     "diff": -0.105,
+     "p": 0.0923
+    },
+    "team_vs_implied_mean": {
+     "diff": -0.429,
+     "p": 0.6977
+    },
+    "cover_rate": {
+     "diff": 0.043,
+     "p": 0.5082
+    },
+    "opp_vs_implied_mean": {
+     "diff": -1.417,
+     "p": 0.2038
+    },
+    "opp_held_under_implied_rate": {
+     "diff": 0.053,
+     "p": 0.4069
+    }
+   }
+  },
+  "promo_opos_to_oc": {
+   "summary": {
+    "team_games": 108,
+    "total_resid_mean": 0.31,
+    "over_rate": 0.509,
+    "abs_miss_mean": 10.03,
+    "miss_10plus_rate": 0.444,
+    "team_vs_implied_mean": -1.17,
+    "team_beat_implied_rate": 0.454,
+    "cover_rate": 0.385,
+    "opp_vs_implied_mean": 1.48,
+    "opp_held_under_implied_rate": 0.417
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": -0.386,
+     "p": 0.7638
+    },
+    "over_rate": {
+     "diff": 0.011,
+     "p": 0.8299
+    },
+    "abs_miss_mean": {
+     "diff": -0.513,
+     "p": 0.52
+    },
+    "miss_10plus_rate": {
+     "diff": -0.012,
+     "p": 0.8493
+    },
+    "team_vs_implied_mean": {
+     "diff": -1.519,
+     "p": 0.0854
+    },
+    "cover_rate": {
+     "diff": -0.115,
+     "p": 0.0191
+    },
+    "opp_vs_implied_mean": {
+     "diff": 1.133,
+     "p": 0.2078
+    },
+    "opp_held_under_implied_rate": {
+     "diff": -0.08,
+     "p": 0.0969
+    }
+   }
+  },
+  "promo_dc_to_hc": {
+   "summary": {
+    "team_games": 60,
+    "total_resid_mean": -0.47,
+    "over_rate": 0.483,
+    "abs_miss_mean": 10.03,
+    "miss_10plus_rate": 0.433,
+    "team_vs_implied_mean": -1.37,
+    "team_beat_implied_rate": 0.417,
+    "cover_rate": 0.414,
+    "opp_vs_implied_mean": 0.89,
+    "opp_held_under_implied_rate": 0.45
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": -1.166,
+     "p": 0.5023
+    },
+    "over_rate": {
+     "diff": -0.015,
+     "p": 0.8583
+    },
+    "abs_miss_mean": {
+     "diff": -0.516,
+     "p": 0.6176
+    },
+    "miss_10plus_rate": {
+     "diff": -0.023,
+     "p": 0.7927
+    },
+    "team_vs_implied_mean": {
+     "diff": -1.712,
+     "p": 0.1617
+    },
+    "cover_rate": {
+     "diff": -0.086,
+     "p": 0.1952
+    },
+    "opp_vs_implied_mean": {
+     "diff": 0.545,
+     "p": 0.6554
+    },
+    "opp_held_under_implied_rate": {
+     "diff": -0.047,
+     "p": 0.5232
+    }
+   }
+  },
+  "promo_dpos_to_dc": {
+   "summary": {
+    "team_games": 76,
+    "total_resid_mean": 1.84,
+    "over_rate": 0.474,
+    "abs_miss_mean": 11.09,
+    "miss_10plus_rate": 0.474,
+    "team_vs_implied_mean": 0.09,
+    "team_beat_implied_rate": 0.395,
+    "cover_rate": 0.507,
+    "opp_vs_implied_mean": 1.75,
+    "opp_held_under_implied_rate": 0.461
+   },
+   "vs_baseline": {
+    "total_resid_mean": {
+     "diff": 1.151,
+     "p": 0.4586
+    },
+    "over_rate": {
+     "diff": -0.025,
+     "p": 0.6884
+    },
+    "abs_miss_mean": {
+     "diff": 0.551,
+     "p": 0.5645
+    },
+    "miss_10plus_rate": {
+     "diff": 0.017,
+     "p": 0.8224
+    },
+    "team_vs_implied_mean": {
+     "diff": -0.253,
+     "p": 0.8084
+    },
+    "cover_rate": {
+     "diff": 0.007,
+     "p": 0.9514
+    },
+    "opp_vs_implied_mean": {
+     "diff": 1.404,
+     "p": 0.1993
+    },
+    "opp_held_under_implied_rate": {
+     "diff": -0.036,
+     "p": 0.5633
     }
    }
   }
  },
  "source": "Coaching staffs: Wikipedia team-season articles (CC BY-SA 4.0). Games and lines: nflverse.",
+ "promotion_examples": {
+  "oc_to_hc": [
+   {
+    "season": 2006,
+    "week": 2,
+    "team": "GB",
+    "opp": "NO",
+    "resid": 20.5,
+    "team_vs_implied": 7.25,
+    "opp_vs_implied": 13.25,
+    "cover": -6.0,
+    "coach": [
+     "Mike McCarthy"
+    ]
+   },
+   {
+    "season": 2006,
+    "week": 14,
+    "team": "NO",
+    "opp": "DAL",
+    "resid": 12.0,
+    "team_vs_implied": 22.25,
+    "opp_vs_implied": -10.25,
+    "cover": 32.5,
+    "coach": [
+     "Sean Payton"
+    ]
+   },
+   {
+    "season": 2006,
+    "week": 14,
+    "team": "GB",
+    "opp": "SF",
+    "resid": 5.0,
+    "team_vs_implied": 10.0,
+    "opp_vs_implied": -5.0,
+    "cover": 15.0,
+    "coach": [
+     "Mike McCarthy"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 4,
+    "team": "ARI",
+    "opp": "PIT",
+    "resid": -7.5,
+    "team_vs_implied": 2.5,
+    "opp_vs_implied": -10.0,
+    "cover": 12.5,
+    "coach": [
+     "Ken Whisenhunt"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 8,
+    "team": "MIN",
+    "opp": "PHI",
+    "resid": 1.5,
+    "team_vs_implied": -3.25,
+    "opp_vs_implied": 4.75,
+    "cover": -8.0,
+    "coach": [
+     "Brad Childress"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 15,
+    "team": "HOU",
+    "opp": "DEN",
+    "resid": -3.0,
+    "team_vs_implied": 8.75,
+    "opp_vs_implied": -11.75,
+    "cover": 20.5,
+    "coach": [
+     "Gary Kubiak"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 13,
+    "team": "STL",
+    "opp": "MIA",
+    "resid": -16.5,
+    "team_vs_implied": -6.75,
+    "opp_vs_implied": -9.75,
+    "cover": 3.0,
+    "coach": [
+     "Scott Linehan"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 18,
+    "team": "MIN",
+    "opp": "PHI",
+    "resid": -0.5,
+    "team_vs_implied": -4.75,
+    "opp_vs_implied": 4.25,
+    "cover": -9.0,
+    "coach": [
+     "Brad Childress"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 21,
+    "team": "ARI",
+    "opp": "PIT",
+    "resid": 3.5,
+    "team_vs_implied": 3.0,
+    "opp_vs_implied": 0.5,
+    "cover": 2.5,
+    "coach": [
+     "Ken Whisenhunt"
+    ]
+   },
+   {
+    "season": 2009,
+    "week": 5,
+    "team": "DEN",
+    "opp": "NE",
+    "resid": -4.0,
+    "team_vs_implied": 1.0,
+    "opp_vs_implied": -5.0,
+    "cover": 6.0,
+    "coach": [
+     "Josh McDaniels"
+    ]
+   },
+   {
+    "season": 2010,
+    "week": 8,
+    "team": "BUF",
+    "opp": "KC",
+    "resid": -22.0,
+    "team_vs_implied": -9.0,
+    "opp_vs_implied": -13.0,
+    "cover": 4.0,
+    "coach": [
+     "Chan Gailey"
+    ]
+   },
+   {
+    "season": 2010,
+    "week": 11,
+    "team": "KC",
+    "opp": "ARI",
+    "resid": -1.0,
+    "team_vs_implied": 5.0,
+    "opp_vs_implied": -6.0,
+    "cover": 11.0,
+    "coach": [
+     "Todd Haley"
+    ]
+   },
+   {
+    "season": 2011,
+    "week": 1,
+    "team": "BUF",
+    "opp": "KC",
+    "resid": 9.5,
+    "team_vs_implied": 23.5,
+    "opp_vs_implied": -14.0,
+    "cover": 37.5,
+    "coach": [
+     "Chan Gailey"
+    ]
+   },
+   {
+    "season": 2011,
+    "week": 10,
+    "team": "CLE",
+    "opp": "STL",
+    "resid": -11.5,
+    "team_vs_implied": -7.5,
+    "opp_vs_implied": -4.0,
+    "cover": -3.5,
+    "coach": [
+     "Pat Shurmur"
+    ]
+   },
+   {
+    "season": 2013,
+    "week": 10,
+    "team": "SD",
+    "opp": "DEN",
+    "resid": -8.0,
+    "team_vs_implied": -4.5,
+    "opp_vs_implied": -3.5,
+    "cover": -1.0,
+    "coach": [
+     "Mike McCoy (American football coach)"
+    ]
+   },
+   {
+    "season": 2013,
+    "week": 12,
+    "team": "ARI",
+    "opp": "IND",
+    "resid": 6.5,
+    "team_vs_implied": 16.0,
+    "opp_vs_implied": -9.5,
+    "cover": 25.5,
+    "coach": [
+     "Bruce Arians"
+    ]
+   },
+   {
+    "season": 2013,
+    "week": 15,
+    "team": "SD",
+    "opp": "DEN",
+    "resid": -9.5,
+    "team_vs_implied": 3.75,
+    "opp_vs_implied": -13.25,
+    "cover": 17.0,
+    "coach": [
+     "Mike McCoy (American football coach)"
+    ]
+   },
+   {
+    "season": 2013,
+    "week": 19,
+    "team": "SD",
+    "opp": "DEN",
+    "resid": -14.0,
+    "team_vs_implied": -6.5,
+    "opp_vs_implied": -7.5,
+    "cover": 1.0,
+    "coach": [
+     "Mike McCoy (American football coach)"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 1,
+    "team": "OAK",
+    "opp": "NYJ",
+    "resid": -8.0,
+    "team_vs_implied": -3.25,
+    "opp_vs_implied": -4.75,
+    "cover": 1.5,
+    "coach": [
+     "Tony Sparano"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 6,
+    "team": "MIA",
+    "opp": "GB",
+    "resid": 4.5,
+    "team_vs_implied": 1.5,
+    "opp_vs_implied": 3.0,
+    "cover": -1.5,
+    "coach": [
+     "Joe Philbin"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 8,
+    "team": "SD",
+    "opp": "DEN",
+    "resid": 5.0,
+    "team_vs_implied": 0.0,
+    "opp_vs_implied": 5.0,
+    "cover": -5.0,
+    "coach": [
+     "Mike McCoy (American football coach)"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 15,
+    "team": "SD",
+    "opp": "DEN",
+    "resid": -17.0,
+    "team_vs_implied": -12.5,
+    "opp_vs_implied": -4.5,
+    "cover": -8.0,
+    "coach": [
+     "Mike McCoy (American football coach)"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 1,
+    "team": "DEN",
+    "opp": "BAL",
+    "resid": -14.5,
+    "team_vs_implied": -6.5,
+    "opp_vs_implied": -8.0,
+    "cover": 1.5,
+    "coach": [
+     "Gary Kubiak"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 13,
+    "team": "SD",
+    "opp": "DEN",
+    "resid": -25.0,
+    "team_vs_implied": -16.5,
+    "opp_vs_implied": -8.5,
+    "cover": -8.0,
+    "coach": [
+     "Mike McCoy (American football coach)"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 17,
+    "team": "SD",
+    "opp": "DEN",
+    "resid": 5.0,
+    "team_vs_implied": 4.0,
+    "opp_vs_implied": 1.0,
+    "cover": 3.0,
+    "coach": [
+     "Mike McCoy (American football coach)"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 1,
+    "team": "TB",
+    "opp": "ATL",
+    "resid": 8.5,
+    "team_vs_implied": 9.0,
+    "opp_vs_implied": -0.5,
+    "cover": 9.5,
+    "coach": [
+     "Dirk Koetter"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 7,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": 1.5,
+    "team_vs_implied": -0.5,
+    "opp_vs_implied": 2.0,
+    "cover": -2.5,
+    "coach": [
+     "Hue Jackson"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 8,
+    "team": "WAS",
+    "opp": "CIN",
+    "resid": 5.0,
+    "team_vs_implied": 4.0,
+    "opp_vs_implied": 1.0,
+    "cover": 3.0,
+    "coach": [
+     "Jay Gruden"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 9,
+    "team": "TB",
+    "opp": "ATL",
+    "resid": 22.0,
+    "team_vs_implied": 5.75,
+    "opp_vs_implied": 16.25,
+    "cover": -10.5,
+    "coach": [
+     "Dirk Koetter"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 14,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": -9.0,
+    "team_vs_implied": -9.0,
+    "opp_vs_implied": 0.0,
+    "cover": -9.0,
+    "coach": [
+     "Hue Jackson"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 2,
+    "team": "PHI",
+    "opp": "KC",
+    "resid": 0.5,
+    "team_vs_implied": -1.25,
+    "opp_vs_implied": 1.75,
+    "cover": -3.0,
+    "coach": [
+     "Doug Pederson"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 2,
+    "team": "LA",
+    "opp": "WAS",
+    "resid": 1.5,
+    "team_vs_implied": -4.25,
+    "opp_vs_implied": 5.75,
+    "cover": -10.0,
+    "coach": [
+     "Sean McVay"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 4,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": -3.5,
+    "team_vs_implied": -12.25,
+    "opp_vs_implied": 8.75,
+    "cover": -21.0,
+    "coach": [
+     "Hue Jackson"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 12,
+    "team": "TB",
+    "opp": "ATL",
+    "resid": 7.0,
+    "team_vs_implied": 1.75,
+    "opp_vs_implied": 5.25,
+    "cover": -3.5,
+    "coach": [
+     "Dirk Koetter"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 12,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": 7.0,
+    "team_vs_implied": 0.25,
+    "opp_vs_implied": 6.75,
+    "cover": -6.5,
+    "coach": [
+     "Hue Jackson"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 13,
+    "team": "MIA",
+    "opp": "DEN",
+    "resid": 3.0,
+    "team_vs_implied": 15.0,
+    "opp_vs_implied": -12.0,
+    "cover": 27.0,
+    "coach": [
+     "Adam Gase"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 15,
+    "team": "TB",
+    "opp": "ATL",
+    "resid": -4.5,
+    "team_vs_implied": -0.25,
+    "opp_vs_implied": -4.25,
+    "cover": 4.0,
+    "coach": [
+     "Dirk Koetter"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 3,
+    "team": "IND",
+    "opp": "PHI",
+    "resid": -9.5,
+    "team_vs_implied": -3.5,
+    "opp_vs_implied": -6.0,
+    "cover": 2.5,
+    "coach": [
+     "Frank Reich"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 6,
+    "team": "NYG",
+    "opp": "PHI",
+    "resid": 1.5,
+    "team_vs_implied": -9.0,
+    "opp_vs_implied": 10.5,
+    "cover": -19.5,
+    "coach": [
+     "Pat Shurmur"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 6,
+    "team": "MIA",
+    "opp": "CHI",
+    "resid": 18.5,
+    "team_vs_implied": 14.5,
+    "opp_vs_implied": 4.0,
+    "cover": 10.5,
+    "coach": [
+     "Adam Gase"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 12,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": 8.5,
+    "team_vs_implied": 11.25,
+    "opp_vs_implied": -2.75,
+    "cover": 14.0,
+    "coach": [
+     "Hue Jackson"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 12,
+    "team": "NYG",
+    "opp": "PHI",
+    "resid": -2.0,
+    "team_vs_implied": -0.25,
+    "opp_vs_implied": -1.75,
+    "cover": 1.5,
+    "coach": [
+     "Pat Shurmur"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 16,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": 0.0,
+    "team_vs_implied": -1.0,
+    "opp_vs_implied": 1.0,
+    "cover": -2.0,
+    "coach": [
+     "Hue Jackson"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 5,
+    "team": "NYG",
+    "opp": "MIN",
+    "resid": -6.0,
+    "team_vs_implied": -9.25,
+    "opp_vs_implied": 3.25,
+    "cover": -12.5,
+    "coach": [
+     "Pat Shurmur"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 15,
+    "team": "SF",
+    "opp": "ATL",
+    "resid": 1.0,
+    "team_vs_implied": -8.25,
+    "opp_vs_implied": 9.25,
+    "cover": -17.5,
+    "coach": [
+     "Kyle Shanahan"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 16,
+    "team": "CHI",
+    "opp": "KC",
+    "resid": -16.5,
+    "team_vs_implied": -16.5,
+    "opp_vs_implied": 0.0,
+    "cover": -16.5,
+    "coach": [
+     "Matt Nagy"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 16,
+    "team": "GB",
+    "opp": "TEN",
+    "resid": 1.5,
+    "team_vs_implied": 12.25,
+    "opp_vs_implied": -10.75,
+    "cover": 23.0,
+    "coach": [
+     "Matt LaFleur"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 19,
+    "team": "GB",
+    "opp": "LA",
+    "resid": 5.0,
+    "team_vs_implied": 6.0,
+    "opp_vs_implied": -1.0,
+    "cover": 7.0,
+    "coach": [
+     "Matt LaFleur"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 4,
+    "team": "CLE",
+    "opp": "MIN",
+    "resid": -31.0,
+    "team_vs_implied": -12.5,
+    "opp_vs_implied": -18.5,
+    "cover": 6.0,
+    "coach": [
+     "Kevin Stefanski"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 9,
+    "team": "MIN",
+    "opp": "WAS",
+    "resid": -6.5,
+    "team_vs_implied": -3.25,
+    "opp_vs_implied": -3.25,
+    "cover": 0.0,
+    "coach": [
+     "Kevin O'Connell (American football)"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 11,
+    "team": "PHI",
+    "opp": "IND",
+    "resid": -12.5,
+    "team_vs_implied": -9.0,
+    "opp_vs_implied": -3.5,
+    "cover": -5.5,
+    "coach": [
+     "Nick Sirianni"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 13,
+    "team": "MIA",
+    "opp": "SF",
+    "resid": 4.0,
+    "team_vs_implied": -3.75,
+    "opp_vs_implied": 7.75,
+    "cover": -11.5,
+    "coach": [
+     "Mike McDaniel"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 15,
+    "team": "LV",
+    "opp": "NE",
+    "resid": 9.0,
+    "team_vs_implied": 7.0,
+    "opp_vs_implied": 2.0,
+    "cover": 5.0,
+    "coach": [
+     "Josh McDaniels"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 6,
+    "team": "NYG",
+    "opp": "BUF",
+    "resid": -20.5,
+    "team_vs_implied": -5.0,
+    "opp_vs_implied": -15.5,
+    "cover": 10.5,
+    "coach": [
+     "Brian Daboll"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 6,
+    "team": "LV",
+    "opp": "NE",
+    "resid": -3.5,
+    "team_vs_implied": -1.25,
+    "opp_vs_implied": -2.25,
+    "cover": 1.0,
+    "coach": [
+     "Josh McDaniels"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 8,
+    "team": "ATL",
+    "opp": "TEN",
+    "resid": 16.0,
+    "team_vs_implied": 4.25,
+    "opp_vs_implied": 11.75,
+    "cover": -7.5,
+    "coach": [
+     "Arthur Smith]]",
+     "[[Arthur Smith"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 5,
+    "team": "CHI",
+    "opp": "CAR",
+    "resid": 6.0,
+    "team_vs_implied": 14.0,
+    "opp_vs_implied": -8.0,
+    "cover": 22.0,
+    "coach": [
+     "Thomas Brown (American football coach)"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 8,
+    "team": "MIN",
+    "opp": "LA",
+    "resid": 2.5,
+    "team_vs_implied": -5.25,
+    "opp_vs_implied": 7.75,
+    "cover": -13.0,
+    "coach": [
+     "Kevin O'Connell (American football)"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 13,
+    "team": "CAR",
+    "opp": "TB",
+    "resid": 3.0,
+    "team_vs_implied": 3.25,
+    "opp_vs_implied": -0.25,
+    "cover": 3.5,
+    "coach": [
+     "Dave Canales"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 15,
+    "team": "TEN",
+    "opp": "CIN",
+    "resid": 17.5,
+    "team_vs_implied": 6.75,
+    "opp_vs_implied": 10.75,
+    "cover": -4.0,
+    "coach": [
+     "Brian Callahan"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 16,
+    "team": "MIA",
+    "opp": "SF",
+    "resid": 2.0,
+    "team_vs_implied": 8.0,
+    "opp_vs_implied": -6.0,
+    "cover": 14.0,
+    "coach": [
+     "Mike McDaniel"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 17,
+    "team": "CAR",
+    "opp": "TB",
+    "resid": 14.5,
+    "team_vs_implied": -5.0,
+    "opp_vs_implied": 19.5,
+    "cover": -24.5,
+    "coach": [
+     "Dave Canales"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 19,
+    "team": "MIN",
+    "opp": "LA",
+    "resid": -11.5,
+    "team_vs_implied": -16.0,
+    "opp_vs_implied": 4.5,
+    "cover": -20.5,
+    "coach": [
+     "Kevin O'Connell (American football)"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 2,
+    "team": "CHI",
+    "opp": "DET",
+    "resid": 26.5,
+    "team_vs_implied": 0.75,
+    "opp_vs_implied": 25.75,
+    "cover": -25.0,
+    "coach": [
+     "Ben Johnson (American football coach)"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 7,
+    "team": "JAX",
+    "opp": "LA",
+    "resid": -2.5,
+    "team_vs_implied": -13.75,
+    "opp_vs_implied": 11.25,
+    "cover": -25.0,
+    "coach": [
+     "Liam Coen"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 16,
+    "team": "CAR",
+    "opp": "TB",
+    "resid": -1.5,
+    "team_vs_implied": 2.25,
+    "opp_vs_implied": -3.75,
+    "cover": 6.0,
+    "coach": [
+     "Dave Canales"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 18,
+    "team": "CAR",
+    "opp": "TB",
+    "resid": -13.5,
+    "team_vs_implied": -6.25,
+    "opp_vs_implied": -7.25,
+    "cover": 1.0,
+    "coach": [
+     "Dave Canales"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 18,
+    "team": "CHI",
+    "opp": "DET",
+    "resid": -16.5,
+    "team_vs_implied": -11.5,
+    "opp_vs_implied": -5.0,
+    "cover": -6.5,
+    "coach": [
+     "Ben Johnson (American football coach)"
+    ]
+   },
+   {
+    "season": 2026,
+    "week": 3,
+    "team": "LV",
+    "opp": "NO",
+    "resid": 18.5,
+    "team_vs_implied": 15.0,
+    "opp_vs_implied": 3.5,
+    "cover": 11.5,
+    "coach": [
+     "Klint Kubiak"
+    ]
+   },
+   {
+    "season": 2026,
+    "week": 6,
+    "team": "CLE",
+    "opp": "BAL",
+    "resid": -16.5,
+    "team_vs_implied": -5.25,
+    "opp_vs_implied": -11.25,
+    "cover": 6.0,
+    "coach": [
+     "Todd Monken"
+    ]
+   },
+   {
+    "season": 2026,
+    "week": 6,
+    "team": "ARI",
+    "opp": "LA",
+    "resid": -17.5,
+    "team_vs_implied": -1.5,
+    "opp_vs_implied": -16.0,
+    "cover": 14.5,
+    "coach": [
+     "Mike LaFleur"
+    ]
+   }
+  ],
+  "opos_to_oc": [
+   {
+    "season": 2006,
+    "week": 4,
+    "team": "STL",
+    "opp": "DET",
+    "resid": 33.0,
+    "team_vs_implied": 17.25,
+    "opp_vs_implied": 15.75,
+    "cover": 1.5,
+    "coach": [
+     "Greg Olson (American football)"
+    ]
+   },
+   {
+    "season": 2006,
+    "week": 10,
+    "team": "MIN",
+    "opp": "GB",
+    "resid": 0.0,
+    "team_vs_implied": -5.5,
+    "opp_vs_implied": 5.5,
+    "cover": -11.0,
+    "coach": [
+     "Darrell Bevell"
+    ]
+   },
+   {
+    "season": 2006,
+    "week": 14,
+    "team": "STL",
+    "opp": "CHI",
+    "resid": 27.5,
+    "team_vs_implied": 9.25,
+    "opp_vs_implied": 18.25,
+    "cover": -9.0,
+    "coach": [
+     "Greg Olson (American football)"
+    ]
+   },
+   {
+    "season": 2006,
+    "week": 16,
+    "team": "MIN",
+    "opp": "GB",
+    "resid": -22.0,
+    "team_vs_implied": -10.0,
+    "opp_vs_implied": -12.0,
+    "cover": 2.0,
+    "coach": [
+     "Darrell Bevell"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 2,
+    "team": "DAL",
+    "opp": "MIA",
+    "resid": 17.5,
+    "team_vs_implied": 15.5,
+    "opp_vs_implied": 2.0,
+    "cover": 13.5,
+    "coach": [
+     "Jason Garrett"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 4,
+    "team": "MIN",
+    "opp": "GB",
+    "resid": 1.0,
+    "team_vs_implied": -2.5,
+    "opp_vs_implied": 3.5,
+    "cover": -6.0,
+    "coach": [
+     "Darrell Bevell"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 10,
+    "team": "MIN",
+    "opp": "GB",
+    "resid": -7.0,
+    "team_vs_implied": -17.75,
+    "opp_vs_implied": 10.75,
+    "cover": -28.5,
+    "coach": [
+     "Darrell Bevell"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 1,
+    "team": "MIN",
+    "opp": "GB",
+    "resid": 5.5,
+    "team_vs_implied": 1.5,
+    "opp_vs_implied": 4.0,
+    "cover": -2.5,
+    "coach": [
+     "Darrell Bevell"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 3,
+    "team": "NYJ",
+    "opp": "SD",
+    "resid": 30.5,
+    "team_vs_implied": 9.75,
+    "opp_vs_implied": 20.75,
+    "cover": -11.0,
+    "coach": [
+     "Brian Schottenheimer"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 10,
+    "team": "MIN",
+    "opp": "GB",
+    "resid": 11.0,
+    "team_vs_implied": 4.75,
+    "opp_vs_implied": 6.25,
+    "cover": -1.5,
+    "coach": [
+     "Darrell Bevell"
+    ]
+   },
+   {
+    "season": 2010,
+    "week": 2,
+    "team": "WAS",
+    "opp": "HOU",
+    "resid": 14.0,
+    "team_vs_implied": 6.75,
+    "opp_vs_implied": 7.25,
+    "cover": -0.5,
+    "coach": [
+     "Kyle Shanahan"
+    ]
+   },
+   {
+    "season": 2010,
+    "week": 10,
+    "team": "CLE",
+    "opp": "NYJ",
+    "resid": 9.0,
+    "team_vs_implied": 3.25,
+    "opp_vs_implied": 5.75,
+    "cover": -2.5,
+    "coach": [
+     "Brian Daboll"
+    ]
+   },
+   {
+    "season": 2011,
+    "week": 6,
+    "team": "MIA",
+    "opp": "NYJ",
+    "resid": -11.5,
+    "team_vs_implied": -11.25,
+    "opp_vs_implied": -0.25,
+    "cover": -11.0,
+    "coach": [
+     "Brian Daboll"
+    ]
+   },
+   {
+    "season": 2011,
+    "week": 12,
+    "team": "MIN",
+    "opp": "ATL",
+    "resid": -6.0,
+    "team_vs_implied": -3.0,
+    "opp_vs_implied": -3.0,
+    "cover": 0.0,
+    "coach": [
+     "Bill Musgrave"
+    ]
+   },
+   {
+    "season": 2011,
+    "week": 17,
+    "team": "MIA",
+    "opp": "NYJ",
+    "resid": -2.0,
+    "team_vs_implied": -0.75,
+    "opp_vs_implied": -1.25,
+    "cover": 0.5,
+    "coach": [
+     "Brian Daboll"
+    ]
+   },
+   {
+    "season": 2013,
+    "week": 3,
+    "team": "KC",
+    "opp": "PHI",
+    "resid": -8.0,
+    "team_vs_implied": 2.5,
+    "opp_vs_implied": -10.5,
+    "cover": 13.0,
+    "coach": [
+     "Doug Pederson"
+    ]
+   },
+   {
+    "season": 2013,
+    "week": 3,
+    "team": "JAX",
+    "opp": "SEA",
+    "resid": 23.0,
+    "team_vs_implied": 7.25,
+    "opp_vs_implied": 15.75,
+    "cover": -8.5,
+    "coach": [
+     "Jedd Fisch"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 1,
+    "team": "SD",
+    "opp": "ARI",
+    "resid": -10.5,
+    "team_vs_implied": -4.25,
+    "opp_vs_implied": -6.25,
+    "cover": 2.0,
+    "coach": [
+     "Frank Reich"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 1,
+    "team": "DEN",
+    "opp": "BAL",
+    "resid": -14.5,
+    "team_vs_implied": -6.5,
+    "opp_vs_implied": -8.0,
+    "cover": 1.5,
+    "coach": [
+     "Rick Dennison"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 3,
+    "team": "CLE",
+    "opp": "OAK",
+    "resid": 3.5,
+    "team_vs_implied": -3.5,
+    "opp_vs_implied": 7.0,
+    "cover": -10.5,
+    "coach": [
+     "John DeFilippo"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 11,
+    "team": "CHI",
+    "opp": "DEN",
+    "resid": -9.5,
+    "team_vs_implied": -4.5,
+    "opp_vs_implied": -5.0,
+    "cover": 0.5,
+    "coach": [
+     "Adam Gase"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 14,
+    "team": "HOU",
+    "opp": "NE",
+    "resid": -13.0,
+    "team_vs_implied": -15.0,
+    "opp_vs_implied": 2.0,
+    "cover": -17.0,
+    "coach": [
+     "George Godsey"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 3,
+    "team": "HOU",
+    "opp": "NE",
+    "resid": -11.5,
+    "team_vs_implied": -18.75,
+    "opp_vs_implied": 7.25,
+    "cover": -26.0,
+    "coach": [
+     "George Godsey"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 19,
+    "team": "HOU",
+    "opp": "NE",
+    "resid": 6.0,
+    "team_vs_implied": 2.0,
+    "opp_vs_implied": 4.0,
+    "cover": -2.0,
+    "coach": [
+     "George Godsey"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 8,
+    "team": "OAK",
+    "opp": "BUF",
+    "resid": 1.0,
+    "team_vs_implied": -8.25,
+    "opp_vs_implied": 9.25,
+    "cover": -17.5,
+    "coach": [
+     "Todd Downing"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 15,
+    "team": "NYJ",
+    "opp": "NO",
+    "resid": 3.0,
+    "team_vs_implied": 3.75,
+    "opp_vs_implied": -0.75,
+    "cover": 4.5,
+    "coach": [
+     "John Morton (American football)"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 18,
+    "team": "LA",
+    "opp": "ATL",
+    "resid": -9.0,
+    "team_vs_implied": -14.25,
+    "opp_vs_implied": 5.25,
+    "cover": -19.5,
+    "coach": [
+     "Matt LaFleur"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 1,
+    "team": "OAK",
+    "opp": "LA",
+    "resid": -1.5,
+    "team_vs_implied": -7.75,
+    "opp_vs_implied": 6.25,
+    "cover": -14.0,
+    "coach": [
+     "Greg Olson (American football)"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 6,
+    "team": "MIA",
+    "opp": "CHI",
+    "resid": 18.5,
+    "team_vs_implied": 14.5,
+    "opp_vs_implied": 4.0,
+    "cover": 10.5,
+    "coach": [
+     "Dowell Loggains"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 8,
+    "team": "BUF",
+    "opp": "NE",
+    "resid": -13.0,
+    "team_vs_implied": -9.25,
+    "opp_vs_implied": -3.75,
+    "cover": -5.5,
+    "coach": [
+     "Brian Daboll"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 15,
+    "team": "PHI",
+    "opp": "LA",
+    "resid": 0.5,
+    "team_vs_implied": 10.5,
+    "opp_vs_implied": -10.0,
+    "cover": 20.5,
+    "coach": [
+     "Mike Groh"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 16,
+    "team": "BUF",
+    "opp": "NE",
+    "resid": -10.0,
+    "team_vs_implied": -4.0,
+    "opp_vs_implied": -6.0,
+    "cover": 2.0,
+    "coach": [
+     "Brian Daboll"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 18,
+    "team": "PHI",
+    "opp": "CHI",
+    "resid": -11.5,
+    "team_vs_implied": -2.0,
+    "opp_vs_implied": -9.5,
+    "cover": 7.5,
+    "coach": [
+     "Mike Groh"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 1,
+    "team": "IND",
+    "opp": "LAC",
+    "resid": 9.5,
+    "team_vs_implied": 4.75,
+    "opp_vs_implied": 4.75,
+    "cover": 0.0,
+    "coach": [
+     "Nick Sirianni"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 2,
+    "team": "MIA",
+    "opp": "NE",
+    "resid": -5.5,
+    "team_vs_implied": -15.25,
+    "opp_vs_implied": 9.75,
+    "cover": -25.0,
+    "coach": [
+     "Chad O'Shea"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 4,
+    "team": "BUF",
+    "opp": "NE",
+    "resid": -15.5,
+    "team_vs_implied": -7.25,
+    "opp_vs_implied": -8.25,
+    "cover": 1.0,
+    "coach": [
+     "Brian Daboll"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 10,
+    "team": "TB",
+    "opp": "ARI",
+    "resid": 6.0,
+    "team_vs_implied": 1.75,
+    "opp_vs_implied": 4.25,
+    "cover": -2.5,
+    "coach": [
+     "Byron Leftwich"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 11,
+    "team": "CIN",
+    "opp": "OAK",
+    "resid": -21.0,
+    "team_vs_implied": -7.5,
+    "opp_vs_implied": -13.5,
+    "cover": 6.0,
+    "coach": [
+     "Brian Callahan"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 16,
+    "team": "BUF",
+    "opp": "NE",
+    "resid": 1.5,
+    "team_vs_implied": 0.75,
+    "opp_vs_implied": 0.75,
+    "cover": 0.0,
+    "coach": [
+     "Brian Daboll"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 17,
+    "team": "MIA",
+    "opp": "NE",
+    "resid": 5.0,
+    "team_vs_implied": 12.75,
+    "opp_vs_implied": -7.75,
+    "cover": 20.5,
+    "coach": [
+     "Chad O'Shea"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 2,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": 20.5,
+    "team_vs_implied": 9.75,
+    "opp_vs_implied": 10.75,
+    "cover": -1.0,
+    "coach": [
+     "Alex Van Pelt"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 5,
+    "team": "LA",
+    "opp": "WAS",
+    "resid": -5.0,
+    "team_vs_implied": 4.0,
+    "opp_vs_implied": -9.0,
+    "cover": 13.0,
+    "coach": [
+     "Kevin O'Connell (American football)"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 7,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": 21.0,
+    "team_vs_implied": 9.75,
+    "opp_vs_implied": 11.25,
+    "cover": -1.5,
+    "coach": [
+     "Alex Van Pelt"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 7,
+    "team": "CAR",
+    "opp": "NO",
+    "resid": 1.5,
+    "team_vs_implied": 2.75,
+    "opp_vs_implied": -1.25,
+    "cover": 4.0,
+    "coach": [
+     "Joe Brady (American football coach)"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 16,
+    "team": "WAS",
+    "opp": "CAR",
+    "resid": -8.0,
+    "team_vs_implied": -7.0,
+    "opp_vs_implied": -1.0,
+    "cover": -6.0,
+    "coach": [
+     "Scott Turner (American football coach)"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 17,
+    "team": "CAR",
+    "opp": "NO",
+    "resid": -7.0,
+    "team_vs_implied": -13.5,
+    "opp_vs_implied": 6.5,
+    "cover": -20.0,
+    "coach": [
+     "Joe Brady (American football coach)"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 2,
+    "team": "CAR",
+    "opp": "NO",
+    "resid": -12.0,
+    "team_vs_implied": 5.0,
+    "opp_vs_implied": -17.0,
+    "cover": 22.0,
+    "coach": [
+     "Joe Brady (American football coach)"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 5,
+    "team": "SEA",
+    "opp": "LA",
+    "resid": -10.5,
+    "team_vs_implied": -8.5,
+    "opp_vs_implied": -2.0,
+    "cover": -6.5,
+    "coach": [
+     "Shane Waldron"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 9,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": 9.5,
+    "team_vs_implied": 18.5,
+    "opp_vs_implied": -9.0,
+    "cover": 27.5,
+    "coach": [
+     "Alex Van Pelt"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 9,
+    "team": "PHI",
+    "opp": "LAC",
+    "resid": 1.5,
+    "team_vs_implied": -0.25,
+    "opp_vs_implied": 1.75,
+    "cover": -2.0,
+    "coach": [
+     "Shane Steichen"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 11,
+    "team": "WAS",
+    "opp": "CAR",
+    "resid": 5.0,
+    "team_vs_implied": 7.25,
+    "opp_vs_implied": -2.25,
+    "cover": 9.5,
+    "coach": [
+     "Scott Turner (American football coach)"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 11,
+    "team": "CIN",
+    "opp": "LV",
+    "resid": -5.5,
+    "team_vs_implied": 6.25,
+    "opp_vs_implied": -11.75,
+    "cover": 18.0,
+    "coach": [
+     "Brian Callahan"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 15,
+    "team": "SEA",
+    "opp": "LA",
+    "resid": -17.0,
+    "team_vs_implied": -9.75,
+    "opp_vs_implied": -7.25,
+    "cover": -2.5,
+    "coach": [
+     "Shane Waldron"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 17,
+    "team": "CAR",
+    "opp": "NO",
+    "resid": -9.0,
+    "team_vs_implied": -5.0,
+    "opp_vs_implied": -4.0,
+    "cover": -1.0,
+    "coach": [
+     "Joe Brady (American football coach)"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 18,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": -1.0,
+    "team_vs_implied": -1.25,
+    "opp_vs_implied": 0.25,
+    "cover": -1.5,
+    "coach": [
+     "Alex Van Pelt"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 19,
+    "team": "CIN",
+    "opp": "LV",
+    "resid": -3.5,
+    "team_vs_implied": -1.25,
+    "opp_vs_implied": -2.25,
+    "cover": 1.0,
+    "coach": [
+     "Brian Callahan"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 2,
+    "team": "CHI",
+    "opp": "GB",
+    "resid": -5.0,
+    "team_vs_implied": -5.75,
+    "opp_vs_implied": 0.75,
+    "cover": -6.5,
+    "coach": [
+     "Luke Getsy"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 2,
+    "team": "JAX",
+    "opp": "IND",
+    "resid": -19.5,
+    "team_vs_implied": 3.75,
+    "opp_vs_implied": -23.25,
+    "cover": 27.0,
+    "coach": [
+     "Press Taylor"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 4,
+    "team": "HOU",
+    "opp": "LAC",
+    "resid": 13.0,
+    "team_vs_implied": 4.25,
+    "opp_vs_implied": 8.75,
+    "cover": -4.5,
+    "coach": [
+     "Pep Hamilton"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 4,
+    "team": "JAX",
+    "opp": "PHI",
+    "resid": 6.0,
+    "team_vs_implied": 2.25,
+    "opp_vs_implied": 3.75,
+    "cover": -1.5,
+    "coach": [
+     "Press Taylor"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 6,
+    "team": "JAX",
+    "opp": "IND",
+    "resid": 20.0,
+    "team_vs_implied": 7.0,
+    "opp_vs_implied": 13.0,
+    "cover": -6.0,
+    "coach": [
+     "Press Taylor"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 8,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": 0.0,
+    "team_vs_implied": 11.0,
+    "opp_vs_implied": -11.0,
+    "cover": 22.0,
+    "coach": [
+     "Alex Van Pelt"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 11,
+    "team": "ATL",
+    "opp": "CHI",
+    "resid": 2.5,
+    "team_vs_implied": 1.25,
+    "opp_vs_implied": 1.25,
+    "cover": 0.0,
+    "coach": [
+     "Dave Ragone"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 13,
+    "team": "CHI",
+    "opp": "GB",
+    "resid": 2.0,
+    "team_vs_implied": -1.5,
+    "opp_vs_implied": 3.5,
+    "cover": -5.0,
+    "coach": [
+     "Luke Getsy"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 13,
+    "team": "SEA",
+    "opp": "LA",
+    "resid": 9.0,
+    "team_vs_implied": 3.0,
+    "opp_vs_implied": 6.0,
+    "cover": -3.0,
+    "coach": [
+     "Shane Waldron"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 14,
+    "team": "CLE",
+    "opp": "CIN",
+    "resid": -14.0,
+    "team_vs_implied": -11.25,
+    "opp_vs_implied": -2.75,
+    "cover": -8.5,
+    "coach": [
+     "Alex Van Pelt"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 14,
+    "team": "MIA",
+    "opp": "LAC",
+    "resid": -14.5,
+    "team_vs_implied": -11.75,
+    "opp_vs_implied": -2.75,
+    "cover": -9.0,
+    "coach": [
+     "Frank Smith (American football)"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 15,
+    "team": "LV",
+    "opp": "NE",
+    "resid": 9.0,
+    "team_vs_implied": 7.0,
+    "opp_vs_implied": 2.0,
+    "cover": 5.0,
+    "coach": [
+     "Mick Lombardi"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 18,
+    "team": "SEA",
+    "opp": "LA",
+    "resid": -6.5,
+    "team_vs_implied": -4.5,
+    "opp_vs_implied": -2.0,
+    "cover": -2.5,
+    "coach": [
+     "Shane Waldron"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 1,
+    "team": "CHI",
+    "opp": "GB",
+    "resid": 17.0,
+    "team_vs_implied": -1.0,
+    "opp_vs_implied": 18.0,
+    "cover": -19.0,
+    "coach": [
+     "Luke Getsy"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 1,
+    "team": "IND",
+    "opp": "JAX",
+    "resid": 6.5,
+    "team_vs_implied": 0.25,
+    "opp_vs_implied": 6.25,
+    "cover": -6.0,
+    "coach": [
+     "Jim Bob Cooter"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 1,
+    "team": "JAX",
+    "opp": "IND",
+    "resid": 6.5,
+    "team_vs_implied": 6.25,
+    "opp_vs_implied": 0.25,
+    "cover": 6.0,
+    "coach": [
+     "Press Taylor"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 1,
+    "team": "MIA",
+    "opp": "LAC",
+    "resid": 19.5,
+    "team_vs_implied": 12.25,
+    "opp_vs_implied": 7.25,
+    "cover": 5.0,
+    "coach": [
+     "Frank Smith (American football)"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 1,
+    "team": "SEA",
+    "opp": "LA",
+    "resid": -2.0,
+    "team_vs_implied": -11.75,
+    "opp_vs_implied": 9.75,
+    "cover": -21.5,
+    "coach": [
+     "Shane Waldron"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 2,
+    "team": "LA",
+    "opp": "SF",
+    "resid": 8.0,
+    "team_vs_implied": 4.25,
+    "opp_vs_implied": 3.75,
+    "cover": 0.5,
+    "coach": [
+     "Mike LaFleur"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 6,
+    "team": "JAX",
+    "opp": "IND",
+    "resid": 13.0,
+    "team_vs_implied": 13.0,
+    "opp_vs_implied": 0.0,
+    "cover": 13.0,
+    "coach": [
+     "Press Taylor"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 6,
+    "team": "IND",
+    "opp": "JAX",
+    "resid": 13.0,
+    "team_vs_implied": 0.0,
+    "opp_vs_implied": 13.0,
+    "cover": -13.0,
+    "coach": [
+     "Jim Bob Cooter"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 6,
+    "team": "LV",
+    "opp": "NE",
+    "resid": -3.5,
+    "team_vs_implied": -1.25,
+    "opp_vs_implied": -2.25,
+    "cover": 1.0,
+    "coach": [
+     "Mick Lombardi"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 9,
+    "team": "ARI",
+    "opp": "CLE",
+    "resid": -11.0,
+    "team_vs_implied": -12.5,
+    "opp_vs_implied": 1.5,
+    "cover": -14.0,
+    "coach": [
+     "Drew Petzing"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 11,
+    "team": "SEA",
+    "opp": "LA",
+    "resid": -12.0,
+    "team_vs_implied": -5.25,
+    "opp_vs_implied": -6.75,
+    "cover": 1.5,
+    "coach": [
+     "Shane Waldron"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 11,
+    "team": "MIA",
+    "opp": "LV",
+    "resid": -11.5,
+    "team_vs_implied": -9.25,
+    "opp_vs_implied": -2.25,
+    "cover": -7.0,
+    "coach": [
+     "Frank Smith (American football)"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 17,
+    "team": "ATL",
+    "opp": "CHI",
+    "resid": 15.0,
+    "team_vs_implied": -1.0,
+    "opp_vs_implied": 16.0,
+    "cover": -17.0,
+    "coach": [
+     "Dave Ragone"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 18,
+    "team": "CHI",
+    "opp": "GB",
+    "resid": -19.5,
+    "team_vs_implied": -12.5,
+    "opp_vs_implied": -7.0,
+    "cover": -5.5,
+    "coach": [
+     "Luke Getsy"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 18,
+    "team": "LA",
+    "opp": "SF",
+    "resid": 1.0,
+    "team_vs_implied": 3.75,
+    "opp_vs_implied": -2.75,
+    "cover": 6.5,
+    "coach": [
+     "Mike LaFleur"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 5,
+    "team": "JAX",
+    "opp": "IND",
+    "resid": 26.0,
+    "team_vs_implied": 12.75,
+    "opp_vs_implied": 13.25,
+    "cover": -0.5,
+    "coach": [
+     "Press Taylor"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 5,
+    "team": "IND",
+    "opp": "JAX",
+    "resid": 26.0,
+    "team_vs_implied": 13.25,
+    "opp_vs_implied": 12.75,
+    "cover": 0.5,
+    "coach": [
+     "Jim Bob Cooter"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 8,
+    "team": "MIN",
+    "opp": "LA",
+    "resid": 2.5,
+    "team_vs_implied": -5.25,
+    "opp_vs_implied": 7.75,
+    "cover": -13.0,
+    "coach": [
+     "Wes Phillips"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 13,
+    "team": "CAR",
+    "opp": "TB",
+    "resid": 3.0,
+    "team_vs_implied": 3.25,
+    "opp_vs_implied": -0.25,
+    "cover": 3.5,
+    "coach": [
+     "Brad Idzik"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 14,
+    "team": "TEN",
+    "opp": "JAX",
+    "resid": -24.0,
+    "team_vs_implied": -15.5,
+    "opp_vs_implied": -8.5,
+    "cover": -7.0,
+    "coach": [
+     "Nick Holz"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 17,
+    "team": "TEN",
+    "opp": "JAX",
+    "resid": -5.0,
+    "team_vs_implied": -6.5,
+    "opp_vs_implied": 1.5,
+    "cover": -8.0,
+    "coach": [
+     "Nick Holz"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 17,
+    "team": "CAR",
+    "opp": "TB",
+    "resid": 14.5,
+    "team_vs_implied": -5.0,
+    "opp_vs_implied": 19.5,
+    "cover": -24.5,
+    "coach": [
+     "Brad Idzik"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 18,
+    "team": "IND",
+    "opp": "JAX",
+    "resid": 3.5,
+    "team_vs_implied": 1.5,
+    "opp_vs_implied": 2.0,
+    "cover": -0.5,
+    "coach": [
+     "Jim Bob Cooter"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 18,
+    "team": "JAX",
+    "opp": "IND",
+    "resid": 3.5,
+    "team_vs_implied": 2.0,
+    "opp_vs_implied": 1.5,
+    "cover": 0.5,
+    "coach": [
+     "Press Taylor"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 19,
+    "team": "MIN",
+    "opp": "LA",
+    "resid": -11.5,
+    "team_vs_implied": -16.0,
+    "opp_vs_implied": 4.5,
+    "cover": -20.5,
+    "coach": [
+     "Wes Phillips"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 1,
+    "team": "HOU",
+    "opp": "LA",
+    "resid": -20.5,
+    "team_vs_implied": -11.0,
+    "opp_vs_implied": -9.5,
+    "cover": -1.5,
+    "coach": [
+     "Nick Caley"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 7,
+    "team": "CHI",
+    "opp": "NO",
+    "resid": -3.5,
+    "team_vs_implied": 2.0,
+    "opp_vs_implied": -5.5,
+    "cover": 7.5,
+    "coach": [
+     "Declan Doyle"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 9,
+    "team": "DAL",
+    "opp": "ARI",
+    "resid": -9.5,
+    "team_vs_implied": -11.5,
+    "opp_vs_implied": 2.0,
+    "cover": -13.5,
+    "coach": [
+     "Klayton Adams"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 13,
+    "team": "TEN",
+    "opp": "JAX",
+    "resid": -14.5,
+    "team_vs_implied": -15.25,
+    "opp_vs_implied": 0.75,
+    "cover": -16.0,
+    "coach": [
+     "Nick Holz"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 14,
+    "team": "IND",
+    "opp": "JAX",
+    "resid": 10.5,
+    "team_vs_implied": -4.5,
+    "opp_vs_implied": 15.0,
+    "cover": -19.5,
+    "coach": [
+     "Jim Bob Cooter"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 16,
+    "team": "CAR",
+    "opp": "TB",
+    "resid": -1.5,
+    "team_vs_implied": 2.25,
+    "opp_vs_implied": -3.75,
+    "cover": 6.0,
+    "coach": [
+     "Brad Idzik"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 17,
+    "team": "CAR",
+    "opp": "SEA",
+    "resid": -5.5,
+    "team_vs_implied": -8.0,
+    "opp_vs_implied": 2.5,
+    "cover": -10.5,
+    "coach": [
+     "Brad Idzik"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 17,
+    "team": "IND",
+    "opp": "JAX",
+    "resid": -8.5,
+    "team_vs_implied": -5.5,
+    "opp_vs_implied": -3.0,
+    "cover": -2.5,
+    "coach": [
+     "Jim Bob Cooter"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 17,
+    "team": "TB",
+    "opp": "MIA",
+    "resid": -7.5,
+    "team_vs_implied": -8.0,
+    "opp_vs_implied": 0.5,
+    "cover": -8.5,
+    "coach": [
+     "Josh Grizzard"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 17,
+    "team": "ATL",
+    "opp": "LA",
+    "resid": 2.5,
+    "team_vs_implied": 6.5,
+    "opp_vs_implied": -4.0,
+    "cover": 10.5,
+    "coach": [
+     "Zac Robinson"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 18,
+    "team": "CAR",
+    "opp": "TB",
+    "resid": -13.5,
+    "team_vs_implied": -6.25,
+    "opp_vs_implied": -7.25,
+    "cover": 1.0,
+    "coach": [
+     "Brad Idzik"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 18,
+    "team": "TEN",
+    "opp": "JAX",
+    "resid": 1.5,
+    "team_vs_implied": -10.0,
+    "opp_vs_implied": 11.5,
+    "cover": -21.5,
+    "coach": [
+     "Nick Holz"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 20,
+    "team": "HOU",
+    "opp": "NE",
+    "resid": 3.5,
+    "team_vs_implied": -2.75,
+    "opp_vs_implied": 6.25,
+    "cover": -9.0,
+    "coach": [
+     "Nick Caley"
+    ]
+   },
+   {
+    "season": 2026,
+    "week": 5,
+    "team": "SEA",
+    "opp": "SF",
+    "resid": 14.5,
+    "team_vs_implied": 4.25,
+    "opp_vs_implied": 10.25,
+    "cover": -6.0,
+    "coach": [
+     "Brian Fleury"
+    ]
+   }
+  ],
+  "dc_to_hc": [
+   {
+    "season": 2006,
+    "week": 2,
+    "team": "NYJ",
+    "opp": "NE",
+    "resid": 2.5,
+    "team_vs_implied": 0.75,
+    "opp_vs_implied": 1.75,
+    "cover": -1.0,
+    "coach": [
+     "Eric Mangini"
+    ]
+   },
+   {
+    "season": 2006,
+    "week": 6,
+    "team": "BUF",
+    "opp": "DET",
+    "resid": -4.0,
+    "team_vs_implied": -4.0,
+    "opp_vs_implied": 0.0,
+    "cover": -4.0,
+    "coach": [
+     "Dick Jauron"
+    ]
+   },
+   {
+    "season": 2006,
+    "week": 10,
+    "team": "NYJ",
+    "opp": "NE",
+    "resid": -7.0,
+    "team_vs_implied": 3.25,
+    "opp_vs_implied": -10.25,
+    "cover": 13.5,
+    "coach": [
+     "Eric Mangini"
+    ]
+   },
+   {
+    "season": 2006,
+    "week": 18,
+    "team": "NYJ",
+    "opp": "NE",
+    "resid": 14.5,
+    "team_vs_implied": 1.5,
+    "opp_vs_implied": 13.0,
+    "cover": -11.5,
+    "coach": [
+     "Eric Mangini"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 1,
+    "team": "NYJ",
+    "opp": "NE",
+    "resid": 10.5,
+    "team_vs_implied": -3.75,
+    "opp_vs_implied": 14.25,
+    "cover": -18.0,
+    "coach": [
+     "Eric Mangini"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 5,
+    "team": "CLE",
+    "opp": "NE",
+    "resid": 3.0,
+    "team_vs_implied": 0.75,
+    "opp_vs_implied": 2.25,
+    "cover": -1.5,
+    "coach": [
+     "Romeo Crennel"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 5,
+    "team": "SF",
+    "opp": "BAL",
+    "resid": -19.0,
+    "team_vs_implied": -8.5,
+    "opp_vs_implied": -10.5,
+    "cover": 2.0,
+    "coach": [
+     "Mike Nolan"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 15,
+    "team": "NYJ",
+    "opp": "NE",
+    "resid": -11.0,
+    "team_vs_implied": -0.25,
+    "opp_vs_implied": -10.75,
+    "cover": 10.5,
+    "coach": [
+     "Eric Mangini"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 2,
+    "team": "NYJ",
+    "opp": "NE",
+    "resid": -8.0,
+    "team_vs_implied": -9.0,
+    "opp_vs_implied": 1.0,
+    "cover": -10.0,
+    "coach": [
+     "Eric Mangini"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 11,
+    "team": "NYJ",
+    "opp": "NE",
+    "resid": 24.5,
+    "team_vs_implied": 15.25,
+    "opp_vs_implied": 9.25,
+    "cover": 6.0,
+    "coach": [
+     "Eric Mangini"
+    ]
+   },
+   {
+    "season": 2009,
+    "week": 7,
+    "team": "PIT",
+    "opp": "MIN",
+    "resid": -2.5,
+    "team_vs_implied": 0.75,
+    "opp_vs_implied": -3.25,
+    "cover": 4.0,
+    "coach": [
+     "Mike Tomlin"
+    ]
+   },
+   {
+    "season": 2009,
+    "week": 14,
+    "team": "DAL",
+    "opp": "SD",
+    "resid": -11.5,
+    "team_vs_implied": -9.0,
+    "opp_vs_implied": -2.5,
+    "cover": -6.5,
+    "coach": [
+     "Wade Phillips"
+    ]
+   },
+   {
+    "season": 2010,
+    "week": 1,
+    "team": "NYJ",
+    "opp": "BAL",
+    "resid": -17.5,
+    "team_vs_implied": -9.75,
+    "opp_vs_implied": -7.75,
+    "cover": -2.0,
+    "coach": [
+     "Rex Ryan"
+    ]
+   },
+   {
+    "season": 2011,
+    "week": 2,
+    "team": "STL",
+    "opp": "NYG",
+    "resid": 0.5,
+    "team_vs_implied": -2.25,
+    "opp_vs_implied": 2.75,
+    "cover": -5.0,
+    "coach": [
+     "Steve Spagnuolo"
+    ]
+   },
+   {
+    "season": 2011,
+    "week": 4,
+    "team": "NYJ",
+    "opp": "BAL",
+    "resid": 8.0,
+    "team_vs_implied": -2.0,
+    "opp_vs_implied": 10.0,
+    "cover": -12.0,
+    "coach": [
+     "Rex Ryan"
+    ]
+   },
+   {
+    "season": 2011,
+    "week": 11,
+    "team": "JAX",
+    "opp": "CLE",
+    "resid": -10.5,
+    "team_vs_implied": -6.75,
+    "opp_vs_implied": -3.75,
+    "cover": -3.0,
+    "coach": [
+     "Mel Tucker"
+    ]
+   },
+   {
+    "season": 2012,
+    "week": 4,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": -4.0,
+    "team_vs_implied": -14.25,
+    "opp_vs_implied": 10.25,
+    "cover": -24.5,
+    "coach": [
+     "Dennis Allen (American football)"
+    ]
+   },
+   {
+    "season": 2012,
+    "week": 14,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": -8.0,
+    "team_vs_implied": -5.5,
+    "opp_vs_implied": -2.5,
+    "cover": -3.0,
+    "coach": [
+     "Dennis Allen (American football)"
+    ]
+   },
+   {
+    "season": 2012,
+    "week": 15,
+    "team": "CAR",
+    "opp": "SD",
+    "resid": -7.0,
+    "team_vs_implied": 10.0,
+    "opp_vs_implied": -17.0,
+    "cover": 27.0,
+    "coach": [
+     "Ron Rivera"
+    ]
+   },
+   {
+    "season": 2012,
+    "week": 18,
+    "team": "IND",
+    "opp": "BAL",
+    "resid": -14.5,
+    "team_vs_implied": -11.0,
+    "opp_vs_implied": -3.5,
+    "cover": -7.5,
+    "coach": [
+     "Chuck Pagano"
+    ]
+   },
+   {
+    "season": 2013,
+    "week": 3,
+    "team": "JAX",
+    "opp": "SEA",
+    "resid": 23.0,
+    "team_vs_implied": 7.25,
+    "opp_vs_implied": 15.75,
+    "cover": -8.5,
+    "coach": [
+     "Gus Bradley"
+    ]
+   },
+   {
+    "season": 2013,
+    "week": 3,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": 9.5,
+    "team_vs_implied": 4.75,
+    "opp_vs_implied": 4.75,
+    "cover": 0.0,
+    "coach": [
+     "Dennis Allen (American football)"
+    ]
+   },
+   {
+    "season": 2013,
+    "week": 17,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": -5.5,
+    "team_vs_implied": -7.75,
+    "opp_vs_implied": 2.25,
+    "cover": -10.0,
+    "coach": [
+     "Dennis Allen (American football)"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 5,
+    "team": "IND",
+    "opp": "BAL",
+    "resid": -16.5,
+    "team_vs_implied": -6.0,
+    "opp_vs_implied": -10.5,
+    "cover": 4.5,
+    "coach": [
+     "Chuck Pagano"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 10,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": 7.5,
+    "team_vs_implied": -1.75,
+    "opp_vs_implied": 9.25,
+    "cover": -11.0,
+    "coach": [
+     "Dennis Allen (American football)"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 13,
+    "team": "CLE",
+    "opp": "BUF",
+    "resid": -6.0,
+    "team_vs_implied": -9.5,
+    "opp_vs_implied": 3.5,
+    "cover": -13.0,
+    "coach": [
+     "Mike Pettine"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 17,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": 12.0,
+    "team_vs_implied": -2.25,
+    "opp_vs_implied": 14.25,
+    "cover": -16.5,
+    "coach": [
+     "Dennis Allen (American football)"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 1,
+    "team": "CLE",
+    "opp": "NYJ",
+    "resid": 2.0,
+    "team_vs_implied": -7.75,
+    "opp_vs_implied": 9.75,
+    "cover": -17.5,
+    "coach": [
+     "Mike Pettine"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 5,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": -18.5,
+    "team_vs_implied": -9.75,
+    "opp_vs_implied": -8.75,
+    "cover": -1.0,
+    "coach": [
+     "Jack Del Rio"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 14,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": -16.0,
+    "team_vs_implied": -3.5,
+    "opp_vs_implied": -12.5,
+    "cover": 9.0,
+    "coach": [
+     "Jack Del Rio"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 6,
+    "team": "ATL",
+    "opp": "SEA",
+    "resid": 4.5,
+    "team_vs_implied": 4.75,
+    "opp_vs_implied": -0.25,
+    "cover": 5.0,
+    "coach": [
+     "Dan Quinn (American football)"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 6,
+    "team": "NYJ",
+    "opp": "ARI",
+    "resid": -15.0,
+    "team_vs_implied": -16.25,
+    "opp_vs_implied": 1.25,
+    "cover": -17.5,
+    "coach": [
+     "Todd Bowles"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 9,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": 5.5,
+    "team_vs_implied": 7.25,
+    "opp_vs_implied": -1.75,
+    "cover": 9.0,
+    "coach": [
+     "Jack Del Rio"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 17,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": -10.0,
+    "team_vs_implied": -13.5,
+    "opp_vs_implied": 3.5,
+    "cover": -17.0,
+    "coach": [
+     "Jack Del Rio"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 19,
+    "team": "ATL",
+    "opp": "SEA",
+    "resid": 5.0,
+    "team_vs_implied": 7.25,
+    "opp_vs_implied": -2.25,
+    "cover": 9.5,
+    "coach": [
+     "Dan Quinn (American football)"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 2,
+    "team": "BUF",
+    "opp": "CAR",
+    "resid": -31.0,
+    "team_vs_implied": -15.25,
+    "opp_vs_implied": -15.75,
+    "cover": 0.5,
+    "coach": [
+     "Sean McDermott"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 4,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": -18.0,
+    "team_vs_implied": -10.25,
+    "opp_vs_implied": -7.75,
+    "cover": -2.5,
+    "coach": [
+     "Jack Del Rio"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 11,
+    "team": "ATL",
+    "opp": "SEA",
+    "resid": 19.0,
+    "team_vs_implied": 11.5,
+    "opp_vs_implied": 7.5,
+    "cover": 4.0,
+    "coach": [
+     "Dan Quinn (American football)"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 12,
+    "team": "OAK",
+    "opp": "DEN",
+    "resid": -6.0,
+    "team_vs_implied": -1.25,
+    "opp_vs_implied": -4.75,
+    "cover": 3.5,
+    "coach": [
+     "Jack Del Rio"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 13,
+    "team": "DEN",
+    "opp": "MIA",
+    "resid": 3.0,
+    "team_vs_implied": -12.0,
+    "opp_vs_implied": 15.0,
+    "cover": -27.0,
+    "coach": [
+     "Vance Joseph"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 2,
+    "team": "TEN",
+    "opp": "HOU",
+    "resid": -4.0,
+    "team_vs_implied": 1.25,
+    "opp_vs_implied": -5.25,
+    "cover": 6.5,
+    "coach": [
+     "Mike Vrabel"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 3,
+    "team": "DET",
+    "opp": "NE",
+    "resid": -19.5,
+    "team_vs_implied": 1.75,
+    "opp_vs_implied": -21.25,
+    "cover": 23.0,
+    "coach": [
+     "Matt Patricia"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 12,
+    "team": "TEN",
+    "opp": "HOU",
+    "resid": 8.5,
+    "team_vs_implied": -2.5,
+    "opp_vs_implied": 11.0,
+    "cover": -13.5,
+    "coach": [
+     "Mike Vrabel"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 2,
+    "team": "DEN",
+    "opp": "CHI",
+    "resid": -11.0,
+    "team_vs_implied": -5.0,
+    "opp_vs_implied": -6.0,
+    "cover": 1.0,
+    "coach": [
+     "Vic Fangio"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 15,
+    "team": "TEN",
+    "opp": "HOU",
+    "resid": -5.0,
+    "team_vs_implied": -5.5,
+    "opp_vs_implied": 0.5,
+    "cover": -6.0,
+    "coach": [
+     "Mike Vrabel"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 17,
+    "team": "TEN",
+    "opp": "HOU",
+    "resid": 6.0,
+    "team_vs_implied": 8.5,
+    "opp_vs_implied": -2.5,
+    "cover": 11.0,
+    "coach": [
+     "Mike Vrabel"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 6,
+    "team": "TEN",
+    "opp": "HOU",
+    "resid": 26.0,
+    "team_vs_implied": 14.0,
+    "opp_vs_implied": 12.0,
+    "cover": 2.0,
+    "coach": [
+     "Mike Vrabel"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 17,
+    "team": "TEN",
+    "opp": "HOU",
+    "resid": 23.5,
+    "team_vs_implied": 9.75,
+    "opp_vs_implied": 13.75,
+    "cover": -4.0,
+    "coach": [
+     "Mike Vrabel"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 1,
+    "team": "CAR",
+    "opp": "CLE",
+    "resid": 7.5,
+    "team_vs_implied": 1.5,
+    "opp_vs_implied": 6.0,
+    "cover": -4.5,
+    "coach": [
+     "Steve Wilks"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 17,
+    "team": "LAC",
+    "opp": "LA",
+    "resid": -0.5,
+    "team_vs_implied": 7.0,
+    "opp_vs_implied": -7.5,
+    "cover": 14.5,
+    "coach": [
+     "Brandon Staley"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 17,
+    "team": "ARI",
+    "opp": "PHI",
+    "resid": 18.0,
+    "team_vs_implied": 17.0,
+    "opp_vs_implied": 1.0,
+    "cover": 16.0,
+    "coach": [
+     "Jonathan Gannon"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 3,
+    "team": "CHI",
+    "opp": "IND",
+    "resid": -6.0,
+    "team_vs_implied": -4.75,
+    "opp_vs_implied": -1.25,
+    "cover": -3.5,
+    "coach": [
+     "Matt Eberflus"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 12,
+    "team": "WAS",
+    "opp": "DAL",
+    "resid": 15.0,
+    "team_vs_implied": -1.75,
+    "opp_vs_implied": 16.75,
+    "cover": -18.5,
+    "coach": [
+     "Dan Quinn (American football)"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 18,
+    "team": "WAS",
+    "opp": "DAL",
+    "resid": -1.5,
+    "team_vs_implied": -2.25,
+    "opp_vs_implied": 0.75,
+    "cover": -3.0,
+    "coach": [
+     "Dan Quinn (American football)"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 7,
+    "team": "WAS",
+    "opp": "DAL",
+    "resid": 11.5,
+    "team_vs_implied": -4.5,
+    "opp_vs_implied": 16.0,
+    "cover": -20.5,
+    "coach": [
+     "Dan Quinn (American football)"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 8,
+    "team": "HOU",
+    "opp": "SF",
+    "resid": -0.5,
+    "team_vs_implied": 4.0,
+    "opp_vs_implied": -4.5,
+    "cover": 8.5,
+    "coach": [
+     "DeMeco Ryans"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 17,
+    "team": "WAS",
+    "opp": "DAL",
+    "resid": 2.5,
+    "team_vs_implied": 2.0,
+    "opp_vs_implied": 0.5,
+    "cover": 1.5,
+    "coach": [
+     "Dan Quinn (American football)"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 17,
+    "team": "ATL",
+    "opp": "LA",
+    "resid": 2.5,
+    "team_vs_implied": 6.5,
+    "opp_vs_implied": -4.0,
+    "cover": 10.5,
+    "coach": [
+     "Raheem Morris"
+    ]
+   },
+   {
+    "season": 2026,
+    "week": 2,
+    "team": "WAS",
+    "opp": "DAL",
+    "resid": 5.5,
+    "team_vs_implied": -4.0,
+    "opp_vs_implied": 9.5,
+    "cover": -13.5,
+    "coach": [
+     "Dan Quinn (American football)"
+    ]
+   },
+   {
+    "season": 2026,
+    "week": 3,
+    "team": "NYJ",
+    "opp": "DET",
+    "resid": 5.5,
+    "team_vs_implied": 2.75,
+    "opp_vs_implied": 2.75,
+    "cover": 0.0,
+    "coach": [
+     "Aaron Glenn"
+    ]
+   }
+  ],
+  "dpos_to_dc": [
+   {
+    "season": 2006,
+    "week": 5,
+    "team": "BUF",
+    "opp": "CHI",
+    "resid": 12.5,
+    "team_vs_implied": -5.5,
+    "opp_vs_implied": 18.0,
+    "cover": -23.5,
+    "coach": [
+     "Perry Fewell"
+    ]
+   },
+   {
+    "season": 2006,
+    "week": 7,
+    "team": "GB",
+    "opp": "MIA",
+    "resid": 18.0,
+    "team_vs_implied": 17.0,
+    "opp_vs_implied": 1.0,
+    "cover": 16.0,
+    "coach": [
+     "Bob Sanders (American football coach)"
+    ]
+   },
+   {
+    "season": 2006,
+    "week": 17,
+    "team": "CLE",
+    "opp": "HOU",
+    "resid": -18.0,
+    "team_vs_implied": -10.0,
+    "opp_vs_implied": -8.0,
+    "cover": -2.0,
+    "coach": [
+     "Todd Grantham"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 4,
+    "team": "NYG",
+    "opp": "PHI",
+    "resid": -28.5,
+    "team_vs_implied": -6.75,
+    "opp_vs_implied": -21.75,
+    "cover": 15.0,
+    "coach": [
+     "Steve Spagnuolo"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 7,
+    "team": "DET",
+    "opp": "TB",
+    "resid": -5.5,
+    "team_vs_implied": -0.5,
+    "opp_vs_implied": -5.0,
+    "cover": 4.5,
+    "coach": [
+     "Joe Barry"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 9,
+    "team": "SD",
+    "opp": "MIN",
+    "resid": 10.5,
+    "team_vs_implied": -7.25,
+    "opp_vs_implied": 17.75,
+    "cover": -25.0,
+    "coach": [
+     "Ted Cottrell"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 12,
+    "team": "CLE",
+    "opp": "HOU",
+    "resid": -8.0,
+    "team_vs_implied": -0.5,
+    "opp_vs_implied": -7.5,
+    "cover": 7.0,
+    "coach": [
+     "Todd Grantham"
+    ]
+   },
+   {
+    "season": 2007,
+    "week": 14,
+    "team": "NYG",
+    "opp": "PHI",
+    "resid": -12.5,
+    "team_vs_implied": -3.25,
+    "opp_vs_implied": -9.25,
+    "cover": 6.0,
+    "coach": [
+     "Steve Spagnuolo"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 10,
+    "team": "NYG",
+    "opp": "PHI",
+    "resid": 24.5,
+    "team_vs_implied": 16.25,
+    "opp_vs_implied": 8.25,
+    "cover": 8.0,
+    "coach": [
+     "Steve Spagnuolo"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 12,
+    "team": "DET",
+    "opp": "TB",
+    "resid": 16.0,
+    "team_vs_implied": 3.5,
+    "opp_vs_implied": 12.5,
+    "cover": -9.0,
+    "coach": [
+     "Joe Barry"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 14,
+    "team": "NYG",
+    "opp": "PHI",
+    "resid": -6.5,
+    "team_vs_implied": -9.5,
+    "opp_vs_implied": 3.0,
+    "cover": -12.5,
+    "coach": [
+     "Steve Spagnuolo"
+    ]
+   },
+   {
+    "season": 2008,
+    "week": 19,
+    "team": "NYG",
+    "opp": "PHI",
+    "resid": -5.0,
+    "team_vs_implied": -10.5,
+    "opp_vs_implied": 5.5,
+    "cover": -16.0,
+    "coach": [
+     "Steve Spagnuolo"
+    ]
+   },
+   {
+    "season": 2009,
+    "week": 15,
+    "team": "SEA",
+    "opp": "TB",
+    "resid": -8.0,
+    "team_vs_implied": -15.75,
+    "opp_vs_implied": 7.75,
+    "cover": -23.5,
+    "coach": [
+     "Gus Bradley"
+    ]
+   },
+   {
+    "season": 2010,
+    "week": 8,
+    "team": "STL",
+    "opp": "CAR",
+    "resid": -8.0,
+    "team_vs_implied": -0.25,
+    "opp_vs_implied": -7.75,
+    "cover": 7.5,
+    "coach": [
+     "Ken Flajole"
+    ]
+   },
+   {
+    "season": 2010,
+    "week": 16,
+    "team": "SEA",
+    "opp": "TB",
+    "resid": 9.5,
+    "team_vs_implied": -4.25,
+    "opp_vs_implied": 13.75,
+    "cover": -18.0,
+    "coach": [
+     "Gus Bradley"
+    ]
+   },
+   {
+    "season": 2011,
+    "week": 7,
+    "team": "ARI",
+    "opp": "PIT",
+    "resid": 6.0,
+    "team_vs_implied": -1.0,
+    "opp_vs_implied": 7.0,
+    "cover": -8.0,
+    "coach": [
+     "Ray Horton"
+    ]
+   },
+   {
+    "season": 2013,
+    "week": 6,
+    "team": "TEN",
+    "opp": "SEA",
+    "resid": -9.0,
+    "team_vs_implied": -2.5,
+    "opp_vs_implied": -6.5,
+    "cover": 4.0,
+    "coach": [
+     "Jerry Gray"
+    ]
+   },
+   {
+    "season": 2013,
+    "week": 13,
+    "team": "ARI",
+    "opp": "PHI",
+    "resid": -3.0,
+    "team_vs_implied": -1.25,
+    "opp_vs_implied": -1.75,
+    "cover": 0.5,
+    "coach": [
+     "Todd Bowles"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 8,
+    "team": "ARI",
+    "opp": "PHI",
+    "resid": -5.0,
+    "team_vs_implied": -1.0,
+    "opp_vs_implied": -4.0,
+    "cover": 3.0,
+    "coach": [
+     "Todd Bowles"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 13,
+    "team": "CLE",
+    "opp": "BUF",
+    "resid": -6.0,
+    "team_vs_implied": -9.5,
+    "opp_vs_implied": 3.5,
+    "cover": -13.0,
+    "coach": [
+     "Jim O'Neil (American football)"
+    ]
+   },
+   {
+    "season": 2014,
+    "week": 16,
+    "team": "MIN",
+    "opp": "MIA",
+    "resid": 30.0,
+    "team_vs_implied": 16.25,
+    "opp_vs_implied": 13.75,
+    "cover": 2.5,
+    "coach": [
+     "George Edwards (American football)"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 1,
+    "team": "CLE",
+    "opp": "NYJ",
+    "resid": 2.0,
+    "team_vs_implied": -7.75,
+    "opp_vs_implied": 9.75,
+    "cover": -17.5,
+    "coach": [
+     "Jim O'Neil (American football)"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 4,
+    "team": "NYJ",
+    "opp": "MIA",
+    "resid": -1.0,
+    "team_vs_implied": 4.75,
+    "opp_vs_implied": -5.75,
+    "cover": 10.5,
+    "coach": [
+     "Kacy Rodgers"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 10,
+    "team": "BUF",
+    "opp": "NYJ",
+    "resid": -2.5,
+    "team_vs_implied": 2.5,
+    "opp_vs_implied": -5.0,
+    "cover": 7.5,
+    "coach": [
+     "Dennis Thurman"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 12,
+    "team": "NYJ",
+    "opp": "MIA",
+    "resid": 14.0,
+    "team_vs_implied": 13.75,
+    "opp_vs_implied": 0.25,
+    "cover": 13.5,
+    "coach": [
+     "Kacy Rodgers"
+    ]
+   },
+   {
+    "season": 2015,
+    "week": 17,
+    "team": "BUF",
+    "opp": "NYJ",
+    "resid": -2.0,
+    "team_vs_implied": 2.75,
+    "opp_vs_implied": -4.75,
+    "cover": 7.5,
+    "coach": [
+     "Dennis Thurman"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 4,
+    "team": "MIA",
+    "opp": "CIN",
+    "resid": -17.0,
+    "team_vs_implied": -12.25,
+    "opp_vs_implied": -4.75,
+    "cover": -7.5,
+    "coach": [
+     "Vance Joseph"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 5,
+    "team": "ATL",
+    "opp": "DEN",
+    "resid": -5.5,
+    "team_vs_implied": 2.5,
+    "opp_vs_implied": -8.0,
+    "cover": 10.5,
+    "coach": [
+     "Richard Smith (American football coach)"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 6,
+    "team": "SF",
+    "opp": "BUF",
+    "resid": 17.0,
+    "team_vs_implied": -2.25,
+    "opp_vs_implied": 19.25,
+    "cover": -21.5,
+    "coach": [
+     "Jim O'Neil (American football)"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 6,
+    "team": "NYG",
+    "opp": "BAL",
+    "resid": 7.5,
+    "team_vs_implied": 4.0,
+    "opp_vs_implied": 3.5,
+    "cover": 0.5,
+    "coach": [
+     "Steve Spagnuolo"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 9,
+    "team": "NYJ",
+    "opp": "MIA",
+    "resid": 5.0,
+    "team_vs_implied": 2.25,
+    "opp_vs_implied": 2.75,
+    "cover": -0.5,
+    "coach": [
+     "Kacy Rodgers"
+    ]
+   },
+   {
+    "season": 2016,
+    "week": 15,
+    "team": "NYJ",
+    "opp": "MIA",
+    "resid": 7.0,
+    "team_vs_implied": -5.75,
+    "opp_vs_implied": 12.75,
+    "cover": -18.5,
+    "coach": [
+     "Kacy Rodgers"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 3,
+    "team": "NYJ",
+    "opp": "MIA",
+    "resid": -17.0,
+    "team_vs_implied": 1.25,
+    "opp_vs_implied": -18.25,
+    "cover": 19.5,
+    "coach": [
+     "Kacy Rodgers"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 4,
+    "team": "DEN",
+    "opp": "OAK",
+    "resid": -18.0,
+    "team_vs_implied": -7.75,
+    "opp_vs_implied": -10.25,
+    "cover": 2.5,
+    "coach": [
+     "Joe Woods (American football)"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 7,
+    "team": "NYJ",
+    "opp": "MIA",
+    "resid": 19.0,
+    "team_vs_implied": 9.5,
+    "opp_vs_implied": 9.5,
+    "cover": 0.0,
+    "coach": [
+     "Kacy Rodgers"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 12,
+    "team": "DEN",
+    "opp": "OAK",
+    "resid": -6.0,
+    "team_vs_implied": -4.75,
+    "opp_vs_implied": -1.25,
+    "cover": -3.5,
+    "coach": [
+     "Joe Woods (American football)"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 16,
+    "team": "IND",
+    "opp": "BAL",
+    "resid": -2.0,
+    "team_vs_implied": 2.25,
+    "opp_vs_implied": -4.25,
+    "cover": 6.5,
+    "coach": [
+     "Ted Monachino"
+    ]
+   },
+   {
+    "season": 2017,
+    "week": 16,
+    "team": "SF",
+    "opp": "JAX",
+    "resid": 34.0,
+    "team_vs_implied": 24.5,
+    "opp_vs_implied": 9.5,
+    "cover": 15.0,
+    "coach": [
+     "Robert Saleh"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 1,
+    "team": "BUF",
+    "opp": "BAL",
+    "resid": 11.0,
+    "team_vs_implied": -12.75,
+    "opp_vs_implied": 23.75,
+    "cover": -36.5,
+    "coach": [
+     "Leslie Frazier"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 5,
+    "team": "MIA",
+    "opp": "CIN",
+    "resid": -3.5,
+    "team_vs_implied": -3.75,
+    "opp_vs_implied": 0.25,
+    "cover": -4.0,
+    "coach": [
+     "Matt Burke (American football)"
+    ]
+   },
+   {
+    "season": 2018,
+    "week": 15,
+    "team": "IND",
+    "opp": "DAL",
+    "resid": -24.0,
+    "team_vs_implied": -2.0,
+    "opp_vs_implied": -22.0,
+    "cover": 20.0,
+    "coach": [
+     "Matt Eberflus"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 2,
+    "team": "DEN",
+    "opp": "CHI",
+    "resid": -11.0,
+    "team_vs_implied": -5.0,
+    "opp_vs_implied": -6.0,
+    "cover": 1.0,
+    "coach": [
+     "Ed Donatell"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 14,
+    "team": "BUF",
+    "opp": "BAL",
+    "resid": -3.0,
+    "team_vs_implied": -1.75,
+    "opp_vs_implied": -1.25,
+    "cover": -0.5,
+    "coach": [
+     "Leslie Frazier"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 15,
+    "team": "MIA",
+    "opp": "NYG",
+    "resid": 9.0,
+    "team_vs_implied": -1.75,
+    "opp_vs_implied": 10.75,
+    "cover": -12.5,
+    "coach": [
+     "Patrick Graham (American football)"
+    ]
+   },
+   {
+    "season": 2019,
+    "week": 16,
+    "team": "CIN",
+    "opp": "MIA",
+    "resid": 27.0,
+    "team_vs_implied": 11.25,
+    "opp_vs_implied": 15.75,
+    "cover": -4.5,
+    "coach": [
+     "Lou Anarumo"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 1,
+    "team": "MIA",
+    "opp": "NE",
+    "resid": -9.5,
+    "team_vs_implied": -6.0,
+    "opp_vs_implied": -3.5,
+    "cover": -2.5,
+    "coach": [
+     "Josh Boyer"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 7,
+    "team": "LA",
+    "opp": "CHI",
+    "resid": -10.0,
+    "team_vs_implied": -1.25,
+    "opp_vs_implied": -8.75,
+    "cover": 7.5,
+    "coach": [
+     "Brandon Staley"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 12,
+    "team": "CIN",
+    "opp": "NYG",
+    "resid": -9.0,
+    "team_vs_implied": -2.25,
+    "opp_vs_implied": -6.75,
+    "cover": 4.5,
+    "coach": [
+     "Lou Anarumo"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 13,
+    "team": "CIN",
+    "opp": "MIA",
+    "resid": -17.0,
+    "team_vs_implied": -9.25,
+    "opp_vs_implied": -7.75,
+    "cover": -1.5,
+    "coach": [
+     "Lou Anarumo"
+    ]
+   },
+   {
+    "season": 2020,
+    "week": 15,
+    "team": "MIA",
+    "opp": "NE",
+    "resid": -6.0,
+    "team_vs_implied": 2.75,
+    "opp_vs_implied": -8.75,
+    "cover": 11.5,
+    "coach": [
+     "Josh Boyer"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 1,
+    "team": "MIA",
+    "opp": "NE",
+    "resid": -10.5,
+    "team_vs_implied": -3.0,
+    "opp_vs_implied": -7.5,
+    "cover": 4.5,
+    "coach": [
+     "Josh Boyer"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 5,
+    "team": "NYJ",
+    "opp": "ATL",
+    "resid": 1.5,
+    "team_vs_implied": -1.25,
+    "opp_vs_implied": 2.75,
+    "cover": -4.0,
+    "coach": [
+     "Jeff Ulbrich"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 12,
+    "team": "LAC",
+    "opp": "DEN",
+    "resid": -6.5,
+    "team_vs_implied": -12.0,
+    "opp_vs_implied": 5.5,
+    "cover": -17.5,
+    "coach": [
+     "Renaldo Hill"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 17,
+    "team": "LAC",
+    "opp": "DEN",
+    "resid": 1.5,
+    "team_vs_implied": 7.25,
+    "opp_vs_implied": -5.75,
+    "cover": 13.0,
+    "coach": [
+     "Renaldo Hill"
+    ]
+   },
+   {
+    "season": 2021,
+    "week": 18,
+    "team": "MIA",
+    "opp": "NE",
+    "resid": 16.0,
+    "team_vs_implied": 15.5,
+    "opp_vs_implied": 0.5,
+    "cover": 15.0,
+    "coach": [
+     "Josh Boyer"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 1,
+    "team": "CAR",
+    "opp": "CLE",
+    "resid": 7.5,
+    "team_vs_implied": 1.5,
+    "opp_vs_implied": 6.0,
+    "cover": -4.5,
+    "coach": [
+     "Al Holcomb"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 6,
+    "team": "LAC",
+    "opp": "DEN",
+    "resid": -10.5,
+    "team_vs_implied": -5.5,
+    "opp_vs_implied": -5.0,
+    "cover": -0.5,
+    "coach": [
+     "Renaldo Hill"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 11,
+    "team": "PHI",
+    "opp": "IND",
+    "resid": -12.5,
+    "team_vs_implied": -9.0,
+    "opp_vs_implied": -3.5,
+    "cover": -5.5,
+    "coach": [
+     "Jonathan Gannon"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 16,
+    "team": "DEN",
+    "opp": "LA",
+    "resid": 28.5,
+    "team_vs_implied": -5.75,
+    "opp_vs_implied": 34.25,
+    "cover": -40.0,
+    "coach": [
+     "Ejiro Evero"
+    ]
+   },
+   {
+    "season": 2022,
+    "week": 18,
+    "team": "LAC",
+    "opp": "DEN",
+    "resid": 20.5,
+    "team_vs_implied": 11.75,
+    "opp_vs_implied": 8.75,
+    "cover": 3.0,
+    "coach": [
+     "Renaldo Hill"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 3,
+    "team": "CLE",
+    "opp": "TEN",
+    "resid": -8.0,
+    "team_vs_implied": 6.25,
+    "opp_vs_implied": -14.25,
+    "cover": 20.5,
+    "coach": [
+     "Jim Schwartz"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 11,
+    "team": "HOU",
+    "opp": "ARI",
+    "resid": -11.0,
+    "team_vs_implied": -5.75,
+    "opp_vs_implied": -5.25,
+    "cover": -0.5,
+    "coach": [
+     "Matt Burke (American football)"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 12,
+    "team": "ATL",
+    "opp": "NO",
+    "resid": -3.0,
+    "team_vs_implied": 4.0,
+    "opp_vs_implied": -7.0,
+    "cover": 11.0,
+    "coach": [
+     "Ryan Nielsen"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 13,
+    "team": "DET",
+    "opp": "NO",
+    "resid": 13.5,
+    "team_vs_implied": 7.25,
+    "opp_vs_implied": 6.25,
+    "cover": 1.0,
+    "coach": [
+     "Aaron Glenn"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 16,
+    "team": "JAX",
+    "opp": "TB",
+    "resid": -1.0,
+    "team_vs_implied": -10.5,
+    "opp_vs_implied": 9.5,
+    "cover": -20.0,
+    "coach": [
+     "Mike Caldwell (linebacker)"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 17,
+    "team": "ARI",
+    "opp": "PHI",
+    "resid": 18.0,
+    "team_vs_implied": 17.0,
+    "opp_vs_implied": 1.0,
+    "cover": 16.0,
+    "coach": [
+     "Nick Rallis"
+    ]
+   },
+   {
+    "season": 2023,
+    "week": 18,
+    "team": "ATL",
+    "opp": "NO",
+    "resid": 23.5,
+    "team_vs_implied": -2.0,
+    "opp_vs_implied": 25.5,
+    "cover": -27.5,
+    "coach": [
+     "Ryan Nielsen"
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 12,
+    "team": "WAS",
+    "opp": "DAL",
+    "resid": 15.0,
+    "team_vs_implied": -1.75,
+    "opp_vs_implied": 16.75,
+    "cover": -18.5,
+    "coach": [
+     "Joe Whitt Jr."
+    ]
+   },
+   {
+    "season": 2024,
+    "week": 18,
+    "team": "WAS",
+    "opp": "DAL",
+    "resid": -1.5,
+    "team_vs_implied": -2.25,
+    "opp_vs_implied": 0.75,
+    "cover": -3.0,
+    "coach": [
+     "Joe Whitt Jr."
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 4,
+    "team": "MIN",
+    "opp": "PIT",
+    "resid": 3.5,
+    "team_vs_implied": -1.0,
+    "opp_vs_implied": 4.5,
+    "cover": -5.5,
+    "coach": [
+     "Brian Flores"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 7,
+    "team": "WAS",
+    "opp": "DAL",
+    "resid": 11.5,
+    "team_vs_implied": -4.5,
+    "opp_vs_implied": 16.0,
+    "cover": -20.5,
+    "coach": [
+     "Joe Whitt Jr."
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 7,
+    "team": "NE",
+    "opp": "TEN",
+    "resid": 3.5,
+    "team_vs_implied": 7.5,
+    "opp_vs_implied": -4.0,
+    "cover": 11.5,
+    "coach": [
+     "Terrell Williams",
+     "Zak Kuhr"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 13,
+    "team": "NE",
+    "opp": "NYG",
+    "resid": 1.5,
+    "team_vs_implied": 6.25,
+    "opp_vs_implied": -4.75,
+    "cover": 11.0,
+    "coach": [
+     "Zak Kuhr"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 14,
+    "team": "CLE",
+    "opp": "TEN",
+    "resid": 26.5,
+    "team_vs_implied": 10.0,
+    "opp_vs_implied": 16.5,
+    "cover": -6.5,
+    "coach": [
+     "Jim Schwartz"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 15,
+    "team": "HOU",
+    "opp": "ARI",
+    "resid": 17.5,
+    "team_vs_implied": 13.5,
+    "opp_vs_implied": 4.0,
+    "cover": 9.5,
+    "coach": [
+     "Matt Burke (American football)"
+    ]
+   },
+   {
+    "season": 2025,
+    "week": 17,
+    "team": "WAS",
+    "opp": "DAL",
+    "resid": 2.5,
+    "team_vs_implied": 2.0,
+    "opp_vs_implied": 0.5,
+    "cover": 1.5,
+    "coach": [
+     "Joe Whitt Jr."
+    ]
+   }
+  ]
+ },
  "scheme_examples": [
+  {
+   "season": 2006,
+   "week": 1,
+   "team": "MIA",
+   "opp": "PIT",
+   "knows_opp_offense": [
+    "Mike Mularkey"
+   ],
+   "knows_opp_defense": [],
+   "resid": 10.5,
+   "team_vs_implied": 0.5,
+   "opp_vs_implied": 10.0,
+   "cover": -9.5
+  },
+  {
+   "season": 2006,
+   "week": 2,
+   "team": "NYJ",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Eric Mangini"
+   ],
+   "resid": 2.5,
+   "team_vs_implied": 0.75,
+   "opp_vs_implied": 1.75,
+   "cover": -1.0
+  },
+  {
+   "season": 2006,
+   "week": 4,
+   "team": "HOU",
+   "opp": "MIA",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Richard Smith (American football coach)"
+   ],
+   "resid": -9.0,
+   "team_vs_implied": -1.75,
+   "opp_vs_implied": -7.25,
+   "cover": 5.5
+  },
+  {
+   "season": 2006,
+   "week": 10,
+   "team": "NYJ",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Eric Mangini"
+   ],
+   "resid": -7.0,
+   "team_vs_implied": 3.25,
+   "opp_vs_implied": -10.25,
+   "cover": 13.5
+  },
+  {
+   "season": 2006,
+   "week": 14,
+   "team": "NO",
+   "opp": "DAL",
+   "knows_opp_offense": [
+    "Sean Payton"
+   ],
+   "knows_opp_defense": [],
+   "resid": 12.0,
+   "team_vs_implied": 22.25,
+   "opp_vs_implied": -10.25,
+   "cover": 32.5
+  },
+  {
+   "season": 2006,
+   "week": 14,
+   "team": "GB",
+   "opp": "SF",
+   "knows_opp_offense": [
+    "Mike McCarthy"
+   ],
+   "knows_opp_defense": [],
+   "resid": 5.0,
+   "team_vs_implied": 10.0,
+   "opp_vs_implied": -5.0,
+   "cover": 15.0
+  },
+  {
+   "season": 2006,
+   "week": 18,
+   "team": "NYJ",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Eric Mangini"
+   ],
+   "resid": 14.5,
+   "team_vs_implied": 1.5,
+   "opp_vs_implied": 13.0,
+   "cover": -11.5
+  },
+  {
+   "season": 2007,
+   "week": 1,
+   "team": "NYJ",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Eric Mangini"
+   ],
+   "resid": 10.5,
+   "team_vs_implied": -3.75,
+   "opp_vs_implied": 14.25,
+   "cover": -18.0
+  },
+  {
+   "season": 2007,
+   "week": 5,
+   "team": "CLE",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Romeo Crennel"
+   ],
+   "resid": 3.0,
+   "team_vs_implied": 0.75,
+   "opp_vs_implied": 2.25,
+   "cover": -1.5
+  },
+  {
+   "season": 2007,
+   "week": 5,
+   "team": "SF",
+   "opp": "BAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Mike Nolan"
+   ],
+   "resid": -19.0,
+   "team_vs_implied": -8.5,
+   "opp_vs_implied": -10.5,
+   "cover": 2.0
+  },
+  {
+   "season": 2007,
+   "week": 6,
+   "team": "SD",
+   "opp": "OAK",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Norv Turner"
+   ],
+   "resid": -2.0,
+   "team_vs_implied": 1.25,
+   "opp_vs_implied": -3.25,
+   "cover": 4.5
+  },
+  {
+   "season": 2007,
+   "week": 8,
+   "team": "MIN",
+   "opp": "PHI",
+   "knows_opp_offense": [
+    "Brad Childress"
+   ],
+   "knows_opp_defense": [],
+   "resid": 1.5,
+   "team_vs_implied": -3.25,
+   "opp_vs_implied": 4.75,
+   "cover": -8.0
+  },
+  {
+   "season": 2007,
+   "week": 15,
+   "team": "HOU",
+   "opp": "DEN",
+   "knows_opp_offense": [
+    "Gary Kubiak"
+   ],
+   "knows_opp_defense": [],
+   "resid": -3.0,
+   "team_vs_implied": 8.75,
+   "opp_vs_implied": -11.75,
+   "cover": 20.5
+  },
+  {
+   "season": 2007,
+   "week": 15,
+   "team": "NYJ",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Eric Mangini"
+   ],
+   "resid": -11.0,
+   "team_vs_implied": -0.25,
+   "opp_vs_implied": -10.75,
+   "cover": 10.5
+  },
+  {
+   "season": 2007,
+   "week": 17,
+   "team": "SD",
+   "opp": "OAK",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Norv Turner"
+   ],
+   "resid": 5.5,
+   "team_vs_implied": 4.75,
+   "opp_vs_implied": 0.75,
+   "cover": 4.0
+  },
+  {
+   "season": 2008,
+   "week": 2,
+   "team": "NYJ",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Eric Mangini"
+   ],
+   "resid": -8.0,
+   "team_vs_implied": -9.0,
+   "opp_vs_implied": 1.0,
+   "cover": -10.0
+  },
+  {
+   "season": 2008,
+   "week": 3,
+   "team": "SF",
+   "opp": "DET",
+   "knows_opp_offense": [
+    "Mike Martz"
+   ],
+   "knows_opp_defense": [],
+   "resid": -3.0,
+   "team_vs_implied": 5.0,
+   "opp_vs_implied": -8.0,
+   "cover": 13.0
+  },
+  {
+   "season": 2008,
+   "week": 4,
+   "team": "SD",
+   "opp": "OAK",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Norv Turner"
+   ],
+   "resid": 0.5,
+   "team_vs_implied": 1.25,
+   "opp_vs_implied": -0.75,
+   "cover": 2.0
+  },
+  {
+   "season": 2008,
+   "week": 11,
+   "team": "NYJ",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Eric Mangini"
+   ],
+   "resid": 24.5,
+   "team_vs_implied": 15.25,
+   "opp_vs_implied": 9.25,
+   "cover": 6.0
+  },
+  {
+   "season": 2008,
+   "week": 14,
+   "team": "SD",
+   "opp": "OAK",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Norv Turner"
+   ],
+   "resid": 0.0,
+   "team_vs_implied": 8.75,
+   "opp_vs_implied": -8.75,
+   "cover": 17.5
+  },
+  {
+   "season": 2008,
+   "week": 18,
+   "team": "MIN",
+   "opp": "PHI",
+   "knows_opp_offense": [
+    "Brad Childress"
+   ],
+   "knows_opp_defense": [],
+   "resid": -0.5,
+   "team_vs_implied": -4.75,
+   "opp_vs_implied": 4.25,
+   "cover": -9.0
+  },
+  {
+   "season": 2009,
+   "week": 5,
+   "team": "DEN",
+   "opp": "NE",
+   "knows_opp_offense": [
+    "Josh McDaniels"
+   ],
+   "knows_opp_defense": [],
+   "resid": -4.0,
+   "team_vs_implied": 1.0,
+   "opp_vs_implied": -5.0,
+   "cover": 6.0
+  },
+  {
+   "season": 2009,
+   "week": 7,
+   "team": "PIT",
+   "opp": "MIN",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Mike Tomlin"
+   ],
+   "resid": -2.5,
+   "team_vs_implied": 0.75,
+   "opp_vs_implied": -3.25,
+   "cover": 4.0
+  },
+  {
+   "season": 2009,
+   "week": 11,
+   "team": "MIA",
+   "opp": "CAR",
+   "knows_opp_offense": [
+    "Dan Henning"
+   ],
+   "knows_opp_defense": [],
+   "resid": -1.0,
+   "team_vs_implied": 4.75,
+   "opp_vs_implied": -5.75,
+   "cover": 10.5
+  },
+  {
+   "season": 2009,
+   "week": 16,
+   "team": "CLE",
+   "opp": "OAK",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Rob Ryan"
+   ],
+   "resid": -5.0,
+   "team_vs_implied": 3.0,
+   "opp_vs_implied": -8.0,
+   "cover": 11.0
+  },
+  {
+   "season": 2010,
+   "week": 1,
+   "team": "NYJ",
+   "opp": "BAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Rex Ryan"
+   ],
+   "resid": -17.5,
+   "team_vs_implied": -9.75,
+   "opp_vs_implied": -7.75,
+   "cover": -2.0
+  },
+  {
+   "season": 2010,
+   "week": 2,
+   "team": "WAS",
+   "opp": "HOU",
+   "knows_opp_offense": [
+    "Kyle Shanahan"
+   ],
+   "knows_opp_defense": [],
+   "resid": 14.0,
+   "team_vs_implied": 6.75,
+   "opp_vs_implied": 7.25,
+   "cover": -0.5
+  },
+  {
+   "season": 2010,
+   "week": 10,
+   "team": "CLE",
+   "opp": "NYJ",
+   "knows_opp_offense": [
+    "Eric Mangini"
+   ],
+   "knows_opp_defense": [],
+   "resid": 9.0,
+   "team_vs_implied": 3.25,
+   "opp_vs_implied": 5.75,
+   "cover": -2.5
+  },
+  {
+   "season": 2010,
+   "week": 11,
+   "team": "KC",
+   "opp": "ARI",
+   "knows_opp_offense": [
+    "Todd Haley"
+   ],
+   "knows_opp_defense": [],
+   "resid": -1.0,
+   "team_vs_implied": 5.0,
+   "opp_vs_implied": -6.0,
+   "cover": 11.0
+  },
+  {
+   "season": 2011,
+   "week": 2,
+   "team": "STL",
+   "opp": "NYG",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Steve Spagnuolo"
+   ],
+   "resid": 0.5,
+   "team_vs_implied": -2.25,
+   "opp_vs_implied": 2.75,
+   "cover": -5.0
+  },
+  {
+   "season": 2011,
+   "week": 4,
+   "team": "NYJ",
+   "opp": "BAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Rex Ryan"
+   ],
+   "resid": 8.0,
+   "team_vs_implied": -2.0,
+   "opp_vs_implied": 10.0,
+   "cover": -12.0
+  },
+  {
+   "season": 2011,
+   "week": 4,
+   "team": "NO",
+   "opp": "JAX",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Gregg Williams"
+   ],
+   "resid": -12.0,
+   "team_vs_implied": -4.0,
+   "opp_vs_implied": -8.0,
+   "cover": 4.0
+  },
+  {
+   "season": 2011,
+   "week": 10,
+   "team": "CLE",
+   "opp": "STL",
+   "knows_opp_offense": [
+    "Pat Shurmur"
+   ],
+   "knows_opp_defense": [],
+   "resid": -11.5,
+   "team_vs_implied": -7.5,
+   "opp_vs_implied": -4.0,
+   "cover": -3.5
+  },
+  {
+   "season": 2012,
+   "week": 2,
+   "team": "TB",
+   "opp": "NYG",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Bill Sheridan"
+   ],
+   "resid": 31.5,
+   "team_vs_implied": 16.75,
+   "opp_vs_implied": 14.75,
+   "cover": 2.0
+  },
+  {
+   "season": 2012,
+   "week": 3,
+   "team": "BAL",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dean Pees"
+   ],
+   "resid": 12.5,
+   "team_vs_implied": 5.5,
+   "opp_vs_implied": 7.0,
+   "cover": -1.5
+  },
+  {
+   "season": 2012,
+   "week": 4,
+   "team": "OAK",
+   "opp": "DEN",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dennis Allen (American football)"
+   ],
+   "resid": -4.0,
+   "team_vs_implied": -14.25,
+   "opp_vs_implied": 10.25,
+   "cover": -24.5
+  },
+  {
+   "season": 2012,
+   "week": 4,
+   "team": "JAX",
+   "opp": "CIN",
+   "knows_opp_offense": [
+    "Bob Bratkowski"
+   ],
+   "knows_opp_defense": [],
+   "resid": -8.5,
+   "team_vs_implied": -13.25,
+   "opp_vs_implied": 4.75,
+   "cover": -18.0
+  },
+  {
+   "season": 2012,
+   "week": 5,
+   "team": "NE",
+   "opp": "DEN",
+   "knows_opp_offense": [
+    "Josh McDaniels"
+   ],
+   "knows_opp_defense": [],
+   "resid": 1.5,
+   "team_vs_implied": 2.75,
+   "opp_vs_implied": -1.25,
+   "cover": 4.0
+  },
+  {
+   "season": 2012,
+   "week": 9,
+   "team": "SEA",
+   "opp": "MIN",
+   "knows_opp_offense": [
+    "Darrell Bevell"
+   ],
+   "knows_opp_defense": [],
+   "resid": 12.0,
+   "team_vs_implied": 8.75,
+   "opp_vs_implied": 3.25,
+   "cover": 5.5
+  },
+  {
+   "season": 2012,
+   "week": 10,
+   "team": "PIT",
+   "opp": "KC",
+   "knows_opp_offense": [
+    "Todd Haley"
+   ],
+   "knows_opp_defense": [
+    "Todd Haley"
+   ],
+   "resid": -10.5,
+   "team_vs_implied": -10.0,
+   "opp_vs_implied": -0.5,
+   "cover": -9.5
+  },
+  {
+   "season": 2012,
+   "week": 11,
+   "team": "STL",
+   "opp": "NYJ",
+   "knows_opp_offense": [
+    "Brian Schottenheimer"
+   ],
+   "knows_opp_defense": [],
+   "resid": 2.0,
+   "team_vs_implied": -7.75,
+   "opp_vs_implied": 9.75,
+   "cover": -17.5
+  },
+  {
+   "season": 2012,
+   "week": 12,
+   "team": "CAR",
+   "opp": "PHI",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Sean McDermott"
+   ],
+   "resid": 10.5,
+   "team_vs_implied": 7.75,
+   "opp_vs_implied": 2.75,
+   "cover": 5.0
+  },
+  {
+   "season": 2012,
+   "week": 14,
+   "team": "OAK",
+   "opp": "DEN",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dennis Allen (American football)"
+   ],
+   "resid": -8.0,
+   "team_vs_implied": -5.5,
+   "opp_vs_implied": -2.5,
+   "cover": -3.0
+  },
+  {
+   "season": 2012,
+   "week": 15,
+   "team": "CAR",
+   "opp": "SD",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Ron Rivera"
+   ],
+   "resid": -7.0,
+   "team_vs_implied": 10.0,
+   "opp_vs_implied": -17.0,
+   "cover": 27.0
+  },
+  {
+   "season": 2012,
+   "week": 18,
+   "team": "IND",
+   "opp": "BAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Chuck Pagano"
+   ],
+   "resid": -14.5,
+   "team_vs_implied": -11.0,
+   "opp_vs_implied": -3.5,
+   "cover": -7.5
+  },
+  {
+   "season": 2012,
+   "week": 20,
+   "team": "BAL",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dean Pees"
+   ],
+   "resid": -8.5,
+   "team_vs_implied": 7.25,
+   "opp_vs_implied": -15.75,
+   "cover": 23.0
+  },
+  {
+   "season": 2013,
+   "week": 3,
+   "team": "BUF",
+   "opp": "NYJ",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Mike Pettine"
+   ],
+   "resid": 6.0,
+   "team_vs_implied": 0.75,
+   "opp_vs_implied": 5.25,
+   "cover": -4.5
+  },
+  {
+   "season": 2013,
+   "week": 3,
+   "team": "JAX",
+   "opp": "SEA",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Gus Bradley"
+   ],
+   "resid": 23.0,
+   "team_vs_implied": 7.25,
+   "opp_vs_implied": 15.75,
+   "cover": -8.5
+  },
+  {
+   "season": 2013,
+   "week": 3,
+   "team": "OAK",
+   "opp": "DEN",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dennis Allen (American football)"
+   ],
+   "resid": 9.5,
+   "team_vs_implied": 4.75,
+   "opp_vs_implied": 4.75,
+   "cover": 0.0
+  },
+  {
+   "season": 2013,
+   "week": 10,
+   "team": "NO",
+   "opp": "DAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Rob Ryan"
+   ],
+   "resid": 12.0,
+   "team_vs_implied": 19.0,
+   "opp_vs_implied": -7.0,
+   "cover": 26.0
+  },
+  {
+   "season": 2013,
+   "week": 10,
+   "team": "SD",
+   "opp": "DEN",
+   "knows_opp_offense": [
+    "Mike McCoy (American football coach)"
+   ],
+   "knows_opp_defense": [],
+   "resid": -8.0,
+   "team_vs_implied": -4.5,
+   "opp_vs_implied": -3.5,
+   "cover": -1.0
+  },
+  {
+   "season": 2013,
+   "week": 11,
+   "team": "BUF",
+   "opp": "NYJ",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Mike Pettine"
+   ],
+   "resid": 11.5,
+   "team_vs_implied": 17.75,
+   "opp_vs_implied": -6.25,
+   "cover": 24.0
+  },
+  {
+   "season": 2013,
+   "week": 11,
+   "team": "SEA",
+   "opp": "MIN",
+   "knows_opp_offense": [
+    "Darrell Bevell"
+   ],
+   "knows_opp_defense": [],
+   "resid": 16.0,
+   "team_vs_implied": 12.0,
+   "opp_vs_implied": 4.0,
+   "cover": 8.0
+  },
+  {
+   "season": 2013,
+   "week": 12,
+   "team": "ARI",
+   "opp": "IND",
+   "knows_opp_offense": [
+    "Bruce Arians"
+   ],
+   "knows_opp_defense": [
+    "Bruce Arians"
+   ],
+   "resid": 6.5,
+   "team_vs_implied": 16.0,
+   "opp_vs_implied": -9.5,
+   "cover": 25.5
+  },
+  {
+   "season": 2013,
+   "week": 15,
+   "team": "SD",
+   "opp": "DEN",
+   "knows_opp_offense": [
+    "Mike McCoy (American football coach)"
+   ],
+   "knows_opp_defense": [],
+   "resid": -9.5,
+   "team_vs_implied": 3.75,
+   "opp_vs_implied": -13.25,
+   "cover": 17.0
+  },
+  {
+   "season": 2013,
+   "week": 16,
+   "team": "BAL",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dean Pees"
+   ],
+   "resid": 3.0,
+   "team_vs_implied": -15.0,
+   "opp_vs_implied": 18.0,
+   "cover": -33.0
+  },
+  {
+   "season": 2013,
+   "week": 17,
+   "team": "OAK",
+   "opp": "DEN",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dennis Allen (American football)"
+   ],
+   "resid": -5.5,
+   "team_vs_implied": -7.75,
+   "opp_vs_implied": 2.25,
+   "cover": -10.0
+  },
+  {
+   "season": 2013,
+   "week": 19,
+   "team": "SD",
+   "opp": "DEN",
+   "knows_opp_offense": [
+    "Mike McCoy (American football coach)"
+   ],
+   "knows_opp_defense": [],
+   "resid": -14.0,
+   "team_vs_implied": -6.5,
+   "opp_vs_implied": -7.5,
+   "cover": 1.0
+  },
+  {
+   "season": 2014,
+   "week": 1,
+   "team": "OAK",
+   "opp": "NYJ",
+   "knows_opp_offense": [
+    "Tony Sparano"
+   ],
+   "knows_opp_defense": [],
+   "resid": -8.0,
+   "team_vs_implied": -3.25,
+   "opp_vs_implied": -4.75,
+   "cover": 1.5
+  },
+  {
+   "season": 2014,
+   "week": 4,
+   "team": "NO",
+   "opp": "DAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Rob Ryan"
+   ],
+   "resid": 1.5,
+   "team_vs_implied": -11.25,
+   "opp_vs_implied": 12.75,
+   "cover": -24.0
+  },
+  {
+   "season": 2014,
+   "week": 5,
+   "team": "IND",
+   "opp": "BAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Chuck Pagano"
+   ],
+   "resid": -16.5,
+   "team_vs_implied": -6.0,
+   "opp_vs_implied": -10.5,
+   "cover": 4.5
+  },
+  {
+   "season": 2014,
+   "week": 6,
+   "team": "MIA",
+   "opp": "GB",
+   "knows_opp_offense": [
+    "Joe Philbin"
+   ],
+   "knows_opp_defense": [],
+   "resid": 4.5,
+   "team_vs_implied": 1.5,
+   "opp_vs_implied": 3.0,
+   "cover": -1.5
+  },
+  {
+   "season": 2014,
+   "week": 8,
+   "team": "SD",
+   "opp": "DEN",
+   "knows_opp_offense": [
+    "Mike McCoy (American football coach)"
+   ],
+   "knows_opp_defense": [],
+   "resid": 5.0,
+   "team_vs_implied": 0.0,
+   "opp_vs_implied": 5.0,
+   "cover": -5.0
+  },
+  {
+   "season": 2014,
+   "week": 10,
+   "team": "OAK",
+   "opp": "DEN",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dennis Allen (American football)"
+   ],
+   "resid": 7.5,
+   "team_vs_implied": -1.75,
+   "opp_vs_implied": 9.25,
+   "cover": -11.0
+  },
+  {
+   "season": 2014,
+   "week": 13,
+   "team": "CLE",
+   "opp": "BUF",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Mike Pettine"
+   ],
+   "resid": -6.0,
+   "team_vs_implied": -9.5,
+   "opp_vs_implied": 3.5,
+   "cover": -13.0
+  },
+  {
+   "season": 2014,
+   "week": 15,
+   "team": "SD",
+   "opp": "DEN",
+   "knows_opp_offense": [
+    "Mike McCoy (American football coach)"
+   ],
+   "knows_opp_defense": [],
+   "resid": -17.0,
+   "team_vs_implied": -12.5,
+   "opp_vs_implied": -4.5,
+   "cover": -8.0
+  },
+  {
+   "season": 2014,
+   "week": 15,
+   "team": "CHI",
+   "opp": "NO",
+   "knows_opp_offense": [
+    "Aaron Kromer"
+   ],
+   "knows_opp_defense": [
+    "Aaron Kromer"
+   ],
+   "resid": -7.5,
+   "team_vs_implied": -10.25,
+   "opp_vs_implied": 2.75,
+   "cover": -13.0
+  },
+  {
+   "season": 2014,
+   "week": 17,
+   "team": "OAK",
+   "opp": "DEN",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dennis Allen (American football)"
+   ],
+   "resid": 12.0,
+   "team_vs_implied": -2.25,
+   "opp_vs_implied": 14.25,
+   "cover": -16.5
+  },
+  {
+   "season": 2015,
+   "week": 1,
+   "team": "DEN",
+   "opp": "BAL",
+   "knows_opp_offense": [
+    "Gary Kubiak"
+   ],
+   "knows_opp_defense": [],
+   "resid": -14.5,
+   "team_vs_implied": -6.5,
+   "opp_vs_implied": -8.0,
+   "cover": 1.5
+  },
+  {
+   "season": 2015,
+   "week": 3,
+   "team": "MIN",
+   "opp": "SD",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Norv Turner"
+   ],
+   "resid": -0.5,
+   "team_vs_implied": 7.0,
+   "opp_vs_implied": -7.5,
+   "cover": 14.5
+  },
+  {
+   "season": 2015,
+   "week": 4,
+   "team": "NO",
+   "opp": "DAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Rob Ryan"
+   ],
+   "resid": -2.0,
+   "team_vs_implied": 0.5,
+   "opp_vs_implied": -2.5,
+   "cover": 3.0
+  },
+  {
+   "season": 2015,
+   "week": 8,
+   "team": "NYG",
+   "opp": "NO",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Steve Spagnuolo"
+   ],
+   "resid": 49.5,
+   "team_vs_implied": 24.75,
+   "opp_vs_implied": 24.75,
+   "cover": 0.0
+  },
+  {
+   "season": 2015,
+   "week": 8,
+   "team": "IND",
+   "opp": "CAR",
+   "knows_opp_offense": [
+    "Rob Chudzinski"
+   ],
+   "knows_opp_defense": [],
+   "resid": 10.5,
+   "team_vs_implied": 6.25,
+   "opp_vs_implied": 4.25,
+   "cover": 2.0
+  },
+  {
+   "season": 2016,
+   "week": 6,
+   "team": "ATL",
+   "opp": "SEA",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dan Quinn (American football)"
+   ],
+   "resid": 4.5,
+   "team_vs_implied": 4.75,
+   "opp_vs_implied": -0.25,
+   "cover": 5.0
+  },
+  {
+   "season": 2016,
+   "week": 6,
+   "team": "CLE",
+   "opp": "TEN",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Ray Horton"
+   ],
+   "resid": 9.0,
+   "team_vs_implied": 7.25,
+   "opp_vs_implied": 1.75,
+   "cover": 5.5
+  },
+  {
+   "season": 2016,
+   "week": 6,
+   "team": "NYJ",
+   "opp": "ARI",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Todd Bowles"
+   ],
+   "resid": -15.0,
+   "team_vs_implied": -16.25,
+   "opp_vs_implied": 1.25,
+   "cover": -17.5
+  },
+  {
+   "season": 2016,
+   "week": 7,
+   "team": "CLE",
+   "opp": "CIN",
+   "knows_opp_offense": [
+    "Hue Jackson"
+   ],
+   "knows_opp_defense": [],
+   "resid": 1.5,
+   "team_vs_implied": -0.5,
+   "opp_vs_implied": 2.0,
+   "cover": -2.5
+  },
+  {
+   "season": 2016,
+   "week": 8,
+   "team": "WAS",
+   "opp": "CIN",
+   "knows_opp_offense": [
+    "Jay Gruden"
+   ],
+   "knows_opp_defense": [],
+   "resid": 5.0,
+   "team_vs_implied": 4.0,
+   "opp_vs_implied": 1.0,
+   "cover": 3.0
+  },
+  {
+   "season": 2016,
+   "week": 9,
+   "team": "SD",
+   "opp": "TEN",
+   "knows_opp_offense": [
+    "Ken Whisenhunt"
+   ],
+   "knows_opp_defense": [
+    "Ken Whisenhunt"
+   ],
+   "resid": 30.5,
+   "team_vs_implied": 17.5,
+   "opp_vs_implied": 13.0,
+   "cover": 4.5
+  },
+  {
+   "season": 2016,
+   "week": 14,
+   "team": "CLE",
+   "opp": "CIN",
+   "knows_opp_offense": [
+    "Hue Jackson"
+   ],
+   "knows_opp_defense": [],
+   "resid": -9.0,
+   "team_vs_implied": -9.0,
+   "opp_vs_implied": 0.0,
+   "cover": -9.0
+  },
+  {
+   "season": 2016,
+   "week": 19,
+   "team": "ATL",
+   "opp": "SEA",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dan Quinn (American football)"
+   ],
+   "resid": 5.0,
+   "team_vs_implied": 7.25,
+   "opp_vs_implied": -2.25,
+   "cover": 9.5
+  },
+  {
+   "season": 2017,
+   "week": 1,
+   "team": "DEN",
+   "opp": "LAC",
+   "knows_opp_offense": [
+    "Mike McCoy (American football coach)"
+   ],
+   "knows_opp_defense": [],
+   "resid": 3.5,
+   "team_vs_implied": 1.75,
+   "opp_vs_implied": 1.75,
+   "cover": 0.0
+  },
+  {
+   "season": 2017,
+   "week": 2,
+   "team": "BUF",
+   "opp": "CAR",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Sean McDermott"
+   ],
+   "resid": -31.0,
+   "team_vs_implied": -15.25,
+   "opp_vs_implied": -15.75,
+   "cover": 0.5
+  },
+  {
+   "season": 2017,
+   "week": 2,
+   "team": "PHI",
+   "opp": "KC",
+   "knows_opp_offense": [
+    "Doug Pederson"
+   ],
+   "knows_opp_defense": [],
+   "resid": 0.5,
+   "team_vs_implied": -1.25,
+   "opp_vs_implied": 1.75,
+   "cover": -3.0
+  },
+  {
+   "season": 2017,
+   "week": 2,
+   "team": "LA",
+   "opp": "WAS",
+   "knows_opp_offense": [
+    "Sean McVay"
+   ],
+   "knows_opp_defense": [],
+   "resid": 1.5,
+   "team_vs_implied": -4.25,
+   "opp_vs_implied": 5.75,
+   "cover": -10.0
+  },
+  {
+   "season": 2017,
+   "week": 4,
+   "team": "CLE",
+   "opp": "CIN",
+   "knows_opp_offense": [
+    "Hue Jackson"
+   ],
+   "knows_opp_defense": [],
+   "resid": -3.5,
+   "team_vs_implied": -12.25,
+   "opp_vs_implied": 8.75,
+   "cover": -21.0
+  },
+  {
+   "season": 2017,
+   "week": 4,
+   "team": "PHI",
+   "opp": "LAC",
+   "knows_opp_offense": [
+    "Frank Reich"
+   ],
+   "knows_opp_defense": [],
+   "resid": 2.0,
+   "team_vs_implied": 2.75,
+   "opp_vs_implied": -0.75,
+   "cover": 3.5
+  },
+  {
+   "season": 2017,
+   "week": 7,
+   "team": "DEN",
+   "opp": "LAC",
+   "knows_opp_offense": [
+    "Mike McCoy (American football coach)"
+   ],
+   "knows_opp_defense": [],
+   "resid": -20.0,
+   "team_vs_implied": -21.0,
+   "opp_vs_implied": 1.0,
+   "cover": -22.0
+  },
+  {
+   "season": 2017,
+   "week": 10,
+   "team": "LAC",
+   "opp": "JAX",
+   "knows_opp_offense": [
+    "Gus Bradley"
+   ],
+   "knows_opp_defense": [
+    "Gus Bradley"
+   ],
+   "resid": -3.5,
+   "team_vs_implied": -0.75,
+   "opp_vs_implied": -2.75,
+   "cover": 2.0
+  },
+  {
+   "season": 2017,
+   "week": 11,
+   "team": "TEN",
+   "opp": "PIT",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dick LeBeau"
+   ],
+   "resid": 12.5,
+   "team_vs_implied": -1.75,
+   "opp_vs_implied": 14.25,
+   "cover": -16.0
+  },
+  {
+   "season": 2017,
+   "week": 11,
+   "team": "ATL",
+   "opp": "SEA",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dan Quinn (American football)"
+   ],
+   "resid": 19.0,
+   "team_vs_implied": 11.5,
+   "opp_vs_implied": 7.5,
+   "cover": 4.0
+  },
+  {
+   "season": 2017,
+   "week": 12,
+   "team": "CLE",
+   "opp": "CIN",
+   "knows_opp_offense": [
+    "Hue Jackson"
+   ],
+   "knows_opp_defense": [],
+   "resid": 7.0,
+   "team_vs_implied": 0.25,
+   "opp_vs_implied": 6.75,
+   "cover": -6.5
+  },
+  {
+   "season": 2017,
+   "week": 13,
+   "team": "DEN",
+   "opp": "MIA",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Vance Joseph"
+   ],
+   "resid": 3.0,
+   "team_vs_implied": -12.0,
+   "opp_vs_implied": 15.0,
+   "cover": -27.0
+  },
+  {
+   "season": 2018,
+   "week": 1,
+   "team": "CLE",
+   "opp": "PIT",
+   "knows_opp_offense": [
+    "Todd Haley"
+   ],
+   "knows_opp_defense": [],
+   "resid": 1.0,
+   "team_vs_implied": 2.25,
+   "opp_vs_implied": -1.25,
+   "cover": 3.5
+  },
+  {
+   "season": 2018,
+   "week": 2,
+   "team": "TEN",
+   "opp": "HOU",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Mike Vrabel"
+   ],
+   "resid": -4.0,
+   "team_vs_implied": 1.25,
+   "opp_vs_implied": -5.25,
+   "cover": 6.5
+  },
+  {
+   "season": 2018,
+   "week": 3,
+   "team": "DET",
+   "opp": "NE",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Matt Patricia"
+   ],
+   "resid": -19.5,
+   "team_vs_implied": 1.75,
+   "opp_vs_implied": -21.25,
+   "cover": 23.0
+  },
+  {
+   "season": 2018,
+   "week": 3,
+   "team": "IND",
+   "opp": "PHI",
+   "knows_opp_offense": [
+    "Frank Reich"
+   ],
+   "knows_opp_defense": [],
+   "resid": -9.5,
+   "team_vs_implied": -3.5,
+   "opp_vs_implied": -6.0,
+   "cover": 2.5
+  },
+  {
+   "season": 2018,
+   "week": 6,
+   "team": "TEN",
+   "opp": "BAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dean Pees"
+   ],
+   "resid": -22.5,
+   "team_vs_implied": -20.5,
+   "opp_vs_implied": -2.0,
+   "cover": -18.5
+  },
+  {
+   "season": 2018,
+   "week": 7,
+   "team": "ARI",
+   "opp": "DEN",
+   "knows_opp_offense": [
+    "Mike McCoy (American football coach)"
+   ],
+   "knows_opp_defense": [],
+   "resid": 12.5,
+   "team_vs_implied": -10.75,
+   "opp_vs_implied": 23.25,
+   "cover": -34.0
+  },
+  {
+   "season": 2018,
+   "week": 8,
+   "team": "CLE",
+   "opp": "PIT",
+   "knows_opp_offense": [
+    "Todd Haley"
+   ],
+   "knows_opp_defense": [],
+   "resid": 3.5,
+   "team_vs_implied": -1.5,
+   "opp_vs_implied": 5.0,
+   "cover": -6.5
+  },
+  {
+   "season": 2018,
+   "week": 12,
+   "team": "CLE",
+   "opp": "CIN",
+   "knows_opp_offense": [
+    "Hue Jackson"
+   ],
+   "knows_opp_defense": [],
+   "resid": 8.5,
+   "team_vs_implied": 11.25,
+   "opp_vs_implied": -2.75,
+   "cover": 14.0
+  },
+  {
+   "season": 2018,
+   "week": 12,
+   "team": "ARI",
+   "opp": "LAC",
+   "knows_opp_offense": [
+    "Mike McCoy (American football coach)"
+   ],
+   "knows_opp_defense": [],
+   "resid": 11.5,
+   "team_vs_implied": -4.75,
+   "opp_vs_implied": 16.25,
+   "cover": -21.0
+  },
+  {
+   "season": 2018,
+   "week": 12,
+   "team": "TEN",
+   "opp": "HOU",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Mike Vrabel"
+   ],
+   "resid": 8.5,
+   "team_vs_implied": -2.5,
+   "opp_vs_implied": 11.0,
+   "cover": -13.5
+  },
+  {
+   "season": 2018,
+   "week": 15,
+   "team": "OAK",
+   "opp": "CIN",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Paul Guenther (American football)"
+   ],
+   "resid": 0.0,
+   "team_vs_implied": -5.5,
+   "opp_vs_implied": 5.5,
+   "cover": -11.0
+  },
+  {
+   "season": 2018,
+   "week": 16,
+   "team": "CLE",
+   "opp": "CIN",
+   "knows_opp_offense": [
+    "Hue Jackson"
+   ],
+   "knows_opp_defense": [],
+   "resid": 0.0,
+   "team_vs_implied": -1.0,
+   "opp_vs_implied": 1.0,
+   "cover": -2.0
+  },
+  {
+   "season": 2019,
+   "week": 2,
+   "team": "DEN",
+   "opp": "CHI",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Vic Fangio"
+   ],
+   "resid": -11.0,
+   "team_vs_implied": -5.0,
+   "opp_vs_implied": -6.0,
+   "cover": 1.0
+  },
+  {
+   "season": 2019,
+   "week": 5,
+   "team": "NYG",
+   "opp": "MIN",
+   "knows_opp_offense": [
+    "Pat Shurmur"
+   ],
+   "knows_opp_defense": [],
+   "resid": -6.0,
+   "team_vs_implied": -9.25,
+   "opp_vs_implied": 3.25,
+   "cover": -12.5
+  },
+  {
+   "season": 2019,
+   "week": 14,
+   "team": "LAC",
+   "opp": "JAX",
+   "knows_opp_offense": [
+    "Gus Bradley"
+   ],
+   "knows_opp_defense": [
+    "Gus Bradley"
+   ],
+   "resid": 13.0,
+   "team_vs_implied": 22.25,
+   "opp_vs_implied": -9.25,
+   "cover": 31.5
+  },
+  {
+   "season": 2019,
+   "week": 15,
+   "team": "OAK",
+   "opp": "JAX",
+   "knows_opp_offense": [
+    "Greg Olson (American football)"
+   ],
+   "knows_opp_defense": [],
+   "resid": -11.0,
+   "team_vs_implied": -11.0,
+   "opp_vs_implied": 0.0,
+   "cover": -11.0
+  },
+  {
+   "season": 2019,
+   "week": 15,
+   "team": "SF",
+   "opp": "ATL",
+   "knows_opp_offense": [
+    "Kyle Shanahan"
+   ],
+   "knows_opp_defense": [],
+   "resid": 1.0,
+   "team_vs_implied": -8.25,
+   "opp_vs_implied": 9.25,
+   "cover": -17.5
+  },
+  {
+   "season": 2019,
+   "week": 15,
+   "team": "TEN",
+   "opp": "HOU",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Mike Vrabel"
+   ],
+   "resid": -5.0,
+   "team_vs_implied": -5.5,
+   "opp_vs_implied": 0.5,
+   "cover": -6.0
+  },
+  {
+   "season": 2019,
+   "week": 16,
+   "team": "CHI",
+   "opp": "KC",
+   "knows_opp_offense": [
+    "Matt Nagy"
+   ],
+   "knows_opp_defense": [],
+   "resid": -16.5,
+   "team_vs_implied": -16.5,
+   "opp_vs_implied": 0.0,
+   "cover": -16.5
+  },
+  {
+   "season": 2019,
+   "week": 17,
+   "team": "TEN",
+   "opp": "HOU",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Mike Vrabel"
+   ],
+   "resid": 6.0,
+   "team_vs_implied": 8.5,
+   "opp_vs_implied": -2.5,
+   "cover": 11.0
+  },
+  {
+   "season": 2019,
+   "week": 19,
+   "team": "TEN",
+   "opp": "BAL",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Dean Pees"
+   ],
+   "resid": -7.5,
+   "team_vs_implied": 9.25,
+   "opp_vs_implied": -16.75,
+   "cover": 26.0
+  },
+  {
+   "season": 2020,
+   "week": 5,
+   "team": "NYG",
+   "opp": "DAL",
+   "knows_opp_offense": [
+    "Jason Garrett"
+   ],
+   "knows_opp_defense": [],
+   "resid": 19.0,
+   "team_vs_implied": 11.75,
+   "opp_vs_implied": 7.25,
+   "cover": 4.5
+  },
+  {
+   "season": 2020,
+   "week": 6,
+   "team": "TEN",
+   "opp": "HOU",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Mike Vrabel"
+   ],
+   "resid": 26.0,
+   "team_vs_implied": 14.0,
+   "opp_vs_implied": 12.0,
+   "cover": 2.0
+  },
+  {
+   "season": 2020,
+   "week": 10,
+   "team": "GB",
+   "opp": "JAX",
+   "knows_opp_offense": [
+    "Nathaniel Hackett"
+   ],
+   "knows_opp_defense": [],
+   "resid": -3.0,
+   "team_vs_implied": -6.25,
+   "opp_vs_implied": 3.25,
+   "cover": -9.5
+  },
+  {
+   "season": 2020,
+   "week": 16,
+   "team": "GB",
+   "opp": "TEN",
+   "knows_opp_offense": [
+    "Matt LaFleur"
+   ],
+   "knows_opp_defense": [],
+   "resid": 1.5,
+   "team_vs_implied": 12.25,
+   "opp_vs_implied": -10.75,
+   "cover": 23.0
+  },
+  {
+   "season": 2020,
+   "week": 17,
+   "team": "TEN",
+   "opp": "HOU",
+   "knows_opp_offense": [],
+   "knows_opp_defense": [
+    "Mike Vrabel"
+   ],
+   "resid": 23.5,
+   "team_vs_implied": 9.75,
+   "opp_vs_implied": 13.75,
+   "cover": -4.0
+  },
+  {
+   "season": 2020,
+   "week": 17,
+   "team": "NYG",
+   "opp": "DAL",
+   "knows_opp_offense": [
+    "Jason Garrett"
+   ],
+   "knows_opp_defense": [],
+   "resid": -2.5,
+   "team_vs_implied": 1.5,
+   "opp_vs_implied": -4.0,
+   "cover": 5.5
+  },
+  {
+   "season": 2020,
+   "week": 19,
+   "team": "GB",
+   "opp": "LA",
+   "knows_opp_offense": [
+    "Matt LaFleur"
+   ],
+   "knows_opp_defense": [],
+   "resid": 5.0,
+   "team_vs_implied": 6.0,
+   "opp_vs_implied": -1.0,
+   "cover": 7.0
+  },
   {
    "season": 2021,
    "week": 4,
@@ -634,6 +6639,21 @@
    "team_vs_implied": -7.0,
    "opp_vs_implied": -5.5,
    "cover": -1.5
+  },
+  {
+   "season": 2023,
+   "week": 8,
+   "team": "ATL",
+   "opp": "TEN",
+   "knows_opp_offense": [
+    "Arthur Smith]]",
+    "[[Arthur Smith"
+   ],
+   "knows_opp_defense": [],
+   "resid": 16.0,
+   "team_vs_implied": 4.25,
+   "opp_vs_implied": 11.75,
+   "cover": -7.5
   },
   {
    "season": 2023,
@@ -1100,6 +7120,1997 @@
  ],
  "offense_examples": [
   {
+   "season": 2006,
+   "week": 1,
+   "team": "MIA",
+   "opp": "PIT",
+   "off_reunion": [
+    "Mike Mularkey"
+   ],
+   "first": true,
+   "resid": 10.5,
+   "team_vs_implied": 0.5,
+   "points": 17.0,
+   "implied": 16.5
+  },
+  {
+   "season": 2006,
+   "week": 2,
+   "team": "GB",
+   "opp": "NO",
+   "off_reunion": [
+    "Mike McCarthy"
+   ],
+   "first": true,
+   "resid": 20.5,
+   "team_vs_implied": 7.25,
+   "points": 27.0,
+   "implied": 19.8
+  },
+  {
+   "season": 2006,
+   "week": 2,
+   "team": "MIA",
+   "opp": "BUF",
+   "off_reunion": [
+    "Mike Mularkey"
+   ],
+   "first": true,
+   "resid": -15.0,
+   "team_vs_implied": -15.75,
+   "points": 6.0,
+   "implied": 21.8
+  },
+  {
+   "season": 2006,
+   "week": 4,
+   "team": "DET",
+   "opp": "STL",
+   "off_reunion": [
+    "Mike Martz"
+   ],
+   "first": true,
+   "resid": 33.0,
+   "team_vs_implied": 15.75,
+   "points": 34.0,
+   "implied": 18.2
+  },
+  {
+   "season": 2006,
+   "week": 5,
+   "team": "SF",
+   "opp": "OAK",
+   "off_reunion": [
+    "Norv Turner"
+   ],
+   "first": true,
+   "resid": 15.0,
+   "team_vs_implied": 13.0,
+   "points": 34.0,
+   "implied": 21.0
+  },
+  {
+   "season": 2006,
+   "week": 14,
+   "team": "NO",
+   "opp": "DAL",
+   "off_reunion": [
+    "Sean Payton"
+   ],
+   "first": true,
+   "resid": 12.0,
+   "team_vs_implied": 22.25,
+   "points": 42.0,
+   "implied": 19.8
+  },
+  {
+   "season": 2006,
+   "week": 14,
+   "team": "GB",
+   "opp": "SF",
+   "off_reunion": [
+    "Mike McCarthy"
+   ],
+   "first": true,
+   "resid": 5.0,
+   "team_vs_implied": 10.0,
+   "points": 30.0,
+   "implied": 20.0
+  },
+  {
+   "season": 2006,
+   "week": 15,
+   "team": "MIA",
+   "opp": "BUF",
+   "off_reunion": [
+    "Mike Mularkey"
+   ],
+   "first": false,
+   "resid": -13.0,
+   "team_vs_implied": -16.5,
+   "points": 0.0,
+   "implied": 16.5
+  },
+  {
+   "season": 2007,
+   "week": 4,
+   "team": "ARI",
+   "opp": "PIT",
+   "off_reunion": [
+    "Ken Whisenhunt"
+   ],
+   "first": true,
+   "resid": -7.5,
+   "team_vs_implied": 2.5,
+   "points": 21.0,
+   "implied": 18.5
+  },
+  {
+   "season": 2007,
+   "week": 6,
+   "team": "SD",
+   "opp": "OAK",
+   "off_reunion": [
+    "Norv Turner"
+   ],
+   "first": true,
+   "resid": -2.0,
+   "team_vs_implied": 1.25,
+   "points": 28.0,
+   "implied": 26.8
+  },
+  {
+   "season": 2007,
+   "week": 8,
+   "team": "MIN",
+   "opp": "PHI",
+   "off_reunion": [
+    "Brad Childress"
+   ],
+   "first": true,
+   "resid": 1.5,
+   "team_vs_implied": -3.25,
+   "points": 16.0,
+   "implied": 19.2
+  },
+  {
+   "season": 2007,
+   "week": 15,
+   "team": "HOU",
+   "opp": "DEN",
+   "off_reunion": [
+    "Gary Kubiak"
+   ],
+   "first": true,
+   "resid": -3.0,
+   "team_vs_implied": 8.75,
+   "points": 31.0,
+   "implied": 22.2
+  },
+  {
+   "season": 2007,
+   "week": 17,
+   "team": "SD",
+   "opp": "OAK",
+   "off_reunion": [
+    "Norv Turner"
+   ],
+   "first": false,
+   "resid": 5.5,
+   "team_vs_implied": 4.75,
+   "points": 30.0,
+   "implied": 25.2
+  },
+  {
+   "season": 2008,
+   "week": 3,
+   "team": "SF",
+   "opp": "DET",
+   "off_reunion": [
+    "Mike Martz"
+   ],
+   "first": true,
+   "resid": -3.0,
+   "team_vs_implied": 5.0,
+   "points": 31.0,
+   "implied": 26.0
+  },
+  {
+   "season": 2008,
+   "week": 4,
+   "team": "SD",
+   "opp": "OAK",
+   "off_reunion": [
+    "Norv Turner"
+   ],
+   "first": false,
+   "resid": 0.5,
+   "team_vs_implied": 1.25,
+   "points": 28.0,
+   "implied": 26.8
+  },
+  {
+   "season": 2008,
+   "week": 7,
+   "team": "BAL",
+   "opp": "MIA",
+   "off_reunion": [
+    "Cam Cameron"
+   ],
+   "first": true,
+   "resid": 4.5,
+   "team_vs_implied": 10.75,
+   "points": 27.0,
+   "implied": 16.2
+  },
+  {
+   "season": 2008,
+   "week": 9,
+   "team": "OAK",
+   "opp": "ATL",
+   "off_reunion": [
+    "Greg Knapp"
+   ],
+   "first": true,
+   "resid": -17.0,
+   "team_vs_implied": -19.0,
+   "points": 0.0,
+   "implied": 19.0
+  },
+  {
+   "season": 2008,
+   "week": 11,
+   "team": "SF",
+   "opp": "STL",
+   "off_reunion": [
+    "Mike Martz"
+   ],
+   "first": true,
+   "resid": 7.5,
+   "team_vs_implied": 9.75,
+   "points": 35.0,
+   "implied": 25.2
+  },
+  {
+   "season": 2008,
+   "week": 12,
+   "team": "TEN",
+   "opp": "NYJ",
+   "off_reunion": [
+    "Mike Heimerdinger"
+   ],
+   "first": true,
+   "resid": 6.0,
+   "team_vs_implied": -10.25,
+   "points": 13.0,
+   "implied": 23.2
+  },
+  {
+   "season": 2008,
+   "week": 13,
+   "team": "STL",
+   "opp": "MIA",
+   "off_reunion": [
+    "Scott Linehan"
+   ],
+   "first": true,
+   "resid": -16.5,
+   "team_vs_implied": -6.75,
+   "points": 12.0,
+   "implied": 18.8
+  },
+  {
+   "season": 2008,
+   "week": 14,
+   "team": "SD",
+   "opp": "OAK",
+   "off_reunion": [
+    "Norv Turner"
+   ],
+   "first": false,
+   "resid": 0.0,
+   "team_vs_implied": 8.75,
+   "points": 34.0,
+   "implied": 25.2
+  },
+  {
+   "season": 2008,
+   "week": 16,
+   "team": "SF",
+   "opp": "STL",
+   "off_reunion": [
+    "Mike Martz"
+   ],
+   "first": false,
+   "resid": -9.0,
+   "team_vs_implied": -5.75,
+   "points": 17.0,
+   "implied": 22.8
+  },
+  {
+   "season": 2008,
+   "week": 18,
+   "team": "BAL",
+   "opp": "MIA",
+   "off_reunion": [
+    "Cam Cameron"
+   ],
+   "first": false,
+   "resid": -2.0,
+   "team_vs_implied": 6.25,
+   "points": 27.0,
+   "implied": 20.8
+  },
+  {
+   "season": 2008,
+   "week": 18,
+   "team": "MIN",
+   "opp": "PHI",
+   "off_reunion": [
+    "Brad Childress"
+   ],
+   "first": false,
+   "resid": -0.5,
+   "team_vs_implied": -4.75,
+   "points": 14.0,
+   "implied": 18.8
+  },
+  {
+   "season": 2008,
+   "week": 21,
+   "team": "ARI",
+   "opp": "PIT",
+   "off_reunion": [
+    "Ken Whisenhunt"
+   ],
+   "first": false,
+   "resid": 3.5,
+   "team_vs_implied": 3.0,
+   "points": 23.0,
+   "implied": 20.0
+  },
+  {
+   "season": 2009,
+   "week": 1,
+   "team": "ATL",
+   "opp": "MIA",
+   "off_reunion": [
+    "Mike Mularkey"
+   ],
+   "first": true,
+   "resid": -18.0,
+   "team_vs_implied": -5.0,
+   "points": 19.0,
+   "implied": 24.0
+  },
+  {
+   "season": 2009,
+   "week": 2,
+   "team": "BAL",
+   "opp": "SD",
+   "off_reunion": [
+    "Cam Cameron"
+   ],
+   "first": true,
+   "resid": 17.0,
+   "team_vs_implied": 12.5,
+   "points": 31.0,
+   "implied": 18.5
+  },
+  {
+   "season": 2009,
+   "week": 5,
+   "team": "DEN",
+   "opp": "NE",
+   "off_reunion": [
+    "Josh McDaniels"
+   ],
+   "first": true,
+   "resid": -4.0,
+   "team_vs_implied": 1.0,
+   "points": 20.0,
+   "implied": 19.0
+  },
+  {
+   "season": 2009,
+   "week": 8,
+   "team": "DET",
+   "opp": "STL",
+   "off_reunion": [
+    "Scott Linehan"
+   ],
+   "first": true,
+   "resid": -16.5,
+   "team_vs_implied": -13.5,
+   "points": 10.0,
+   "implied": 23.5
+  },
+  {
+   "season": 2009,
+   "week": 11,
+   "team": "MIA",
+   "opp": "CAR",
+   "off_reunion": [
+    "Dan Henning"
+   ],
+   "first": true,
+   "resid": -1.0,
+   "team_vs_implied": 4.75,
+   "points": 24.0,
+   "implied": 19.2
+  },
+  {
+   "season": 2010,
+   "week": 1,
+   "team": "CHI",
+   "opp": "DET",
+   "off_reunion": [
+    "Mike Martz"
+   ],
+   "first": true,
+   "resid": -11.5,
+   "team_vs_implied": -6.5,
+   "points": 19.0,
+   "implied": 25.5
+  },
+  {
+   "season": 2010,
+   "week": 2,
+   "team": "WAS",
+   "opp": "HOU",
+   "off_reunion": [
+    "Kyle Shanahan"
+   ],
+   "first": true,
+   "resid": 14.0,
+   "team_vs_implied": 6.75,
+   "points": 27.0,
+   "implied": 20.2
+  },
+  {
+   "season": 2010,
+   "week": 5,
+   "team": "DET",
+   "opp": "STL",
+   "off_reunion": [
+    "Scott Linehan"
+   ],
+   "first": false,
+   "resid": 6.5,
+   "team_vs_implied": 20.75,
+   "points": 44.0,
+   "implied": 23.2
+  },
+  {
+   "season": 2010,
+   "week": 7,
+   "team": "TB",
+   "opp": "STL",
+   "off_reunion": [
+    "Greg Olson (American football)"
+   ],
+   "first": true,
+   "resid": -3.5,
+   "team_vs_implied": -2.75,
+   "points": 18.0,
+   "implied": 20.8
+  },
+  {
+   "season": 2010,
+   "week": 8,
+   "team": "BUF",
+   "opp": "KC",
+   "off_reunion": [
+    "Chan Gailey"
+   ],
+   "first": true,
+   "resid": -22.0,
+   "team_vs_implied": -9.0,
+   "points": 10.0,
+   "implied": 19.0
+  },
+  {
+   "season": 2010,
+   "week": 9,
+   "team": "BAL",
+   "opp": "MIA",
+   "off_reunion": [
+    "Cam Cameron"
+   ],
+   "first": false,
+   "resid": -4.5,
+   "team_vs_implied": 3.25,
+   "points": 26.0,
+   "implied": 22.8
+  },
+  {
+   "season": 2010,
+   "week": 11,
+   "team": "KC",
+   "opp": "ARI",
+   "off_reunion": [
+    "Todd Haley"
+   ],
+   "first": true,
+   "resid": -1.0,
+   "team_vs_implied": 5.0,
+   "points": 31.0,
+   "implied": 26.0
+  },
+  {
+   "season": 2010,
+   "week": 13,
+   "team": "CHI",
+   "opp": "DET",
+   "off_reunion": [
+    "Mike Martz"
+   ],
+   "first": false,
+   "resid": 1.0,
+   "team_vs_implied": 0.0,
+   "points": 24.0,
+   "implied": 24.0
+  },
+  {
+   "season": 2010,
+   "week": 16,
+   "team": "HOU",
+   "opp": "DEN",
+   "off_reunion": [
+    "Rick Dennison"
+   ],
+   "first": true,
+   "resid": -2.5,
+   "team_vs_implied": -2.75,
+   "points": 23.0,
+   "implied": 25.8
+  },
+  {
+   "season": 2011,
+   "week": 1,
+   "team": "BUF",
+   "opp": "KC",
+   "off_reunion": [
+    "Chan Gailey"
+   ],
+   "first": false,
+   "resid": 9.5,
+   "team_vs_implied": 23.5,
+   "points": 41.0,
+   "implied": 17.5
+  },
+  {
+   "season": 2011,
+   "week": 3,
+   "team": "MIA",
+   "opp": "CLE",
+   "off_reunion": [
+    "Brian Daboll"
+   ],
+   "first": true,
+   "resid": -9.5,
+   "team_vs_implied": -5.75,
+   "points": 16.0,
+   "implied": 21.8
+  },
+  {
+   "season": 2011,
+   "week": 10,
+   "team": "CLE",
+   "opp": "STL",
+   "off_reunion": [
+    "Pat Shurmur"
+   ],
+   "first": true,
+   "resid": -11.5,
+   "team_vs_implied": -7.5,
+   "points": 12.0,
+   "implied": 19.5
+  },
+  {
+   "season": 2012,
+   "week": 3,
+   "team": "NYJ",
+   "opp": "MIA",
+   "off_reunion": [
+    "Tony Sparano"
+   ],
+   "first": true,
+   "resid": 2.5,
+   "team_vs_implied": 1.5,
+   "points": 23.0,
+   "implied": 21.5
+  },
+  {
+   "season": 2012,
+   "week": 4,
+   "team": "JAX",
+   "opp": "CIN",
+   "off_reunion": [
+    "Bob Bratkowski"
+   ],
+   "first": true,
+   "resid": -8.5,
+   "team_vs_implied": -13.25,
+   "points": 10.0,
+   "implied": 23.2
+  },
+  {
+   "season": 2012,
+   "week": 5,
+   "team": "NE",
+   "opp": "DEN",
+   "off_reunion": [
+    "Josh McDaniels"
+   ],
+   "first": true,
+   "resid": 1.5,
+   "team_vs_implied": 2.75,
+   "points": 31.0,
+   "implied": 28.2
+  },
+  {
+   "season": 2012,
+   "week": 8,
+   "team": "NYJ",
+   "opp": "MIA",
+   "off_reunion": [
+    "Tony Sparano"
+   ],
+   "first": false,
+   "resid": 0.5,
+   "team_vs_implied": -10.75,
+   "points": 9.0,
+   "implied": 19.8
+  },
+  {
+   "season": 2012,
+   "week": 8,
+   "team": "NE",
+   "opp": "STL",
+   "off_reunion": [
+    "Josh McDaniels"
+   ],
+   "first": true,
+   "resid": 6.0,
+   "team_vs_implied": 18.25,
+   "points": 45.0,
+   "implied": 26.8
+  },
+  {
+   "season": 2012,
+   "week": 9,
+   "team": "SEA",
+   "opp": "MIN",
+   "off_reunion": [
+    "Darrell Bevell"
+   ],
+   "first": true,
+   "resid": 12.0,
+   "team_vs_implied": 8.75,
+   "points": 30.0,
+   "implied": 21.2
+  },
+  {
+   "season": 2012,
+   "week": 10,
+   "team": "PIT",
+   "opp": "KC",
+   "off_reunion": [
+    "Todd Haley"
+   ],
+   "first": true,
+   "resid": -10.5,
+   "team_vs_implied": -10.0,
+   "points": 16.0,
+   "implied": 26.0
+  },
+  {
+   "season": 2012,
+   "week": 11,
+   "team": "STL",
+   "opp": "NYJ",
+   "off_reunion": [
+    "Brian Schottenheimer"
+   ],
+   "first": true,
+   "resid": 2.0,
+   "team_vs_implied": -7.75,
+   "points": 13.0,
+   "implied": 20.8
+  },
+  {
+   "season": 2012,
+   "week": 14,
+   "team": "KC",
+   "opp": "CLE",
+   "off_reunion": [
+    "Brian Daboll"
+   ],
+   "first": true,
+   "resid": -1.0,
+   "team_vs_implied": -8.5,
+   "points": 7.0,
+   "implied": 15.5
+  },
+  {
+   "season": 2012,
+   "week": 18,
+   "team": "BAL",
+   "opp": "IND",
+   "off_reunion": [
+    "Jim Caldwell (American football)"
+   ],
+   "first": true,
+   "resid": -14.5,
+   "team_vs_implied": -3.5,
+   "points": 24.0,
+   "implied": 27.5
+  },
+  {
+   "season": 2013,
+   "week": 10,
+   "team": "SD",
+   "opp": "DEN",
+   "off_reunion": [
+    "Mike McCoy (American football coach)"
+   ],
+   "first": true,
+   "resid": -8.0,
+   "team_vs_implied": -4.5,
+   "points": 20.0,
+   "implied": 24.5
+  },
+  {
+   "season": 2013,
+   "week": 11,
+   "team": "SEA",
+   "opp": "MIN",
+   "off_reunion": [
+    "Darrell Bevell"
+   ],
+   "first": false,
+   "resid": 16.0,
+   "team_vs_implied": 12.0,
+   "points": 41.0,
+   "implied": 29.0
+  },
+  {
+   "season": 2013,
+   "week": 12,
+   "team": "ARI",
+   "opp": "IND",
+   "off_reunion": [
+    "Bruce Arians"
+   ],
+   "first": true,
+   "resid": 6.5,
+   "team_vs_implied": 16.0,
+   "points": 40.0,
+   "implied": 24.0
+  },
+  {
+   "season": 2013,
+   "week": 12,
+   "team": "NE",
+   "opp": "DEN",
+   "off_reunion": [
+    "Josh McDaniels"
+   ],
+   "first": false,
+   "resid": 11.0,
+   "team_vs_implied": 6.5,
+   "points": 34.0,
+   "implied": 27.5
+  },
+  {
+   "season": 2013,
+   "week": 15,
+   "team": "SD",
+   "opp": "DEN",
+   "off_reunion": [
+    "Mike McCoy (American football coach)"
+   ],
+   "first": false,
+   "resid": -9.5,
+   "team_vs_implied": 3.75,
+   "points": 27.0,
+   "implied": 23.2
+  },
+  {
+   "season": 2013,
+   "week": 19,
+   "team": "SD",
+   "opp": "DEN",
+   "off_reunion": [
+    "Mike McCoy (American football coach)"
+   ],
+   "first": false,
+   "resid": -14.0,
+   "team_vs_implied": -6.5,
+   "points": 17.0,
+   "implied": 23.5
+  },
+  {
+   "season": 2013,
+   "week": 20,
+   "team": "NE",
+   "opp": "DEN",
+   "off_reunion": [
+    "Josh McDaniels"
+   ],
+   "first": false,
+   "resid": -14.5,
+   "team_vs_implied": -9.75,
+   "points": 16.0,
+   "implied": 25.8
+  },
+  {
+   "season": 2014,
+   "week": 1,
+   "team": "OAK",
+   "opp": "NYJ",
+   "off_reunion": [
+    "Tony Sparano"
+   ],
+   "first": true,
+   "resid": -8.0,
+   "team_vs_implied": -3.25,
+   "points": 14.0,
+   "implied": 17.2
+  },
+  {
+   "season": 2014,
+   "week": 1,
+   "team": "SD",
+   "opp": "ARI",
+   "off_reunion": [
+    "Ken Whisenhunt"
+   ],
+   "first": true,
+   "resid": -10.5,
+   "team_vs_implied": -4.25,
+   "points": 17.0,
+   "implied": 21.2
+  },
+  {
+   "season": 2014,
+   "week": 4,
+   "team": "OAK",
+   "opp": "MIA",
+   "off_reunion": [
+    "Tony Sparano"
+   ],
+   "first": true,
+   "resid": 11.0,
+   "team_vs_implied": -4.5,
+   "points": 14.0,
+   "implied": 18.5
+  },
+  {
+   "season": 2014,
+   "week": 6,
+   "team": "MIA",
+   "opp": "GB",
+   "off_reunion": [
+    "Joe Philbin"
+   ],
+   "first": true,
+   "resid": 4.5,
+   "team_vs_implied": 1.5,
+   "points": 24.0,
+   "implied": 22.5
+  },
+  {
+   "season": 2014,
+   "week": 8,
+   "team": "SD",
+   "opp": "DEN",
+   "off_reunion": [
+    "Mike McCoy (American football coach)"
+   ],
+   "first": false,
+   "resid": 5.0,
+   "team_vs_implied": 0.0,
+   "points": 21.0,
+   "implied": 21.0
+  },
+  {
+   "season": 2014,
+   "week": 15,
+   "team": "SD",
+   "opp": "DEN",
+   "off_reunion": [
+    "Mike McCoy (American football coach)"
+   ],
+   "first": false,
+   "resid": -17.0,
+   "team_vs_implied": -12.5,
+   "points": 10.0,
+   "implied": 22.5
+  },
+  {
+   "season": 2014,
+   "week": 15,
+   "team": "CHI",
+   "opp": "NO",
+   "off_reunion": [
+    "Aaron Kromer"
+   ],
+   "first": true,
+   "resid": -7.5,
+   "team_vs_implied": -10.25,
+   "points": 15.0,
+   "implied": 25.2
+  },
+  {
+   "season": 2014,
+   "week": 16,
+   "team": "BAL",
+   "opp": "HOU",
+   "off_reunion": [
+    "Gary Kubiak"
+   ],
+   "first": true,
+   "resid": -4.0,
+   "team_vs_implied": -11.0,
+   "points": 13.0,
+   "implied": 24.0
+  },
+  {
+   "season": 2014,
+   "week": 16,
+   "team": "PIT",
+   "opp": "KC",
+   "off_reunion": [
+    "Todd Haley"
+   ],
+   "first": false,
+   "resid": -17.5,
+   "team_vs_implied": -6.0,
+   "points": 20.0,
+   "implied": 26.0
+  },
+  {
+   "season": 2015,
+   "week": 1,
+   "team": "DEN",
+   "opp": "BAL",
+   "off_reunion": [
+    "Gary Kubiak"
+   ],
+   "first": true,
+   "resid": -14.5,
+   "team_vs_implied": -6.5,
+   "points": 19.0,
+   "implied": 25.5
+  },
+  {
+   "season": 2015,
+   "week": 3,
+   "team": "MIN",
+   "opp": "SD",
+   "off_reunion": [
+    "Norv Turner"
+   ],
+   "first": true,
+   "resid": -0.5,
+   "team_vs_implied": 7.0,
+   "points": 31.0,
+   "implied": 24.0
+  },
+  {
+   "season": 2015,
+   "week": 5,
+   "team": "ATL",
+   "opp": "WAS",
+   "off_reunion": [
+    "Kyle Shanahan"
+   ],
+   "first": true,
+   "resid": -4.5,
+   "team_vs_implied": -3.0,
+   "points": 25.0,
+   "implied": 28.0
+  },
+  {
+   "season": 2015,
+   "week": 8,
+   "team": "TB",
+   "opp": "ATL",
+   "off_reunion": [
+    "Dirk Koetter"
+   ],
+   "first": true,
+   "resid": -4.5,
+   "team_vs_implied": 3.25,
+   "points": 23.0,
+   "implied": 19.8
+  },
+  {
+   "season": 2015,
+   "week": 8,
+   "team": "IND",
+   "opp": "CAR",
+   "off_reunion": [
+    "Rob Chudzinski"
+   ],
+   "first": true,
+   "resid": 10.5,
+   "team_vs_implied": 6.25,
+   "points": 26.0,
+   "implied": 19.8
+  },
+  {
+   "season": 2015,
+   "week": 10,
+   "team": "NYJ",
+   "opp": "BUF",
+   "off_reunion": [
+    "Chan Gailey"
+   ],
+   "first": true,
+   "resid": -2.5,
+   "team_vs_implied": -5.0,
+   "points": 17.0,
+   "implied": 22.0
+  },
+  {
+   "season": 2015,
+   "week": 10,
+   "team": "OAK",
+   "opp": "MIN",
+   "off_reunion": [
+    "Bill Musgrave"
+   ],
+   "first": true,
+   "resid": 0.0,
+   "team_vs_implied": -9.5,
+   "points": 14.0,
+   "implied": 23.5
+  },
+  {
+   "season": 2015,
+   "week": 11,
+   "team": "TEN",
+   "opp": "JAX",
+   "off_reunion": [
+    "Mike Mularkey"
+   ],
+   "first": true,
+   "resid": -9.5,
+   "team_vs_implied": -6.25,
+   "points": 13.0,
+   "implied": 19.2
+  },
+  {
+   "season": 2015,
+   "week": 11,
+   "team": "CHI",
+   "opp": "DEN",
+   "off_reunion": [
+    "Adam Gase"
+   ],
+   "first": true,
+   "resid": -9.5,
+   "team_vs_implied": -4.5,
+   "points": 15.0,
+   "implied": 19.5
+  },
+  {
+   "season": 2015,
+   "week": 13,
+   "team": "SD",
+   "opp": "DEN",
+   "off_reunion": [
+    "Mike McCoy (American football coach)"
+   ],
+   "first": false,
+   "resid": -25.0,
+   "team_vs_implied": -16.5,
+   "points": 3.0,
+   "implied": 19.5
+  },
+  {
+   "season": 2015,
+   "week": 13,
+   "team": "TB",
+   "opp": "ATL",
+   "off_reunion": [
+    "Dirk Koetter"
+   ],
+   "first": false,
+   "resid": -4.5,
+   "team_vs_implied": -0.75,
+   "points": 23.0,
+   "implied": 23.8
+  },
+  {
+   "season": 2015,
+   "week": 13,
+   "team": "TEN",
+   "opp": "JAX",
+   "off_reunion": [
+    "Mike Mularkey"
+   ],
+   "first": false,
+   "resid": 37.5,
+   "team_vs_implied": 18.75,
+   "points": 42.0,
+   "implied": 23.2
+  },
+  {
+   "season": 2015,
+   "week": 17,
+   "team": "NYJ",
+   "opp": "BUF",
+   "off_reunion": [
+    "Chan Gailey"
+   ],
+   "first": false,
+   "resid": -2.0,
+   "team_vs_implied": -4.75,
+   "points": 17.0,
+   "implied": 21.8
+  },
+  {
+   "season": 2015,
+   "week": 17,
+   "team": "SD",
+   "opp": "DEN",
+   "off_reunion": [
+    "Mike McCoy (American football coach)"
+   ],
+   "first": false,
+   "resid": 5.0,
+   "team_vs_implied": 4.0,
+   "points": 20.0,
+   "implied": 16.0
+  },
+  {
+   "season": 2016,
+   "week": 1,
+   "team": "TB",
+   "opp": "ATL",
+   "off_reunion": [
+    "Dirk Koetter"
+   ],
+   "first": true,
+   "resid": 8.5,
+   "team_vs_implied": 9.0,
+   "points": 31.0,
+   "implied": 22.0
+  },
+  {
+   "season": 2016,
+   "week": 7,
+   "team": "CLE",
+   "opp": "CIN",
+   "off_reunion": [
+    "Hue Jackson"
+   ],
+   "first": true,
+   "resid": 1.5,
+   "team_vs_implied": -0.5,
+   "points": 17.0,
+   "implied": 17.5
+  },
+  {
+   "season": 2016,
+   "week": 7,
+   "team": "JAX",
+   "opp": "OAK",
+   "off_reunion": [
+    "Greg Olson (American football)"
+   ],
+   "first": true,
+   "resid": 1.5,
+   "team_vs_implied": -8.5,
+   "points": 16.0,
+   "implied": 24.5
+  },
+  {
+   "season": 2016,
+   "week": 7,
+   "team": "BAL",
+   "opp": "NYJ",
+   "off_reunion": [
+    "Marty Mornhinweg"
+   ],
+   "first": true,
+   "resid": -0.5,
+   "team_vs_implied": -3.25,
+   "points": 16.0,
+   "implied": 19.2
+  },
+  {
+   "season": 2016,
+   "week": 7,
+   "team": "DEN",
+   "opp": "HOU",
+   "off_reunion": [
+    "Gary Kubiak",
+    "Rick Dennison"
+   ],
+   "first": true,
+   "resid": -4.0,
+   "team_vs_implied": 2.75,
+   "points": 27.0,
+   "implied": 24.2
+  },
+  {
+   "season": 2016,
+   "week": 8,
+   "team": "WAS",
+   "opp": "CIN",
+   "off_reunion": [
+    "Jay Gruden"
+   ],
+   "first": true,
+   "resid": 5.0,
+   "team_vs_implied": 4.0,
+   "points": 27.0,
+   "implied": 23.0
+  },
+  {
+   "season": 2016,
+   "week": 9,
+   "team": "TB",
+   "opp": "ATL",
+   "off_reunion": [
+    "Dirk Koetter"
+   ],
+   "first": false,
+   "resid": 22.0,
+   "team_vs_implied": 5.75,
+   "points": 28.0,
+   "implied": 22.2
+  },
+  {
+   "season": 2016,
+   "week": 9,
+   "team": "SD",
+   "opp": "TEN",
+   "off_reunion": [
+    "Ken Whisenhunt"
+   ],
+   "first": true,
+   "resid": 30.5,
+   "team_vs_implied": 17.5,
+   "points": 43.0,
+   "implied": 25.5
+  },
+  {
+   "season": 2016,
+   "week": 12,
+   "team": "JAX",
+   "opp": "BUF",
+   "off_reunion": [
+    "Doug Marrone"
+   ],
+   "first": true,
+   "resid": 5.5,
+   "team_vs_implied": 3.5,
+   "points": 21.0,
+   "implied": 17.5
+  },
+  {
+   "season": 2016,
+   "week": 12,
+   "team": "CHI",
+   "opp": "TEN",
+   "off_reunion": [
+    "Dowell Loggains"
+   ],
+   "first": true,
+   "resid": 6.5,
+   "team_vs_implied": 3.5,
+   "points": 21.0,
+   "implied": 17.5
+  },
+  {
+   "season": 2016,
+   "week": 14,
+   "team": "CLE",
+   "opp": "CIN",
+   "off_reunion": [
+    "Hue Jackson"
+   ],
+   "first": false,
+   "resid": -9.0,
+   "team_vs_implied": -9.0,
+   "points": 10.0,
+   "implied": 19.0
+  },
+  {
+   "season": 2016,
+   "week": 16,
+   "team": "DAL",
+   "opp": "DET",
+   "off_reunion": [
+    "Scott Linehan"
+   ],
+   "first": true,
+   "resid": 16.0,
+   "team_vs_implied": 15.25,
+   "points": 42.0,
+   "implied": 26.8
+  },
+  {
+   "season": 2017,
+   "week": 1,
+   "team": "DEN",
+   "opp": "LAC",
+   "off_reunion": [
+    "Mike McCoy (American football coach)"
+   ],
+   "first": true,
+   "resid": 3.5,
+   "team_vs_implied": 1.75,
+   "points": 24.0,
+   "implied": 22.2
+  },
+  {
+   "season": 2017,
+   "week": 2,
+   "team": "PHI",
+   "opp": "KC",
+   "off_reunion": [
+    "Doug Pederson"
+   ],
+   "first": true,
+   "resid": 0.5,
+   "team_vs_implied": -1.25,
+   "points": 20.0,
+   "implied": 21.2
+  },
+  {
+   "season": 2017,
+   "week": 2,
+   "team": "LA",
+   "opp": "WAS",
+   "off_reunion": [
+    "Sean McVay"
+   ],
+   "first": true,
+   "resid": 1.5,
+   "team_vs_implied": -4.25,
+   "points": 20.0,
+   "implied": 24.2
+  },
+  {
+   "season": 2017,
+   "week": 3,
+   "team": "BUF",
+   "opp": "DEN",
+   "off_reunion": [
+    "Rick Dennison"
+   ],
+   "first": true,
+   "resid": 2.0,
+   "team_vs_implied": 7.75,
+   "points": 26.0,
+   "implied": 18.2
+  },
+  {
+   "season": 2017,
+   "week": 4,
+   "team": "CLE",
+   "opp": "CIN",
+   "off_reunion": [
+    "Hue Jackson"
+   ],
+   "first": false,
+   "resid": -3.5,
+   "team_vs_implied": -12.25,
+   "points": 7.0,
+   "implied": 19.2
+  },
+  {
+   "season": 2017,
+   "week": 4,
+   "team": "PHI",
+   "opp": "LAC",
+   "off_reunion": [
+    "Frank Reich"
+   ],
+   "first": true,
+   "resid": 2.0,
+   "team_vs_implied": 2.75,
+   "points": 26.0,
+   "implied": 23.2
+  },
+  {
+   "season": 2017,
+   "week": 7,
+   "team": "DEN",
+   "opp": "LAC",
+   "off_reunion": [
+    "Mike McCoy (American football coach)"
+   ],
+   "first": false,
+   "resid": -20.0,
+   "team_vs_implied": -21.0,
+   "points": 0.0,
+   "implied": 21.0
+  },
+  {
+   "season": 2017,
+   "week": 12,
+   "team": "TB",
+   "opp": "ATL",
+   "off_reunion": [
+    "Dirk Koetter"
+   ],
+   "first": false,
+   "resid": 7.0,
+   "team_vs_implied": 1.75,
+   "points": 20.0,
+   "implied": 18.2
+  },
+  {
+   "season": 2017,
+   "week": 12,
+   "team": "CLE",
+   "opp": "CIN",
+   "off_reunion": [
+    "Hue Jackson"
+   ],
+   "first": false,
+   "resid": 7.0,
+   "team_vs_implied": 0.25,
+   "points": 16.0,
+   "implied": 15.8
+  },
+  {
+   "season": 2017,
+   "week": 13,
+   "team": "MIA",
+   "opp": "DEN",
+   "off_reunion": [
+    "Adam Gase"
+   ],
+   "first": true,
+   "resid": 3.0,
+   "team_vs_implied": 15.0,
+   "points": 35.0,
+   "implied": 20.0
+  },
+  {
+   "season": 2017,
+   "week": 15,
+   "team": "TB",
+   "opp": "ATL",
+   "off_reunion": [
+    "Dirk Koetter"
+   ],
+   "first": false,
+   "resid": -4.5,
+   "team_vs_implied": -0.25,
+   "points": 21.0,
+   "implied": 21.2
+  },
+  {
+   "season": 2017,
+   "week": 18,
+   "team": "JAX",
+   "opp": "BUF",
+   "off_reunion": [
+    "Doug Marrone",
+    "Nathaniel Hackett"
+   ],
+   "first": true,
+   "resid": -26.5,
+   "team_vs_implied": -14.0,
+   "points": 10.0,
+   "implied": 24.0
+  },
+  {
+   "season": 2017,
+   "week": 20,
+   "team": "MIN",
+   "opp": "PHI",
+   "off_reunion": [
+    "Pat Shurmur"
+   ],
+   "first": true,
+   "resid": 6.0,
+   "team_vs_implied": -14.0,
+   "points": 7.0,
+   "implied": 21.0
+  },
+  {
+   "season": 2018,
+   "week": 1,
+   "team": "CLE",
+   "opp": "PIT",
+   "off_reunion": [
+    "Todd Haley"
+   ],
+   "first": true,
+   "resid": 1.0,
+   "team_vs_implied": 2.25,
+   "points": 21.0,
+   "implied": 18.8
+  },
+  {
+   "season": 2018,
+   "week": 2,
+   "team": "DEN",
+   "opp": "OAK",
+   "off_reunion": [
+    "Bill Musgrave"
+   ],
+   "first": true,
+   "resid": -5.5,
+   "team_vs_implied": -5.0,
+   "points": 20.0,
+   "implied": 25.0
+  },
+  {
+   "season": 2018,
+   "week": 3,
+   "team": "IND",
+   "opp": "PHI",
+   "off_reunion": [
+    "Frank Reich"
+   ],
+   "first": true,
+   "resid": -9.5,
+   "team_vs_implied": -3.5,
+   "points": 16.0,
+   "implied": 19.5
+  },
+  {
+   "season": 2018,
+   "week": 6,
+   "team": "NYG",
+   "opp": "PHI",
+   "off_reunion": [
+    "Pat Shurmur"
+   ],
+   "first": true,
+   "resid": 1.5,
+   "team_vs_implied": -9.0,
+   "points": 13.0,
+   "implied": 22.0
+  },
+  {
+   "season": 2018,
+   "week": 6,
+   "team": "MIA",
+   "opp": "CHI",
+   "off_reunion": [
+    "Adam Gase",
+    "Dowell Loggains"
+   ],
+   "first": true,
+   "resid": 18.5,
+   "team_vs_implied": 14.5,
+   "points": 31.0,
+   "implied": 16.5
+  },
+  {
+   "season": 2018,
+   "week": 7,
+   "team": "ARI",
+   "opp": "DEN",
+   "off_reunion": [
+    "Mike McCoy (American football coach)"
+   ],
+   "first": true,
+   "resid": 12.5,
+   "team_vs_implied": -10.75,
+   "points": 10.0,
+   "implied": 20.8
+  },
+  {
+   "season": 2018,
+   "week": 7,
+   "team": "LAC",
+   "opp": "TEN",
+   "off_reunion": [
+    "Ken Whisenhunt"
+   ],
+   "first": false,
+   "resid": -7.0,
+   "team_vs_implied": -6.25,
+   "points": 20.0,
+   "implied": 26.2
+  },
+  {
+   "season": 2018,
+   "week": 8,
+   "team": "CLE",
+   "opp": "PIT",
+   "off_reunion": [
+    "Todd Haley"
+   ],
+   "first": false,
+   "resid": 3.5,
+   "team_vs_implied": -1.5,
+   "points": 18.0,
+   "implied": 19.5
+  },
+  {
+   "season": 2018,
+   "week": 10,
+   "team": "GB",
+   "opp": "MIA",
+   "off_reunion": [
+    "Joe Philbin"
+   ],
+   "first": true,
+   "resid": -5.5,
+   "team_vs_implied": 0.25,
+   "points": 31.0,
+   "implied": 30.8
+  },
+  {
+   "season": 2018,
+   "week": 12,
+   "team": "CLE",
+   "opp": "CIN",
+   "off_reunion": [
+    "Hue Jackson"
+   ],
+   "first": false,
+   "resid": 8.5,
+   "team_vs_implied": 11.25,
+   "points": 35.0,
+   "implied": 23.8
+  },
+  {
+   "season": 2018,
+   "week": 12,
+   "team": "ARI",
+   "opp": "LAC",
+   "off_reunion": [
+    "Mike McCoy (American football coach)"
+   ],
+   "first": true,
+   "resid": 11.5,
+   "team_vs_implied": -4.75,
+   "points": 10.0,
+   "implied": 14.8
+  },
+  {
+   "season": 2018,
+   "week": 12,
+   "team": "NYG",
+   "opp": "PHI",
+   "off_reunion": [
+    "Pat Shurmur"
+   ],
+   "first": false,
+   "resid": -2.0,
+   "team_vs_implied": -0.25,
+   "points": 22.0,
+   "implied": 22.2
+  },
+  {
+   "season": 2018,
+   "week": 16,
+   "team": "CLE",
+   "opp": "CIN",
+   "off_reunion": [
+    "Hue Jackson"
+   ],
+   "first": false,
+   "resid": 0.0,
+   "team_vs_implied": -1.0,
+   "points": 26.0,
+   "implied": 27.0
+  },
+  {
+   "season": 2018,
+   "week": 16,
+   "team": "DEN",
+   "opp": "OAK",
+   "off_reunion": [
+    "Bill Musgrave"
+   ],
+   "first": false,
+   "resid": -1.5,
+   "team_vs_implied": -8.5,
+   "points": 14.0,
+   "implied": 22.5
+  },
+  {
+   "season": 2019,
+   "week": 5,
+   "team": "NYG",
+   "opp": "MIN",
+   "off_reunion": [
+    "Pat Shurmur"
+   ],
+   "first": true,
+   "resid": -6.0,
+   "team_vs_implied": -9.25,
+   "points": 10.0,
+   "implied": 19.2
+  },
+  {
+   "season": 2019,
+   "week": 9,
+   "team": "NYJ",
+   "opp": "MIA",
+   "off_reunion": [
+    "Adam Gase"
+   ],
+   "first": true,
+   "resid": 1.5,
+   "team_vs_implied": -5.0,
+   "points": 18.0,
+   "implied": 23.0
+  },
+  {
+   "season": 2019,
+   "week": 10,
+   "team": "TB",
+   "opp": "ARI",
+   "off_reunion": [
+    "Bruce Arians"
+   ],
+   "first": true,
+   "resid": 6.0,
+   "team_vs_implied": 1.75,
+   "points": 30.0,
+   "implied": 28.2
+  },
+  {
+   "season": 2019,
+   "week": 12,
+   "team": "ATL",
+   "opp": "TB",
+   "off_reunion": [
+    "Dirk Koetter"
+   ],
+   "first": true,
+   "resid": 5.5,
+   "team_vs_implied": -5.5,
+   "points": 22.0,
+   "implied": 27.5
+  },
+  {
+   "season": 2019,
+   "week": 14,
+   "team": "NYJ",
+   "opp": "MIA",
+   "off_reunion": [
+    "Adam Gase"
+   ],
+   "first": false,
+   "resid": -4.0,
+   "team_vs_implied": -4.0,
+   "points": 22.0,
+   "implied": 26.0
+  },
+  {
+   "season": 2019,
+   "week": 15,
+   "team": "OAK",
+   "opp": "JAX",
+   "off_reunion": [
+    "Greg Olson (American football)"
+   ],
+   "first": true,
+   "resid": -11.0,
+   "team_vs_implied": -11.0,
+   "points": 16.0,
+   "implied": 27.0
+  },
+  {
+   "season": 2019,
+   "week": 15,
+   "team": "SF",
+   "opp": "ATL",
+   "off_reunion": [
+    "Kyle Shanahan"
+   ],
+   "first": true,
+   "resid": 1.0,
+   "team_vs_implied": -8.25,
+   "points": 22.0,
+   "implied": 30.2
+  },
+  {
+   "season": 2019,
+   "week": 16,
+   "team": "CHI",
+   "opp": "KC",
+   "off_reunion": [
+    "Matt Nagy"
+   ],
+   "first": true,
+   "resid": -16.5,
+   "team_vs_implied": -16.5,
+   "points": 3.0,
+   "implied": 19.5
+  },
+  {
+   "season": 2019,
+   "week": 17,
+   "team": "ATL",
+   "opp": "TB",
+   "off_reunion": [
+    "Dirk Koetter"
+   ],
+   "first": false,
+   "resid": 2.0,
+   "team_vs_implied": 4.5,
+   "points": 28.0,
+   "implied": 23.5
+  },
+  {
+   "season": 2020,
+   "week": 5,
+   "team": "NYG",
+   "opp": "DAL",
+   "off_reunion": [
+    "Jason Garrett"
+   ],
+   "first": true,
+   "resid": 19.0,
+   "team_vs_implied": 11.75,
+   "points": 34.0,
+   "implied": 22.2
+  },
+  {
+   "season": 2020,
+   "week": 5,
+   "team": "LA",
+   "opp": "WAS",
+   "off_reunion": [
+    "Kevin O'Connell (American football)"
+   ],
+   "first": true,
+   "resid": -5.0,
+   "team_vs_implied": 4.0,
+   "points": 30.0,
+   "implied": 26.0
+  },
+  {
+   "season": 2020,
+   "week": 6,
+   "team": "MIA",
+   "opp": "NYJ",
+   "off_reunion": [
+    "Chan Gailey"
+   ],
+   "first": true,
+   "resid": -22.0,
+   "team_vs_implied": -3.75,
+   "points": 24.0,
+   "implied": 27.8
+  },
+  {
+   "season": 2020,
+   "week": 6,
+   "team": "NYJ",
+   "opp": "MIA",
+   "off_reunion": [
+    "Adam Gase"
+   ],
+   "first": false,
+   "resid": -22.0,
+   "team_vs_implied": -18.25,
+   "points": 0.0,
+   "implied": 18.2
+  },
+  {
+   "season": 2020,
+   "week": 10,
+   "team": "GB",
+   "opp": "JAX",
+   "off_reunion": [
+    "Nathaniel Hackett"
+   ],
+   "first": true,
+   "resid": -3.0,
+   "team_vs_implied": -6.25,
+   "points": 24.0,
+   "implied": 30.2
+  },
+  {
+   "season": 2020,
+   "week": 12,
+   "team": "NYJ",
+   "opp": "MIA",
+   "off_reunion": [
+    "Adam Gase"
+   ],
+   "first": false,
+   "resid": -23.0,
+   "team_vs_implied": -16.25,
+   "points": 3.0,
+   "implied": 19.2
+  },
+  {
+   "season": 2020,
+   "week": 12,
+   "team": "MIA",
+   "opp": "NYJ",
+   "off_reunion": [
+    "Chan Gailey"
+   ],
+   "first": false,
+   "resid": -23.0,
+   "team_vs_implied": -6.75,
+   "points": 20.0,
+   "implied": 26.8
+  },
+  {
+   "season": 2020,
+   "week": 15,
+   "team": "ATL",
+   "opp": "TB",
+   "off_reunion": [
+    "Dirk Koetter"
+   ],
+   "first": false,
+   "resid": 8.5,
+   "team_vs_implied": 5.25,
+   "points": 27.0,
+   "implied": 21.8
+  },
+  {
+   "season": 2020,
+   "week": 16,
+   "team": "GB",
+   "opp": "TEN",
+   "off_reunion": [
+    "Matt LaFleur"
+   ],
+   "first": true,
+   "resid": 1.5,
+   "team_vs_implied": 12.25,
+   "points": 40.0,
+   "implied": 27.8
+  },
+  {
+   "season": 2020,
+   "week": 17,
+   "team": "NYG",
+   "opp": "DAL",
+   "off_reunion": [
+    "Jason Garrett"
+   ],
+   "first": false,
+   "resid": -2.5,
+   "team_vs_implied": 1.5,
+   "points": 23.0,
+   "implied": 21.5
+  },
+  {
+   "season": 2020,
+   "week": 17,
+   "team": "ATL",
+   "opp": "TB",
+   "off_reunion": [
+    "Dirk Koetter"
+   ],
+   "first": false,
+   "resid": 20.0,
+   "team_vs_implied": 5.25,
+   "points": 27.0,
+   "implied": 21.8
+  },
+  {
+   "season": 2020,
+   "week": 19,
+   "team": "GB",
+   "opp": "LA",
+   "off_reunion": [
+    "Matt LaFleur"
+   ],
+   "first": true,
+   "resid": 5.0,
+   "team_vs_implied": 6.0,
+   "points": 32.0,
+   "implied": 26.0
+  },
+  {
    "season": 2021,
    "week": 1,
    "team": "DEN",
@@ -1196,6 +9207,20 @@
    "team_vs_implied": -9.75,
    "points": 6.0,
    "implied": 15.8
+  },
+  {
+   "season": 2022,
+   "week": 4,
+   "team": "JAX",
+   "opp": "PHI",
+   "off_reunion": [
+    "Doug Pederson"
+   ],
+   "first": true,
+   "resid": 6.0,
+   "team_vs_implied": 2.25,
+   "points": 21.0,
+   "implied": 18.8
   },
   {
    "season": 2022,
@@ -1325,6 +9350,35 @@
   },
   {
    "season": 2023,
+   "week": 8,
+   "team": "ATL",
+   "opp": "TEN",
+   "off_reunion": [
+    "Arthur Smith]]",
+    "[[Arthur Smith"
+   ],
+   "first": true,
+   "resid": 16.0,
+   "team_vs_implied": 4.25,
+   "points": 23.0,
+   "implied": 18.8
+  },
+  {
+   "season": 2023,
+   "week": 9,
+   "team": "CAR",
+   "opp": "IND",
+   "off_reunion": [
+    "Frank Reich"
+   ],
+   "first": true,
+   "resid": -5.0,
+   "team_vs_implied": -8.75,
+   "points": 13.0,
+   "implied": 21.8
+  },
+  {
+   "season": 2023,
    "week": 13,
    "team": "DAL",
    "opp": "SEA",
@@ -1395,6 +9449,21 @@
   },
   {
    "season": 2024,
+   "week": 1,
+   "team": "PIT",
+   "opp": "ATL",
+   "off_reunion": [
+    "Arthur Smith]]",
+    "[[Arthur Smith"
+   ],
+   "first": true,
+   "resid": -15.0,
+   "team_vs_implied": -1.5,
+   "points": 18.0,
+   "implied": 19.5
+  },
+  {
+   "season": 2024,
    "week": 4,
    "team": "WAS",
    "opp": "ARI",
@@ -1448,6 +9517,20 @@
    "team_vs_implied": -1.0,
    "points": 16.0,
    "implied": 17.0
+  },
+  {
+   "season": 2024,
+   "week": 7,
+   "team": "DEN",
+   "opp": "NO",
+   "off_reunion": [
+    "Sean Payton"
+   ],
+   "first": true,
+   "resid": 6.0,
+   "team_vs_implied": 13.25,
+   "points": 33.0,
+   "implied": 19.8
   },
   {
    "season": 2024,
