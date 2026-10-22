@@ -1,0 +1,1415 @@
+{
+ "league_rb_points_per": {
+  "carry": 0.6139524361620904,
+  "target": 1.5454899343788233
+ },
+ "A_shares": {
+  "2023-2025 (participation)": {
+   "all backups": {
+    "n": 460,
+    "n_with_sleeper": 410,
+    "rs_mae_base": 0.2419,
+    "rs_mae_pro": 0.1986,
+    "rs_mae_pro8": 0.1903,
+    "rs_mae_prop": 0.172,
+    "rs_mae_prop0": 0.1774,
+    "rs_mae_sleeper": 0.1184,
+    "rs_mae_prop_same_rows": 0.1724,
+    "rs_bias_prop": -0.0205,
+    "rs_actual_mean": 0.3058,
+    "ts_mae_base": 0.0484,
+    "ts_mae_pro": 0.0536,
+    "ts_mae_pro8": 0.0515,
+    "ts_mae_prop": 0.0504,
+    "ts_mae_prop0": 0.0524,
+    "ts_mae_sleeper": 0.041,
+    "ts_mae_prop_same_rows": 0.0534,
+    "ts_bias_prop": 0.0017,
+    "ts_actual_mean": 0.0628
+   },
+   "first backup (depth 1)": {
+    "n": 177,
+    "n_with_sleeper": 174,
+    "rs_mae_base": 0.3116,
+    "rs_mae_pro": 0.2477,
+    "rs_mae_pro8": 0.226,
+    "rs_mae_prop": 0.1959,
+    "rs_mae_prop0": 0.2136,
+    "rs_mae_sleeper": 0.1304,
+    "rs_mae_prop_same_rows": 0.1913,
+    "rs_bias_prop": 0.1297,
+    "rs_actual_mean": 0.4488,
+    "ts_mae_base": 0.0597,
+    "ts_mae_pro": 0.0711,
+    "ts_mae_pro8": 0.0669,
+    "ts_mae_prop": 0.0659,
+    "ts_mae_prop0": 0.07,
+    "ts_mae_sleeper": 0.047,
+    "ts_mae_prop_same_rows": 0.0659,
+    "ts_bias_prop": 0.0296,
+    "ts_actual_mean": 0.0888
+   },
+   "passing-down back": {
+    "n": 115,
+    "n_with_sleeper": 113,
+    "rs_mae_base": 0.2517,
+    "rs_mae_pro": 0.2071,
+    "rs_mae_pro8": 0.1884,
+    "rs_mae_prop": 0.1572,
+    "rs_mae_prop0": 0.1688,
+    "rs_mae_sleeper": 0.1148,
+    "rs_mae_prop_same_rows": 0.1549,
+    "rs_bias_prop": 0.0662,
+    "rs_actual_mean": 0.3786,
+    "ts_mae_base": 0.053,
+    "ts_mae_pro": 0.0834,
+    "ts_mae_pro8": 0.0776,
+    "ts_mae_prop": 0.0765,
+    "ts_mae_prop0": 0.0821,
+    "ts_mae_sleeper": 0.0464,
+    "ts_mae_prop_same_rows": 0.0764,
+    "ts_bias_prop": 0.0571,
+    "ts_actual_mean": 0.0924
+   },
+   "depth 2+": {
+    "n": 283,
+    "n_with_sleeper": 236,
+    "rs_mae_base": 0.1983,
+    "rs_mae_pro": 0.168,
+    "rs_mae_pro8": 0.168,
+    "rs_mae_prop": 0.157,
+    "rs_mae_prop0": 0.1547,
+    "rs_mae_sleeper": 0.1095,
+    "rs_mae_prop_same_rows": 0.1585,
+    "rs_bias_prop": -0.1144,
+    "rs_actual_mean": 0.2163,
+    "ts_mae_base": 0.0413,
+    "ts_mae_pro": 0.0426,
+    "ts_mae_pro8": 0.0419,
+    "ts_mae_prop": 0.0408,
+    "ts_mae_prop0": 0.0414,
+    "ts_mae_sleeper": 0.0366,
+    "ts_mae_prop_same_rows": 0.0442,
+    "ts_bias_prop": -0.0157,
+    "ts_actual_mean": 0.0466
+   }
+  },
+  "2023-2025 first game without the lead back": {
+   "all backups": {
+    "n": 195,
+    "n_with_sleeper": 172,
+    "rs_mae_base": 0.2184,
+    "rs_mae_pro": 0.162,
+    "rs_mae_pro8": 0.1541,
+    "rs_mae_prop": 0.1474,
+    "rs_mae_prop0": 0.1519,
+    "rs_mae_sleeper": 0.1183,
+    "rs_mae_prop_same_rows": 0.155,
+    "rs_bias_prop": -0.0132,
+    "rs_actual_mean": 0.297,
+    "ts_mae_base": 0.0465,
+    "ts_mae_pro": 0.0438,
+    "ts_mae_pro8": 0.0426,
+    "ts_mae_prop": 0.0413,
+    "ts_mae_prop0": 0.0424,
+    "ts_mae_sleeper": 0.0397,
+    "ts_mae_prop_same_rows": 0.0444,
+    "ts_bias_prop": -0.0042,
+    "ts_actual_mean": 0.0641
+   },
+   "first backup (depth 1)": {
+    "n": 73,
+    "n_with_sleeper": 72,
+    "rs_mae_base": 0.3075,
+    "rs_mae_pro": 0.2068,
+    "rs_mae_pro8": 0.185,
+    "rs_mae_prop": 0.1754,
+    "rs_mae_prop0": 0.1901,
+    "rs_mae_sleeper": 0.1267,
+    "rs_mae_prop_same_rows": 0.1707,
+    "rs_bias_prop": 0.1089,
+    "rs_actual_mean": 0.4808,
+    "ts_mae_base": 0.0618,
+    "ts_mae_pro": 0.0544,
+    "ts_mae_pro8": 0.052,
+    "ts_mae_prop": 0.0491,
+    "ts_mae_prop0": 0.0515,
+    "ts_mae_sleeper": 0.0445,
+    "ts_mae_prop_same_rows": 0.0488,
+    "ts_bias_prop": 0.0144,
+    "ts_actual_mean": 0.1009
+   },
+   "passing-down back": {
+    "n": 51,
+    "n_with_sleeper": 49,
+    "rs_mae_base": 0.2701,
+    "rs_mae_pro": 0.1879,
+    "rs_mae_pro8": 0.1674,
+    "rs_mae_prop": 0.1492,
+    "rs_mae_prop0": 0.1586,
+    "rs_mae_sleeper": 0.0994,
+    "rs_mae_prop_same_rows": 0.1434,
+    "rs_bias_prop": 0.0577,
+    "rs_actual_mean": 0.4195,
+    "ts_mae_base": 0.0546,
+    "ts_mae_pro": 0.0609,
+    "ts_mae_pro8": 0.0567,
+    "ts_mae_prop": 0.0578,
+    "ts_mae_prop0": 0.0619,
+    "ts_mae_sleeper": 0.0439,
+    "ts_mae_prop_same_rows": 0.0568,
+    "ts_bias_prop": 0.0384,
+    "ts_actual_mean": 0.1018
+   },
+   "depth 2+": {
+    "n": 122,
+    "n_with_sleeper": 100,
+    "rs_mae_base": 0.1651,
+    "rs_mae_pro": 0.1351,
+    "rs_mae_pro8": 0.1356,
+    "rs_mae_prop": 0.1307,
+    "rs_mae_prop0": 0.1291,
+    "rs_mae_sleeper": 0.1123,
+    "rs_mae_prop_same_rows": 0.1437,
+    "rs_bias_prop": -0.0863,
+    "rs_actual_mean": 0.187,
+    "ts_mae_base": 0.0374,
+    "ts_mae_pro": 0.0374,
+    "ts_mae_pro8": 0.037,
+    "ts_mae_prop": 0.0366,
+    "ts_mae_prop0": 0.037,
+    "ts_mae_sleeper": 0.0362,
+    "ts_mae_prop_same_rows": 0.0412,
+    "ts_bias_prop": -0.0154,
+    "ts_actual_mean": 0.0421
+   }
+  },
+  "2026": {
+   "all backups": {
+    "n": 26,
+    "n_with_sleeper": 24,
+    "rs_mae_base": 0.2176,
+    "rs_mae_pro": 0.1554,
+    "rs_mae_pro8": 0.1447,
+    "rs_mae_prop": 0.1434,
+    "rs_mae_prop0": 0.1504,
+    "rs_mae_sleeper": 0.1063,
+    "rs_mae_prop_same_rows": 0.1358,
+    "rs_bias_prop": -0.0218,
+    "rs_actual_mean": 0.3097,
+    "ts_mae_base": 0.0331,
+    "ts_mae_pro": 0.0395,
+    "ts_mae_pro8": 0.0362,
+    "ts_mae_prop": 0.037,
+    "ts_mae_prop0": 0.0404,
+    "ts_mae_sleeper": 0.0352,
+    "ts_mae_prop_same_rows": 0.0377,
+    "ts_bias_prop": 0.0126,
+    "ts_actual_mean": 0.0483
+   },
+   "first backup (depth 1)": {
+    "n": 10,
+    "n_with_sleeper": 10,
+    "rs_mae_base": 0.333,
+    "rs_mae_pro": 0.1999,
+    "rs_mae_pro8": 0.1698,
+    "rs_mae_prop": 0.1502,
+    "rs_mae_prop0": 0.1693,
+    "rs_mae_sleeper": 0.1035,
+    "rs_mae_prop_same_rows": 0.1502,
+    "rs_bias_prop": 0.0565,
+    "rs_actual_mean": 0.5445,
+    "ts_mae_base": 0.0561,
+    "ts_mae_pro": 0.069,
+    "ts_mae_pro8": 0.0608,
+    "ts_mae_prop": 0.0601,
+    "ts_mae_prop0": 0.0682,
+    "ts_mae_sleeper": 0.0498,
+    "ts_mae_prop_same_rows": 0.0601,
+    "ts_bias_prop": 0.0509,
+    "ts_actual_mean": 0.0913
+   },
+   "passing-down back": {
+    "n": 9,
+    "n_with_sleeper": 9,
+    "rs_mae_base": 0.352,
+    "rs_mae_pro": 0.1468,
+    "rs_mae_pro8": 0.1233,
+    "rs_mae_prop": 0.1096,
+    "rs_mae_prop0": 0.1217,
+    "rs_mae_sleeper": 0.1099,
+    "rs_mae_prop_same_rows": 0.1096,
+    "rs_bias_prop": -0.0027,
+    "rs_actual_mean": 0.5706,
+    "ts_mae_base": 0.0467,
+    "ts_mae_pro": 0.0764,
+    "ts_mae_pro8": 0.0687,
+    "ts_mae_prop": 0.07,
+    "ts_mae_prop0": 0.0778,
+    "ts_mae_sleeper": 0.0432,
+    "ts_mae_prop_same_rows": 0.07,
+    "ts_bias_prop": 0.0598,
+    "ts_actual_mean": 0.0863
+   },
+   "depth 2+": {
+    "n": 16,
+    "n_with_sleeper": 14,
+    "rs_mae_base": 0.1455,
+    "rs_mae_pro": 0.1275,
+    "rs_mae_pro8": 0.1289,
+    "rs_mae_prop": 0.1391,
+    "rs_mae_prop0": 0.1386,
+    "rs_mae_sleeper": 0.1083,
+    "rs_mae_prop_same_rows": 0.1255,
+    "rs_bias_prop": -0.0708,
+    "rs_actual_mean": 0.163,
+    "ts_mae_base": 0.0187,
+    "ts_mae_pro": 0.021,
+    "ts_mae_pro8": 0.0208,
+    "ts_mae_prop": 0.0226,
+    "ts_mae_prop0": 0.0229,
+    "ts_mae_sleeper": 0.0248,
+    "ts_mae_prop_same_rows": 0.0216,
+    "ts_bias_prop": -0.0114,
+    "ts_actual_mean": 0.0215
+   }
+  }
+ },
+ "A_absorption": {
+  "2023-2026": {
+   "events": 187,
+   "rush_absorbed": 1.008,
+   "targets_absorbed": 0.871,
+   "first_backup_takes_most_new_rushes": 0.578,
+   "first_backup_share_of_vacated_rushes_median": 0.529,
+   "passing_down_back_takes_most_new_targets": 0.35,
+   "events_with_passing_down_back_and_2plus_backs": 123,
+   "points_per_touch": {
+    "n": 155,
+    "backup_in_vacancy": 0.796,
+    "same_backup_before": 0.817,
+    "lead_back_before": 0.758
+   }
+  },
+  "first games": {
+   "events": 80,
+   "rush_absorbed": 0.984,
+   "targets_absorbed": 1.003,
+   "first_backup_takes_most_new_rushes": 0.562,
+   "first_backup_share_of_vacated_rushes_median": 0.53,
+   "passing_down_back_takes_most_new_targets": 0.357,
+   "events_with_passing_down_back_and_2plus_backs": 56,
+   "points_per_touch": {
+    "n": 80,
+    "backup_in_vacancy": 0.81,
+    "same_backup_before": 0.838,
+    "lead_back_before": 0.736
+   }
+  }
+ },
+ "A_points": {
+  "2023-2025": {
+   "n": 328,
+   "sleeper": {
+    "mae": 5.15,
+    "bias": -0.64
+   },
+   "current": {
+    "mae": 5.05,
+    "bias": -1.05
+   },
+   "proposal_shares": {
+    "mae": 6.65,
+    "bias": 0.2
+   },
+   "proposal_shares_with_decay": {
+    "mae": 6.32,
+    "bias": -1.02
+   },
+   "blend_current_proposal": {
+    "mae": 5.56,
+    "bias": -0.42
+   }
+  },
+  "2026": {
+   "n": 17,
+   "sleeper": {
+    "mae": 5.32,
+    "bias": 0.59
+   },
+   "current": {
+    "mae": 4.89,
+    "bias": -0.03
+   },
+   "proposal_shares": {
+    "mae": 4.98,
+    "bias": 1.12
+   },
+   "proposal_shares_with_decay": {
+    "mae": 4.56,
+    "bias": -0.11
+   },
+   "blend_current_proposal": {
+    "mae": 4.72,
+    "bias": 0.55
+   }
+  },
+  "2023-2026 first games": {
+   "n": 150,
+   "sleeper": {
+    "mae": 5.36,
+    "bias": -0.87
+   },
+   "current": {
+    "mae": 5.24,
+    "bias": -1.28
+   },
+   "proposal_shares": {
+    "mae": 5.95,
+    "bias": 0.13
+   },
+   "proposal_shares_with_decay": {
+    "mae": 5.7,
+    "bias": -1.1
+   },
+   "blend_current_proposal": {
+    "mae": 5.39,
+    "bias": -0.58
+   }
+  }
+ },
+ "A_model": {
+  "features": [
+   "realloc_gain"
+  ],
+  "current": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.361,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.058
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.332,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.09,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.203,
+    "bottom_third_bust": 0.271
+   },
+   "loso_vacancy_backups": {
+    "n": 328,
+    "mae_corrected": 5.081,
+    "bias": -0.98
+   },
+   "test_2026_vacancy_backups": {
+    "n": 17,
+    "mae_corrected": 4.89,
+    "bias": -0.028
+   }
+  },
+  "+realloc_gain": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.361,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.058
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.332,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.091,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.203,
+    "bottom_third_bust": 0.274
+   },
+   "loso_vacancy_backups": {
+    "n": 328,
+    "mae_corrected": 5.091,
+    "bias": -0.926
+   },
+   "test_2026_vacancy_backups": {
+    "n": 17,
+    "mae_corrected": 4.903,
+    "bias": 0.056
+   }
+  }
+ },
+ "A_model_ratio": {
+  "features": [
+   "realloc_gain_ratio"
+  ],
+  "current": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.361,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.058
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.332,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.09,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.203,
+    "bottom_third_bust": 0.271
+   },
+   "loso_vacancy_backups": {
+    "n": 328,
+    "mae_corrected": 5.081,
+    "bias": -0.98
+   },
+   "test_2026_vacancy_backups": {
+    "n": 17,
+    "mae_corrected": 4.89,
+    "bias": -0.028
+   }
+  },
+  "+realloc_gain_ratio": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.361,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.058
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.332,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.091,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.203,
+    "bottom_third_bust": 0.276
+   },
+   "loso_vacancy_backups": {
+    "n": 328,
+    "mae_corrected": 5.094,
+    "bias": -0.947
+   },
+   "test_2026_vacancy_backups": {
+    "n": 17,
+    "mae_corrected": 4.894,
+    "bias": 0.02
+   }
+  }
+ },
+ "pressure_deficit_top_quartile_cut": 0.0207,
+ "B_projection_by_archetype": {
+  "2023-2025 (correction in-sample)": {
+   "RB 5+ projected targets": {
+    "n": 133,
+    "mean_error_corrected": -0.22,
+    "actual_over_proj": 0.444,
+    "bust_rate": 0.12,
+    "boom_rate": 0.173,
+    "cv_actual_over_proj": 0.51
+   },
+   "RB 3-5 projected targets": {
+    "n": 823,
+    "mean_error_corrected": -0.72,
+    "actual_over_proj": 0.468,
+    "bust_rate": 0.174,
+    "boom_rate": 0.204,
+    "cv_actual_over_proj": 0.597
+   },
+   "RB under 3 projected targets": {
+    "n": 2033,
+    "mean_error_corrected": -0.52,
+    "actual_over_proj": 0.435,
+    "bust_rate": 0.282,
+    "boom_rate": 0.24,
+    "cv_actual_over_proj": 0.961
+   },
+   "RB grinder (12+ carries, 2 or fewer targets)": {
+    "n": 160,
+    "mean_error_corrected": -1.36,
+    "actual_over_proj": 0.487,
+    "bust_rate": 0.206,
+    "boom_rate": 0.263,
+    "cv_actual_over_proj": 0.725
+   },
+   "RB receiving 40%+ of projection": {
+    "n": 1245,
+    "mean_error_corrected": -0.52,
+    "actual_over_proj": 0.434,
+    "bust_rate": 0.256,
+    "boom_rate": 0.23,
+    "cv_actual_over_proj": 0.905
+   },
+   "QB rushing 30%+ of projection": {
+    "n": 184,
+    "mean_error_corrected": -0.51,
+    "actual_over_proj": 0.505,
+    "bust_rate": 0.141,
+    "boom_rate": 0.13,
+    "cv_actual_over_proj": 0.445
+   },
+   "QB rushing 20-30%": {
+    "n": 249,
+    "mean_error_corrected": -0.85,
+    "actual_over_proj": 0.55,
+    "bust_rate": 0.129,
+    "boom_rate": 0.145,
+    "cv_actual_over_proj": 0.488
+   },
+   "QB pocket (under 20%)": {
+    "n": 1108,
+    "mean_error_corrected": -0.55,
+    "actual_over_proj": 0.497,
+    "bust_rate": 0.134,
+    "boom_rate": 0.169,
+    "cv_actual_over_proj": 0.488
+   },
+   "Pocket QB, pressure deficit top quartile": {
+    "n": 285,
+    "mean_error_corrected": -0.82,
+    "actual_over_proj": 0.512,
+    "bust_rate": 0.133,
+    "boom_rate": 0.154,
+    "cv_actual_over_proj": 0.505
+   },
+   "Rushing QB, pressure deficit top quartile": {
+    "n": 101,
+    "mean_error_corrected": 0.31,
+    "actual_over_proj": 0.446,
+    "bust_rate": 0.208,
+    "boom_rate": 0.139,
+    "cv_actual_over_proj": 0.524
+   },
+   "Pocket QB, pressure deficit bottom quartile": {
+    "n": 264,
+    "mean_error_corrected": -0.67,
+    "actual_over_proj": 0.504,
+    "bust_rate": 0.125,
+    "boom_rate": 0.186,
+    "cv_actual_over_proj": 0.48
+   }
+  },
+  "2026": {
+   "RB 5+ projected targets": {
+    "n": 14,
+    "mean_error_corrected": -0.63,
+    "actual_over_proj": 0.571,
+    "bust_rate": 0.143,
+    "boom_rate": 0.214,
+    "cv_actual_over_proj": 0.453
+   },
+   "RB 3-5 projected targets": {
+    "n": 59,
+    "mean_error_corrected": 0.89,
+    "actual_over_proj": 0.373,
+    "bust_rate": 0.203,
+    "boom_rate": 0.136,
+    "cv_actual_over_proj": 0.489
+   },
+   "RB under 3 projected targets": {
+    "n": 238,
+    "mean_error_corrected": 0.43,
+    "actual_over_proj": 0.361,
+    "bust_rate": 0.345,
+    "boom_rate": 0.197,
+    "cv_actual_over_proj": 0.887
+   },
+   "RB grinder (12+ carries, 2 or fewer targets)": {
+    "n": 16,
+    "mean_error_corrected": -0.56,
+    "actual_over_proj": 0.5,
+    "bust_rate": 0.125,
+    "boom_rate": 0.25,
+    "cv_actual_over_proj": 0.729
+   },
+   "RB receiving 40%+ of projection": {
+    "n": 130,
+    "mean_error_corrected": 0.25,
+    "actual_over_proj": 0.385,
+    "bust_rate": 0.331,
+    "boom_rate": 0.215,
+    "cv_actual_over_proj": 0.832
+   },
+   "QB rushing 30%+ of projection": {
+    "n": 15,
+    "mean_error_corrected": 1.48,
+    "actual_over_proj": 0.267,
+    "bust_rate": 0.133,
+    "boom_rate": 0.133,
+    "cv_actual_over_proj": 0.465
+   },
+   "QB rushing 20-30%": {
+    "n": 27,
+    "mean_error_corrected": -1.28,
+    "actual_over_proj": 0.444,
+    "bust_rate": 0.074,
+    "boom_rate": 0.185,
+    "cv_actual_over_proj": 0.438
+   },
+   "QB pocket (under 20%)": {
+    "n": 111,
+    "mean_error_corrected": -0.94,
+    "actual_over_proj": 0.459,
+    "bust_rate": 0.09,
+    "boom_rate": 0.153,
+    "cv_actual_over_proj": 0.441
+   },
+   "Pocket QB, pressure deficit top quartile": {
+    "n": 21,
+    "mean_error_corrected": -0.37,
+    "actual_over_proj": 0.381,
+    "bust_rate": 0.143,
+    "boom_rate": 0.143,
+    "cv_actual_over_proj": 0.449
+   },
+   "Rushing QB, pressure deficit top quartile": {
+    "n": 8,
+    "mean_error_corrected": -1.6,
+    "actual_over_proj": 0.375,
+    "bust_rate": 0.125,
+    "boom_rate": 0.25,
+    "cv_actual_over_proj": 0.569
+   },
+   "Pocket QB, pressure deficit bottom quartile": {
+    "n": 21,
+    "mean_error_corrected": 0.12,
+    "actual_over_proj": 0.381,
+    "bust_rate": 0.143,
+    "boom_rate": 0.143,
+    "cv_actual_over_proj": 0.508
+   }
+  }
+ },
+ "B_model_rb": {
+  "features": [
+   "rb_rec_share",
+   "rb_tgt5"
+  ],
+  "current": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.361,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.058
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.332,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.09,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.203,
+    "bottom_third_bust": 0.271
+   },
+   "loso_rb_5plus_targets": {
+    "n": 133,
+    "mae_corrected": 7.231,
+    "bias": -0.231
+   },
+   "test_2026_rb_5plus_targets": {
+    "n": 14,
+    "mae_corrected": 8.629,
+    "bias": -0.634
+   }
+  },
+  "+rb archetype": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.361,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.057
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.334,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.089,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.2,
+    "bottom_third_bust": 0.271
+   },
+   "loso_rb_5plus_targets": {
+    "n": 133,
+    "mae_corrected": 7.202,
+    "bias": -0.487
+   },
+   "test_2026_rb_5plus_targets": {
+    "n": 14,
+    "mae_corrected": 8.671,
+    "bias": -0.861
+   }
+  }
+ },
+ "B_model_qb_rush": {
+  "features": [
+   "qb_rush_share"
+  ],
+  "current": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.361,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.058
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.332,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.09,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.203,
+    "bottom_third_bust": 0.271
+   },
+   "loso_rushing_qbs": {
+    "n": 184,
+    "mae_corrected": 6.635,
+    "bias": -0.491
+   },
+   "test_2026_rushing_qbs": {
+    "n": 15,
+    "mae_corrected": 6.54,
+    "bias": 1.464
+   }
+  },
+  "+qb_rush_share": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.363,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.491,
+    "adj_vs_miss_rho": 0.057
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.335,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.482,
+    "adj_vs_miss_rho": 0.088,
+    "top_third_boom": 0.258,
+    "top_third_bust": 0.184,
+    "bottom_third_boom": 0.205,
+    "bottom_third_bust": 0.271
+   },
+   "loso_rushing_qbs": {
+    "n": 184,
+    "mae_corrected": 6.639,
+    "bias": -0.323
+   },
+   "test_2026_rushing_qbs": {
+    "n": 15,
+    "mae_corrected": 6.549,
+    "bias": 1.672
+   }
+  }
+ },
+ "B_model_grinder": {
+  "features": [
+   "grinder_spread"
+  ],
+  "current": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.361,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.058
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.332,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.09,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.203,
+    "bottom_third_bust": 0.271
+   },
+   "loso_grinders": {
+    "n": 160,
+    "mae_corrected": 6.856,
+    "bias": -1.473
+   },
+   "test_2026_grinders": {
+    "n": 16,
+    "mae_corrected": 6.424,
+    "bias": -0.56
+   }
+  },
+  "+grinder_spread": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.362,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.057
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.332,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.09,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.2,
+    "bottom_third_bust": 0.274
+   },
+   "loso_grinders": {
+    "n": 160,
+    "mae_corrected": 6.94,
+    "bias": -1.4
+   },
+   "test_2026_grinders": {
+    "n": 16,
+    "mae_corrected": 6.425,
+    "bias": -0.555
+   }
+  }
+ },
+ "B_ceiling_rb": {
+  "2026": {
+   "current_refit_90": {
+    "n": 311,
+    "pinball_90": 1.337,
+    "beat_ceiling": 0.077,
+    "rank_rho": 0.618,
+    "top10_in_top20": 0.72
+   },
+   "current_plus_proposal": {
+    "n": 311,
+    "pinball_90": 1.334,
+    "beat_ceiling": 0.074,
+    "rank_rho": 0.613,
+    "top10_in_top20": 0.72
+   },
+   "proposal_scaled": {
+    "n": 311,
+    "pinball_90": 1.478,
+    "beat_ceiling": 0.08,
+    "rank_rho": 0.634,
+    "top10_in_top20": 0.72
+   },
+   "proposal_as_written": {
+    "n": 311,
+    "pinball_90": 2.155,
+    "beat_ceiling": 0.357,
+    "rank_rho": 0.634,
+    "top10_in_top20": 0.72
+   },
+   "by_archetype_beat_rate": {
+    "RB 5+ projected targets": {
+     "current_refit_90": 0.143,
+     "current_plus_proposal": 0.143,
+     "proposal_scaled": 0.0,
+     "proposal_as_written": 0.214,
+     "n": 14
+    },
+    "RB 3-5 projected targets": {
+     "current_refit_90": 0.068,
+     "current_plus_proposal": 0.068,
+     "proposal_scaled": 0.034,
+     "proposal_as_written": 0.373,
+     "n": 59
+    },
+    "RB under 3 projected targets": {
+     "current_refit_90": 0.076,
+     "current_plus_proposal": 0.071,
+     "proposal_scaled": 0.097,
+     "proposal_as_written": 0.361,
+     "n": 238
+    },
+    "RB grinder (12+ carries, 2 or fewer targets)": {
+     "current_refit_90": 0.125,
+     "current_plus_proposal": 0.125,
+     "proposal_scaled": 0.125,
+     "proposal_as_written": 0.5,
+     "n": 16
+    },
+    "RB receiving 40%+ of projection": {
+     "current_refit_90": 0.069,
+     "current_plus_proposal": 0.069,
+     "proposal_scaled": 0.069,
+     "proposal_as_written": 0.331,
+     "n": 130
+    }
+   }
+  },
+  "loso": {
+   "current_refit_90": {
+    "n": 2989,
+    "pinball_90": 1.485,
+    "beat_ceiling": 0.106,
+    "rank_rho": 0.61,
+    "top10_in_top20": 0.511
+   },
+   "current_plus_proposal": {
+    "n": 2989,
+    "pinball_90": 1.485,
+    "beat_ceiling": 0.105,
+    "rank_rho": 0.609,
+    "top10_in_top20": 0.515
+   },
+   "proposal_scaled": {
+    "n": 2989,
+    "pinball_90": 1.581,
+    "beat_ceiling": 0.101,
+    "rank_rho": 0.613,
+    "top10_in_top20": 0.528
+   },
+   "proposal_as_written": {
+    "n": 2989,
+    "pinball_90": 2.574,
+    "beat_ceiling": 0.396,
+    "rank_rho": 0.613,
+    "top10_in_top20": 0.528
+   },
+   "by_archetype_beat_rate": {
+    "RB 5+ projected targets": {
+     "current_refit_90": 0.113,
+     "current_plus_proposal": 0.098,
+     "proposal_scaled": 0.008,
+     "proposal_as_written": 0.211,
+     "n": 133
+    },
+    "RB 3-5 projected targets": {
+     "current_refit_90": 0.104,
+     "current_plus_proposal": 0.107,
+     "proposal_scaled": 0.056,
+     "proposal_as_written": 0.402,
+     "n": 823
+    },
+    "RB under 3 projected targets": {
+     "current_refit_90": 0.107,
+     "current_plus_proposal": 0.105,
+     "proposal_scaled": 0.125,
+     "proposal_as_written": 0.406,
+     "n": 2033
+    },
+    "RB grinder (12+ carries, 2 or fewer targets)": {
+     "current_refit_90": 0.131,
+     "current_plus_proposal": 0.131,
+     "proposal_scaled": 0.144,
+     "proposal_as_written": 0.531,
+     "n": 160
+    },
+    "RB receiving 40%+ of projection": {
+     "current_refit_90": 0.106,
+     "current_plus_proposal": 0.104,
+     "proposal_scaled": 0.08,
+     "proposal_as_written": 0.336,
+     "n": 1245
+    }
+   }
+  }
+ },
+ "B_ceiling_qb": {
+  "2026": {
+   "current_refit_90": {
+    "n": 153,
+    "pinball_90": 1.338,
+    "beat_ceiling": 0.085,
+    "rank_rho": 0.39,
+    "top10_in_top20": 0.4
+   },
+   "current_plus_proposal": {
+    "n": 153,
+    "pinball_90": 1.34,
+    "beat_ceiling": 0.085,
+    "rank_rho": 0.391,
+    "top10_in_top20": 0.4
+   },
+   "proposal_scaled": {
+    "n": 153,
+    "pinball_90": 1.407,
+    "beat_ceiling": 0.105,
+    "rank_rho": 0.362,
+    "top10_in_top20": 0.333
+   },
+   "proposal_as_written": {
+    "n": 153,
+    "pinball_90": 2.88,
+    "beat_ceiling": 0.412,
+    "rank_rho": 0.362,
+    "top10_in_top20": 0.333
+   },
+   "by_archetype_beat_rate": {
+    "QB rushing 30%+ of projection": {
+     "current_refit_90": 0.067,
+     "current_plus_proposal": 0.067,
+     "proposal_scaled": 0.067,
+     "proposal_as_written": 0.2,
+     "n": 15
+    },
+    "QB rushing 20-30%": {
+     "current_refit_90": 0.111,
+     "current_plus_proposal": 0.111,
+     "proposal_scaled": 0.037,
+     "proposal_as_written": 0.37,
+     "n": 27
+    },
+    "QB pocket (under 20%)": {
+     "current_refit_90": 0.081,
+     "current_plus_proposal": 0.081,
+     "proposal_scaled": 0.126,
+     "proposal_as_written": 0.45,
+     "n": 111
+    },
+    "Pocket QB, pressure deficit top quartile": {
+     "current_refit_90": 0.095,
+     "current_plus_proposal": 0.095,
+     "proposal_scaled": 0.143,
+     "proposal_as_written": 0.381,
+     "n": 21
+    },
+    "Rushing QB, pressure deficit top quartile": {
+     "current_refit_90": 0.25,
+     "current_plus_proposal": 0.25,
+     "proposal_scaled": 0.125,
+     "proposal_as_written": 0.25,
+     "n": 8
+    },
+    "Pocket QB, pressure deficit bottom quartile": {
+     "current_refit_90": 0.048,
+     "current_plus_proposal": 0.048,
+     "proposal_scaled": 0.143,
+     "proposal_as_written": 0.381,
+     "n": 21
+    }
+   }
+  },
+  "loso": {
+   "current_refit_90": {
+    "n": 1541,
+    "pinball_90": 1.494,
+    "beat_ceiling": 0.1,
+    "rank_rho": 0.341,
+    "top10_in_top20": 0.324
+   },
+   "current_plus_proposal": {
+    "n": 1541,
+    "pinball_90": 1.502,
+    "beat_ceiling": 0.102,
+    "rank_rho": 0.328,
+    "top10_in_top20": 0.324
+   },
+   "proposal_scaled": {
+    "n": 1541,
+    "pinball_90": 1.52,
+    "beat_ceiling": 0.099,
+    "rank_rho": 0.363,
+    "top10_in_top20": 0.379
+   },
+   "proposal_as_written": {
+    "n": 1541,
+    "pinball_90": 2.695,
+    "beat_ceiling": 0.415,
+    "rank_rho": 0.363,
+    "top10_in_top20": 0.379
+   },
+   "by_archetype_beat_rate": {
+    "QB rushing 30%+ of projection": {
+     "current_refit_90": 0.114,
+     "current_plus_proposal": 0.12,
+     "proposal_scaled": 0.054,
+     "proposal_as_written": 0.375,
+     "n": 184
+    },
+    "QB rushing 20-30%": {
+     "current_refit_90": 0.092,
+     "current_plus_proposal": 0.096,
+     "proposal_scaled": 0.072,
+     "proposal_as_written": 0.386,
+     "n": 249
+    },
+    "QB pocket (under 20%)": {
+     "current_refit_90": 0.099,
+     "current_plus_proposal": 0.1,
+     "proposal_scaled": 0.112,
+     "proposal_as_written": 0.428,
+     "n": 1108
+    },
+    "Pocket QB, pressure deficit top quartile": {
+     "current_refit_90": 0.098,
+     "current_plus_proposal": 0.102,
+     "proposal_scaled": 0.116,
+     "proposal_as_written": 0.453,
+     "n": 285
+    },
+    "Rushing QB, pressure deficit top quartile": {
+     "current_refit_90": 0.089,
+     "current_plus_proposal": 0.089,
+     "proposal_scaled": 0.059,
+     "proposal_as_written": 0.347,
+     "n": 101
+    },
+    "Pocket QB, pressure deficit bottom quartile": {
+     "current_refit_90": 0.117,
+     "current_plus_proposal": 0.121,
+     "proposal_scaled": 0.121,
+     "proposal_as_written": 0.436,
+     "n": 264
+    }
+   }
+  }
+ },
+ "B_prop_grinder_rush_yards": {
+  "2023-2025": {
+   "grinder, underdog": {
+    "n": 60,
+    "share_above_median": 0.433
+   },
+   "grinder, underdog by 3+": {
+    "n": 40,
+    "share_above_median": 0.425
+   },
+   "grinder, favorite": {
+    "n": 100,
+    "share_above_median": 0.47
+   },
+   "other RBs, underdog": {
+    "n": 1362,
+    "share_above_median": 0.487
+   }
+  },
+  "2026": {
+   "grinder, underdog": {
+    "n": 7,
+    "share_above_median": 0.571
+   },
+   "grinder, favorite": {
+    "n": 9,
+    "share_above_median": 0.222
+   }
+  }
+ },
+ "C_model_pressure_deficit": {
+  "features": [
+   "pressure_deficit"
+  ],
+  "current": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.361,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.058
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.332,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.09,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.203,
+    "bottom_third_bust": 0.271
+   },
+   "loso_pocket_qb_high_deficit": {
+    "n": 285,
+    "mae_corrected": 5.893,
+    "bias": -0.658
+   },
+   "test_2026_pocket_qb_high_deficit": {
+    "n": 21,
+    "mae_corrected": 6.166,
+    "bias": -0.38
+   }
+  },
+  "+pressure_deficit": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.363,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.055
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.335,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.483,
+    "adj_vs_miss_rho": 0.09,
+    "top_third_boom": 0.258,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.208,
+    "bottom_third_bust": 0.271
+   },
+   "loso_pocket_qb_high_deficit": {
+    "n": 285,
+    "mae_corrected": 5.907,
+    "bias": -0.724
+   },
+   "test_2026_pocket_qb_high_deficit": {
+    "n": 21,
+    "mae_corrected": 6.183,
+    "bias": -0.5
+   }
+  }
+ },
+ "C_model_pfi": {
+  "features": [
+   "pfi_pocket",
+   "pfi_rush"
+  ],
+  "current": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.361,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.058
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.332,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.09,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.203,
+    "bottom_third_bust": 0.271
+   },
+   "loso_pocket_qb_high_deficit": {
+    "n": 285,
+    "mae_corrected": 5.893,
+    "bias": -0.658
+   },
+   "test_2026_pocket_qb_high_deficit": {
+    "n": 21,
+    "mae_corrected": 6.166,
+    "bias": -0.38
+   },
+   "loso_rushing_qb_high_deficit": {
+    "n": 101,
+    "mae_corrected": 6.196,
+    "bias": 0.582
+   },
+   "test_2026_rushing_qb_high_deficit": {
+    "n": 8,
+    "mae_corrected": 7.473,
+    "bias": -1.573
+   }
+  },
+  "+pfi split": {
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.362,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.056
+   },
+   "test_2026": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.331,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.483,
+    "adj_vs_miss_rho": 0.092,
+    "top_third_boom": 0.258,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.203,
+    "bottom_third_bust": 0.268
+   },
+   "loso_pocket_qb_high_deficit": {
+    "n": 285,
+    "mae_corrected": 5.894,
+    "bias": -0.522
+   },
+   "test_2026_pocket_qb_high_deficit": {
+    "n": 21,
+    "mae_corrected": 6.21,
+    "bias": -0.304
+   },
+   "loso_rushing_qb_high_deficit": {
+    "n": 101,
+    "mae_corrected": 6.253,
+    "bias": 0.112
+   },
+   "test_2026_rushing_qb_high_deficit": {
+    "n": 8,
+    "mae_corrected": 7.321,
+    "bias": -2.251
+   }
+  }
+ },
+ "C_prop_pass_yards": {
+  "2023-2025": {
+   "Pocket QB, pressure deficit top quartile": {
+    "n": 285,
+    "share_above_median": 0.502
+   },
+   "Rushing QB, pressure deficit top quartile": {
+    "n": 101,
+    "share_above_median": 0.465
+   },
+   "Pocket QB, pressure deficit bottom quartile": {
+    "n": 264,
+    "share_above_median": 0.504
+   }
+  },
+  "2026": {
+   "Pocket QB, pressure deficit top quartile": {
+    "n": 21,
+    "share_above_median": 0.571
+   },
+   "Rushing QB, pressure deficit top quartile": {
+    "n": 8,
+    "share_above_median": 0.75
+   },
+   "Pocket QB, pressure deficit bottom quartile": {
+    "n": 21,
+    "share_above_median": 0.429
+   }
+  }
+ }
+}
