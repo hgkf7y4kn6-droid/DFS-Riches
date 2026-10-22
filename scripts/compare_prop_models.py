@@ -32,7 +32,7 @@ import gzip
 import json
 import math
 import statistics
-import urllib.request
+import subprocess
 from collections import defaultdict
 from pathlib import Path
 
@@ -181,11 +181,9 @@ def accuracy(rows, key: str) -> dict:
 
 def draftables(d: Path, group: int) -> list[dict]:
     path = d / f"dk_draftables_{group}.json"
-    if not path.exists():
-        req = urllib.request.Request(f"https://api.draftkings.com/draftgroups/v1/draftgroups/{group}/draftables",
-                                     headers={"User-Agent": "Mozilla/5.0 DFSRiches research"})
-        with urllib.request.urlopen(req, timeout=60) as r:
-            path.write_bytes(r.read())
+    if not path.exists():     # curl: DraftKings' edge refuses Python HTTP clients from here
+        subprocess.run(["curl", "-sSf", "-o", str(path), f"https://api.draftkings.com/draftgroups/v1/draftgroups/{group}/draftables"],
+                       check=True, timeout=120)
     return json.loads(path.read_text()).get("draftables", [])
 
 
@@ -290,7 +288,7 @@ def main() -> None:
     for pos in RECEIVERS:
         tr = [r for r in train if r["pos"] == pos]
         widths[pos] = {
-            "lognormal_sigma": {c: float(np.std([math.log(r["actual_yd"] + 5) - math.log(max(r[f"{c}_yd"], 0) + 5) for r in tr]))
+            "lognormal_sigma": {c: float(np.std([math.log(max(r["actual_yd"], 0) + 5) - math.log(max(r[f"{c}_yd"], 0) + 5) for r in tr]))
                                 for c in ("proposed", "current")},
             "two_piece": {c: two_piece_fit([r["actual_yd"] - r[f"{c}_yd"] for r in tr]) for c in ("proposed", "current")},
         }
