@@ -549,6 +549,9 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
             # each offense's opponent: four-man sack + QB-hit rate above the league (shrunk toward last season)
             "opp_pressure": {nc.to_app_team(a): round(est[h]["d_pressure4"] - lg["d_pressure4"], 4),
                              nc.to_app_team(h): round(est[a]["d_pressure4"] - lg["d_pressure4"], 4)},
+            # and the explosive-play rate it allows above the league
+            "opp_explosive": {nc.to_app_team(a): round(est[h]["d_explosive"] - lg["d_explosive"], 4),
+                              nc.to_app_team(h): round(est[a]["d_explosive"] - lg["d_explosive"], 4)},
             "checklist": checklist(est[a], est[h], lg, feats[0], m),
             "final": None if r.get("home_score") in (None, "") else
             {"total": int(r["home_score"]) + int(r["away_score"]), "home_margin": int(r["home_score"]) - int(r["away_score"])},
@@ -557,7 +560,8 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
 
 
 async def team_context(season: int, week: int) -> dict[str, dict]:
-    """{app team: {"opp_pressure", "ol_out", "opp_front7_out", "qb_epa", "qb_dropbacks"}} for this week's offenses
+    """{app team: {"opp_pressure", "opp_explosive", "ol_out", "opp_front7_out", "qb_epa", "qb_dropbacks"}} for this
+    week's offenses
     (app.player_model and app.dst_model inputs)."""
     out = {}
     for key, g in (await _week_games_cached(season, week)).items():
@@ -566,6 +570,7 @@ async def team_context(season: int, week: int) -> dict[str, dict]:
             opp = (g.get("def_out") or {}).get(home if t == away else away) or {}
             qb = (g.get("qbs") or {}).get(t) or {}
             out[t] = {"ol_out": n, "opp_pressure": g["opp_pressure"].get(t, 0.0),
+                      "opp_explosive": (g.get("opp_explosive") or {}).get(t, 0.0),
                       "opp_front7_out": sum(opp.get(u, 0) for u in FRONT7),
                       "qb_epa": qb.get("dropback_epa"), "qb_dropbacks": qb.get("dropbacks", 0)}
     return out

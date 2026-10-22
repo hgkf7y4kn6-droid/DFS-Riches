@@ -200,7 +200,8 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
             role_feats = player_model.features(
                 role_ctx["hist"].get(k), week, line_pts, row["position"], imp, spr, role_ctx["proj_hist"].get(k),
                 opp_pressure=tc.get("opp_pressure", 0.0), ol_out=tc.get("ol_out", 0),
-                front7_out=tc.get("opp_front7_out", 0), line=line.get("stats") if line else None)
+                front7_out=tc.get("opp_front7_out", 0), line=line.get("stats") if line else None,
+                opp_explosive=tc.get("opp_explosive", 0.0))
             role_adj = player_model.adjustment(row["position"], role_feats)
             if role_adj:
                 base_proj = round(max(0.0, base_proj + role_adj), 2)

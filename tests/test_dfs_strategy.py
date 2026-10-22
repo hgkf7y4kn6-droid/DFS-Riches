@@ -145,3 +145,18 @@ def test_stack_credit_follows_the_qb_type():
     assert not any("pass-catching back" in t for t in mobile["positive"])
     grinder = ds.correlation([{**qb, "rush_share": 0.05}, wr, {**rb, "proj_targets": 1.5}, dst])
     assert grinder["score"] < pocket["score"]
+
+
+def test_dst_conflict_penalty_follows_who_it_faces():
+    qb = {"name": "Q", "position": "QB", "team": "A", "opponent": "B", "game": "A@B", "rush_share": 0.05}
+    dst = {"name": "D", "position": "DST", "team": "C", "opponent": "E", "game": "C@E"}
+    opp_qb = {"name": "OQ", "position": "QB", "team": "E", "opponent": "C", "game": "C@E", "rush_share": 0.05}
+    opp_te = {"name": "OT", "position": "TE", "team": "E", "opponent": "C", "game": "C@E", "proj_targets": 1.0}
+    opp_wr = {"name": "OW", "position": "WR", "team": "E", "opponent": "C", "game": "C@E", "proj_targets": 9.0}
+    wr = {"name": "W", "position": "WR", "team": "A", "opponent": "B", "game": "A@B"}
+    clean = ds.correlation([qb, wr, dst])["score"]
+    assert ds.correlation([qb, wr, opp_te, dst])["score"] == clean        # a blocking TE barely moves with the DST
+    assert not ds.correlation([qb, wr, opp_te, dst])["negative"]
+    vs_wr = ds.correlation([qb, wr, opp_wr, dst])
+    assert abs(clean - vs_wr["score"] - ds.DST_CONFLICT["alpha WR"]) < 0.01 and "faces your own players" in vs_wr["negative"][0]
+    assert ds.dst_conflict_kind(opp_qb) == "pocket QB"

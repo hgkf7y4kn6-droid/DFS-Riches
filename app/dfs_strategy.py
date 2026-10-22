@@ -74,6 +74,13 @@ QB_MATE_CREDIT = {"pocket": 2.0, "some legs": 1.55, "mobile": 1.15}
 CATCHING_RB_CREDIT = 0.5
 MOBILE_QB_RUSH_SHARE, SOME_LEGS_RUSH_SHARE = 0.25, 0.12
 WORKHORSE_CARRIES, WORKHORSE_TARGETS = 12, 3.5
+# A DST facing your own players: how strongly each one's points beyond projection move against the DST's, 2023-2026
+# (scripts/test_wr_te_dst_archetypes.py): QBs -0.46 pocket / -0.40 some legs / -0.35 mobile, workhorse backs -0.28,
+# alpha receivers -0.21, other backs -0.12 to -0.17, other receivers and tight ends -0.07 to -0.14, blocking tight
+# ends ~0. The lineup penalty per player follows those (2 points at the strongest).
+DST_CONFLICT = {"pocket QB": 2.0, "some legs QB": 1.7, "mobile QB": 1.5, "workhorse RB": 1.2, "alpha WR": 0.9,
+                "other RB": 0.6, "other WR": 0.45, "TE": 0.4, "blocking TE": 0.0}
+ALPHA_WR_TARGETS, BLOCKING_TE_TARGETS = 8.0, 2.5
 
 MISSING_DATA = [
     ("Player props", "no props feed is connected"),
@@ -847,6 +854,18 @@ def workhorse_catcher(p: dict) -> bool:
             and (p.get("proj_targets") or 0) >= WORKHORSE_TARGETS)
 
 
+def dst_conflict_kind(p: dict) -> str:
+    """The DST_CONFLICT archetype of a player facing the lineup's DST (projected carries / targets from Sleeper)."""
+    pos, tg = p["position"], p.get("proj_targets") or 0
+    if pos == "QB":
+        return f"{qb_type(p)} QB"
+    if pos == "RB":
+        return "workhorse RB" if (p.get("proj_carries") or 0) >= WORKHORSE_CARRIES else "other RB"
+    if pos == "WR":
+        return "alpha WR" if tg >= ALPHA_WR_TARGETS else "other WR"
+    return "blocking TE" if tg < BLOCKING_TE_TARGETS else "TE"
+
+
 def correlation(lineup: list[dict]) -> dict:
     qb = next(p for p in lineup if p["position"] == "QB")
     dst = next(p for p in lineup if p["position"] == "DST")
@@ -872,9 +891,13 @@ def correlation(lineup: list[dict]) -> dict:
         if len(rbs) >= 2:
             neg.append(f"Two {team} RBs compete for the same carries")
             score -= 1.5
-    if any(p["team"] == dst["opponent"] and p["position"] != "DST" for p in lineup):
-        neg.append(f"{dst['name']} faces your own players")
-        score -= 2
+    facing = [p for p in lineup if p["team"] == dst["opponent"] and p["position"] != "DST"]
+    conflict = sum(DST_CONFLICT[dst_conflict_kind(p)] for p in facing)
+    if conflict > 0:
+        worst = max(facing, key=lambda p: DST_CONFLICT[dst_conflict_kind(p)])
+        neg.append(f"{dst['name']} faces your own players ({', '.join(p['name'] for p in facing)}; "
+                   f"{worst['name']}'s good games are its bad ones)")
+        score -= conflict
     others = [p for p in lineup if p["position"] not in ("QB", "DST") and p not in mates and p not in bring]
     for p in others:
         groups.setdefault(p["game"], []).append(p)
