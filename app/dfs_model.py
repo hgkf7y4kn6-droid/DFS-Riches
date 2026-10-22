@@ -22,7 +22,9 @@ Order of operations (each step visible in the output):
    percentiles of actual-vs-consensus outcomes by position and projection
    range (scripts/source_accuracy.py, 2025 W4-17 + 2026). Ceiling blends the
    same 85th percentile with the app's matchup Ceiling (app.ceiling).
-4. Value = Final / (salary / $1,000).
+4. Value = Final / (salary / $1,000). Props: each skill player's stat
+   medians and ladder chances (app.prop_pricer), from the consensus stat line
+   moved with Final.
 5. Ownership: the Bayesian ownership engine (app.ownership_report /
    app.ownership_model) -- a Beta posterior per player and contest type from
    a behavioral prior, pasted ownership sources, crowd submissions and news,
@@ -48,7 +50,7 @@ import time
 from datetime import datetime, timezone
 
 from app import advanced_env, breakdown as breakdown_module, game_model
-from app import consensus, dfs_strategy, ownership_report, projections, sources, usage, weather
+from app import consensus, dfs_strategy, ownership_report, projections, prop_pricer, sources, usage, weather
 from app import slates as slates_module
 from app.cache import _cache_path
 from app.sleeper_client import get_nfl_state
@@ -191,8 +193,19 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
             "ownership": None, "uncertainty": unc, "uncertainty_reasons": unc_reasons, "line": c.line,
             "role": getattr(p, "role", None), "snap_pct": getattr(p, "snap_pct", None),
             "usage_trend": getattr(p, "usage_trend", None), "team_share": getattr(p, "team_share", None),
+            "props": _props(c.line, pos, final),
         })
     return rows
+
+
+def _props(line: dict | None, pos: str, final: float | None) -> dict | None:
+    """Prop medians and ladder chances (app.prop_pricer) from the consensus stat line, moved with the final
+    projection (matchup, role, weather)."""
+    raw = projections.dk_points_from_line(line, pos) if line and pos in projections.SKILL else 0.0
+    if not final or raw <= 0:
+        return None
+    priced = prop_pricer.price(line, pos, ratio=final / raw)
+    return {k: {"median": v["median"], "ladder": v["ladder"]} for k, v in priced.items()} or None
 
 
 def _eligible(r: dict) -> bool:
@@ -470,7 +483,7 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
             "id", "name", "position", "team", "opponent", "salary", "injury", "consensus", "median_src", "low", "high", "sd",
             "n_sources", "by_source", "missing", "final", "adjustments", "floor", "median", "ceiling", "app_ceiling", "value",
             "ownership", "popularity", "uncertainty", "uncertainty_label", "uncertainty_reasons", "role", "snap_pct",
-            "usage_trend", "team_share")}
+            "usage_trend", "team_share", "props")}
             for r in table],
         "no_source_players": no_source,
         "lineups": strategy["lineups"],

@@ -622,6 +622,14 @@ interface DfsPlayer {
   snap_pct?: number | null;
   usage_trend?: UsageTrend | null;
   team_share?: TeamShare | null;
+  /** Prop medians and ladder chances by stat (pass_yd, rush_yd, rec_yd, rec), from app.prop_pricer. */
+  props?: Record<string, PropPrice> | null;
+}
+
+/** One stat's prop pricing: the median and P(stat >= rung) for each ladder rung ("50": 0.57). */
+interface PropPrice {
+  median: number;
+  ladder: Record<string, number>;
 }
 
 /** One game's environment for DFS, ranked across the slate (1 = best). */

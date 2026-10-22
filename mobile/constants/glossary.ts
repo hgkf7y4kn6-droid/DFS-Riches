@@ -101,6 +101,20 @@ export const GLOSSARY: GlossaryEntry[] = [
     definition: 'Projected points per $1,000 of salary. A 15-point projection at $5,000 is 3.0 pts/$1k.',
   },
   {
+    id: 'prop-median',
+    term: 'Prop median',
+    match: ['prop medians'],
+    definition:
+      "The stat line a player beats half the time. Yards and catches skew high (a few big games pull the average up), so the median sits below the average, and it's what sportsbooks set prop lines near.",
+  },
+  {
+    id: 'prop-ladder',
+    term: 'Prop ladder',
+    match: ['prop ladders'],
+    definition:
+      "Rungs of the same stat at rising lines (50+, 75+, 100+ yards), each paying more. The percent beside a rung is the model's chance he gets there; compare it with the chance the book's odds imply.",
+  },
+  {
     id: '2.5x',
     term: '2.5x',
     match: ['P(2.5x)'],

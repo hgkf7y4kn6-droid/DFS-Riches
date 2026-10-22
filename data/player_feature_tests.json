@@ -1,0 +1,440 @@
+{
+ "train_seasons": [
+  2023,
+  2024,
+  2025
+ ],
+ "test_season": 2026,
+ "test_weeks": 6,
+ "n_train": 11175,
+ "n_test": 1140,
+ "sets": {
+  "current": {
+   "features": [
+    "proj",
+    "ts_l3",
+    "ts_trend",
+    "cs_l3",
+    "cs_trend",
+    "snap_l3",
+    "snap_trend",
+    "form",
+    "implied",
+    "spread",
+    "spread_x_rb",
+    "games",
+    "opp_pressure",
+    "ol_out",
+    "front7_out"
+   ],
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.361,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.058
+   },
+   "test": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.332,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.486,
+    "adj_vs_miss_rho": 0.09,
+    "top_third_boom": 0.261,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.203,
+    "bottom_third_bust": 0.271
+   }
+  },
+  "+ays_l3": {
+   "features": [
+    "proj",
+    "ts_l3",
+    "ts_trend",
+    "cs_l3",
+    "cs_trend",
+    "snap_l3",
+    "snap_trend",
+    "form",
+    "implied",
+    "spread",
+    "spread_x_rb",
+    "games",
+    "opp_pressure",
+    "ol_out",
+    "front7_out",
+    "ays_l3"
+   ],
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.362,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.058
+   },
+   "test": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.336,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.485,
+    "adj_vs_miss_rho": 0.079,
+    "top_third_boom": 0.253,
+    "top_third_bust": 0.195,
+    "bottom_third_boom": 0.189,
+    "bottom_third_bust": 0.276
+   }
+  },
+  "+wopr_l3": {
+   "features": [
+    "proj",
+    "ts_l3",
+    "ts_trend",
+    "cs_l3",
+    "cs_trend",
+    "snap_l3",
+    "snap_trend",
+    "form",
+    "implied",
+    "spread",
+    "spread_x_rb",
+    "games",
+    "opp_pressure",
+    "ol_out",
+    "front7_out",
+    "wopr_l3"
+   ],
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.364,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.055
+   },
+   "test": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.333,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.485,
+    "adj_vs_miss_rho": 0.081,
+    "top_third_boom": 0.258,
+    "top_third_bust": 0.187,
+    "bottom_third_boom": 0.195,
+    "bottom_third_bust": 0.274
+   }
+  },
+  "+ez_share": {
+   "features": [
+    "proj",
+    "ts_l3",
+    "ts_trend",
+    "cs_l3",
+    "cs_trend",
+    "snap_l3",
+    "snap_trend",
+    "form",
+    "implied",
+    "spread",
+    "spread_x_rb",
+    "games",
+    "opp_pressure",
+    "ol_out",
+    "front7_out",
+    "ez_share"
+   ],
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.36,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.06
+   },
+   "test": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.35,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.478,
+    "adj_vs_miss_rho": 0.07,
+    "top_third_boom": 0.258,
+    "top_third_bust": 0.195,
+    "bottom_third_boom": 0.211,
+    "bottom_third_bust": 0.271
+   }
+  },
+  "+ez_l3": {
+   "features": [
+    "proj",
+    "ts_l3",
+    "ts_trend",
+    "cs_l3",
+    "cs_trend",
+    "snap_l3",
+    "snap_trend",
+    "form",
+    "implied",
+    "spread",
+    "spread_x_rb",
+    "games",
+    "opp_pressure",
+    "ol_out",
+    "front7_out",
+    "ez_l3"
+   ],
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.359,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.06
+   },
+   "test": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.343,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.481,
+    "adj_vs_miss_rho": 0.08,
+    "top_third_boom": 0.263,
+    "top_third_bust": 0.182,
+    "bottom_third_boom": 0.192,
+    "bottom_third_bust": 0.274
+   }
+  },
+  "+plays_l3": {
+   "features": [
+    "proj",
+    "ts_l3",
+    "ts_trend",
+    "cs_l3",
+    "cs_trend",
+    "snap_l3",
+    "snap_trend",
+    "form",
+    "implied",
+    "spread",
+    "spread_x_rb",
+    "games",
+    "opp_pressure",
+    "ol_out",
+    "front7_out",
+    "plays_l3"
+   ],
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.365,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.49,
+    "adj_vs_miss_rho": 0.053
+   },
+   "test": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.334,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.478,
+    "adj_vs_miss_rho": 0.083,
+    "top_third_boom": 0.247,
+    "top_third_bust": 0.184,
+    "bottom_third_boom": 0.192,
+    "bottom_third_bust": 0.268
+   }
+  },
+  "+all candidates": {
+   "features": [
+    "proj",
+    "ts_l3",
+    "ts_trend",
+    "cs_l3",
+    "cs_trend",
+    "snap_l3",
+    "snap_trend",
+    "form",
+    "implied",
+    "spread",
+    "spread_x_rb",
+    "games",
+    "opp_pressure",
+    "ol_out",
+    "front7_out",
+    "ays_l3",
+    "wopr_l3",
+    "ez_share",
+    "ez_l3",
+    "plays_l3"
+   ],
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.365,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.491,
+    "adj_vs_miss_rho": 0.056
+   },
+   "test": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.347,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.474,
+    "adj_vs_miss_rho": 0.065,
+    "top_third_boom": 0.234,
+    "top_third_bust": 0.208,
+    "bottom_third_boom": 0.197,
+    "bottom_third_bust": 0.263
+   }
+  },
+  "+helped (ez_share, ez_l3)": {
+   "features": [
+    "proj",
+    "ts_l3",
+    "ts_trend",
+    "cs_l3",
+    "cs_trend",
+    "snap_l3",
+    "snap_trend",
+    "form",
+    "implied",
+    "spread",
+    "spread_x_rb",
+    "games",
+    "opp_pressure",
+    "ol_out",
+    "front7_out",
+    "ez_share",
+    "ez_l3"
+   ],
+   "loso": {
+    "n": 11175,
+    "mae_sleeper": 5.383,
+    "mae_corrected": 5.36,
+    "rank_rho_sleeper": 0.486,
+    "rank_rho_corrected": 0.492,
+    "adj_vs_miss_rho": 0.06
+   },
+   "test": {
+    "n": 1140,
+    "mae_sleeper": 5.369,
+    "mae_corrected": 5.346,
+    "rank_rho_sleeper": 0.468,
+    "rank_rho_corrected": 0.48,
+    "adj_vs_miss_rho": 0.068,
+    "top_third_boom": 0.255,
+    "top_third_bust": 0.195,
+    "bottom_third_boom": 0.213,
+    "bottom_third_bust": 0.268
+   }
+  }
+ },
+ "helped_cross_validation": [
+  "ez_share",
+  "ez_l3"
+ ],
+ "by_position_current": {
+  "QB": {
+   "n": 153,
+   "mae_sleeper": 6.189,
+   "mae_corrected": 6.11,
+   "rank_rho_sleeper": 0.354,
+   "rank_rho_corrected": 0.403
+  },
+  "RB": {
+   "n": 311,
+   "mae_sleeper": 5.1,
+   "mae_corrected": 5.052,
+   "rank_rho_sleeper": 0.624,
+   "rank_rho_corrected": 0.628
+  },
+  "WR": {
+   "n": 462,
+   "mae_sleeper": 5.372,
+   "mae_corrected": 5.381,
+   "rank_rho_sleeper": 0.518,
+   "rank_rho_corrected": 0.524
+  },
+  "TE": {
+   "n": 214,
+   "mae_sleeper": 5.169,
+   "mae_corrected": 5.079,
+   "rank_rho_sleeper": 0.377,
+   "rank_rho_corrected": 0.388
+  }
+ },
+ "by_position_helped": {
+  "QB": {
+   "n": 153,
+   "mae_sleeper": 6.189,
+   "mae_corrected": 6.079,
+   "rank_rho_sleeper": 0.354,
+   "rank_rho_corrected": 0.406
+  },
+  "RB": {
+   "n": 311,
+   "mae_sleeper": 5.1,
+   "mae_corrected": 5.058,
+   "rank_rho_sleeper": 0.624,
+   "rank_rho_corrected": 0.627
+  },
+  "WR": {
+   "n": 462,
+   "mae_sleeper": 5.372,
+   "mae_corrected": 5.41,
+   "rank_rho_sleeper": 0.518,
+   "rank_rho_corrected": 0.519
+  },
+  "TE": {
+   "n": 214,
+   "mae_sleeper": 5.169,
+   "mae_corrected": 5.104,
+   "rank_rho_sleeper": 0.377,
+   "rank_rho_corrected": 0.369
+  }
+ },
+ "helped_test": {
+  "n": 1140,
+  "mae_sleeper": 5.369,
+  "mae_corrected": 5.346,
+  "rank_rho_sleeper": 0.468,
+  "rank_rho_corrected": 0.48,
+  "adj_vs_miss_rho": 0.068,
+  "top_third_boom": 0.255,
+  "top_third_bust": 0.195,
+  "bottom_third_boom": 0.213,
+  "bottom_third_bust": 0.268
+ },
+ "kept": [],
+ "participation_2025": {
+  "current": {
+   "n": 3795,
+   "mae_sleeper": 5.366,
+   "mae_corrected": 5.329,
+   "rank_rho_sleeper": 0.477,
+   "rank_rho_corrected": 0.484,
+   "adj_vs_miss_rho": 0.034,
+   "top_third_boom": 0.202,
+   "top_third_bust": 0.233,
+   "bottom_third_boom": 0.202,
+   "bottom_third_bust": 0.323
+  },
+  "+dbp_l3": {
+   "n": 3795,
+   "mae_sleeper": 5.366,
+   "mae_corrected": 5.328,
+   "rank_rho_sleeper": 0.477,
+   "rank_rho_corrected": 0.483,
+   "adj_vs_miss_rho": 0.03,
+   "top_third_boom": 0.205,
+   "top_third_bust": 0.225,
+   "bottom_third_boom": 0.202,
+   "bottom_third_bust": 0.331
+  }
+ }
+}

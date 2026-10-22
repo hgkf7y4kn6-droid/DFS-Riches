@@ -594,6 +594,25 @@
   .dfs-reason {
     @apply mt-0.5 text-xs font-sans-regular text-foreground/80;
   }
+  /* Props: tap-to-open medians and ladder chances under a player row. */
+  .props-panel {
+    @apply mt-2 gap-1.5 rounded-xl bg-muted px-3 py-2;
+  }
+  .props-stat {
+    @apply text-xs font-sans-semibold text-foreground;
+  }
+  .props-median {
+    @apply font-sans-bold text-accent-ink;
+  }
+  .props-rungs {
+    @apply flex-row flex-wrap gap-1;
+  }
+  .props-rung {
+    @apply rounded-md border border-border bg-card px-1.5 py-0.5;
+  }
+  .props-rung-text {
+    @apply text-[11px] font-sans-semibold text-foreground;
+  }
   .env-card {
     @apply mb-3 rounded-2xl border border-border bg-card p-4;
   }

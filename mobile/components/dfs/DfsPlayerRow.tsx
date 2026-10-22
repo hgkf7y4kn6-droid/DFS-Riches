@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
 import { formatCurrency, formatPercent } from '@/lib/utils';
 import LeverageBadge from '@/components/LeverageBadge';
+import PropLadder from '@/components/dfs/PropLadder';
+import { track } from '@/lib/analytics';
 
 export type DfsMetric = 'final' | 'value' | 'ceiling';
 
@@ -13,7 +15,7 @@ const METRIC_LABEL: Record<DfsMetric, string> = { final: 'proj', value: 'pts/$1k
 /**
  * One player, stacked for a phone: rank and name (with injury status), position
  * and matchup, salary; then projection, ceiling, value and expected roster %.
- * `metric` is shown first and bold.
+ * `metric` is shown first and bold. "Props" opens his prop medians and ladder.
  */
 export default function DfsPlayerRow({
   player,
@@ -29,6 +31,7 @@ export default function DfsPlayerRow({
 }) {
   const p = player;
   const [trendOpen, setTrendOpen] = useState(false);
+  const [propsOpen, setPropsOpen] = useState(false);
   const stats: [DfsMetric | 'own', string][] = [
     ['final', `${p.final.toFixed(1)} proj`],
     ['ceiling', p.ceiling != null ? `${p.ceiling.toFixed(1)} ceil` : ''],
@@ -64,7 +67,22 @@ export default function DfsPlayerRow({
           <Text className="dfs-lead">{lead?.[1] || `- ${METRIC_LABEL[metric]}`}</Text>
         </View>
       </View>
-      <Text className="dfs-stats">{rest.map(([, v]) => v).join(' · ')}</Text>
+      <View className="flex-row items-center justify-between">
+        <Text className="dfs-stats flex-shrink">{rest.map(([, v]) => v).join(' · ')}</Text>
+        {p.props && Object.keys(p.props).length ? (
+          <Pressable
+            onPress={() => {
+              if (!propsOpen) track('props_opened', { position: p.position });
+              setPropsOpen((o) => !o);
+            }}
+            accessibilityRole="button"
+            aria-expanded={propsOpen}
+            hitSlop={8}>
+            <Text className="link-text mt-1">{propsOpen ? 'Hide props' : 'Props ›'}</Text>
+          </Pressable>
+        ) : null}
+      </View>
+      {propsOpen && p.props ? <PropLadder props={p.props} /> : null}
       {reasons.map((r, i) => (
         <Text key={i} className="dfs-reason">
           • {r}
