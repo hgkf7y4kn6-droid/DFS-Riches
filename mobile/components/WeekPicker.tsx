@@ -6,8 +6,9 @@ import { useWeek } from '@/lib/week-context';
 const WEEKS = Array.from({ length: 18 }, (_, i) => i + 1);
 
 /**
- * The header's season / week button ("2026 · Week 4"). Tap to view another
- * season or week -- every tab follows -- or jump back to the current week.
+ * The week half of the header's picker card ("Wk 4", with the season when it
+ * isn't the current one). Tap to view another season or week -- every tab
+ * follows -- or jump back to the current week.
  */
 export default function WeekPicker() {
   const { season, week, current, setSeasonWeek } = useWeek();
@@ -25,12 +26,15 @@ export default function WeekPicker() {
   return (
     <>
       <Pressable
-        className={`week-pill ${viewingCurrent ? '' : 'week-pill-past'}`}
+        className="picker-seg"
         onPress={() => setOpen(true)}
         accessibilityRole="button"
-        accessibilityLabel={`Season ${season}, week ${week}. Change season or week`}>
-        <Text className="week-pill-season">{season}</Text>
-        <Text className="week-pill-week">Week {week} ▾</Text>
+        accessibilityLabel={`Season ${season}, week ${week}. Change season or week`}
+        hitSlop={4}>
+        <Text className={`picker-seg-text ${viewingCurrent ? '' : 'text-accent-ink'}`} numberOfLines={1}>
+          {current && season !== current.season ? `${season} ` : ''}Wk {week}
+        </Text>
+        <Text className="picker-seg-caret">▾</Text>
       </Pressable>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <Pressable className="week-backdrop" onPress={() => setOpen(false)} accessibilityLabel="Close">

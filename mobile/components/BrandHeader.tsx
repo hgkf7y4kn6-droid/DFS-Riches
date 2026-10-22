@@ -24,40 +24,46 @@ interface Props {
 }
 
 /**
- * The top-left "$DFSRiches" heading every tab shares, with the tab's name as a
- * subheading below it. On the right: the season / week picker and the
- * Settings gear, with the selected slate underneath (a screen can pass its
- * own `right` instead).
+ * The "$DFSRiches" heading every tab shares, with the tab's name below it.
+ * Beside the tab name: one picker card -- week | slate, each a dropdown --
+ * and the Settings gear, the same height (a screen can pass its own `right`
+ * instead).
  */
 export default function BrandHeader({ title, term, slate = false, modelSlates, settings = true, right }: Props) {
   const colors = useThemeColors();
-  const { offlineSince, refresh } = useWeek();
+  const { offlineSince, refresh, season, week, current } = useWeek();
+  const viewingCurrent = !current || (current.season === season && current.week === week);
   return (
     <>
+      <Text className="brand-title" accessibilityRole="header">
+        <Text className="brand-accent">$</Text>DFS<Text className="brand-accent">Riches</Text>
+      </Text>
       <View className="brand-header">
-        <View className="flex-1">
-          <Text className="brand-title" accessibilityRole="header">
-            <Text className="brand-accent">$</Text>DFS<Text className="brand-accent">Riches</Text>
-          </Text>
+        <View className="flex-1 pr-2">
           <Text className="brand-subheading">{title}</Text>
           {term ? <Text className="brand-term">{term}</Text> : null}
         </View>
         {right ?? (
           <View className="brand-controls">
-            <View className="flex-row items-center gap-2">
+            <View className={`picker-card ${viewingCurrent ? '' : 'picker-card-past'}`}>
               <WeekPicker />
-              {settings ? (
-                <Pressable
-                  className="gear-btn"
-                  onPress={() => router.push('/settings')}
-                  accessibilityRole="button"
-                  accessibilityLabel="Settings"
-                  hitSlop={6}>
-                  <Image source={icons.settings} style={{ width: 20, height: 20, tintColor: colors.foreground }} resizeMode="contain" />
-                </Pressable>
+              {slate ? (
+                <>
+                  <View className="picker-divider" />
+                  <SlatePill scope={slate} slates={modelSlates} />
+                </>
               ) : null}
             </View>
-            {slate ? <SlatePill scope={slate} slates={modelSlates} /> : null}
+            {settings ? (
+              <Pressable
+                className="gear-btn"
+                onPress={() => router.push('/settings')}
+                accessibilityRole="button"
+                accessibilityLabel="Settings"
+                hitSlop={6}>
+                <Image source={icons.settings} style={{ width: 20, height: 20, tintColor: colors.foreground }} resizeMode="contain" />
+              </Pressable>
+            ) : null}
           </View>
         )}
       </View>

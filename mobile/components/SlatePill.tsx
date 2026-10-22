@@ -15,8 +15,8 @@ interface Option {
 }
 
 /**
- * The header's slate button ("Slate · Sunday Main ▾"), under the week
- * picker. Tap to switch slates. `scope="model"` lists only the Classic
+ * The slate half of the header's picker card ("Sunday Main ▾"), beside the
+ * week. Tap to switch slates. `scope="model"` lists only the Classic
  * slates the DFS model runs on (DFS Model, Safe Plays, Tournaments);
  * otherwise every slate this week (Home, Lineups).
  */
@@ -42,14 +42,15 @@ export default function SlatePill({ scope = 'week', slates: modelSlates }: { sco
   return (
     <>
       <Pressable
-        className="week-pill slate-pill"
+        className="picker-seg"
         onPress={() => setOpen(true)}
         accessibilityRole="button"
-        accessibilityLabel={`Slate: ${current.title}. Change slate`}>
-        <Text className="week-pill-season">{current.kicker} slate</Text>
-        <Text className="week-pill-week" numberOfLines={1}>
-          {current.title} ▾
+        accessibilityLabel={`${current.kicker} slate: ${current.title}. Change slate`}
+        hitSlop={4}>
+        <Text className="picker-seg-text" numberOfLines={1} style={{ maxWidth: 118 }}>
+          {current.title}
         </Text>
+        <Text className="picker-seg-caret">▾</Text>
       </Pressable>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <Pressable className="week-backdrop" onPress={() => setOpen(false)} accessibilityLabel="Close">

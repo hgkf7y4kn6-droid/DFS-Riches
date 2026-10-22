@@ -487,17 +487,24 @@
     @apply mt-0.5 text-xs font-sans-regular text-muted-foreground;
   }
   /* Header season / week picker. */
-  .week-pill {
-    @apply items-end rounded-xl border border-border bg-card px-3 py-1.5;
+  /* The header's picker card: week | slate dropdowns, as tall as the gear beside it. */
+  .picker-card {
+    @apply h-10 flex-row items-center rounded-xl border border-border bg-card;
   }
-  .week-pill-past {
+  .picker-card-past {
     @apply border-accent;
   }
-  .week-pill-season {
-    @apply text-xs font-sans-semibold text-muted-foreground;
+  .picker-seg {
+    @apply h-full flex-row items-center px-2.5;
   }
-  .week-pill-week {
+  .picker-seg-text {
     @apply text-sm font-sans-bold text-foreground;
+  }
+  .picker-seg-caret {
+    @apply ml-1 text-xs text-muted-foreground;
+  }
+  .picker-divider {
+    @apply h-5 w-px bg-border;
   }
   .week-backdrop {
     @apply flex-1 items-center justify-center bg-black/50 px-5;
@@ -1278,16 +1285,13 @@
   /* ------------------------------------------------- new-user help */
   /* Header: the week picker and Settings gear, the slate underneath. */
   .brand-controls {
-    @apply items-end gap-1.5;
+    @apply flex-row items-center gap-2;
   }
   .brand-term {
     @apply mt-0.5 text-xs font-sans-bold text-accent-ink;
   }
   .gear-btn {
     @apply size-10 items-center justify-center rounded-xl border border-border bg-card;
-  }
-  .slate-pill {
-    @apply max-w-[180px];
   }
   .slate-option {
     @apply mb-2 flex-row items-center rounded-xl border border-border px-3 py-2.5;
