@@ -193,6 +193,14 @@
         "SUN_MORNING": {
           "draft_group_id": 155205,
           "label": "Showdown - Sun Morning (PIT @ NO)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 155217,
+          "label": "Showdown - Mon Night (DAL @ PHI)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 155216,
+          "label": "Showdown - Sun Night (KC @ SEA)"
         }
       }
     }
