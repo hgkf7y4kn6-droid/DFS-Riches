@@ -6,8 +6,8 @@ everywhere the official designations do -- projections, the player pool, the DFS
 lineups -- and, for linemen and defenders who aren't on a DraftKings slate, the game model's starters-out counts.
 
 Official news still wins where it's stronger: a manual Out / Doubtful / Questionable only makes a player's status
-worse, and a manual Playing only clears a Questionable tag (never an official Out or Doubtful, which also beat it
-when they arrive later). The newest entry for a player is the one that counts; removing it restores the feeds.
+worse, and a manual Playing only clears a Questionable tag or a stale IR / PUP roster tag (a player designated to
+return) -- never an official Out or Doubtful, which also beat it when they arrive later). The newest entry for a player is the one that counts; removing it restores the feeds.
 
 Kept in Postgres (DATABASE_URL, the account-sync database) so a redeploy doesn't lose it; without one, on disk.
 """
@@ -168,7 +168,7 @@ def _note(e: dict, was: str | None) -> str:
 
 def apply(players, rows: list[dict]) -> None:
     """Each player's newest entry: Out / Doubtful / Questionable when that's worse than his current status;
-    Playing clears a Questionable tag."""
+    Playing clears a Questionable tag or a stale IR / PUP roster tag."""
     news = latest(rows)
     for p in players:
         e = news.get((p.team, normalize_name(p.name)))
@@ -176,7 +176,7 @@ def apply(players, rows: list[dict]) -> None:
             continue
         was = p.injury
         if e["status"] == "PLAYING":
-            if was != "Q":
+            if was not in ("Q", "IR", "PUP"):
                 continue
             p.injury = "Healthy"
         elif was in WORSE[e["status"]]:

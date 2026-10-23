@@ -86,3 +86,11 @@ def test_endpoint_matches_names_and_needs_a_team_off_the_slate(monkeypatch):
     listed = client.get("/api/news-overrides?season=2026&week=7").json()["entries"]
     assert [e["name"] for e in listed] == ["Jaylon Moore", "Brashard Smith", "Rashee Rice"]
     assert client.delete(f"/api/news-overrides/{lineman['id']}?season=2026&week=7").json() == {"removed": True}
+
+
+def test_playing_clears_a_stale_ir_tag_but_not_out():
+    _add("Jordan Mason", "PLAYING")
+    _add("Zach Charbonnet", "PLAYING")
+    mason, charbonnet = _p("Jordan Mason", injury="IR", position="RB"), _p("Zach Charbonnet", injury="OUT", position="RB")
+    news_overrides.apply([mason, charbonnet], asyncio.run(news_overrides.entries(2026, 7)))
+    assert mason.injury == "Healthy" and charbonnet.injury == "OUT"

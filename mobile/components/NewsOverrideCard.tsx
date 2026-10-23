@@ -22,7 +22,7 @@ const LABEL: Record<NewsStatus, string> = { OUT: 'Out', D: 'Doubtful', Q: 'Quest
 /**
  * Master accounts: breaking news before DraftKings, ESPN or the team's report catch up -- a coach ruling a player
  * out, say. It applies to projections, the player pool, the model and the plays right away (app.news_overrides).
- * Out / Doubtful / Questionable only make a player's status worse; Playing only clears a Questionable tag; official
+ * Out / Doubtful / Questionable only make a player's status worse; Playing only clears a Questionable or IR tag; official
  * Out and Doubtful always win. Linemen and defenders (not on a DraftKings slate) need their team and count toward
  * the game model's starters out.
  */

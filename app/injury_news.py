@@ -71,7 +71,8 @@ async def espn_statuses() -> dict[tuple[str, str], dict]:
         for p in players.values():
             code = DK_CODE.get(p.get("status"))
             if code and p.get("name"):
-                out[(team, normalize_name(p["name"]))] = {"code": code, "status": p["status"], "updated": p.get("updated")}
+                out[(team, normalize_name(p["name"]))] = {"code": code, "status": p["status"], "updated": p.get("updated"),
+                                                          "returning": p.get("fantasy") == "IR-R", "return_date": p.get("return_date")}
     return out
 
 
@@ -144,10 +145,41 @@ def _entry(reports: dict, p) -> dict | None:
     return (reports.get(p.team) or {}).get(normalize_name(p.name))
 
 
-def apply_report_statuses(players, reports: dict) -> None:
-    """The club's posted game status rules a player out (Out / Doubtful) when DraftKings hasn't caught up."""
+ROSTER_TAGS = ("IR", "PUP")      # roster lists a player stays on until he's activated, often on game eve
+POSTED = {None: "Healthy", "Questionable": "Q", "Doubtful": "D", "Out": "OUT"}
+STATUS_NAME = {"Healthy": "no designation", "Q": "Questionable", "D": "Doubtful", "OUT": "Out"}
+
+
+def _returning(p, e: dict | None, news: dict) -> str | None:
+    """A player DraftKings still tags IR / PUP who's designated to return: his status for this game -- the team
+    report's posted game status (none = Healthy), or before it's posted, Questionable when he's practicing and ESPN
+    has him designated to return (IR-R) by this game -- else None."""
+    if p.injury not in ROSTER_TAGS or not e:
+        return None
+    raw = e.get("game_status_raw")
+    if raw and raw.upper() != "UNSPECIFIED":
+        return POSTED.get(e.get("game_status"), None) if e.get("game_status") in POSTED else None
+    trend = practice_trend(e.get("practice") or {})
+    n = news.get((p.team, normalize_name(p.name))) or {}
+    if trend and trend["last"] in ("LP", "FP") and n.get("returning"):
+        return "Q"
+    return None
+
+
+def apply_report_statuses(players, reports: dict, news: dict | None = None) -> None:
+    """The club's posted game status rules a player out (Out / Doubtful) when DraftKings hasn't caught up; and a
+    player DraftKings still tags IR who's designated to return gets this game's status instead (the team's report:
+    Questionable after a week of practice, say)."""
+    news = news or {}
     for p in players:
         e = _entry(reports, p)
+        if (status := _returning(p, e, news)) is not None:
+            log_ = " · ".join(f"{d} {c}" for d, c in e["practice"].items() if c in PRACTICE_LEVEL)
+            listed = e.get("game_status") or ("no game status" if e.get("game_status_raw") == "(-)" else "no game status yet")
+            p.proj_notes = p.proj_notes + [f"Designated to return from {p.injury}: practice {log_ or 'not logged'}, the team's "
+                                           f"report gives {listed} -> {STATUS_NAME.get(status, status)}"]
+            p.injury = status
+            continue
         code = DK_CODE.get((e or {}).get("game_status") or "")
         if code and p.injury in (None, "", "Healthy", "Q"):
             was = p.injury or "Healthy"

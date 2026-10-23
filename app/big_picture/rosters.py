@@ -131,7 +131,8 @@ async def espn_injuries(client: httpx.AsyncClient) -> dict:
                 "name": a.get("displayName"), "position": ((a.get("position") or {}).get("abbreviation")),
                 "status": norm_status(i.get("status") or (i.get("type") or {}).get("description")),
                 "raw": i.get("status"), "updated": i.get("date"),
-                "body_part": d.get("type"), "detail": d.get("detail"), "return_date": d.get("returnDate")}
+                "body_part": d.get("type"), "detail": d.get("detail"), "return_date": d.get("returnDate"),
+                "fantasy": (d.get("fantasyStatus") or {}).get("abbreviation")}
     return out
 
 

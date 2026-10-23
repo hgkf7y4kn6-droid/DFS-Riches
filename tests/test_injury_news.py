@@ -106,3 +106,24 @@ def test_report_status_rules_out_players_draftkings_lists_healthy():
     p = _wr("A B", injury="Healthy")
     injury_news.apply_report_statuses([p], reports)
     assert p.injury == "D" and "lists him Doubtful" in p.proj_notes[-1]
+
+
+def test_designated_to_return_takes_the_reports_status():
+    mason = _wr("Jordan Mason", injury="IR")
+    posted = {"PHI": {"jordan mason": {"name": "Jordan Mason", "practice": {"Wed": "FP", "Thu": "FP", "Fri": "FP"},
+                                       "game_status": "Questionable", "game_status_raw": "QUESTIONABLE"}}}
+    injury_news.apply_report_statuses([mason], posted)
+    assert mason.injury == "Q" and "Designated to return from IR" in mason.proj_notes[-1]
+    # before the report's game statuses: only with ESPN's designated-to-return flag and a practice
+    early = {"PHI": {"jordan mason": {**posted["PHI"]["jordan mason"], "game_status": None, "game_status_raw": "UNSPECIFIED"}}}
+    still_ir = _wr("Jordan Mason", injury="IR")
+    injury_news.apply_report_statuses([still_ir], early, {("PHI", "jordan mason"): {"code": "IR", "returning": False}})
+    assert still_ir.injury == "IR"
+    returning = _wr("Jordan Mason", injury="IR")
+    injury_news.apply_report_statuses([returning], early, {("PHI", "jordan mason"): {"code": "IR", "returning": True}})
+    assert returning.injury == "Q"
+    # an Out game status (DraftKings OUT) isn't a roster tag: it stands
+    out = _wr("Zach Charbonnet", injury="OUT")
+    injury_news.apply_report_statuses([out], {"PHI": {"zach charbonnet": {"name": "Zach Charbonnet", "practice": {"Wed": "FP"},
+                                                                          "game_status": "Questionable", "game_status_raw": "QUESTIONABLE"}}})
+    assert out.injury == "OUT"
