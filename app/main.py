@@ -1,4 +1,4 @@
-"""DFSRiches -- a DraftKings DFS explorer for the NFL.
+"""Riches Analytics (formerly DFSRiches) -- a DraftKings DFS explorer for the NFL.
 
 Merges real DraftKings salaries (Classic full-slate + Showdown Captain Mode
 for every island game -- weeknight, Sunday night, international, holiday) with real
@@ -78,7 +78,7 @@ Season = Annotated[int, Query(ge=2000, le=2100)]
 Week = Annotated[int, Query(ge=1, le=22)]
 
 log = logging.getLogger("dfsriches.main")
-app = FastAPI(title="DFSRiches", description="DraftKings DFS explorer")
+app = FastAPI(title="Riches Analytics", description="DraftKings DFS explorer")
 
 
 @app.on_event("startup")
@@ -206,7 +206,7 @@ async def _require_sign_in(request: Request, call_next):
         request.state.claims = await accounts.verify_claims(request.headers.get("authorization"))
         request.state.user_id = request.state.claims["sub"]
     except accounts.AuthError as exc:
-        return JSONResponse({"detail": f"Sign in to DFSRiches to use this ({exc})."}, status_code=401,
+        return JSONResponse({"detail": f"Sign in to Riches Analytics to use this ({exc})."}, status_code=401,
                             headers={"WWW-Authenticate": "Bearer"})
     return await call_next(request)
 
@@ -548,7 +548,7 @@ async def _entitled(request: Request, feature: str) -> bool:
 async def _require_feature(request: Request, feature: str) -> None:
     """A Pro feature: with PRO_GATING on, free accounts get a 402."""
     if not await _entitled(request, feature):
-        raise HTTPException(status_code=402, detail="This is a DFSRiches Pro feature.")
+        raise HTTPException(status_code=402, detail="This is a Riches Analytics Pro feature.")
 
 
 async def _require_master(authorization: str | None) -> str:

@@ -1,4 +1,4 @@
-// Global types for DFSRiches. This file has no imports or exports, so every
+// Global types for Riches Analytics. This file has no imports or exports, so every
 // interface here is available app-wide without importing it. Shapes mirror
 // the FastAPI responses in app/models.py (backend) one-for-one; keep them in
 // sync when a backend model changes.

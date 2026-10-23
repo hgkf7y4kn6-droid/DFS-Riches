@@ -47,7 +47,7 @@ export default function TabLayout() {
     return (
       <View className="auth-gate">
         <Text className="brand-title">
-          <Text className="brand-accent">$</Text>DFS<Text className="brand-accent">Riches</Text>
+          <Text className="brand-accent">Riches</Text> Analytics
         </Text>
         <ActivityIndicator className="mt-4" color={theme.accent} />
       </View>

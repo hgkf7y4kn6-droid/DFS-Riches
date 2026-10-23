@@ -20,7 +20,7 @@ export function ProSheet({ feature, visible, onClose }: { feature: ProFeature; v
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable className="week-backdrop" onPress={onClose} accessibilityLabel="Close">
         <Pressable className="week-sheet intro-sheet" onPress={() => {}}>
-          <Text className="intro-kicker">DFSRiches Pro</Text>
+          <Text className="intro-kicker">Riches Analytics Pro</Text>
           <Text className="intro-title">{FEATURE_LABEL[feature]} is part of Pro</Text>
           <Text className="intro-text">Pro adds what the field doesn&apos;t see:</Text>
           <Text className="intro-text">• Model lineups (Safe and stacked Tournament), and Build for me</Text>

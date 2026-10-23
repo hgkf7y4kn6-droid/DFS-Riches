@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
   <meta name="theme-color" content="#1e2227" />
-  <title>{% block title %}DFSRiches{% endblock %}</title>
+  <title>{% block title %}Riches Analytics{% endblock %}</title>
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="/static/style.css?v={{ asset_version }}" />
 </head>
 <body data-require-sign-in="{{ '1' if require_sign_in else '0' }}">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar">
-    <a class="brand" href="/classic?season={{ season }}&amp;week={{ week }}" aria-label="DFSRiches classic home">
-      <span class="brand-dollar">$</span>DFS<span class="brand-accent">Riches</span>
+    <a class="brand" href="/classic?season={{ season }}&amp;week={{ week }}" aria-label="Riches Analytics classic home">
+      <span class="brand-accent">Riches</span> Analytics
     </a>
     <nav class="page-nav" aria-label="Pages">
       {%- for href, label in [("/classic", "Slates"), ("/classic/breakdown", "Week Breakdown"), ("/classic/dfs-model", "DFS Model"), ("/", "New app")] %}

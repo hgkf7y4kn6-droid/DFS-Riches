@@ -46,7 +46,7 @@ export default function Root({ children }: PropsWithChildren) {
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <title>DFSRiches</title>
+        <title>Riches Analytics</title>
         {CLERK_ORIGIN ? <link rel="preconnect" href={CLERK_ORIGIN} crossOrigin="anonymous" /> : null}
         <meta name="description" content="NFL DraftKings projections, ownership, leverage and lineup building." />
         <meta name="theme-color" content="#FFF9E3" media="(prefers-color-scheme: light)" />

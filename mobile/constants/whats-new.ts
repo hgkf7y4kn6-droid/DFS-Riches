@@ -10,6 +10,14 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.42',
+    title: 'DFSRiches is now Riches Analytics',
+    items: [
+      'Same app, same account and saved lineups -- just a new name.',
+      'Questionable players keep their chance-of-playing discount until an hour before kickoff, so a late inactive has time to show up before the app counts him as active.',
+    ],
+  },
+  {
     version: '1.1.40',
     title: "What's new",
     items: [

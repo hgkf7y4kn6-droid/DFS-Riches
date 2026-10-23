@@ -1,4 +1,4 @@
-# DFSRiches
+# Riches Analytics
 
 A DraftKings DFS explorer for the NFL, built with Python (FastAPI). It merges
 **real DraftKings salaries** with **real Sleeper schedule/projection data**
@@ -976,7 +976,7 @@ server start (`grant_founding_pro`); masters stay Admin. `DELETE /api/me`
 
 ## Deploying behind Cloudflare
 
-DFSRiches is a normal long-running ASGI app (FastAPI on Uvicorn) with a
+Riches Analytics is a normal long-running ASGI app (FastAPI on Uvicorn) with a
 small on-disk cache -- it runs on any regular host or container, with
 Cloudflare sitting in front as a proxy/CDN (orange-clouded DNS) or via a
 Cloudflare Tunnel. **It does not run inside a Cloudflare Worker, and it

@@ -1,4 +1,4 @@
-# DFSRiches -- a normal long-running ASGI app, meant to run on any regular
+# Riches Analytics -- a normal long-running ASGI app, meant to run on any regular
 # container host behind Cloudflare's proxy/CDN or a Cloudflare Tunnel (see
 # README.md's "Deploying behind Cloudflare" section). This image does NOT
 # run inside a Cloudflare Worker -- that's a different execution model

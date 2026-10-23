@@ -15,7 +15,7 @@ export default function AppErrorScreen({ error, retry }: { error: Error; retry: 
   return (
     <View className="auth-gate px-8">
       <Text className="brand-title">
-        <Text className="brand-accent">$</Text>DFS<Text className="brand-accent">Riches</Text>
+        <Text className="brand-accent">Riches</Text> Analytics
       </Text>
       <Text className="intro-title mt-6 text-center">Something went wrong</Text>
       <Text className="intro-text text-center">

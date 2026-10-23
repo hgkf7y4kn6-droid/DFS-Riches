@@ -75,7 +75,7 @@ export default function RootLayout() {
                           <OnboardingProvider>
                             <GlossaryProvider>
                               <Head>
-                                <title>DFSRiches</title>
+                                <title>Riches Analytics</title>
                               </Head>
                               <StatusBar style={dark ? 'light' : 'dark'} />
                               {/* Signing in is the way into the app (app/(tabs)/_layout.tsx), so these are full pages, not modals. */}

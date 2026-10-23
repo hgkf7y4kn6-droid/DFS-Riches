@@ -1,8 +1,8 @@
-# DFSRiches Privacy Policy (DRAFT — needs review)
+# Riches Analytics Privacy Policy (DRAFT — needs review)
 
 _Last updated: [date]_
 
-DFSRiches ("we", "us") provides NFL daily fantasy sports research tools: projections,
+Riches Analytics ("we", "us") provides NFL daily fantasy sports research tools: projections,
 ownership estimates and a lineup builder, on the web and in our mobile apps.
 
 ## What we collect
@@ -61,7 +61,7 @@ account is deleted.] You can also email us at
 
 ## Children
 
-DFSRiches is for adults 18 or older (21 or older where state law requires). We do not
+Riches Analytics is for adults 18 or older (21 or older where state law requires). We do not
 knowingly collect data from anyone younger.
 
 ## Your rights

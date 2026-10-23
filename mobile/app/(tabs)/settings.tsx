@@ -215,7 +215,7 @@ export default function SettingsScreen() {
         <Text className="settings-group-title">About</Text>
         <View className="settings-group mt-0">
           <Row
-            label="DFSRiches"
+            label="Riches Analytics"
             value={`Version ${Constants.expoConfig?.version ?? '1.0.0'}${
               // An over-the-air update (EAS Update) rather than the JS the build shipped with.
               Updates.isEnabled && !Updates.isEmbeddedLaunch && Updates.createdAt

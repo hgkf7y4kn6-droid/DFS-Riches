@@ -29,7 +29,7 @@ export const HOME_BALANCE: HomeBalance = {
 };
 
 // Home sections, top to bottom after the header and balance card. Each one
-// maps to a live data piece from the DFSRiches API (lib/week-context.tsx).
+// maps to a live data piece from the Riches Analytics API (lib/week-context.tsx).
 export const HOME_SECTIONS: Record<HomeSection['id'], HomeSection> = {
   profit: {
     id: 'profit',

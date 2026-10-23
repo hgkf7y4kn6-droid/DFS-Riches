@@ -1,6 +1,6 @@
 # Legal drafts (not published)
 
-Starting drafts for DFSRiches' privacy policy, terms of service and
+Starting drafts for Riches Analytics' privacy policy, terms of service and
 responsible-play page. **They are not legal advice and are not linked from the
 app yet.** Have them reviewed (ideally by a lawyer familiar with DFS and the
 states you serve), fill in every `[bracketed]` item, then publish them (for

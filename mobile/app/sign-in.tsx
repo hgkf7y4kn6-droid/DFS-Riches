@@ -148,7 +148,7 @@ export default function SignInScreen() {
       footer={
         coding ? null : (
           <View className="w-full max-w-[420px] items-center">
-            <Text className="mb-2 text-sm font-sans-medium text-muted-foreground">New to DFSRiches?</Text>
+            <Text className="mb-2 text-sm font-sans-medium text-muted-foreground">New to Riches Analytics?</Text>
             <Link href={{ pathname: '/sign-up', params: next ? { next } : {} }} replace asChild>
               <Pressable className="btn-outline w-full justify-center" accessibilityRole="link">
                 <Text className="btn-outline-text">Create a free account</Text>

@@ -45,7 +45,7 @@ def openrouter(model: str):
         model=model, base_url=OPENROUTER_BASE, api_key=os.environ["OPENROUTER_API_KEY"],
         max_tokens=8000 if reasoning else MAX_TOKENS, temperature=0.2, timeout=300, max_retries=1,
         extra_body={"reasoning": {"effort": "low", "exclude": True}} if reasoning else None,
-        default_headers={"HTTP-Referer": "https://dfsriches.richesdigitalventures.com", "X-Title": "DFSRiches Big Picture"},
+        default_headers={"HTTP-Referer": "https://dfsriches.richesdigitalventures.com", "X-Title": "Riches Analytics Big Picture"},
     )
 
 

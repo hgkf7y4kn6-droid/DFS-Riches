@@ -1,6 +1,6 @@
-# DFSRiches mobile
+# Riches Analytics mobile
 
-An Expo Router + NativeWind app for the DFSRiches API (the FastAPI app in the
+An Expo Router + NativeWind app for the Riches Analytics API (the FastAPI app in the
 repo root). It reads live data: this week's schedule, every DraftKings slate
 (Sunday Main, Full Week, and a Showdown for each island game -- weeknight,
 Sunday night, international and holiday games), projected optimal lineups, a

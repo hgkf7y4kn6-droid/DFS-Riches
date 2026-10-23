@@ -24,7 +24,7 @@ interface Props {
 }
 
 /**
- * The "$DFSRiches" heading every tab shares, with the tab's name below it.
+ * The "Riches Analytics" heading every tab shares, with the tab's name below it.
  * Beside the tab name: one picker card -- week | slate, each a dropdown --
  * and the Settings gear, the same height (a screen can pass its own `right`
  * instead).
@@ -36,7 +36,7 @@ export default function BrandHeader({ title, term, slate = false, modelSlates, s
   return (
     <>
       <Text className="brand-title" accessibilityRole="header">
-        <Text className="brand-accent">$</Text>DFS<Text className="brand-accent">Riches</Text>
+        <Text className="brand-accent">Riches</Text> Analytics
       </Text>
       <View className="brand-header">
         <View className="flex-1 pr-2">

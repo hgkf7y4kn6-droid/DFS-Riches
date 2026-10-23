@@ -1,4 +1,4 @@
-"""Static configuration for DFSRiches."""
+"""Static configuration for Riches Analytics."""
 from pathlib import Path
 from zoneinfo import ZoneInfo
 

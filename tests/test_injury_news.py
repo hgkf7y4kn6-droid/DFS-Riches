@@ -85,8 +85,11 @@ def test_questionable_projection_scaled_by_chance_until_inactives():
     reports_mid = {"PHI": {"a b": {**reports["PHI"]["a b"], "game_status": None, "game_status_raw": "UNSPECIFIED"}}}
     injury_news.apply_play_chance([midweek], reports_mid, {"PHI": now + timedelta(hours=3)}, now=now, model=MODEL)
     assert midweek.play_chance == round((chance + injury_news.play_chance(MODEL, "WR", None, 13.0)) / 2, 2)
+    waiting = _wr("A B")       # inactives are due at -90, but the feeds get until -60 to show them
+    injury_news.apply_play_chance([waiting], reports, {"PHI": now + timedelta(minutes=70)}, now=now, model=MODEL)
+    assert waiting.play_chance == round(chance, 2)
     late = _wr("A B")
-    injury_news.apply_play_chance([late], reports, {"PHI": now + timedelta(minutes=60)}, now=now, model=MODEL)
+    injury_news.apply_play_chance([late], reports, {"PHI": now + timedelta(minutes=55)}, now=now, model=MODEL)
     assert late.play_chance == 1.0 and late.proj_points == round(14.0 * 0.94, 2)   # active: inactives are out
 
 

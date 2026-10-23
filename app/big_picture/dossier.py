@@ -442,7 +442,7 @@ async def build(season: int | None = None, week: int | None = None) -> dict:
                                                    f"and depth charts ({cov['team_depth_charts']}/{cov['teams']} readable)",
                       "captured_at": now_iso()},
                      {"name": "DraftKings DFS", "use": "salaries, DFS player statuses, slates"},
-                     {"name": "DFSRiches DFS model", "use": "projections, floors/ceilings, ownership, leverage"},
+                     {"name": "Riches Analytics DFS model", "use": "projections, floors/ceilings, ownership, leverage"},
                      {"name": "National Weather Service (app.weather)", "use": "kickoff forecasts and projection multipliers"},
                  ],
                  "gaps": gaps,

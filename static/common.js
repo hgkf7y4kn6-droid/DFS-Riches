@@ -102,7 +102,7 @@
     if (!clerk) return {};
     if (!clerk.session) {
       location.assign("/sign-in");
-      throw new Error("Sign in to DFSRiches to see this.");
+      throw new Error("Sign in to Riches Analytics to see this.");
     }
     const token = await clerk.session.getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};

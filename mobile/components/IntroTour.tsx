@@ -9,7 +9,7 @@ const PAGES: { kicker: string; title: string; body: string[] }[] = [
     kicker: 'Welcome',
     title: 'Smarter DraftKings NFL lineups',
     body: [
-      'DFSRiches projects every player on each DraftKings slate from a blend of projection sources, adjusted for matchups, Vegas lines and the weather.',
+      'Riches Analytics projects every player on each DraftKings slate from a blend of projection sources, adjusted for matchups, Vegas lines and the weather.',
       'Each week comes down to three steps: pick a slate, see the top plays, build your lineups. Home walks you through them.',
     ],
   },

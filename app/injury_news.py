@@ -12,7 +12,8 @@ he does: the chance from his last practice day this week (the club site's offici
 participation), whether he's a quarterback and whether he's an established scorer (scripts/test_injury_trends.py,
 data/injury_model.json); the week's direction (DNP -> LP and so on) added nothing beyond the last day. Before the
 final report (Friday for a Sunday game) the latest day so far counts half, the rest from the no-practice fit. Once his
-game's inactives are out and he isn't on them, he plays. Out and Doubtful stay zeroed: they played 0.1% and 1.4% of
+game's inactives are out (an hour before kickoff, leaving the feeds half an hour to post
+them) and he isn't on them, he plays. Out and Doubtful stay zeroed: they played 0.1% and 1.4% of
 the time, whatever their practice week.
 
 Sleeper zeroes an injured quarterback's projection as soon as he's ruled out,
@@ -43,7 +44,7 @@ DK_CODE = {"Out": "OUT", "IR": "IR", "PUP": "OUT", "Suspended": "OUT", "Doubtful
 REPLACEMENT_SHARE = 0.75
 NOT_PLAYING = {"OUT", "IR", "D"}
 MODEL_FILE = Path(__file__).resolve().parent.parent / "data" / "injury_model.json"
-INACTIVES_POSTED = timedelta(minutes=80)    # inactives are due 90 minutes before kickoff; a few minutes for the feeds
+INACTIVES_POSTED = timedelta(minutes=60)    # inactives are due 90 minutes before kickoff; 30 minutes for the feeds to show them
 REPORT_TTL = 60 * 30
 _MODEL: dict | None = None
 

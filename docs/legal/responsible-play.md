@@ -11,4 +11,4 @@ Daily fantasy sports should be fun. A few habits help keep it that way:
 call or text **1-800-GAMBLER** (National Council on Problem Gambling) or visit
 [ncpgambling.org](https://www.ncpgambling.org/help-treatment/).
 
-DFSRiches is for adults 18 or older (21+ where state law requires).
+Riches Analytics is for adults 18 or older (21+ where state law requires).

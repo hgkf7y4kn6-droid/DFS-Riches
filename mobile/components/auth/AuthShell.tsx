@@ -20,7 +20,7 @@ export function AuthShell({ title, subtitle, children, footer }: { title: string
               </View>
               <View>
                 <Text className="brand-title">
-                  <Text className="brand-accent">$</Text>DFS<Text className="brand-accent">Riches</Text>
+                  <Text className="brand-accent">Riches</Text> Analytics
                 </Text>
                 <Text className="auth-wordmark-sub">DraftKings NFL projections and lineups</Text>
               </View>

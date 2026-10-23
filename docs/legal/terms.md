@@ -1,14 +1,14 @@
-# DFSRiches Terms of Service (DRAFT — needs review)
+# Riches Analytics Terms of Service (DRAFT — needs review)
 
 _Last updated: [date]_
 
-These terms govern your use of DFSRiches (the website and apps). By creating an account
+These terms govern your use of Riches Analytics (the website and apps). By creating an account
 or using the service you agree to them.
 
-## What DFSRiches is
+## What Riches Analytics is
 
-DFSRiches is an information and research tool for NFL daily fantasy sports. It provides
-projections, estimated ownership, matchup analysis and a lineup builder. **DFSRiches is
+Riches Analytics is an information and research tool for NFL daily fantasy sports. It provides
+projections, estimated ownership, matchup analysis and a lineup builder. **Riches Analytics is
 not a fantasy sports operator or sportsbook**: we don't accept entries, wagers or
 deposits, and we're not affiliated with or endorsed by DraftKings, the NFL, or any team
 or player.
