@@ -201,6 +201,15 @@ def parse_team_depth_chart(page: str) -> list | None:
     return rows or None
 
 
+async def team_report(client: httpx.AsyncClient, team: str, week: int) -> dict | None:
+    """Just the club site's injury report for the week (see parse_team_injury_report); None when unpublished."""
+    domain = TEAM_SITES.get(team)
+    if not domain:
+        return None
+    r = await client.get(f"https://www.{domain}/team/injury-report/week/REG-{week}", timeout=30, follow_redirects=True)
+    return parse_team_injury_report(r.text, week) if r.status_code == 200 else None
+
+
 async def team_site(client: httpx.AsyncClient, team: str, week: int) -> dict:
     domain = TEAM_SITES.get(team)
     if not domain:

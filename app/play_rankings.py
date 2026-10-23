@@ -308,6 +308,9 @@ def _player(r: dict, contest: str, own_contests: list[str], rank: int | None = N
         "team_share": r.get("team_share"),
         # the opponent's starting corners out (app.game_model): already in his projection (WR) or ceiling (pass-catching RB)
         "opp_cb_out": r.get("opp_cb_out"),
+        # Questionable: his chance of playing and this week's practice log (app.injury_news), already in "final"
+        "play_chance": r.get("play_chance"),
+        "practice": r.get("practice"),
         "final": _round(r["final"]),
         "floor": _round(r["floor"]),
         "ceiling": _round(r["ceiling"]),

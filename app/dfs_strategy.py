@@ -167,7 +167,8 @@ def _own_txt(r: dict) -> str:
 
 def card(r: dict, **extra) -> dict:
     keys = ("id", "name", "position", "team", "opponent", "salary", "final", "floor", "ceiling", "value",
-            "ownership", "popularity", "injury", "uncertainty_label", "n_sources", "opp_cb_out")
+            "ownership", "popularity", "injury", "uncertainty_label", "n_sources", "opp_cb_out",
+            "play_chance", "practice")
     return {**{k: r.get(k) for k in keys}, **extra}
 
 

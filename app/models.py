@@ -106,6 +106,8 @@ class Player(BaseModel):
     dst_adj: float | None = None      # DST: the DST model's change to Sleeper's line (app.dst_model), already in proj_points
     ceiling_model: bool = False       # the ceiling came from app.ceiling_model (vs app.ceiling's formula)
     opp_cb_out: int | None = None     # RB/WR/TE: the opponent's starting corners out (app.game_model), when any
+    play_chance: float | None = None  # Questionable: chance he plays (app.injury_news), already in proj_points
+    practice: str | None = None       # Questionable: this week's practice log from the team's report, e.g. "Wed DNP · Thu LP · Fri FP"
 
 
 class Slate(BaseModel):

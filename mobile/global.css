@@ -606,6 +606,16 @@
   .cb-out-note {
     @apply mt-0.5 text-xs font-sans-semibold text-success;
   }
+  /* Questionable: chance he plays and this week's practice log. */
+  .play-chance-note {
+    @apply mt-0.5 text-xs font-sans-semibold text-muted-foreground;
+  }
+  .play-chance-high {
+    @apply text-success;
+  }
+  .play-chance-low {
+    @apply text-danger;
+  }
   .props-panel {
     @apply mt-2 gap-1.5 rounded-xl bg-muted px-3 py-2;
   }

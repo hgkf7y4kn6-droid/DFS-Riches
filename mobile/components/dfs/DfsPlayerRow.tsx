@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import CornersOutNote from '@/components/CornersOutNote';
+import PlayChanceNote from '@/components/PlayChanceNote';
 import MatchupBadge from '@/components/MatchupBadge';
 import { formatCurrency, formatPercent } from '@/lib/utils';
 import LeverageBadge from '@/components/LeverageBadge';
@@ -69,6 +70,7 @@ export default function DfsPlayerRow({
           </Text>
           <MatchupBadge opponent={p.opponent} position={p.position} />
           <CornersOutNote opponent={p.opponent} count={p.opp_cb_out} position={p.position} />
+          <PlayChanceNote injury={p.injury} chance={p.play_chance} practice={p.practice} />
           <UsageTrendNote trend={p.usage_trend} open={trendOpen} />
         </View>
         <View className="items-end">

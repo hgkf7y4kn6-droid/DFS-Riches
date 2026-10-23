@@ -42,3 +42,64 @@ def test_zero_out_players_who_wont_play():
     assert (out.proj_points, out.ceiling, out.value_per_1k) == (0.0, 0.0, 0.0) and "zeroed (was 12.0)" in out.proj_notes[-1]
     assert doubtful.proj_points == 0.0
     assert (q.proj_points, q.ceiling) == (9.0, 15.0)
+
+
+MODEL = {"with_practice": {"intercept": 0.8, "coef": {"dnp": -1.0, "fp": 1.15, "qb": -1.26, "star": 0.47}},
+         "without_practice": {"intercept": 0.79, "coef": {"qb": -1.1, "star": 0.36}},
+         "if_played": {"factor": 0.94}}
+
+
+def test_practice_trend_reads_the_last_day():
+    assert injury_news.practice_trend({"Wed": "DNP", "Thu": "LP", "Fri": "FP"}) == {
+        "log": ["DNP", "LP", "FP"], "last": "FP", "trend": "up", "days_practiced": 2}
+    assert injury_news.practice_trend({"Wed": "LP", "Thu": "DNP"})["trend"] == "down"
+    assert injury_news.practice_trend({"Wed": "(-)"}) is None
+
+
+def test_play_chance_rises_with_practice_and_falls_for_quarterbacks():
+    dnp, lp, fp = (injury_news.play_chance(MODEL, "WR", d, 14.0) for d in ("DNP", "LP", "FP"))
+    assert dnp < lp < fp
+    assert injury_news.play_chance(MODEL, "QB", "LP", 14.0) < lp
+    assert injury_news.play_chance(MODEL, "WR", "LP", 6.0) < lp                    # not an established scorer
+    assert 0 < injury_news.play_chance(MODEL, "WR", None, 14.0) < 1                # no practice log: the no-practice fit
+
+
+def _wr(name, injury="Q", proj=14.0, season=13.0):
+    p = _p(name, 6000, injury=injury, proj=proj, season=season)
+    p.position, p.ceiling = "WR", 25.0
+    return p
+
+
+def test_questionable_projection_scaled_by_chance_until_inactives():
+    from datetime import datetime, timedelta, timezone
+    now = datetime(2026, 10, 25, 15, 0, tzinfo=timezone.utc)
+    reports = {"PHI": {"a b": {"name": "A B", "practice": {"Wed": "DNP", "Thu": "LP", "Fri": "FP"}, "game_status": "Questionable",
+                               "game_status_raw": "QUESTIONABLE"}}}
+    early = _wr("A B")
+    injury_news.apply_play_chance([early], reports, {"PHI": now + timedelta(hours=3)}, now=now, model=MODEL)
+    chance = injury_news.play_chance(MODEL, "WR", "FP", 13.0)
+    assert early.play_chance == round(chance, 2) and early.practice == "Wed DNP · Thu LP · Fri FP"
+    assert early.proj_points == round(14.0 * chance * 0.94, 2)
+    assert early.ceiling == round(25.0 * 0.94, 1)                                   # his ceiling if he plays
+    midweek = _wr("A B")
+    reports_mid = {"PHI": {"a b": {**reports["PHI"]["a b"], "game_status": None, "game_status_raw": "UNSPECIFIED"}}}
+    injury_news.apply_play_chance([midweek], reports_mid, {"PHI": now + timedelta(hours=3)}, now=now, model=MODEL)
+    assert midweek.play_chance == round((chance + injury_news.play_chance(MODEL, "WR", None, 13.0)) / 2, 2)
+    late = _wr("A B")
+    injury_news.apply_play_chance([late], reports, {"PHI": now + timedelta(minutes=60)}, now=now, model=MODEL)
+    assert late.play_chance == 1.0 and late.proj_points == round(14.0 * 0.94, 2)   # active: inactives are out
+
+
+def test_no_discount_without_a_game_status_or_for_healthy_players():
+    reports = {"PHI": {"a b": {"name": "A B", "practice": {"Fri": "FP"}, "game_status": None, "game_status_raw": "(-)"}}}
+    q, healthy = _wr("A B"), _wr("C D", injury="Healthy")
+    injury_news.apply_play_chance([q, healthy], reports, {}, model=MODEL)
+    assert q.proj_points == 14.0 and q.play_chance is None
+    assert healthy.proj_points == 14.0
+
+
+def test_report_status_rules_out_players_draftkings_lists_healthy():
+    reports = {"PHI": {"a b": {"name": "A B", "practice": {}, "game_status": "Doubtful", "game_status_raw": "DOUBTFUL"}}}
+    p = _wr("A B", injury="Healthy")
+    injury_news.apply_report_statuses([p], reports)
+    assert p.injury == "D" and "lists him Doubtful" in p.proj_notes[-1]

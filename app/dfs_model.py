@@ -10,6 +10,10 @@ Order of operations (each step visible in the output):
 2. Final projection = consensus, then only these adjustments:
      sourced   DraftKings injury status: OUT / Doubtful / IR -> 0 and out of
                the pool; Questionable -> kept, uncertainty raised.
+     model     Questionable: x his chance of playing (last practice day,
+               quarterback, established scorer) x what Questionable players
+               score when they play (app.injury_news); x1 for the chance once
+               his game's inactives are out and he isn't on them.
      model     the backtested matchup nudge (app.projections): +-5% max, from
                how the opponent's defense has done vs projections this season.
      weather   outdoor games: the consensus stat line rescored with
@@ -49,7 +53,7 @@ import statistics
 import time
 from datetime import datetime, timezone
 
-from app import advanced_env, breakdown as breakdown_module, game_model
+from app import advanced_env, breakdown as breakdown_module, game_model, injury_news
 from app import consensus, dfs_strategy, ownership_report, projections, prop_pricer, sources, usage, weather
 from app import slates as slates_module
 from app.cache import _cache_path
@@ -150,7 +154,13 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
                 adjustments.append({"kind": "model", "factor": factor, "source": "Weather",
                                     "text": projections.weather_note(wx, factor)})
                 final *= factor
-            if p.injury == "Q":
+            if p.injury == "Q" and (chance := getattr(p, "play_chance", None)) is not None:
+                factor = (injury_news.load().get("if_played") or {}).get("factor", 1.0)
+                adjustments.append({"kind": "model", "factor": chance * factor, "source": "Questionable", "text": (
+                    f"Questionable: plays {chance:.0%}" + (f" (practice {p.practice})" if getattr(p, "practice", None) else "")
+                    + f" x {factor:.2f} if he plays -> x{chance * factor:.2f}")})
+                final *= chance * factor
+            elif p.injury == "Q":
                 adjustments.append({"kind": "sourced", "text": "Questionable (DraftKings): kept, uncertainty raised -- sources may assume he plays"})
             final = round(final, 2)
 
@@ -195,6 +205,7 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
             "usage_trend": getattr(p, "usage_trend", None), "team_share": getattr(p, "team_share", None),
             "props": _props(c.line, pos, final),
             "opp_cb_out": getattr(p, "opp_cb_out", None),
+            "play_chance": getattr(p, "play_chance", None), "practice": getattr(p, "practice", None),
         })
     return rows
 

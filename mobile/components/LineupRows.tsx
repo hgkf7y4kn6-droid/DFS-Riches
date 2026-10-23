@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import MatchupBadge from '@/components/MatchupBadge';
+import PlayChanceNote from '@/components/PlayChanceNote';
 import TeamShareText from '@/components/TeamShare';
 import TrendChips from '@/components/TrendChips';
 import { roleText } from '@/lib/matchup-sort';
@@ -22,6 +23,8 @@ export interface RowPlayer {
   role?: PlayerRole | null;
   snap_pct?: number | null;
   usage_trend?: UsageTrend | null;
+  play_chance?: number | null;
+  practice?: string | null;
   /** Shown when the builder sorts by them: expected ownership (%), DK pts/game over the last 3. */
   ownership?: number | null;
   trend?: number | null;
@@ -112,6 +115,7 @@ export function LineupRow({
               <TeamShareText share={player.team_share} />
             </Text>
             {player.opponent ? <MatchupBadge opponent={player.opponent} position={player.position} /> : null}
+            <PlayChanceNote injury={player.injury} chance={player.play_chance} practice={player.practice} />
             <UsageTrendNote trend={player.usage_trend} open={trendOpen} />
             {player.form ? <TrendChips windows={player.form} baseline={player.form.season} /> : null}
             {note ? <Text className="lineup-player-note">{note}</Text> : null}

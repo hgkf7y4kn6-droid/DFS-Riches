@@ -301,7 +301,11 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         )
 
     injury_news.apply_news(players, await injury_news.espn_statuses())
+    reports = await injury_news.practice_reports({p.team for p in players if p.injury in ("", None, "Healthy", "Q")
+                                                  and p.position != "DST" and p.proj_points >= 3}, week)
+    injury_news.apply_report_statuses(players, reports)
     injury_news.zero_out(players)
+    injury_news.apply_play_chance(players, reports, {t: g.kickoff_utc for g in slate.games for t in (g.away, g.home)})
     for rows, starter in injury_news.replacement_qbs(players):
         base = round((starter.trend_season or starter.dk_fppg) * injury_news.REPLACEMENT_SHARE, 2)
         for p in rows:

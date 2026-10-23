@@ -1,0 +1,647 @@
+{
+ "definition": "played = any offensive, defensive or special-teams snap in the game",
+ "play_rates_2019_2026_all_positions": {
+  "Out": {
+   "all": {
+    "n": 7646,
+    "played": 0.0,
+    "se": 0.0
+   },
+   "DNP": {
+    "n": 6756,
+    "played": 0.0,
+    "se": 0.0
+   },
+   "LP": {
+    "n": 616,
+    "played": 0.0,
+    "se": 0.0
+   },
+   "FP": {
+    "n": 203,
+    "played": 0.0,
+    "se": 0.0
+   },
+   "by_season": {
+    "2019": 0.0,
+    "2020": 0.0,
+    "2021": 0.002,
+    "2022": 0.0,
+    "2023": 0.0,
+    "2024": 0.001,
+    "2025": 0.0,
+    "2026": 0.0
+   }
+  },
+  "Doubtful": {
+   "all": {
+    "n": 1114,
+    "played": 0.009,
+    "se": 0.003
+   },
+   "DNP": {
+    "n": 747,
+    "played": 0.011,
+    "se": 0.004
+   },
+   "LP": {
+    "n": 308,
+    "played": 0.006,
+    "se": 0.005
+   },
+   "FP": {
+    "n": 55,
+    "played": 0.0,
+    "se": 0.0
+   },
+   "by_season": {
+    "2019": 0.012,
+    "2020": 0.019,
+    "2021": 0.006,
+    "2022": 0.007,
+    "2023": 0.021,
+    "2024": 0.0,
+    "2025": 0.0,
+    "2026": 0.0
+   }
+  },
+  "Questionable": {
+   "all": {
+    "n": 10193,
+    "played": 0.65,
+    "se": 0.005
+   },
+   "DNP": {
+    "n": 1671,
+    "played": 0.458,
+    "se": 0.012
+   },
+   "LP": {
+    "n": 6347,
+    "played": 0.664,
+    "se": 0.006
+   },
+   "FP": {
+    "n": 2014,
+    "played": 0.766,
+    "se": 0.009
+   },
+   "by_season": {
+    "2019": 0.624,
+    "2020": 0.657,
+    "2021": 0.676,
+    "2022": 0.653,
+    "2023": 0.646,
+    "2024": 0.645,
+    "2025": 0.645,
+    "2026": 0.668
+   }
+  },
+  "None": {
+   "all": {
+    "n": 21415,
+    "played": 0.919,
+    "se": 0.002
+   },
+   "DNP": {
+    "n": 2334,
+    "played": 0.759,
+    "se": 0.009
+   },
+   "LP": {
+    "n": 2766,
+    "played": 0.925,
+    "se": 0.005
+   },
+   "FP": {
+    "n": 16312,
+    "played": 0.941,
+    "se": 0.002
+   },
+   "by_season": {
+    "2019": 0.93,
+    "2020": 0.902,
+    "2021": 0.891,
+    "2022": 0.926,
+    "2023": 0.92,
+    "2024": 0.933,
+    "2025": 0.927,
+    "2026": 0.931
+   }
+  }
+ },
+ "play_rates_2019_2026_qb_rb_wr_te": {
+  "Out": {
+   "all": {
+    "n": 2384,
+    "played": 0.001,
+    "se": 0.001
+   },
+   "DNP": {
+    "n": 2096,
+    "played": 0.001,
+    "se": 0.001
+   },
+   "LP": {
+    "n": 207,
+    "played": 0.0,
+    "se": 0.0
+   },
+   "FP": {
+    "n": 60,
+    "played": 0.0,
+    "se": 0.0
+   },
+   "by_season": {
+    "2019": 0.0,
+    "2020": 0.0,
+    "2021": 0.007,
+    "2022": 0.0,
+    "2023": 0.0,
+    "2024": 0.0,
+    "2025": 0.0,
+    "2026": 0.0
+   }
+  },
+  "Doubtful": {
+   "all": {
+    "n": 376,
+    "played": 0.013,
+    "se": 0.006
+   },
+   "DNP": {
+    "n": 264,
+    "played": 0.011,
+    "se": 0.007
+   },
+   "LP": {
+    "n": 91,
+    "played": 0.022,
+    "se": 0.015
+   },
+   "FP": {
+    "n": 19,
+    "played": 0.0,
+    "se": 0.0
+   },
+   "by_season": {
+    "2019": 0.02,
+    "2020": 0.038,
+    "2021": 0.0,
+    "2022": 0.02,
+    "2023": 0.02,
+    "2024": 0.0,
+    "2025": 0.0,
+    "2026": 0.0
+   }
+  },
+  "Questionable": {
+   "all": {
+    "n": 3052,
+    "played": 0.643,
+    "se": 0.009
+   },
+   "DNP": {
+    "n": 484,
+    "played": 0.432,
+    "se": 0.023
+   },
+   "LP": {
+    "n": 1950,
+    "played": 0.656,
+    "se": 0.011
+   },
+   "FP": {
+    "n": 570,
+    "played": 0.77,
+    "se": 0.018
+   },
+   "by_season": {
+    "2019": 0.631,
+    "2020": 0.646,
+    "2021": 0.7,
+    "2022": 0.677,
+    "2023": 0.618,
+    "2024": 0.604,
+    "2025": 0.631,
+    "2026": 0.6
+   }
+  },
+  "None": {
+   "all": {
+    "n": 6533,
+    "played": 0.915,
+    "se": 0.003
+   },
+   "DNP": {
+    "n": 589,
+    "played": 0.703,
+    "se": 0.019
+   },
+   "LP": {
+    "n": 869,
+    "played": 0.93,
+    "se": 0.009
+   },
+   "FP": {
+    "n": 5073,
+    "played": 0.937,
+    "se": 0.003
+   },
+   "by_season": {
+    "2019": 0.934,
+    "2020": 0.899,
+    "2021": 0.896,
+    "2022": 0.92,
+    "2023": 0.915,
+    "2024": 0.924,
+    "2025": 0.911,
+    "2026": 0.948
+   }
+  }
+ },
+ "trend_2026_weeks_1_6": {
+  "Doubtful": {
+   "all": {
+    "n": 25,
+    "played": 0.0,
+    "se": 0.0
+   },
+   "by_trend": {
+    "up": {
+     "n": 8,
+     "played": 0.0,
+     "se": 0.0
+    },
+    "flat": {
+     "n": 12,
+     "played": 0.0,
+     "se": 0.0
+    },
+    "down": {
+     "n": 5,
+     "played": 0.0,
+     "se": 0.0
+    }
+   },
+   "by_last_and_trend": {
+    "DNP flat": {
+     "n": 6,
+     "played": 0.0,
+     "se": 0.0
+    },
+    "DNP down": {
+     "n": 5,
+     "played": 0.0,
+     "se": 0.0
+    },
+    "LP up": {
+     "n": 8,
+     "played": 0.0,
+     "se": 0.0
+    },
+    "LP flat": {
+     "n": 6,
+     "played": 0.0,
+     "se": 0.0
+    }
+   },
+   "by_days_practiced": {
+    "0": {
+     "n": 6,
+     "played": 0.0,
+     "se": 0.0
+    },
+    "1": {
+     "n": 7,
+     "played": 0.0,
+     "se": 0.0
+    },
+    "2": {
+     "n": 7,
+     "played": 0.0,
+     "se": 0.0
+    },
+    "3": {
+     "n": 5,
+     "played": 0.0,
+     "se": 0.0
+    }
+   }
+  },
+  "Questionable": {
+   "all": {
+    "n": 342,
+    "played": 0.678,
+    "se": 0.025
+   },
+   "by_trend": {
+    "up": {
+     "n": 128,
+     "played": 0.766,
+     "se": 0.037
+    },
+    "flat": {
+     "n": 199,
+     "played": 0.633,
+     "se": 0.034
+    },
+    "down": {
+     "n": 15,
+     "played": 0.533,
+     "se": 0.129
+    }
+   },
+   "by_last_and_trend": {
+    "DNP flat": {
+     "n": 26,
+     "played": 0.462,
+     "se": 0.098
+    },
+    "DNP down": {
+     "n": 11,
+     "played": 0.455,
+     "se": 0.15
+    },
+    "LP up": {
+     "n": 69,
+     "played": 0.638,
+     "se": 0.058
+    },
+    "LP flat": {
+     "n": 151,
+     "played": 0.623,
+     "se": 0.039
+    },
+    "LP down": {
+     "n": 4,
+     "played": 0.75,
+     "se": 0.217
+    },
+    "FP up": {
+     "n": 59,
+     "played": 0.915,
+     "se": 0.036
+    },
+    "FP flat": {
+     "n": 22,
+     "played": 0.909,
+     "se": 0.061
+    }
+   },
+   "by_days_practiced": {
+    "0": {
+     "n": 22,
+     "played": 0.409,
+     "se": 0.105
+    },
+    "1": {
+     "n": 70,
+     "played": 0.6,
+     "se": 0.059
+    },
+    "2": {
+     "n": 86,
+     "played": 0.756,
+     "se": 0.046
+    },
+    "3": {
+     "n": 164,
+     "played": 0.707,
+     "se": 0.036
+    }
+   }
+  }
+ },
+ "scoring_2023_2026_qb_rb_wr_te": {
+  "baseline_miss_if_played": 0.28,
+  "groups": {
+   "Questionable (all)": {
+    "n": 617,
+    "played": 0.995,
+    "avg_proj": 10.23,
+    "avg_proj_if_sat": 5.6,
+    "n_played": 614,
+    "miss_if_played": -0.36,
+    "miss_vs_baseline": -0.64,
+    "se": 0.29,
+    "actual_over_proj_if_played": 0.939,
+    "by_season_miss_vs_baseline": {
+     "2023": -0.38,
+     "2024": -0.73,
+     "2025": -0.66,
+     "2026": -1.36
+    }
+   },
+   "Questionable / DNP": {
+    "n": 72,
+    "played": 0.986,
+    "avg_proj": 10.34,
+    "avg_proj_if_sat": 3.83,
+    "n_played": 71,
+    "miss_if_played": -1.33,
+    "miss_vs_baseline": -1.61,
+    "se": 0.77,
+    "actual_over_proj_if_played": 0.85,
+    "by_season_miss_vs_baseline": {
+     "2023": -1.47,
+     "2024": -3.63,
+     "2025": -0.41,
+     "2026": 1.03
+    }
+   },
+   "Questionable / FP": {
+    "n": 156,
+    "played": 1.0,
+    "avg_proj": 9.65,
+    "avg_proj_if_sat": 0.0,
+    "n_played": 156,
+    "miss_if_played": -0.55,
+    "miss_vs_baseline": -0.83,
+    "se": 0.55,
+    "actual_over_proj_if_played": 0.918,
+    "by_season_miss_vs_baseline": {
+     "2023": 0.23,
+     "2024": -1.16,
+     "2025": -2.13,
+     "2026": -1.05
+    }
+   },
+   "Questionable / LP": {
+    "n": 376,
+    "played": 0.995,
+    "avg_proj": 10.41,
+    "avg_proj_if_sat": 6.49,
+    "n_played": 374,
+    "miss_if_played": -0.08,
+    "miss_vs_baseline": -0.36,
+    "se": 0.38,
+    "actual_over_proj_if_played": 0.966,
+    "by_season_miss_vs_baseline": {
+     "2023": -0.43,
+     "2024": -0.14,
+     "2025": -0.1,
+     "2026": -1.67
+    }
+   },
+   "listed, no status": {
+    "n": 2170,
+    "played": 0.999,
+    "avg_proj": 11.33,
+    "avg_proj_if_sat": 3.39,
+    "n_played": 2168,
+    "miss_if_played": 0.02,
+    "miss_vs_baseline": -0.26,
+    "se": 0.16,
+    "actual_over_proj_if_played": 0.975,
+    "by_season_miss_vs_baseline": {
+     "2023": -0.05,
+     "2024": 0.37,
+     "2025": -1.2,
+     "2026": 0.09
+    }
+   },
+   "not listed": {
+    "n": 10979,
+    "played": 0.992,
+    "avg_proj": 9.95,
+    "avg_proj_if_sat": 6.22,
+    "n_played": 10892,
+    "miss_if_played": 0.33,
+    "miss_vs_baseline": 0.05,
+    "se": 0.07,
+    "actual_over_proj_if_played": 1.006,
+    "by_season_miss_vs_baseline": {
+     "2023": 0.28,
+     "2024": 0.37,
+     "2025": -0.41,
+     "2026": -0.12
+    }
+   }
+  }
+ },
+ "play_chance_model": {
+  "with_practice": {
+   "n": 1640,
+   "held_out_log_loss": 0.5647,
+   "one_rate_log_loss": 0.6088,
+   "assume_he_plays_log_loss": 2.052,
+   "cells": {
+    "QB 5-10 avg DNP": {
+     "n": 4,
+     "played": 0.0,
+     "model": 0.187
+    },
+    "QB 5-10 avg LP": {
+     "n": 22,
+     "played": 0.318,
+     "model": 0.386
+    },
+    "QB 5-10 avg FP": {
+     "n": 2,
+     "played": 1.0,
+     "model": 0.666
+    },
+    "QB 10+ avg DNP": {
+     "n": 16,
+     "played": 0.312,
+     "model": 0.268
+    },
+    "QB 10+ avg LP": {
+     "n": 116,
+     "played": 0.483,
+     "model": 0.501
+    },
+    "QB 10+ avg FP": {
+     "n": 28,
+     "played": 0.821,
+     "model": 0.761
+    },
+    "RB/WR/TE 5-10 avg DNP": {
+     "n": 82,
+     "played": 0.415,
+     "model": 0.448
+    },
+    "RB/WR/TE 5-10 avg LP": {
+     "n": 408,
+     "played": 0.708,
+     "model": 0.689
+    },
+    "RB/WR/TE 5-10 avg FP": {
+     "n": 112,
+     "played": 0.839,
+     "model": 0.876
+    },
+    "RB/WR/TE 10+ avg DNP": {
+     "n": 153,
+     "played": 0.575,
+     "model": 0.564
+    },
+    "RB/WR/TE 10+ avg LP": {
+     "n": 601,
+     "played": 0.772,
+     "model": 0.779
+    },
+    "RB/WR/TE 10+ avg FP": {
+     "n": 96,
+     "played": 0.948,
+     "model": 0.918
+    }
+   }
+  },
+  "without_practice": {
+   "n": 1663,
+   "held_out_log_loss": 0.5947,
+   "one_rate_log_loss": 0.6084,
+   "assume_he_plays_log_loss": 2.0485,
+   "cells": {
+    "QB 5-10 avg any": {
+     "n": 28,
+     "played": 0.321,
+     "model": 0.422
+    },
+    "QB 10+ avg any": {
+     "n": 161,
+     "played": 0.522,
+     "model": 0.511
+    },
+    "RB/WR/TE 5-10 avg any": {
+     "n": 611,
+     "played": 0.692,
+     "model": 0.688
+    },
+    "RB/WR/TE 10+ avg any": {
+     "n": 863,
+     "played": 0.758,
+     "model": 0.759
+    }
+   }
+  },
+  "fit": {
+   "n": 1663,
+   "star_avg": 10.0,
+   "with_practice": {
+    "intercept": 0.7956,
+    "coef": {
+     "dnp": -1.0059,
+     "fp": 1.1552,
+     "qb": -1.2595,
+     "star": 0.4668
+    }
+   },
+   "without_practice": {
+    "intercept": 0.792,
+    "coef": {
+     "qb": -1.1052,
+     "star": 0.3574
+    }
+   },
+   "if_played": {
+    "factor": 0.939,
+    "n": 614,
+    "miss_vs_baseline": -0.64,
+    "se": 0.29
+   }
+  }
+ }
+}

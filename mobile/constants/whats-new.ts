@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.40',
+    title: "What's new",
+    items: [
+      'Questionable players now project at their chance of playing, read from this week\u2019s practice report (a full practice Friday plays about 90% of the time; no practice about half). Their cards show the chance and the practice log. Once inactives are out, active players get their full chance back.',
+    ],
+  },
+  {
     version: '1.1.39',
     title: "What's new",
     items: [

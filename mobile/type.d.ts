@@ -231,6 +231,9 @@ interface Player {
   snap_pct?: number | null;
   usage_trend?: UsageTrend | null;
   team_share?: TeamShare | null;
+  /** Questionable: chance he plays (already in proj_points) and this week's practice log. */
+  play_chance?: number | null;
+  practice?: string | null;
 }
 
 /** RB/WR/TE: share of the team's skill-position touches (carries + receptions) and DK points over its
@@ -625,6 +628,9 @@ interface DfsPlayer {
   team_share?: TeamShare | null;
   /** RB/WR/TE: the opponent's starting corners out (already in his projection or ceiling). */
   opp_cb_out?: number | null;
+  /** Questionable: chance he plays (already in the projection) and this week's practice log. */
+  play_chance?: number | null;
+  practice?: string | null;
   /** Prop medians and ladder chances by stat (pass_yd, rush_yd, rec_yd, rec), from app.prop_pricer; Pro only (left out for free accounts). */
   props?: Record<string, PropPrice> | null;
 }
@@ -822,6 +828,9 @@ interface LeverageDetail {
 interface PlayPlayer {
   /** RB/WR/TE: the opponent's starting corners out (already in his projection or ceiling). */
   opp_cb_out?: number | null;
+  /** Questionable: chance he plays (already in the projection) and this week's practice log. */
+  play_chance?: number | null;
+  practice?: string | null;
   /** The projection's weather adjustment (outdoor games where weather moved it). */
   weather?: { factor: number; text: string | null } | null;
   /** 1-based strength-of-play rank in a ranking list; null in the full player list. */
