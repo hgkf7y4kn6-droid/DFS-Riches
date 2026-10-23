@@ -9,18 +9,25 @@
   "2024": 8,
   "2025": 8
  },
- "te_points_minus_projection_2023_2025": {
-  "n_holiday": 104,
-  "n_other": 1072,
-  "holiday": 1.841,
-  "other_weeks": 0.799,
-  "gap": 1.042,
-  "se": 0.645,
-  "z": 1.62,
+ "te_points_minus_projection_2022_2025": {
+  "n_holiday": 144,
+  "n_other": 1446,
+  "holiday": 1.11,
+  "other_weeks": 0.629,
+  "gap": 0.481,
+  "se": 0.549,
+  "z": 0.88,
   "seasons_above": 3,
-  "seasons": 3,
-  "avg_rank_pct": 0.36,
+  "seasons": 4,
+  "avg_rank_pct": 0.5,
   "by_season": {
+   "2022": {
+    "week": 7,
+    "holiday": -0.789,
+    "other_weeks": 0.143,
+    "gap": -0.932,
+    "rank": "10 of 11"
+   },
    "2023": {
     "week": 7,
     "holiday": 1.658,
@@ -44,18 +51,25 @@
    }
   }
  },
- "te_boom_rate_1_5x_projection_2023_2025": {
-  "n_holiday": 104,
-  "n_other": 1072,
-  "holiday": 0.317,
-  "other_weeks": 0.271,
-  "gap": 0.046,
-  "se": 0.046,
-  "z": 1.0,
+ "te_boom_rate_1_5x_projection_2022_2025": {
+  "n_holiday": 144,
+  "n_other": 1446,
+  "holiday": 0.271,
+  "other_weeks": 0.263,
+  "gap": 0.008,
+  "se": 0.038,
+  "z": 0.21,
   "seasons_above": 2,
-  "seasons": 3,
-  "avg_rank_pct": 0.39,
+  "seasons": 4,
+  "avg_rank_pct": 0.52,
   "by_season": {
+   "2022": {
+    "week": 7,
+    "holiday": 0.15,
+    "other_weeks": 0.239,
+    "gap": -0.089,
+    "rank": "10 of 11"
+   },
    "2023": {
     "week": 7,
     "holiday": 0.276,
@@ -267,5 +281,285 @@
     "rank": "7 of 11"
    }
   }
+ },
+ "te_touchdowns_per_team_game_2019_2025": {
+  "n_holiday": 196,
+  "n_other": 2044,
+  "holiday": 0.398,
+  "other_weeks": 0.412,
+  "gap": -0.014,
+  "se": 0.049,
+  "z": -0.3,
+  "seasons_above": 2,
+  "seasons": 7,
+  "avg_rank_pct": 0.62,
+  "by_season": {
+   "2019": {
+    "week": 8,
+    "holiday": 0.4,
+    "other_weeks": 0.42,
+    "gap": -0.02,
+    "rank": "8 of 11"
+   },
+   "2020": {
+    "week": 7,
+    "holiday": 0.429,
+    "other_weeks": 0.469,
+    "gap": -0.041,
+    "rank": "8 of 11"
+   },
+   "2021": {
+    "week": 7,
+    "holiday": 0.346,
+    "other_weeks": 0.443,
+    "gap": -0.097,
+    "rank": "9 of 11"
+   },
+   "2022": {
+    "week": 7,
+    "holiday": 0.214,
+    "other_weeks": 0.367,
+    "gap": -0.153,
+    "rank": "10 of 11"
+   },
+   "2023": {
+    "week": 7,
+    "holiday": 0.308,
+    "other_weeks": 0.365,
+    "gap": -0.057,
+    "rank": "7 of 11"
+   },
+   "2024": {
+    "week": 8,
+    "holiday": 0.531,
+    "other_weeks": 0.375,
+    "gap": 0.156,
+    "rank": "2 of 11"
+   },
+   "2025": {
+    "week": 8,
+    "holiday": 0.538,
+    "other_weeks": 0.444,
+    "gap": 0.094,
+    "rank": "4 of 11"
+   }
+  }
+ },
+ "te_share_of_offensive_touchdowns_2019_2025": {
+  "n_holiday": 181,
+  "n_other": 1894,
+  "holiday": 0.138,
+  "other_weeks": 0.17,
+  "gap": -0.032,
+  "se": 0.021,
+  "z": -1.51,
+  "seasons_above": 2,
+  "seasons": 7,
+  "avg_rank_pct": 0.75,
+  "by_season": {
+   "2019": {
+    "week": 8,
+    "holiday": 0.176,
+    "other_weeks": 0.177,
+    "gap": -0.002,
+    "rank": "7 of 11"
+   },
+   "2020": {
+    "week": 7,
+    "holiday": 0.14,
+    "other_weeks": 0.168,
+    "gap": -0.028,
+    "rank": "9 of 11"
+   },
+   "2021": {
+    "week": 7,
+    "holiday": 0.1,
+    "other_weeks": 0.197,
+    "gap": -0.096,
+    "rank": "11 of 11"
+   },
+   "2022": {
+    "week": 7,
+    "holiday": 0.077,
+    "other_weeks": 0.156,
+    "gap": -0.079,
+    "rank": "11 of 11"
+   },
+   "2023": {
+    "week": 7,
+    "holiday": 0.105,
+    "other_weeks": 0.163,
+    "gap": -0.058,
+    "rank": "10 of 11"
+   },
+   "2024": {
+    "week": 8,
+    "holiday": 0.164,
+    "other_weeks": 0.155,
+    "gap": 0.009,
+    "rank": "6 of 11"
+   },
+   "2025": {
+    "week": 8,
+    "holiday": 0.193,
+    "other_weeks": 0.174,
+    "gap": 0.018,
+    "rank": "4 of 11"
+   }
+  }
+ },
+ "te_with_3_targets_who_scored_2019_2025": {
+  "n_holiday": 209,
+  "n_other": 2144,
+  "holiday": 0.263,
+  "other_weeks": 0.264,
+  "gap": -0.0,
+  "se": 0.032,
+  "z": -0.01,
+  "seasons_above": 3,
+  "seasons": 7,
+  "avg_rank_pct": 0.55,
+  "by_season": {
+   "2019": {
+    "week": 8,
+    "holiday": 0.323,
+    "other_weeks": 0.29,
+    "gap": 0.033,
+    "rank": "5 of 11"
+   },
+   "2020": {
+    "week": 7,
+    "holiday": 0.258,
+    "other_weeks": 0.285,
+    "gap": -0.027,
+    "rank": "8 of 11"
+   },
+   "2021": {
+    "week": 7,
+    "holiday": 0.258,
+    "other_weeks": 0.268,
+    "gap": -0.01,
+    "rank": "7 of 11"
+   },
+   "2022": {
+    "week": 7,
+    "holiday": 0.074,
+    "other_weeks": 0.228,
+    "gap": -0.154,
+    "rank": "11 of 11"
+   },
+   "2023": {
+    "week": 7,
+    "holiday": 0.24,
+    "other_weeks": 0.255,
+    "gap": -0.015,
+    "rank": "5 of 11"
+   },
+   "2024": {
+    "week": 8,
+    "holiday": 0.343,
+    "other_weeks": 0.241,
+    "gap": 0.102,
+    "rank": "1 of 11"
+   },
+   "2025": {
+    "week": 8,
+    "holiday": 0.31,
+    "other_weeks": 0.271,
+    "gap": 0.039,
+    "rank": "5 of 11"
+   }
+  }
+ },
+ "te_projection_over_his_other_weeks_2022_2025": {
+  "n_holiday": 126,
+  "n_other": 1233,
+  "holiday": 1.209,
+  "other_weeks": 1.232,
+  "gap": -0.023,
+  "se": 0.032,
+  "z": -0.73,
+  "seasons_above": 1,
+  "seasons": 4,
+  "avg_rank_pct": 0.64,
+  "by_season": {
+   "2022": {
+    "week": 7,
+    "holiday": 1.167,
+    "other_weeks": 1.197,
+    "gap": -0.03,
+    "rank": "8 of 11"
+   },
+   "2023": {
+    "week": 7,
+    "holiday": 1.232,
+    "other_weeks": 1.229,
+    "gap": 0.004,
+    "rank": "6 of 11"
+   },
+   "2024": {
+    "week": 8,
+    "holiday": 1.192,
+    "other_weeks": 1.232,
+    "gap": -0.04,
+    "rank": "7 of 11"
+   },
+   "2025": {
+    "week": 8,
+    "holiday": 1.252,
+    "other_weeks": 1.265,
+    "gap": -0.013,
+    "rank": "7 of 11"
+   }
+  }
+ },
+ "te_projected_tds_over_his_other_weeks_2022_2025": {
+  "n_holiday": 126,
+  "n_other": 1233,
+  "holiday": 1.172,
+  "other_weeks": 1.238,
+  "gap": -0.066,
+  "se": 0.036,
+  "z": -1.84,
+  "seasons_above": 0,
+  "seasons": 4,
+  "avg_rank_pct": 0.66,
+  "by_season": {
+   "2022": {
+    "week": 7,
+    "holiday": 1.143,
+    "other_weeks": 1.208,
+    "gap": -0.065,
+    "rank": "9 of 11"
+   },
+   "2023": {
+    "week": 7,
+    "holiday": 1.222,
+    "other_weeks": 1.227,
+    "gap": -0.005,
+    "rank": "6 of 11"
+   },
+   "2024": {
+    "week": 8,
+    "holiday": 1.179,
+    "other_weeks": 1.232,
+    "gap": -0.053,
+    "rank": "7 of 11"
+   },
+   "2025": {
+    "week": 8,
+    "holiday": 1.156,
+    "other_weeks": 1.277,
+    "gap": -0.121,
+    "rank": "7 of 11"
+   }
+  }
+ },
+ "this_season": {
+  "season": 2026,
+  "week": 7,
+  "n": 36,
+  "projection_over_earlier_weeks": 1.143,
+  "projected_tds_over_earlier_weeks": 1.153
  }
 }

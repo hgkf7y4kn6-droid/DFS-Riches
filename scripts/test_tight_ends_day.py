@@ -1,13 +1,17 @@
 """Do tight ends outscore expectations on National Tight Ends Day?
 
-    python -m scripts.test_tight_ends_day [--data DIR]
+    python -m scripts.test_tight_ends_day [--data DIR] [--live-week N]
 
 National Tight Ends Day is the fourth Sunday of October (first held 2019). Three looks, each comparing the holiday's week
 with the other mid-season weeks (4-14) of the same seasons:
 
-1. vs projection (2023-2025, Sleeper's projection scored with DraftKings rules): every TE projected 3+ points who played.
+1. vs projection (2022-2025, Sleeper's projection scored with DraftKings rules): every TE projected 3+ points who played.
 2. vs his own form (2019-2025): actual / his average over his earlier games that season (3+ games, 5+ point average).
 3. The position's share (2019-2025): TEs' share of each team's receiving targets and of its pass catchers' DK points.
+4. Touchdowns (2019-2025): TE touchdowns per team-game, TEs' share of each team's offensive touchdowns, and the share
+   of TEs with a role (3+ targets) who scored.
+5. Were TEs projected higher? (2022-2025, and this season's holiday week live): each TE's projected DK points and
+   projected touchdowns that week / his average projection over the season's other mid-season weeks.
 
 For each: the holiday's mean, the other weeks' mean, the gap with a standard error, each season's gap, and where the
 holiday week ranks among the season's mid-season weeks. Writes data/tight_ends_day_tests.json.
@@ -28,7 +32,7 @@ from scripts.train_player_model import sleeper_week
 
 OUT = Path(__file__).resolve().parent.parent / "data" / "tight_ends_day_tests.json"
 SEASONS = tuple(range(2019, 2026))
-PROJ_SEASONS = (2023, 2024, 2025)
+PROJ_SEASONS = (2022, 2023, 2024, 2025)
 MID = range(4, 15)
 
 
@@ -71,14 +75,55 @@ def summarize(vals: dict[int, dict[int, list[float]]], weeks: dict[int, int]) ->
             "avg_rank_pct": round(statistics.fmean(ranks), 2) if ranks else None, "by_season": by_season}
 
 
+def te_projections(d: Path, season: int, weeks) -> dict[str, dict[int, tuple[float, float]]]:
+    """{TE key: {week: (projected DK points, projected TDs)}} from Sleeper's weekly projections."""
+    out: dict[str, dict[int, tuple[float, float]]] = defaultdict(dict)
+    for w in weeks:
+        for e in sleeper_week(d, season, w):
+            pl = e.get("player") or {}
+            if pl.get("position") != "TE" or not e.get("team"):
+                continue
+            k = pm.key(f"{pl.get('first_name', '')} {pl.get('last_name', '')}".strip(), "TE")
+            st = e.get("stats") or {}
+            out[k][w] = (projections.dk_points_from_line(st, "TE"), float(st.get("rec_td") or 0))
+    return out
+
+
+def this_season(d: Path, week: int | None) -> dict:
+    """The current season's holiday week vs its earlier weeks: each TE projected 3+ points this week, his projection
+    and projected TDs over his average for weeks 4 on (3+ of them)."""
+    if not week:
+        return {}
+    season = dt.date.today().year
+    by = te_projections(d, season, range(4, week + 1))
+    lift, td_lift = [], []
+    for games in by.values():
+        if week not in games:
+            continue
+        proj, td = games[week]
+        others = [v for x, v in games.items() if x != week]
+        avg = statistics.fmean(p for p, _ in others) if len(others) >= 3 else 0.0
+        if proj >= 3 and avg >= 3:
+            lift.append(proj / avg)
+            avg_td = statistics.fmean(t for _, t in others)
+            if avg_td > 0:
+                td_lift.append(td / avg_td)
+    return {"season": season, "week": week, "n": len(lift),
+            "projection_over_earlier_weeks": round(statistics.fmean(lift), 3) if lift else None,
+            "projected_tds_over_earlier_weeks": round(statistics.fmean(td_lift), 3) if td_lift else None}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default="data/cache/train")
+    ap.add_argument("--live-week", type=int, default=None, help="this season's holiday week, to check its projections")
     args = ap.parse_args()
     d = Path(args.data)
     weeks = {s: w for s, w in holiday_weeks(d).items() if s in SEASONS}
     vs_proj, vs_form, tgt_share, pts_share = (defaultdict(lambda: defaultdict(list)) for _ in range(4))
     boom = defaultdict(lambda: defaultdict(list))
+    td_per_team, td_share, td_scored = (defaultdict(lambda: defaultdict(list)) for _ in range(3))
+    proj_lift, proj_td_lift = (defaultdict(lambda: defaultdict(list)) for _ in range(2))
     for s in SEASONS:
         rows = [r for r in csv.DictReader(open(fetch(f"{REL}/stats_player/stats_player_week_{s}.csv",
                                                      d / f"stats_player_week_{s}.csv"), newline=""))
@@ -86,6 +131,7 @@ def main():
         pts = {}
         team_tgt, team_pts = defaultdict(float), defaultdict(float)
         te_tgt, te_pts = defaultdict(float), defaultdict(float)
+        team_td, te_td = defaultdict(float), defaultdict(float)
         for r in rows:
             w, pos = int(r["week"]), r.get("position")
             p = dk_scoring.dk_offense_points(r)
@@ -100,6 +146,16 @@ def main():
                 if pos == "TE":
                     te_tgt[k] += t
                     te_pts[k] += rec
+            tds = float(r.get("rushing_tds") or 0) + float(r.get("receiving_tds") or 0)
+            team_td[(w, r["team"])] += tds
+            if pos == "TE":
+                te_td[(w, r["team"])] += tds
+                if float(r.get("targets") or 0) >= 3:
+                    td_scored[s][w].append(float(tds > 0))
+        for (w, tm), n in team_td.items():
+            td_per_team[s][w].append(te_td[(w, tm)])
+            if n > 0:
+                td_share[s][w].append(te_td[(w, tm)] / n)
         for (w, tm), n in team_tgt.items():
             if n >= 15:
                 tgt_share[s][w].append(te_tgt[(w, tm)] / n)
@@ -111,6 +167,15 @@ def main():
                 if len(prior) >= 3 and statistics.fmean(prior) >= 5:
                     vs_form[s][w].append(p / statistics.fmean(prior))
         if s in PROJ_SEASONS:
+            for k, by_week in te_projections(d, s, MID).items():
+                for w, (proj, td) in by_week.items():
+                    others = [v for x, v in by_week.items() if x != w]
+                    avg = statistics.fmean(p for p, _ in others) if len(others) >= 3 else 0.0
+                    if proj >= 3 and avg >= 3:
+                        proj_lift[s][w].append(proj / avg)
+                        avg_td = statistics.fmean(t for _, t in others)
+                        if avg_td > 0:
+                            proj_td_lift[s][w].append(td / avg_td)
             for w in MID:
                 for e in sleeper_week(d, s, w):
                     pl = e.get("player") or {}
@@ -124,11 +189,17 @@ def main():
     res = {
         "holiday": "fourth Sunday of October",
         "weeks": {s: w for s, w in sorted(weeks.items())},
-        "te_points_minus_projection_2023_2025": summarize(vs_proj, {s: w for s, w in weeks.items() if s in PROJ_SEASONS}),
-        "te_boom_rate_1_5x_projection_2023_2025": summarize(boom, {s: w for s, w in weeks.items() if s in PROJ_SEASONS}),
+        "te_points_minus_projection_2022_2025": summarize(vs_proj, {s: w for s, w in weeks.items() if s in PROJ_SEASONS}),
+        "te_boom_rate_1_5x_projection_2022_2025": summarize(boom, {s: w for s, w in weeks.items() if s in PROJ_SEASONS}),
         "te_points_over_own_average_2019_2025": summarize(vs_form, weeks),
         "te_share_of_targets_2019_2025": summarize(tgt_share, weeks),
         "te_share_of_receiving_points_2019_2025": summarize(pts_share, weeks),
+        "te_touchdowns_per_team_game_2019_2025": summarize(td_per_team, weeks),
+        "te_share_of_offensive_touchdowns_2019_2025": summarize(td_share, weeks),
+        "te_with_3_targets_who_scored_2019_2025": summarize(td_scored, weeks),
+        "te_projection_over_his_other_weeks_2022_2025": summarize(proj_lift, {s: w for s, w in weeks.items() if s in PROJ_SEASONS}),
+        "te_projected_tds_over_his_other_weeks_2022_2025": summarize(proj_td_lift, {s: w for s, w in weeks.items() if s in PROJ_SEASONS}),
+        "this_season": this_season(d, args.live_week),
     }
     OUT.write_text(json.dumps(res, indent=1))
     for k, v in res.items():
