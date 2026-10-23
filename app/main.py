@@ -39,7 +39,7 @@ from app import leverage as leverage_module
 from app import metrics, ownership_persist, ownership_slate, ownership_video
 from app import trenches as trenches_module
 from app import dfs_model
-from app import accounts, contests, guard, matchups, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
+from app import accounts, contests, guard, matchups, news_overrides, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
@@ -128,7 +128,7 @@ async def _warm_current_slates() -> None:
     # Then the DFS model and both plays tabs for the default slate, so the first visitor doesn't wait on them.
     try:
         season, week = await current_season_week()
-        version = ownership_store.data_version()
+        version = _model_version()
         await _dfs_model(season, week, None, "gpp", None, version)
         await _dfs_model_without_props(season, week, None, "gpp", None, version)
         for contest in ("cash", "gpp"):
@@ -519,10 +519,15 @@ async def api_plays(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, 
     if contest not in ("cash", "gpp"):
         raise HTTPException(status_code=400, detail="contest must be cash or gpp")
     try:
-        body = await _plays(season, week, slate_id, contest, ownership_store.data_version())
+        body = await _plays(season, week, slate_id, contest, _model_version())
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not build {contest} plays: {exc}") from exc
     return Response(body, media_type="application/json")
+
+
+def _model_version() -> tuple:
+    """The DFS model's cache key: changes with new ownership information or breaking news (app.news_overrides)."""
+    return ownership_store.data_version() + news_overrides.data_version()
 
 
 async def _user(authorization: str | None) -> str:
@@ -699,7 +704,7 @@ async def api_slate_ownership(request: Request, slate_id: str, season: Season = 
     """Projected ownership % for a slate's players, keyed by DraftKings draftable id (Pro)."""
     await _require_feature(request, "ownership")
     try:
-        return await _slate_ownership(season, week, slate_id, ownership_store.data_version())
+        return await _slate_ownership(season, week, slate_id, _model_version())
     except HTTPException:
         raise
     except Exception as exc:
@@ -716,7 +721,7 @@ async def api_dfs_model(request: Request, season: Season = DEFAULT_SEASON, week:
         raise HTTPException(status_code=400, detail="contest_size must be between 2 and 2,000,000")
     build = _dfs_model if await _entitled(request, "props") else _dfs_model_without_props
     try:
-        body = await build(season, week, slate_id, contest, contest_size, ownership_store.data_version())
+        body = await build(season, week, slate_id, contest, contest_size, _model_version())
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not build the DFS model: {exc}") from exc
     return Response(body, media_type="application/json")
@@ -907,7 +912,7 @@ async def api_ownership_duplication(request: Request, body: dict = Body(...)):
         lineups = [[int(x) for x in lu] for lu in (body.get("lineups") or [])[:5] if isinstance(lu, list) and len(lu) == 9]
     except (KeyError, ValueError, TypeError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    await _dfs_model(season, week, slate_id, contest, None, ownership_store.data_version())
+    await _dfs_model(season, week, slate_id, contest, None, _model_version())
     state = dfs_model._STATE.get((season, week, slate_id, contest))
     if state is None:
         raise HTTPException(status_code=404, detail="Build the DFS model for this slate first")
@@ -996,6 +1001,84 @@ async def api_big_picture(id: int | None = None, authorization: Annotated[str | 
         raise HTTPException(status_code=502, detail=f"Could not load the Big Picture: {exc}") from exc
     return {"report": report, "versions": versions, "can_run": bool(os.environ.get("GITHUB_DISPATCH_TOKEN")),
             "run": await _workflow_status()}
+
+
+@app.get("/api/news-overrides")
+async def api_news_overrides(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
+    """Breaking news entered by hand for the week (app.news_overrides), newest first."""
+    return {"season": season, "week": week, "statuses": news_overrides.STATUSES,
+            "entries": list(reversed(await news_overrides.entries(season, week)))}
+
+
+def _news_changed() -> None:
+    """New breaking news: rebuild the slates' players and the game model now, not when their caches expire."""
+    slates.get_slate_players.cache_clear()
+    from app import game_model
+    game_model._week_games_cached.cache_clear()
+
+
+@app.post("/api/news-overrides")
+async def api_news_override_add(body: dict = Body(...), authorization: Annotated[str | None, Header()] = None):
+    """Master accounts: {season, week, name, team (optional when the name is on one team's DraftKings roster), status
+    (OUT | D | Q | PLAYING), note}. The name is matched to the week's DraftKings players; a player who isn't on one
+    (a lineman, a defender) needs his team and counts only toward the game model's starters out."""
+    user_id = await _require_master(authorization)
+    try:
+        season, week = int(body["season"]), int(body["week"])
+        name, team = str(body.get("name") or "").strip(), str(body.get("team") or "").strip().upper()
+        status = str(body.get("status") or "").strip().upper()
+        if not (2000 <= season <= 2100 and 1 <= week <= 22) or not 2 <= len(name) <= 60:
+            raise ValueError("Give a season, week and player name")
+        if status not in news_overrides.STATUSES:
+            raise ValueError(f"status must be one of {', '.join(news_overrides.STATUSES)}")
+    except (KeyError, ValueError, TypeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    match = await _news_player(season, week, name, team)
+    if match is None and not team:
+        raise HTTPException(status_code=400, detail=f"{name} isn't on this week's DraftKings slates: add his team")
+    if match is None and team not in {t for g in (await slates.list_slates(season, week))[0].games for t in (g.away, g.home)}:
+        raise HTTPException(status_code=400, detail=f"{team} doesn't play in week {week}")
+    entry = await news_overrides.add(season, week, match[1] if match else team, match[0] if match else name, status,
+                                     str(body.get("note") or ""), on_slate=match is not None, by=user_id)
+    _news_changed()
+    return entry
+
+
+@app.delete("/api/news-overrides/{entry_id}")
+async def api_news_override_remove(entry_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK,
+                                   authorization: Annotated[str | None, Header()] = None):
+    await _require_master(authorization)
+    if not re.fullmatch(r"[0-9a-f]{6,32}", entry_id):
+        raise HTTPException(status_code=400, detail="Bad id")
+    gone = await news_overrides.remove(season, week, entry_id)
+    _news_changed()
+    return {"removed": gone}
+
+
+async def _news_player(season: int, week: int, name: str, team: str) -> tuple[str, str] | None:
+    """(DraftKings name, team) for a typed name: an exact match, else a unique last-name match (on the team, when
+    given); None when there's no single match on the week's slates."""
+    from app.matching import normalize_name
+    _schedule, week_slates = await slates.list_slates(season, week)
+    seen: dict[tuple[str, str], str] = {}
+    for s in week_slates:
+        if not s.available:
+            continue
+        try:
+            sp = await slates.get_slate_players(season, week, s.slate_id)
+        except Exception:
+            continue
+        for p in sp.players:
+            if p.position != "DST":
+                seen[(p.team, normalize_name(p.name))] = p.name
+    want = normalize_name(name)
+    pool = {k: v for k, v in seen.items() if not team or k[0] == team}
+    exact = [(v, k[0]) for k, v in pool.items() if k[1] == want]
+    if len(exact) == 1:
+        return exact[0]
+    last = want.split(" ")[-1]
+    by_last = [(v, k[0]) for k, v in pool.items() if k[1].split(" ")[-1] == last and (" " not in want or k[1].split(" ")[0][:1] == want[:1])]
+    return by_last[0] if len(by_last) == 1 else None
 
 
 @app.post("/api/big-picture/run")

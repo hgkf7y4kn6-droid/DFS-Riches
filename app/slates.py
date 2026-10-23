@@ -13,7 +13,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime
 
-from app import ceiling, ceiling_model, dk_client, dst_model, game_model, injury_news, matching, player_model, nflverse_client, player_games, projections, roles, sleeper_client, weather
+from app import ceiling, ceiling_model, dk_client, dst_model, game_model, injury_news, matching, news_overrides, player_model, nflverse_client, player_games, projections, roles, sleeper_client, weather
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
 from app.models import Player, Slate, SlatePlayers, WeekSchedule
@@ -301,6 +301,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         )
 
     injury_news.apply_news(players, await injury_news.espn_statuses())
+    news_overrides.apply(players, await news_overrides.entries(season, week))
     reports = await injury_news.practice_reports({p.team for p in players if p.injury in ("", None, "Healthy", "Q")
                                                   and p.position != "DST" and p.proj_points >= 3}, week)
     injury_news.apply_report_statuses(players, reports)

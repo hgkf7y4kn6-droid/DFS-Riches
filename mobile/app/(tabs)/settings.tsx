@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AccountCard from '@/components/AccountCard';
 import MatchupModeToggle from '@/components/MatchupModeToggle';
+import NewsOverrideCard from '@/components/NewsOverrideCard';
 import PrefsEditor from '@/components/PrefsEditor';
 import BackLink from '@/components/BackLink';
 import BrandHeader from '@/components/BrandHeader';
@@ -120,6 +121,7 @@ export default function SettingsScreen() {
 
         <Text className="settings-group-title">Account</Text>
         <AccountCard />
+        <NewsOverrideCard />
         <View className="settings-group mt-2">
           <Row
             label="Plan"

@@ -134,6 +134,13 @@
   .account-master-text {
     @apply text-[11px] font-sans-bold uppercase text-gold;
   }
+  /* Settings > Breaking news: one entered item */
+  .news-row {
+    @apply flex-row items-center border-t border-border py-2;
+  }
+  .news-row-name {
+    @apply text-sm font-sans-semibold text-foreground;
+  }
   .account-sync {
     @apply mt-3 text-xs font-sans-semibold text-foreground;
   }

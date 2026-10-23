@@ -326,3 +326,57 @@ export function getBigPicture(token: string, id?: number | null) {
 export function runBigPicture(token: string) {
   return authed<{ started: boolean }>(token, '/api/big-picture/run', 'POST');
 }
+
+export type NewsStatus = 'OUT' | 'D' | 'Q' | 'PLAYING';
+
+export interface NewsOverride {
+  id: string;
+  season: number;
+  week: number;
+  team: string;
+  name: string;
+  status: NewsStatus;
+  note: string | null;
+  /** False for a player not on a DraftKings slate (a lineman or defender): counts toward starters out only. */
+  on_slate: boolean;
+  created_at: string;
+  persisted?: boolean;
+}
+
+/** Breaking news entered by hand for a week (app.news_overrides), newest first. */
+export async function getNewsOverrides(season: number, week: number): Promise<NewsOverride[]> {
+  const res = await fetch(`${API_BASE_URL}/api/news-overrides?season=${season}&week=${week}`, { headers: { Accept: 'application/json' } });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return ((await res.json()) as { entries: NewsOverride[] }).entries;
+}
+
+async function newsRequest<T>(token: string, path: string, method: 'POST' | 'DELETE', body?: unknown): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: `Bearer ${token}` },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) {
+    let detail = `${res.status} ${res.statusText}`;
+    try {
+      detail = ((await res.json()) as { detail?: string }).detail ?? detail;
+    } catch {
+      // not JSON
+    }
+    throw new Error(detail);
+  }
+  return (await res.json()) as T;
+}
+
+/** Master accounts: enter breaking news (a player ruled Out, Doubtful, Questionable, or confirmed Playing). */
+export function postNewsOverride(
+  token: string,
+  body: { season: number; week: number; name: string; team?: string; status: NewsStatus; note?: string },
+) {
+  return newsRequest<NewsOverride>(token, '/api/news-overrides', 'POST', body);
+}
+
+/** Master accounts: remove an entry; the official feeds take over again. */
+export function deleteNewsOverride(token: string, season: number, week: number, id: string) {
+  return newsRequest<{ removed: boolean }>(token, `/api/news-overrides/${id}?season=${season}&week=${week}`, 'DELETE');
+}

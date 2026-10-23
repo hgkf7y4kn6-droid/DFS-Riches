@@ -500,7 +500,7 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
     """{"AWAY@HOME" (app codes): forecast} for a week's games. lines: {"AWAY@HOME": (total, home expected margin)}
     to price against (default: nflverse's consensus line); wind: {"AWAY@HOME": mph} from the forecast.
     Linemen are 'out' when they played no snaps (finished games) or ESPN lists them Out/IR/Doubtful (upcoming)."""
-    from app import injury_news
+    from app import injury_news, news_overrides
     from app import nflverse_client as nc
     from app.matching import normalize_name
 
@@ -517,7 +517,8 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
         h[0] += n
         h[1] += e
     snaps, dsnaps = await _line_snaps(season)
-    news = await injury_news.espn_statuses() if injuries else {}
+    news = {**news_overrides.as_news(await news_overrides.entries(season, week)),
+            **(await injury_news.espn_statuses())} if injuries else {}
     points = {}
     for r in raw:
         if r.get("game_type") == "REG" and r.get("home_score") not in (None, ""):

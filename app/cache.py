@@ -179,6 +179,7 @@ def memoize_async(ttl_seconds: float, max_entries: int = 32, stale_seconds: floa
                 return hit[1]
             return await task
 
+        wrapper.cache_clear = store.clear     # type: ignore[attr-defined]
         return wrapper
 
     return decorator
