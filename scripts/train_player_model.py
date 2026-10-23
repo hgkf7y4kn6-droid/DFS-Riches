@@ -17,6 +17,7 @@ import urllib.request
 from pathlib import Path
 
 from app import dk_scoring, game_model as gm, player_model as pm, projections
+from app.matching import normalize_name
 from scripts import train_game_model as tgm
 from scripts.train_game_model import GAMES_URL, REL, fetch
 
@@ -75,7 +76,17 @@ def player_weeks(d: Path, season: int, weeks):
         opp_pressure(week, team)
         return explosive[week].get(team, 0.0)
 
+    played = {(int(r["week"]), r["team"], normalize_name(r["player"])) for r in snaps
+              if r.get("week") and float(r.get("offense_snaps") or 0) > 0}
     weeks = set(weeks)
+    vac_by_week: dict[int, dict[str, dict]] = {}
+
+    def vac_for(week: int, team: str) -> dict:
+        """His team's vacated shares: its fresh regulars with no offensive snap this week."""
+        if week not in vac_by_week:
+            vac_by_week[week] = {t: pm.vacated(regs, lambda k, t=t: (week, t, k.rsplit("|", 1)[0]) not in played)
+                                 for t, regs in pm.fresh_regulars(hist, week).items()}
+        return vac_by_week[week].get(team) or {}
     proj_by_week: dict[int, dict[str, float]] = {}
     for w in range(1, max(weeks) + 1):
         proj_by_week[w] = {}
@@ -103,7 +114,7 @@ def player_weeks(d: Path, season: int, weeks):
             f = pm.features(h, w, p, pos, imp, spr, ph, opp_pressure=opp_pressure(w, opp), ol_out=tgm.ol_out(ol, team, w),
                             front7_out=sum(n for u, n in gm.def_out_played(dsnaps, opp, w).items() if u in gm.FRONT7),
                             line=e.get("stats") or {}, opp_explosive=opp_explosive(w, opp),
-                            opp_cb_out=gm.cb_out_played(dsnaps, opp, w))
+                            opp_cb_out=gm.cb_out_played(dsnaps, opp, w), vac=vac_for(w, team))
             yield {"week": w, "key": k, "pos": pos, "proj": p, "f": f, "actual": h[w]["pts"], "line": e.get("stats") or {},
                    "implied": imp, "spread": spr, "opp_cb_out": gm.cb_out_played(dsnaps, opp, w)}
 

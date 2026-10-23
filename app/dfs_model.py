@@ -148,6 +148,11 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
                 adjustments.append({"kind": "model", "source": "Role & script", "delta": role_adj,
                                     "text": f"Role & script model: {role_adj:+.1f} (target, carry and snap share trends; team total and spread)"})
                 final = max(0.0, final + role_adj)
+            if vac_adj := getattr(p, "vacated_adj", None):
+                adjustments.append({"kind": "model", "source": "Out teammates", "delta": vac_adj,
+                                    "text": f"Out teammates: {vac_adj:+.1f} (their projected targets and carries, not yet "
+                                            f"moved by Sleeper)"})
+                final = max(0.0, final + vac_adj)
             wx = team_weather.get(p.team)
             factor = weather.player_factor(wx, pos, c.line, projections.dk_points_from_line)
             if abs(factor - 1) >= 0.01:

@@ -1,0 +1,273 @@
+{
+ "regular": "target share 12%+ or carry share 25%+ over his last 3 games",
+ "regulars": 14387,
+ "out": 978,
+ "absorption_2019_2026": {
+  "targets (RB/WR/TE)": {
+   "team_weeks": 464,
+   "drift_without_vacancy": -0.0128,
+   "absorbed_share_of_vacated": 0.258,
+   "se": 0.028,
+   "by_recent_share_slope": -0.211,
+   "share_ratio_with_vacancy": 1.147
+  },
+  "targets (WR/TE)": {
+   "team_weeks": 454,
+   "drift_without_vacancy": -0.0155,
+   "absorbed_share_of_vacated": 0.209,
+   "se": 0.027,
+   "by_recent_share_slope": -0.144,
+   "share_ratio_with_vacancy": 1.068
+  },
+  "carries (RB)": {
+   "team_weeks": 181,
+   "drift_without_vacancy": -0.0227,
+   "absorbed_share_of_vacated": 0.343,
+   "se": 0.041,
+   "by_recent_share_slope": 0.259,
+   "share_ratio_with_vacancy": 1.389
+  }
+ },
+ "who_absorbs_2019_2026": {
+  "targets (WR out)": {
+   "same position, #1 remaining": {
+    "n": 282,
+    "absorbs": 0.205,
+    "se": 0.027
+   },
+   "same position, #2 remaining": {
+    "n": 264,
+    "absorbs": 0.199,
+    "se": 0.025
+   },
+   "same position, #3 remaining": {
+    "n": 179,
+    "absorbs": 0.193,
+    "se": 0.03
+   },
+   "same position, #4+ remaining": {
+    "n": 59,
+    "absorbs": 0.174,
+    "se": 0.045
+   },
+   "other positions (each player)": {
+    "n": 1116,
+    "absorbs": 0.036,
+    "se": 0.009
+   }
+  },
+  "targets (TE out)": {
+   "same position, #1 remaining": {
+    "n": 50,
+    "absorbs": 0.245,
+    "se": 0.046
+   },
+   "same position, #2 remaining": {
+    "n": 17,
+    "absorbs": 0.241,
+    "se": 0.105
+   },
+   "same position, #3 remaining": {
+    "n": 1,
+    "absorbs": 0.011,
+    "se": 0
+   },
+   "other positions (each player)": {
+    "n": 337,
+    "absorbs": 0.059,
+    "se": 0.021
+   }
+  },
+  "targets (RB out)": {
+   "same position, #1 remaining": {
+    "n": 114,
+    "absorbs": 0.359,
+    "se": 0.061
+   },
+   "same position, #2 remaining": {
+    "n": 49,
+    "absorbs": 0.287,
+    "se": 0.071
+   },
+   "same position, #3 remaining": {
+    "n": 2,
+    "absorbs": 0.04,
+    "se": 0.095
+   },
+   "other positions (each player)": {
+    "n": 712,
+    "absorbs": 0.043,
+    "se": 0.024
+   }
+  },
+  "carries (RB out)": {
+   "same position, #1 remaining": {
+    "n": 232,
+    "absorbs": 0.416,
+    "se": 0.032
+   },
+   "same position, #2 remaining": {
+    "n": 99,
+    "absorbs": 0.21,
+    "se": 0.037
+   },
+   "same position, #3 remaining": {
+    "n": 10,
+    "absorbs": 0.038,
+    "se": 0.056
+   },
+   "same position, #4+ remaining": {
+    "n": 1,
+    "absorbs": -0.001,
+    "se": 0
+   }
+  }
+ },
+ "projection_gap_2023_2026": {
+  "WR/TE, targets vacated": {
+   "n_vacated": 390,
+   "miss_vacated": 1.5,
+   "miss_none": 0.44,
+   "gap": 1.07,
+   "z": 2.6,
+   "by_season": {
+    "2023": 1.56,
+    "2024": 1.16,
+    "2025": 0.81,
+    "2026": -0.55
+   }
+  },
+  "RB, carries vacated": {
+   "n_vacated": 60,
+   "miss_vacated": 3.14,
+   "miss_none": 0.56,
+   "gap": 2.58,
+   "z": 2.53,
+   "by_season": {
+    "2023": 2.07,
+    "2024": 1.15,
+    "2025": 2.81,
+    "2026": 8.05
+   }
+  },
+  "RB, targets vacated": {
+   "n_vacated": 224,
+   "miss_vacated": 0.98,
+   "miss_none": 0.52,
+   "gap": 0.46,
+   "z": 0.83,
+   "by_season": {
+    "2023": 0.49,
+    "2024": 0.5,
+    "2025": 0.49,
+    "2026": 0.35
+   }
+  }
+ },
+ "model": {
+  "rows_with_a_vacancy": {
+   "train": 2431,
+   "test": 208
+  },
+  "team shares": {
+   "current": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.359,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.492,
+     "adj_vs_miss_rho": 0.062
+    },
+    "test_2026": {
+     "n": 1140,
+     "mae_sleeper": 5.369,
+     "mae_corrected": 5.318,
+     "rank_rho_sleeper": 0.468,
+     "rank_rho_corrected": 0.486,
+     "adj_vs_miss_rho": 0.096,
+     "top_third_boom": 0.261,
+     "top_third_bust": 0.197,
+     "bottom_third_boom": 0.192,
+     "bottom_third_bust": 0.279
+    },
+    "loso_subset_mae": 5.264,
+    "test_2026_subset_mae": 5.143
+   },
+   "+vac_ts+vac_cs": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.356,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.493,
+     "adj_vs_miss_rho": 0.069
+    },
+    "test_2026": {
+     "n": 1140,
+     "mae_sleeper": 5.369,
+     "mae_corrected": 5.319,
+     "rank_rho_sleeper": 0.468,
+     "rank_rho_corrected": 0.486,
+     "adj_vs_miss_rho": 0.098,
+     "top_third_boom": 0.268,
+     "top_third_bust": 0.203,
+     "bottom_third_boom": 0.182,
+     "bottom_third_bust": 0.287
+    },
+    "loso_subset_mae": 5.29,
+    "test_2026_subset_mae": 5.188
+   }
+  },
+  "own position": {
+   "current": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.359,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.492,
+     "adj_vs_miss_rho": 0.062
+    },
+    "test_2026": {
+     "n": 1140,
+     "mae_sleeper": 5.369,
+     "mae_corrected": 5.318,
+     "rank_rho_sleeper": 0.468,
+     "rank_rho_corrected": 0.486,
+     "adj_vs_miss_rho": 0.096,
+     "top_third_boom": 0.261,
+     "top_third_bust": 0.197,
+     "bottom_third_boom": 0.192,
+     "bottom_third_bust": 0.279
+    },
+    "loso_subset_mae": 5.264,
+    "test_2026_subset_mae": 5.143
+   },
+   "+vac_ts_same+vac_cs_rb": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.355,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.493,
+     "adj_vs_miss_rho": 0.071
+    },
+    "test_2026": {
+     "n": 1140,
+     "mae_sleeper": 5.369,
+     "mae_corrected": 5.321,
+     "rank_rho_sleeper": 0.468,
+     "rank_rho_corrected": 0.485,
+     "adj_vs_miss_rho": 0.099,
+     "top_third_boom": 0.266,
+     "top_third_bust": 0.205,
+     "bottom_third_boom": 0.192,
+     "bottom_third_bust": 0.287
+    },
+    "loso_subset_mae": 5.276,
+    "test_2026_subset_mae": 5.198
+   }
+  }
+ }
+}

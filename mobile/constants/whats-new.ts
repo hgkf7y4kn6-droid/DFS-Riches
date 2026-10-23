@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.43',
+    title: "What's new",
+    items: [
+      'When a player is ruled out before the projections catch up, his teammates now pick up their share of his targets and carries right away -- mostly the next man up at his position, as in past games.',
+    ],
+  },
+  {
     version: '1.1.42',
     title: 'DFSRiches is now Riches Analytics',
     items: [

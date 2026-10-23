@@ -27,10 +27,62 @@ MODEL_FILE = Path(__file__).resolve().parent.parent / "data" / "player_model.jso
 FEATURES = ("proj", "ts_l3", "ts_trend", "cs_l3", "cs_trend", "snap_l3", "snap_trend", "form", "implied", "spread",
             "spread_x_rb", "games", "opp_pressure", "ol_out", "front7_out", "spread_x_wpc",
             "adot_x_opp_explosive", "cb_out_x_wr")
+# Also computed but not used: vac_ts / vac_cs / vac_ts_same / vac_cs_rb, the shares vacated by regulars out who played
+# the team's last game -- they made held-out errors worse (data/vacated_opportunity_tests.json); app.vacated covers the
+# window before Sleeper moves an out player's volume itself.
 POSITIONS = ("QB", "RB", "WR", "TE")
 MAX_ADJ = 0.35          # never move a projection by more than this share (or 3 points, whichever is larger)
 WPC_CARRIES, WPC_TARGETS = 12.0, 3.5     # a workhorse pass-catching back's projected carries and targets
 ADOT_CENTER, ADOT_GAMES, ADOT_MIN_GAMES = 10.0, 8, 3     # receivers' air yards per target, over their last 8 games
+VAC_TS, VAC_CS = 0.12, 0.25     # a regular: this target or carry share over his last three games
+SKILL = ("RB", "WR", "TE")
+
+
+def team_last_week(hist: dict[str, dict[int, dict]], week: int) -> dict[str, int]:
+    """Each team's last game before `week` (any player's history)."""
+    out: dict[str, int] = {}
+    for h in hist.values():
+        for w, x in h.items():
+            if w < week and w > out.get(x.get("team"), 0):
+                out[x["team"]] = w
+    return out
+
+
+def fresh_regulars(hist: dict[str, dict[int, dict]], week: int) -> dict[str, list[tuple[str, str, float, float]]]:
+    """{team: [(player key, position, target share, carry share)]}: RB/WR/TE regulars (VAC_TS / VAC_CS over their
+    last three games) who played their team's last game -- the ones whose absence the projections may not have
+    caught up with yet."""
+    last = team_last_week(hist, week)
+    out: dict[str, list] = {}
+    for k, h in hist.items():
+        pos = k.rsplit("|", 1)[-1]
+        if pos not in SKILL:
+            continue
+        games = sorted(w for w in h if w < week)
+        if len(games) < 2:
+            continue
+        team = h[games[-1]]["team"]
+        if games[-1] != last.get(team):
+            continue
+        l3 = [h[w] for w in games[-3:]]
+        ts, cs = statistics.fmean(x["ts"] for x in l3), statistics.fmean(x["cs"] for x in l3)
+        if ts >= VAC_TS or cs >= VAC_CS:
+            out.setdefault(team, []).append((k, pos, ts, cs))
+    return out
+
+
+def vacated(regulars: list[tuple[str, str, float, float]], is_out) -> dict:
+    """The team's vacated shares from its regulars who are out (is_out(key) -> bool): {"ts", "cs", "ts_by_pos",
+    "cs_by_pos", "out": [keys]}."""
+    v = {"ts": 0.0, "cs": 0.0, "ts_by_pos": {}, "cs_by_pos": {}, "out": []}
+    for k, pos, ts, cs in regulars:
+        if is_out(k):
+            v["ts"] += ts
+            v["cs"] += cs
+            v["ts_by_pos"][pos] = v["ts_by_pos"].get(pos, 0.0) + ts
+            v["cs_by_pos"][pos] = v["cs_by_pos"].get(pos, 0.0) + cs
+            v["out"].append(k)
+    return v
 
 
 def key(name: str, position: str) -> str:
@@ -68,13 +120,15 @@ def history(player_rows: list[dict], snap_rows: list[dict], team_of=lambda t: t,
 def features(h: dict[int, dict] | None, week: int, proj: float, position: str, implied: float | None,
              spread: float | None, proj_hist: dict[int, float] | None = None, opp_pressure: float = 0.0,
              ol_out: float = 0.0, front7_out: float = 0.0, line: dict | None = None, opp_explosive: float = 0.0,
-             opp_cb_out: float = 0.0) -> dict:
+             opp_cb_out: float = 0.0, vac: dict | None = None) -> dict:
     """spread: the team's expected margin (positive = favored); opp_pressure: the opponent's four-man sack + QB-hit
     rate above the league (app.game_model, shrunk toward last season); ol_out: own offensive-line starters out;
     front7_out: the opponent's front-seven starters out (4 linemen + 2 linebackers), an input for running backs;
     line: Sleeper's projected stat line (a workhorse pass-catching back's carries and targets); opp_explosive: the
     opponent's explosive-play rate allowed above the league (app.game_model), an input for receivers; opp_cb_out: the
-    opponent's starting corners out (app.game_model), an input for wide receivers."""
+    opponent's starting corners out (app.game_model), an input for wide receivers; vac: his team's shares vacated by
+    regulars out this week who played its last game (vacated()), inputs for RB/WR/TE."""
+    vac = vac or {}
     games = sorted(w for w in (h or {}) if w < week)
     g = [h[w] for w in games]
     l3 = g[-3:]
@@ -100,6 +154,10 @@ def features(h: dict[int, dict] | None, week: int, proj: float, position: str, i
         "spread_x_wpc": (spread or 0.0) if workhorse_catcher else 0.0,
         "adot_x_opp_explosive": ((adot - ADOT_CENTER) * (opp_explosive or 0.0) * 100) if position in ("WR", "TE") else 0.0,
         "cb_out_x_wr": float(opp_cb_out or 0) if position == "WR" else 0.0,
+        "vac_ts": vac.get("ts", 0.0) if position in SKILL else 0.0,
+        "vac_cs": vac.get("cs", 0.0) if position == "RB" else 0.0,
+        "vac_ts_same": (vac.get("ts_by_pos") or {}).get(position, 0.0) if position in SKILL else 0.0,
+        "vac_cs_rb": (vac.get("cs_by_pos") or {}).get("RB", 0.0) if position == "RB" else 0.0,
     }
 
 
