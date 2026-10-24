@@ -37,6 +37,37 @@ def test_ties_share_spots_and_count_as_exact_anywhere_inside_them():
     assert comp.score_position([4], comp.finish_ranges({1: 20, 4: 18, 5: 18}), 2)["hits"] == 1
 
 
+def test_a_ruled_out_pick_scores_zero_and_costs_nothing_else():
+    actual = {1: 30, 2: 28, 3: 26, 9: 0}
+    ranges = comp.finish_ranges(actual)
+    # Ranked a player who didn't play (9) 1st: the picks below him move up, so 1 and 2 are still exact.
+    s = comp.score_position([9, 1, 2], ranges, 3, actual, ruled_out={9})
+    assert (s["hits"], s["exact"], s["ruled_out"]) == (2, 2, 1)
+    assert s["points"] == pytest.approx(2 * (comp.HIT_POINTS + comp.EXACT_BONUS))
+    assert s["rows"][0] == {"id": 9, "ranked": 1, "finished": None, "points": 0.0, "dk": 0, "ruled_out": True}
+    assert [r["ranked"] for r in s["rows"]] == [1, 2, 3]                    # the spots as the user ranked them
+    # Accuracy leaves his spot out: the same hits with one ruled out score higher accuracy, never lower.
+    picks, qbs = {"QB": [9, 1, 2]}, {**actual, 4: 25, 5: 24, 6: 23}        # a full top 5 without him
+    actual = qbs
+    assert comp.score_entry(picks, {"QB": actual}, {9})["accuracy"] == pytest.approx(round(100 * 2 / (comp.SPOTS - 1), 1))
+    assert comp.score_entry(picks, {"QB": actual})["accuracy"] == pytest.approx(round(100 * 2 / comp.SPOTS, 1))
+
+
+def test_did_not_play_needs_no_box_score_line_and_no_snaps(monkeypatch):
+    import asyncio
+    from app import nflverse_client as nc, player_games
+
+    async def snaps(season):
+        return [{"week": "8", "team": "BUF", "player": "Played Nostats"}, {"week": "7", "team": "BUF", "player": "Sat Out"}]
+    monkeypatch.setattr(player_games, "_snap_rows", snaps)
+
+    def mk(i, name, pos="WR"):
+        return SimpleNamespace(dk_draftable_id=i, name=name, team="BUF", position=pos)
+    players = [mk(1, "Box Score"), mk(2, "Played Nostats"), mk(3, "Sat Out"), mk(4, "Bills", "DST")]
+    actuals = {"players": {nc.player_key("Box Score", "WR"): 12.0}}
+    assert asyncio.run(comp.did_not_play(2026, 8, players, actuals)) == {3}
+
+
 def test_perfect_and_standings_rank_equal_scores_together():
     actual = {pos: {pos_i * 100 + i: 50 - i for i in range(n)} for pos_i, (pos, n) in enumerate(comp.SIZES.items())}
     perfect = {pos: sorted(actual[pos], key=lambda pid: -actual[pos][pid]) for pos in comp.SIZES}
@@ -87,7 +118,7 @@ def picks_api(monkeypatch, tmp_path):
         return SimpleNamespace(label="Sunday Main", games=[SimpleNamespace(kickoff_utc=state["kickoff"])]), players
 
     async def actual_points(season, week, slate, ps):
-        return state["actual"]
+        return (state["actual"], state.get("out", set())) if state["actual"] is not None else None
     monkeypatch.setattr(comp, "main_slate", main_slate)
     monkeypatch.setattr(comp, "actual_points", actual_points)
     return TestClient(main.app), state

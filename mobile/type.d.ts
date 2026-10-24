@@ -1115,8 +1115,9 @@ interface ProPicksResult {
   /** Ranked players who finished in their position's top list. */
   hits: number;
   exact: number;
-  /** hits as a share of every spot on every list (38). */
+  /** hits as a share of every spot on every list (38), leaving out spots held by ruled-out players. */
   accuracy: number;
+  ruled_out: number;
   pct_of_perfect: number;
   positions: Record<PickPosition, ProPicksPositionScore>;
 }
@@ -1124,8 +1125,10 @@ interface ProPicksPositionScore {
   points: number;
   hits: number;
   exact: number;
-  /** dk: his actual DraftKings points. */
-  rows: { id: number; ranked: number; finished: number | null; points: number; dk: number | null }[];
+  /** Ranked players who didn't play: 0 points, nothing else counted against the user. */
+  ruled_out: number;
+  /** ranked: the spot the user put him in; dk: his actual DraftKings points; exact: finished in his scoring spot. */
+  rows: { id: number; ranked: number; finished: number | null; points: number; dk: number | null; ruled_out: boolean; exact?: boolean }[];
 }
 interface ProPicksState {
   season: number;

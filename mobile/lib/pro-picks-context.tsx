@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { AppState } from 'react-native';
 
 import { useAccountSync } from '@/lib/account-sync';
 import { track } from '@/lib/analytics';
@@ -19,6 +20,7 @@ interface ProPicksValue {
 }
 
 const ProPicksContext = createContext<ProPicksValue | null>(null);
+const REFRESH_AFTER_MS = 10 * 60 * 1000;
 
 /** Weekly Pro Picks for the signed-in user (app/competition.py on the server). */
 export function ProPicksProvider({ children }: { children: ReactNode }) {
@@ -32,6 +34,14 @@ export function ProPicksProvider({ children }: { children: ReactNode }) {
   const requestKey = current && userId ? `${current.season}:${current.week}:${userId}:${nonce}` : null;
   const [answeredKey, setAnsweredKey] = useState<string | null>(null);
   const loading = requestKey != null && answeredKey !== requestKey;
+  // Back in the app after a while: reload, so injury news (a ranked player ruled out) shows up.
+  const loadedAt = useRef(0);
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (next) => {
+      if (next === 'active' && Date.now() - loadedAt.current > REFRESH_AFTER_MS) setNonce((n) => n + 1);
+    });
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     if (!current || !userId || !requestKey) return;
@@ -39,6 +49,7 @@ export function ProPicksProvider({ children }: { children: ReactNode }) {
     getProPicks(current.season, current.week)
       .then((s) => {
         if (cancelled) return;
+        loadedAt.current = Date.now();
         setState(s);
         setError(null);
       })
@@ -86,4 +97,31 @@ export function rankedCount(state: ProPicksState | null, picks?: Partial<Record<
   const total = sizes ? PICK_POSITIONS.reduce((n, p) => n + sizes[p], 0) : 0;
   const ranked = PICK_POSITIONS.reduce((n, p) => n + (picks?.[p]?.length ?? 0), 0);
   return { ranked, total };
+}
+
+/** DraftKings injury codes that mean a player won't (or almost surely won't) play. */
+const NOT_PLAYING: Record<string, string> = { OUT: 'Out', IR: 'IR', D: 'Doubtful' };
+
+/** "Out" / "IR" / "Doubtful" when the player isn't expected to play, else undefined. */
+export function outStatus(p: PickPlayer | undefined): string | undefined {
+  return p?.injury ? NOT_PLAYING[p.injury] : undefined;
+}
+
+/** Ranked players now listed Out / IR / Doubtful (the user should swap them while picks are open). */
+export function flaggedPicks(state: ProPicksState | null, picks?: Partial<Record<PickPosition, number[]>>): { player: PickPlayer; status: string }[] {
+  if (!state?.players || !picks) return [];
+  const byId = new Map(state.players.map((p) => [p.id, p]));
+  return PICK_POSITIONS.flatMap((pos) =>
+    (picks[pos] ?? []).flatMap((id) => {
+      const p = byId.get(id);
+      const status = outStatus(p);
+      return p && status ? [{ player: p, status }] : [];
+    }),
+  );
+}
+
+/** "Ja'Marr Chase (Out) and Mark Andrews (Doubtful)". */
+export function flaggedText(flagged: { player: PickPlayer; status: string }[]): string {
+  const names = flagged.map((f) => `${f.player.name} (${f.status})`);
+  return names.length <= 2 ? names.join(' and ') : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }

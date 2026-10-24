@@ -5,7 +5,8 @@ import { formatPoints } from '@/lib/utils';
 /**
  * A scored Pro Picks position, spot by spot: who the user ranked at each spot (his actual DraftKings points
  * and where he finished) beside who actually finished at that spot (and his DraftKings points). Tied players
- * share a spot number, so a tie at the cut-off can add a row past the list size.
+ * share a spot number, so a tie at the cut-off can add a row past the list size. A ranked player who didn't play
+ * scores 0 and the picks below him count a spot higher, so "exact" comes from the server (row.exact).
  */
 export default function PicksComparison({
   state,
@@ -39,11 +40,13 @@ export default function PicksComparison({
         const a = actual[i];
         const outcome = !row
           ? null
-          : row.points <= 0
-            ? { text: row.finished ? `Missed · finished #${row.finished}` : 'Missed', tone: 'text-negative' }
-            : row.finished === row.ranked
-              ? { text: `Exact spot · +${formatPoints(row.points)}`, tone: 'text-positive' }
-              : { text: `Finished #${row.finished} · +${formatPoints(row.points)}`, tone: 'text-positive' };
+          : row.ruled_out
+            ? { text: "Ruled out · 0 pts · doesn't count against you", tone: 'text-muted-foreground' }
+            : row.points <= 0
+              ? { text: row.finished ? `Missed · finished #${row.finished}` : 'Missed', tone: 'text-negative' }
+              : row.exact
+                ? { text: `Exact spot · +${formatPoints(row.points)}`, tone: 'text-positive' }
+                : { text: `Finished #${row.finished} · +${formatPoints(row.points)}`, tone: 'text-positive' };
         return (
           <View key={i} className="lineup-row items-start">
             <Text className="lineup-slot">{i < size ? `${i + 1}.` : ''}</Text>

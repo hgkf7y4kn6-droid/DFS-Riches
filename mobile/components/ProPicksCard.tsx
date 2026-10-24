@@ -4,7 +4,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import PicksComparison from '@/components/PicksComparison';
 import { ProSheet } from '@/components/ProLock';
 import { track } from '@/lib/analytics';
-import { PICK_POSITIONS, rankedCount, useProPicks } from '@/lib/pro-picks-context';
+import { flaggedPicks, flaggedText, PICK_POSITIONS, rankedCount, useProPicks } from '@/lib/pro-picks-context';
 import { formatEt, formatPoints } from '@/lib/utils';
 
 /** 1 -> "1st", 22 -> "22nd", 13 -> "13th". */
@@ -34,6 +34,8 @@ export default function ProPicksCard() {
   const { ranked, total } = rankedCount(state, state?.mine?.picks);
   const s = state?.scoring;
   const me = state?.my_result;
+  // Ranked players listed Out / IR / Doubtful: swap them while picks are open; after the lock they just score 0.
+  const flagged = state?.status === 'open' || state?.status === 'locked' ? flaggedPicks(state, state.mine?.picks) : [];
 
   return (
     <View className="section card">
@@ -74,8 +76,16 @@ export default function ProPicksCard() {
             Locks {formatEt(state.lock_at ?? null)} · {state.entrants} Pro user{state.entrants === 1 ? '' : 's'} in
             {state.mine ? ` · you've ranked ${ranked} of ${total}` : ''}
           </Text>
+          {flagged.length ? (
+            <View className="alert alert-warning mt-2">
+              <Text className="alert-text">
+                {flaggedText(flagged)} {flagged.length === 1 ? 'is' : 'are'} in your rankings. Swap {flagged.length === 1 ? 'him' : 'them'} before the Main
+                locks: a player who doesn&apos;t play scores 0.
+              </Text>
+            </View>
+          ) : null}
           <Pressable className="btn-accent mt-3" onPress={openEditor} accessibilityRole="button">
-            <Text className="btn-text">{state.mine ? 'Edit your picks' : 'Make your picks'}</Text>
+            <Text className="btn-text">{flagged.length ? 'Update your picks' : state.mine ? 'Edit your picks' : 'Make your picks'}</Text>
           </Pressable>
         </>
       ) : state.status === 'locked' ? (
@@ -84,6 +94,12 @@ export default function ProPicksCard() {
             Locked at kickoff · {state.entrants} Pro user{state.entrants === 1 ? '' : 's'} submitted rankings. Results post once every Main game is final.
             {state.mine ? ` You ranked ${ranked} of ${total}.` : " You didn't enter this week."}
           </Text>
+          {flagged.length ? (
+            <Text className="caption mt-1">
+              {flaggedText(flagged)} {flagged.length === 1 ? 'was' : 'were'} ruled out after picks locked. A ranked player who doesn&apos;t play scores 0 and
+              doesn&apos;t count against you.
+            </Text>
+          ) : null}
           {state.mine ? (
             <Pressable className="btn-outline mt-3" onPress={openEditor} accessibilityRole="button">
               <Text className="btn-outline-text">View your picks</Text>

@@ -982,6 +982,11 @@ spot and his DraftKings points.
 | Each spot he finishes below your ranking | -0.5 |
 | Each spot he finishes above your ranking | -0.25 |
 
+A ranked player who was ruled out (no box-score line and no offensive snaps that week) scores 0 and costs
+nothing else: the picks below him move up a spot for scoring, and his spot leaves the accuracy count. While
+picks are open, the card, the editor and a sign-in prompt flag any ranked player listed Out, IR or Doubtful
+so the user can swap him.
+
 The deductions only break ties: the largest one (14 spots on the WR list) is less than a hit. Players tied
 in actual points share the spots they span. A perfect week scores 494. Pro users who haven't entered get a
 reminder after signing in while picks are open ("Not this week" mutes it until next week). Entries live in

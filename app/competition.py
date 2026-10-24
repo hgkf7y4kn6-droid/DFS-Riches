@@ -11,7 +11,10 @@ Scoring, per position, for each ranked player who finished in that position's ac
   EXACT_BONUS         more when he finished at exactly the spot he was ranked
   -LOWER_PENALTY      per spot he finished below where he was ranked
   -HIGHER_PENALTY     per spot he finished above it (finishing higher is the smaller miss)
-Players who missed the top N score nothing. The deductions only break ties: the largest possible deduction
+Players who missed the top N score nothing. A ranked player who was ruled out (didn't play: no box-score line
+and no offensive snaps) also scores 0 and costs nothing else: the picks below him move up a spot for scoring,
+and his spot leaves the accuracy count. The app prompts users to swap anyone listed Out / IR / Doubtful
+while picks are open. The deductions only break ties: the largest possible deduction
 (14 spots on the WR list, 7 points) is smaller than one hit. Tied actual scores share the spots they span, so
 a player ranked anywhere inside his tie is "exact". A perfect entry scores PERFECT.
 
@@ -73,15 +76,23 @@ def finish_ranges(points: dict[int, float]) -> dict[int, tuple[int, int]]:
 
 
 def score_position(picks: list[int], ranges: dict[int, tuple[int, int]], size: int,
-                   dk: dict[int, float] | None = None) -> dict:
-    """One position's score: {points, hits, exact, rows: [{id, ranked, finished, points, dk}]}; dk is each
-    pick's actual DraftKings points when `dk` ({id: points}) is given."""
-    rows, total, hits, exact = [], 0.0, 0, 0
-    for ranked, pid in enumerate(picks[:size], start=1):
+                   dk: dict[int, float] | None = None, ruled_out: set[int] | frozenset = frozenset()) -> dict:
+    """One position's score: {points, hits, exact, ruled_out, rows: [{id, ranked, finished, points, dk,
+    ruled_out}]}; dk is each pick's actual DraftKings points when `dk` ({id: points}) is given. A ruled-out pick
+    scores 0 and is skipped when ranking the rest ("ranked" stays the spot the user put him in; scoring uses
+    his place among the picks who played)."""
+    rows, total, hits, exact, out = [], 0.0, 0, 0, 0
+    for spot, pid in enumerate(picks[:size], start=1):
+        if pid in ruled_out:
+            out += 1
+            rows.append({"id": pid, "ranked": spot, "finished": None, "points": 0.0, "dk": (dk or {}).get(pid),
+                         "ruled_out": True})
+            continue
+        ranked = spot - out
         best, worst = ranges.get(pid, (10 ** 6, 10 ** 6))
         if best > size:                                   # missed the top N
-            rows.append({"id": pid, "ranked": ranked, "finished": best if best < 10 ** 6 else None, "points": 0.0,
-                         "dk": (dk or {}).get(pid)})
+            rows.append({"id": pid, "ranked": spot, "finished": best if best < 10 ** 6 else None, "points": 0.0,
+                         "dk": (dk or {}).get(pid), "ruled_out": False})
             continue
         if best <= ranked <= worst:
             finished, pts = ranked, HIT_POINTS + EXACT_BONUS
@@ -92,26 +103,30 @@ def score_position(picks: list[int], ranges: dict[int, tuple[int, int]], size: i
             finished, pts = worst, HIT_POINTS - HIGHER_PENALTY * (ranked - worst)
         hits += 1
         total += pts
-        rows.append({"id": pid, "ranked": ranked, "finished": finished, "points": round(pts, 2), "dk": (dk or {}).get(pid)})
-    return {"points": round(total, 2), "hits": hits, "exact": exact, "rows": rows}
+        rows.append({"id": pid, "ranked": spot, "finished": finished, "points": round(pts, 2), "dk": (dk or {}).get(pid),
+                     "ruled_out": False, "exact": best <= ranked <= worst})
+    return {"points": round(total, 2), "hits": hits, "exact": exact, "ruled_out": out, "rows": rows}
 
 
-def score_entry(picks: dict[str, list[int]], actual: dict[str, dict[int, float]]) -> dict:
-    """{points, hits, exact, accuracy, pct_of_perfect, positions: {pos: score_position}} for one entry.
+def score_entry(picks: dict[str, list[int]], actual: dict[str, dict[int, float]],
+                ruled_out: set[int] | frozenset = frozenset()) -> dict:
+    """{points, hits, exact, ruled_out, accuracy, pct_of_perfect, positions: {pos: score_position}} for one entry.
     accuracy: the share of all SPOTS (every list, full) filled with a player who finished in that top list, so a
-    partial entry can't look more accurate by ranking fewer players."""
-    positions = {pos: score_position(picks.get(pos) or [], finish_ranges(actual.get(pos) or {}), n, actual.get(pos))
+    partial entry can't look more accurate by ranking fewer players; spots held by ruled-out picks don't count."""
+    positions = {pos: score_position(picks.get(pos) or [], finish_ranges(actual.get(pos) or {}), n, actual.get(pos), ruled_out)
                  for pos, n in SIZES.items()}
     points = round(sum(p["points"] for p in positions.values()), 2)
     hits = sum(p["hits"] for p in positions.values())
-    return {"points": points, "hits": hits, "exact": sum(p["exact"] for p in positions.values()),
-            "accuracy": round(100 * hits / SPOTS, 1), "pct_of_perfect": round(100 * points / PERFECT, 1),
-            "positions": positions}
+    out = sum(p["ruled_out"] for p in positions.values())
+    return {"points": points, "hits": hits, "exact": sum(p["exact"] for p in positions.values()), "ruled_out": out,
+            "accuracy": round(100 * hits / (SPOTS - out), 1) if SPOTS > out else 0.0,
+            "pct_of_perfect": round(100 * points / PERFECT, 1), "positions": positions}
 
 
-def standings(entries: list[dict], actual: dict[str, dict[int, float]], me: str | None = None) -> list[dict]:
+def standings(entries: list[dict], actual: dict[str, dict[int, float]], me: str | None = None,
+              ruled_out: set[int] | frozenset = frozenset()) -> list[dict]:
     """Every entry scored and ranked (equal points share a rank); `me` marks the caller's row."""
-    rows = [{"name": e["name"], "me": e["user_id"] == me, **score_entry(e["picks"], actual)} for e in entries]
+    rows = [{"name": e["name"], "me": e["user_id"] == me, **score_entry(e["picks"], actual, ruled_out)} for e in entries]
     rows.sort(key=lambda r: (-r["points"], -r["hits"], -r["exact"], r["name"].lower()))
     rank = 0
     for i, r in enumerate(rows):
@@ -219,8 +234,9 @@ def lock_time(slate) -> datetime | None:
     return min((g.kickoff_utc for g in slate.games), default=None) if slate is not None else None
 
 
-async def actual_points(season: int, week: int, slate, players: list) -> dict[str, dict[int, float]] | None:
-    """{pos: {dk id: actual DK points}} once every Main game is final and its box scores are in, else None."""
+async def actual_points(season: int, week: int, slate, players: list) -> tuple[dict[str, dict[int, float]], set[int]] | None:
+    """({pos: {dk id: actual DK points}}, {dk ids ruled out}) once every Main game is final and its box scores are
+    in, else None."""
     from app import nflverse_client as nc
     from app.optimal import slate_complete
     actuals = await nc.get_week_actuals(season, week)
@@ -229,6 +245,24 @@ async def actual_points(season: int, week: int, slate, players: list) -> dict[st
     out: dict[str, dict[int, float]] = {pos: {} for pos in SIZES}
     for p in players:
         out[p.position][p.dk_draftable_id] = nc.actual_points(actuals, name=p.name, position=p.position, team=p.team)
+    return out, await did_not_play(season, week, players, actuals)
+
+
+async def did_not_play(season: int, week: int, players: list, actuals: dict) -> set[int]:
+    """QB/RB/WR/TE ids with no box-score line and no offensive snaps that week (nflverse snap counts, which post a
+    day after the games; until that week's snaps are in, no box-score line alone counts). DSTs always play."""
+    from app import nflverse_client as nc
+    from app.player_games import _name, _short, _snap_rows
+    rows = [r for r in await _snap_rows(season) if nc._to_int(r.get("week")) == week and r.get("player")]
+    full = {(nc.to_app_team(r.get("team", "")), _name(r["player"])) for r in rows}
+    short = {(nc.to_app_team(r.get("team", "")), _short(r["player"])) for r in rows}
+    out = set()
+    for p in players:
+        if p.position == "DST" or nc.player_key(p.name, p.position) in actuals["players"]:
+            continue
+        if (p.team, _name(p.name)) in full or (p.team, _short(p.name)) in short:
+            continue
+        out.add(p.dk_draftable_id)
     return out
 
 

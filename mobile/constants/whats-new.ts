@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.48',
+    title: "What's new",
+    items: [
+      "Weekly Pro Picks: if a player you ranked is ruled out, you'll get a heads-up to swap him before the Sunday Main locks. If you can't, he just scores 0 -- he doesn't count against your accuracy, and the players you ranked below him move up a spot.",
+    ],
+  },
+  {
     version: '1.1.47',
     title: "What's new",
     items: [

@@ -5,7 +5,7 @@ import PicksComparison from '@/components/PicksComparison';
 import SafeAreaView from '@/components/SafeAreaView';
 import icons from '@/constants/icons';
 import { useThemeColors } from '@/constants/theme';
-import { PICK_POSITIONS, rankedCount, useProPicks } from '@/lib/pro-picks-context';
+import { outStatus, PICK_POSITIONS, rankedCount, useProPicks } from '@/lib/pro-picks-context';
 import { formatCurrency, formatEt, formatPoints } from '@/lib/utils';
 
 type Picks = Partial<Record<PickPosition, number[]>>;
@@ -174,6 +174,12 @@ export default function ProPicksEditor() {
                             <Text className="lineup-player-meta" numberOfLines={1}>
                               {p.team} vs {p.opponent} · {formatCurrency(p.salary).replace('.00', '')} · {formatPoints(p.proj)} proj
                             </Text>
+                            {outStatus(p) ? (
+                              <Text className="lineup-player-meta text-negative" numberOfLines={2}>
+                                {outStatus(p)}:{' '}
+                                {open ? "swap him out -- a player who doesn't play scores 0" : "if he doesn't play he scores 0 and doesn't count against you"}
+                              </Text>
+                            ) : null}
                           </>
                         ) : (
                           <Text className="caption">{open ? 'Open: tap a player below' : 'Not ranked'}</Text>
@@ -232,7 +238,7 @@ export default function ProPicksEditor() {
                   <View className="flex-1">
                     <Text className="lineup-player-name" numberOfLines={1}>
                       {p.name}
-                      {p.injury && p.injury !== 'Healthy' ? ` (${p.injury})` : ''}
+                      {outStatus(p) ? ` (${outStatus(p)})` : p.injury === 'Q' ? ' (Q)' : ''}
                     </Text>
                     <Text className="lineup-player-meta">
                       {p.team} vs {p.opponent} · {formatCurrency(p.salary).replace('.00', '')}
