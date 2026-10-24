@@ -3,14 +3,13 @@ import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-nativ
 
 import MatchupModeToggle from '@/components/MatchupModeToggle';
 import { LineupRow, type RowPlayer, Totals } from '@/components/LineupRows';
-import StatusView from '@/components/StatusView';
 import SlotPicker, { type SlotChoice } from '@/components/SlotPicker';
 import SubmissionForm from '@/components/SubmissionForm';
 import { MAX_LINEUPS } from '@/constants/config';
-import { PLAYABLE_STATUSES, POSITION_FILTERS } from '@/constants/data';
+import { PLAYABLE_STATUSES } from '@/constants/data';
 import icons from '@/constants/icons';
 import { useThemeColors } from '@/constants/theme';
-import { addPlayer, fitChecker, indexOfPlayer, placeAt, removeAt, slotFitChecker, slotTakes, summarize, template } from '@/lib/lineups';
+import { addPlayer, placeAt, removeAt, slotFitChecker, slotTakes, summarize, template } from '@/lib/lineups';
 import { sortByMatchup } from '@/lib/matchup-sort';
 import { useSlateOwnership } from '@/lib/slate-ownership';
 import { useLeverage } from '@/lib/leverage-context';
@@ -25,8 +24,6 @@ import { dkUploadCsv, shareDkUpload } from '@/lib/dk-export';
 import { formatCurrency, formatEt, formatPoints, salariesPendingText } from '@/lib/utils';
 import { evenWeights, type Factor, setWeight, totalWeight, type Weights, weightedRank } from '@/lib/weighted-sort';
 import { type LineupScope, useLineups, useWeek } from '@/lib/week-context';
-
-const PAGE = 40;
 
 type SortKey = 'proj' | 'floor' | 'ceiling' | 'value' | 'salary' | 'own' | 'lev' | 'env' | 'touch' | 'l3' | 'l6' | 'l9' | 'matchup';
 const SORTS: { key: SortKey; label: string }[] = [
@@ -45,9 +42,9 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: 'matchup', label: 'Matchup' },
 ];
 const SORT_LABEL = Object.fromEntries(SORTS.map((o) => [o.key, o.label])) as Record<SortKey, string>;
-// The FLEX filter: every player who can fill the FLEX slot.
-const FLEX_POSITIONS = new Set(['RB', 'WR', 'TE']);
 const STEP = 5;
+// "Build for me" builds around the user's own picks: at least this many players in the lineup first.
+const BUILD_MIN_PICKS = 2;
 const SORT_NOTE: Record<SortKey, string> = {
   proj: 'Projected DK points',
   floor: "Floor: the DFS model's low-end (15th-percentile) DK score -- what a cash lineup leans on",
@@ -81,12 +78,11 @@ export interface BuildField {
 
 /**
  * Build up to MAX_LINEUPS lineups for the selected slate: the active lineup
- * as a stacked vertical list of slots (tap x to remove), its totals, then the
- * player pool -- filter by position, search, tap + to add. Players that
- * can't fit (no open slot, or too little salary left to fill the rest) are
- * dimmed with the reason. Tapping a slot opens that slot's player list full
- * screen (SlotPicker): the players who fit the remaining salary first, in the
- * current sort or blend, with the salary bar always in view.
+ * as a stacked vertical list of slots (tap x to remove) and its totals.
+ * Tapping a slot opens that slot's player list full screen (SlotPicker): the
+ * players who fit the remaining salary first, in the current sort or blend,
+ * with the salary bar always in view. "Build for me" fills the rest around at
+ * least BUILD_MIN_PICKS players the user chose.
  */
 export default function LineupBuilder({ scope = '', field }: { scope?: LineupScope; field?: BuildField } = {}) {
   const { selectedSlate, players, weekData } = useWeek();
@@ -96,8 +92,6 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   const { editing, updateLineup, stopEditing } = useSubmissions();
   const editMode = scope === 'edit' && editing != null;
   const colors = useThemeColors();
-  const [position, setPosition] = useState('All');
-  const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
   // One or more sorts; with several, each gets a weight (always totalling 100%) and players rank on the blend.
   const [selected, setSelected] = useState<SortKey[]>(['proj']);
@@ -139,7 +133,6 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   const ascending = Boolean(lowFirst[sortBy]);
   const { lookup } = useMatchups();
   const { lookup: leverageOf, request: requestLeverage } = useLeverage();
-  const [limit, setLimit] = useState(PAGE);
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
   const [logging, setLogging] = useState(false);
 
@@ -167,14 +160,12 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   const lineup = useMemo(() => lineups[activeLineup] ?? [], [lineups, activeLineup]);
   const defs = template(slateType);
   const summary = summarize(lineup, slateType);
-  const baseFits = useMemo(() => fitChecker(lineup, slateType, pool), [lineup, slateType, pool]);
   // While editing an entry, players whose games have kicked off are locked in (or out), like DraftKings late swap.
   const [now] = useState(() => Date.now());
   const lockedTeams = useMemo(() => {
     if (!editMode || !selectedSlate) return new Set<string>();
     return new Set(selectedSlate.games.filter((g) => new Date(g.kickoff_utc).getTime() <= now).flatMap((g) => [g.away, g.home]));
   }, [editMode, selectedSlate, now]);
-  const fits = (p: Player) => (lockedTeams.has(p.team) && indexOfPlayer(lineup, p) === -1 ? { ok: false, reason: 'Game started: locked' } : baseFits(p));
 
   // Load the entry's lineup into the edit builder once its slate's players are in.
   const loadedFor = useRef<string | null>(null);
@@ -262,21 +253,6 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
     const q = text.trim().toLowerCase();
     return !q || p.name.toLowerCase().includes(q) || p.team.toLowerCase() === q;
   };
-  const filtered = useMemo(
-    () =>
-      rank(
-        pool
-          .filter((p) => showAll || PLAYABLE_STATUSES.has(p.injury ?? 'Healthy'))
-          .filter((p) => {
-            if (position === 'All') return true;
-            if (slateType === 'showdown') return p.roster_slot === position;
-            return position === 'FLEX' ? FLEX_POSITIONS.has(p.position) : p.position === position;
-          })
-          .filter((p) => matchesQuery(p, query)),
-      ),
-    [pool, position, query, showAll, slateType, rank],
-  );
-
   // The full-screen list for one slot: eligible players in the current sort / blend, split into who fits the
   // remaining salary, who's priced out, and who's unavailable (already in the lineup, or locked in late swap).
   const [pickerSlot, setPickerSlot] = useState<number | null>(null);
@@ -307,7 +283,6 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
 
   /** Tap a sort: add it (weights reset to an even split), or remove it; tapping the only sort flips its direction. */
   const pressSort = (key: SortKey) => {
-    setLimit(PAGE);
     if (key === 'lev') requestLeverage();
     if (!selected.includes(key)) {
       const next = [...selected, key];
@@ -325,7 +300,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   };
   const changeWeight = (key: SortKey, v: number) => setWeights((w) => setWeight(w, selected, key, v));
 
-  // What each pool row shows beyond projection: the field's ownership (always, on the Cash / GPP tabs), floor for cash.
+  // What each player row shows beyond projection: the field's ownership (always, on the Cash / GPP tabs), floor for cash.
   const rowPlayer = (p: Player) => {
     const id = p.dk_draftable_id;
     const extra: Pick<RowPlayer, 'ownership' | 'floor' | 'form' | 'leverage' | 'leverage_detail' | 'env'> = {};
@@ -350,30 +325,6 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
   if (!selectedSlate.available) {
     return <Text className="empty-text">{salariesPendingText(selectedSlate)}</Text>;
   }
-
-  const toggle = (player: Player) => {
-    if (lockedTeams.has(player.team)) {
-      setMessage({ text: `${player.name}'s game has started: he's locked.`, error: true });
-      return;
-    }
-    const idx = indexOfPlayer(lineup, player);
-    if (idx !== -1) {
-      setLineup(activeLineup, removeAt(lineup, idx));
-      setMessage({ text: `Removed ${player.name}.` });
-      return;
-    }
-    const res = addPlayer(lineup, slateType, player);
-    if (!res.ok) {
-      setMessage({ text: res.reason, error: true });
-      return;
-    }
-    setLineup(activeLineup, res.slots);
-    setMessage({ text: `Added ${player.name} at ${defs[res.index].label}.` });
-    // Funnel events: the first player in a lineup, and a filled lineup.
-    const filled = res.slots.filter(Boolean).length;
-    if (filled === 1) track('lineup_started', { scope: scope || 'lineups', slate_type: slateType });
-    if (filled === defs.length) track('lineup_completed', { scope: scope || 'lineups', slate_type: slateType });
-  };
 
   const openSlot = (i: number) => {
     const p = lineup[i];
@@ -401,9 +352,19 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
     if (filled === defs.length) track('lineup_completed', { scope: scope || 'lineups', slate_type: slateType });
   };
 
-  // The sort chips, the blend's weights and what the sort means: shared by the pool and the slot lists.
+  // The slot lists' controls: matchup mode, injured players, the sort chips, the blend's weights and what the sort means.
   const sortControls = (
     <>
+      <MatchupModeToggle />
+      <View className="mb-2 flex-row">
+        <Pressable
+          className={`filter-chip ${showAll ? 'filter-chip-active' : ''}`}
+          onPress={() => setShowAll((v) => !v)}
+          accessibilityRole="button"
+          aria-pressed={showAll}>
+          <Text className={`filter-chip-text ${showAll ? 'filter-chip-text-active' : ''}`}>Incl. Out/Doubtful</Text>
+        </Pressable>
+      </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
         <Text className="matchup-toggle-label mr-1 self-center">Sort</Text>
         {sorts.map((o) => {
@@ -487,7 +448,6 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
         {selected.includes('own') && !own.available ? ' · ownership not available for Showdown slates (no DFS model)' : ''}
         {selected.includes('own') && own.loading ? ' · loading the DFS model…' : ''}
         {selected.includes('own') && own.error ? ` · couldn't load ownership: ${own.error}` : ''}
-        {position === 'FLEX' && pickerSlot == null ? ' · FLEX: RBs, WRs and TEs -- adding one fills an open RB / WR / TE slot first, then FLEX' : ''}
       </Text>
     </>
   );
@@ -548,8 +508,20 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
       {/* Build for me, and the DraftKings upload file */}
       {!editMode ? (
         <View className="tool-row">
-          <Pressable className="btn-accent flex-1" onPress={() => setBuildOpen(true)} accessibilityRole="button">
-            <Text className="btn-text">{locked('optimal') ? 'Build for me · Pro' : 'Build for me'}</Text>
+          <Pressable
+            className={`btn-accent flex-1 ${summary.filled < BUILD_MIN_PICKS ? 'opacity-50' : ''}`}
+            onPress={() => {
+              if (summary.filled < BUILD_MIN_PICKS) {
+                setMessage({ text: `Pick at least ${BUILD_MIN_PICKS} players first (tap a slot), then the model builds the rest around them.`, error: true });
+                return;
+              }
+              setBuildOpen(true);
+            }}
+            accessibilityRole="button"
+            accessibilityHint={summary.filled < BUILD_MIN_PICKS ? `Needs ${BUILD_MIN_PICKS} players in the lineup first` : undefined}>
+            <Text className="btn-text">
+              {locked('optimal') ? 'Build for me · Pro' : summary.filled < BUILD_MIN_PICKS ? `Build for me · pick ${BUILD_MIN_PICKS - summary.filled} more` : 'Build for me'}
+            </Text>
           </Pressable>
           <Pressable
             className="btn-outline flex-1 justify-center"
@@ -569,6 +541,7 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
         visible={buildOpen}
         onClose={() => setBuildOpen(false)}
         current={lineup}
+        minPicks={BUILD_MIN_PICKS}
         pool={pool}
         onBuilt={(built, text) => {
           replaceLineups(built);
@@ -707,78 +680,6 @@ export default function LineupBuilder({ scope = '', field }: { scope?: LineupSco
         onClose={() => setPickerSlot(null)}
       />
 
-      {/* Player pool */}
-      <Text className="section-title mb-2">Player pool</Text>
-      <MatchupModeToggle />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2" contentContainerClassName="chip-row-content">
-        {POSITION_FILTERS[slateType].map((pos) => {
-          const active = pos === position;
-          return (
-            <Pressable
-              key={pos}
-              className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
-              onPress={() => {
-                setPosition(pos);
-                setLimit(PAGE);
-              }}
-              accessibilityRole="button"
-              aria-pressed={active}>
-              <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>{pos}</Text>
-            </Pressable>
-          );
-        })}
-        <Pressable
-          className={`filter-chip ${showAll ? 'filter-chip-active' : ''}`}
-          onPress={() => setShowAll((v) => !v)}
-          accessibilityRole="button"
-          aria-pressed={showAll}>
-          <Text className={`filter-chip-text ${showAll ? 'filter-chip-text-active' : ''}`}>Incl. Out/Doubtful</Text>
-        </Pressable>
-      </ScrollView>
-      {sortControls}
-      <TextInput
-        className="input mb-2"
-        placeholder="Search player or team (e.g. BUF)"
-        placeholderTextColor={colors.mutedForeground}
-        value={query}
-        onChangeText={(t) => {
-          setQuery(t);
-          setLimit(PAGE);
-        }}
-        autoCorrect={false}
-        autoCapitalize="none"
-      />
-
-      <StatusView loading={players.loading} error={players.error} empty={!players.loading && filtered.length === 0 ? 'No players match' : null} />
-      <View className="player-pool">
-        {filtered.slice(0, limit).map(({ player: p, blend }) => {
-          const fit = fits(p);
-          const inLineup = indexOfPlayer(lineup, p) !== -1;
-          return (
-            <View key={p.dk_draftable_id ?? `${p.name}-${p.roster_slot}`} className={fit.ok ? '' : 'player-unfit'}>
-              <LineupRow
-                slot={p.roster_slot || p.position}
-                player={{ ...rowPlayer(p), blend }}
-                note={fit.ok ? null : fit.reason}
-                right={
-                  <Pressable
-                    className={`player-action ${inLineup ? 'player-action-remove' : ''}`}
-                    onPress={() => toggle(p)}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${inLineup ? 'Remove' : 'Add'} ${p.name}`}>
-                    <Image source={inLineup ? icons.close : icons.plus} style={{ width: 12, height: 12, tintColor: inLineup ? colors.accentForeground : colors.primaryForeground }} />
-                  </Pressable>
-                }
-              />
-            </View>
-          );
-        })}
-      </View>
-      {filtered.length > limit ? (
-        <Pressable className="btn-outline mt-3" onPress={() => setLimit((n) => n + PAGE)} accessibilityRole="button">
-          <Text className="btn-outline-text">Show more ({filtered.length - limit} left)</Text>
-        </Pressable>
-      ) : null}
     </View>
   );
 }

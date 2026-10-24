@@ -59,12 +59,12 @@ async function getJson<T>(path: string): Promise<T> {
 
 const q = (season: number, week: number) => `season=${season}&week=${week}`;
 
-/** POST JSON with the session token (same retry and rejection handling as getJson). */
-async function postJson<T>(path: string, body: unknown): Promise<T> {
+/** POST (or PUT) JSON with the session token (same retry and rejection handling as getJson). */
+async function postJson<T>(path: string, body: unknown, method: 'POST' | 'PUT' = 'POST'): Promise<T> {
   const call = async (fresh: boolean) => {
     const token = await (await source)(fresh);
     return fetch(`${API_BASE_URL}${path}`, {
-      method: 'POST',
+      method,
       headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify(body),
     });
@@ -101,6 +101,16 @@ export function buildLineups(
   opts: { metric: 'proj_points' | 'ceiling'; count: number; locked: number[]; excluded: number[]; max_exposure: number },
 ) {
   return postJson<{ lineups: BuiltLineup[]; requested: number }>(`/api/slates/${encodeURIComponent(slateId)}/build`, { season, week, ...opts });
+}
+
+/** This week's Pro Picks: the Sunday Main's players, the caller's rankings, and standings once it's scored. */
+export function getProPicks(season: number, week: number) {
+  return getJson<ProPicksState>(`/api/pro-picks?${q(season, week)}`);
+}
+
+/** Saves the caller's rankings (Pro; until the Sunday Main's first kickoff). */
+export function saveProPicks(season: number, week: number, picks: Partial<Record<PickPosition, number[]>>, name: string) {
+  return postJson<{ mine: ProPicksEntry }>('/api/pro-picks', { season, week, picks, name }, 'PUT');
 }
 
 export interface TrackRecordSlate {

@@ -10,6 +10,16 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.45',
+    title: "What's new",
+    items: [
+      "Weekly Pro Picks: Pro users rank the Sunday Main's top scorers at each position (on Home) and compete for the closest to perfect.",
+      'Model lineup cards on the Lineups tab open and close with a tap again.',
+      'Build for me now builds around your picks: put at least two players in the lineup first.',
+      'The separate player pool under the builder is gone: tap a slot to pick from that position.',
+    ],
+  },
+  {
     version: '1.1.43',
     title: "What's new",
     items: [

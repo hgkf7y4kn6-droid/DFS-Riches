@@ -4,6 +4,8 @@ import { ActivityIndicator, Image, Platform, Text, useWindowDimensions, View } f
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import IntroTour from '@/components/IntroTour';
+import ProPicksEditor from '@/components/ProPicksEditor';
+import ProPicksReminder from '@/components/ProPicksReminder';
 import ProfileQuestion from '@/components/ProfileQuestion';
 import RememberPlace from '@/components/RememberPlace';
 import SessionGuard from '@/components/SessionGuard';
@@ -124,6 +126,8 @@ export default function TabLayout() {
       <RememberPlace />
       <SessionGuard />
       <WhatsNew />
+      <ProPicksReminder />
+      <ProPicksEditor />
     </>
   );
 }

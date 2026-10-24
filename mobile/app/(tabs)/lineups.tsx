@@ -132,7 +132,7 @@ export default function Lineups() {
               </>
             ) : null}
             <ListHeading title="Model lineups" subtitle="Safe lineup to cash · Tournament lineup to win" />
-            <OptimalLineups scope={scope} />
+            <OptimalLineups scope={scope} collapsible />
             <ListHeading title={mode === 'cash' ? 'Build cash lineups' : mode === 'any' ? 'Build lineups' : 'Build tournament lineups'} />
             <View>
               <LineupBuilder key={scope} scope={scope} field={field} />

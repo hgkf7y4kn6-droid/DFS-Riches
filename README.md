@@ -962,6 +962,29 @@ server start (`grant_founding_pro`); masters stay Admin. `DELETE /api/me`
 (Settings > Delete account) deletes the account's data and, with
 `CLERK_SECRET_KEY`, the Clerk account. Legal drafts for review are in `docs/legal/`.
 
+### Weekly Pro Picks
+
+A weekly competition for Pro accounts (`app/competition.py`, the Home card in the app). Each Pro user can
+rank who they think will be the top DraftKings scorers at each position on the week's Classic Sunday Main:
+5 QBs, 10 RBs, 15 WRs, 3 TEs and 5 DSTs. Entering is optional, and picks can be changed until the Main's
+first kickoff. Other users' entries stay hidden until then; once every Main game is final, everyone is
+scored and ranked.
+
+| For each ranked player | Points |
+|---|---|
+| Finishes in that position's actual top list, anywhere | +10 |
+| ...in exactly the spot you ranked him | +3 more |
+| Each spot he finishes below your ranking | -0.5 |
+| Each spot he finishes above your ranking | -0.25 |
+
+The deductions only break ties: the largest one (14 spots on the WR list) is less than a hit. Players tied
+in actual points share the spots they span. A perfect week scores 494. Pro users who haven't entered get a
+reminder after signing in while picks are open ("Not this week" mutes it until next week). Entries live in
+the Neon database (`pro_picks` table). The API is `GET /api/pro-picks?season=&week=` and `PUT /api/pro-picks`.
+
+"Build for me" builds around the user's own picks: it needs at least two players in the lineup first
+(`BUILD_MIN_PICKS`, enforced by `POST /api/slates/{slate_id}/build`).
+
 ### Warm starts and performance logging
 
 - **Prebuilt data.** The Docker build runs `python -m app.prewarm --dfs`, so the image ships with this week's

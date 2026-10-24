@@ -267,6 +267,9 @@ def test_pro_features_need_pro_once_gating_is_on(client, monkeypatch):
     monkeypatch.setenv("PRO_GATING", "1")
     assert client.get(url, headers={"authorization": "Bearer free"}).status_code == 402
     assert client.get(url, headers={"authorization": "Bearer pro"}).status_code == 404
+    build = client.post("/api/slates/classic/build", json={"season": 2026, "week": 3, "locked": [101]},
+                        headers={"authorization": "Bearer pro"})
+    assert build.status_code == 400 and "at least 2 players" in build.json()["detail"]   # builds around 2+ picks
 
 
 def test_props_are_left_out_of_the_model_for_free_accounts(client, monkeypatch):

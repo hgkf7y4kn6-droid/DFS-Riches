@@ -1086,7 +1086,65 @@ interface AccountData {
 }
 
 type Plan = 'free' | 'pro' | 'admin';
-type ProFeature = 'optimal' | 'ownership' | 'leverage' | 'multiple_lineups' | 'big_picture' | 'alerts' | 'props';
+type ProFeature = 'optimal' | 'ownership' | 'leverage' | 'multiple_lineups' | 'big_picture' | 'alerts' | 'props' | 'competition';
+
+// ------------------------------------------------------------- Weekly Pro Picks (/api/pro-picks, app.competition)
+type PickPosition = 'QB' | 'RB' | 'WR' | 'TE' | 'DST';
+/** A Sunday Main player who can be ranked. */
+interface PickPlayer {
+  id: number;
+  name: string;
+  team: string;
+  opponent: string;
+  position: PickPosition;
+  salary: number;
+  proj: number;
+  injury: string | null;
+}
+/** One user's rankings: DraftKings draftable ids, best first, per position. */
+interface ProPicksEntry {
+  name: string;
+  picks: Partial<Record<PickPosition, number[]>>;
+  updated_at: string;
+}
+interface ProPicksStanding {
+  rank: number;
+  name: string;
+  me: boolean;
+  points: number;
+  hits: number;
+  exact: number;
+  pct_of_perfect: number;
+}
+interface ProPicksPositionScore {
+  points: number;
+  hits: number;
+  exact: number;
+  rows: { id: number; ranked: number; finished: number | null; points: number }[];
+}
+interface ProPicksState {
+  season: number;
+  week: number;
+  /** The caller is Pro (or admin): only they can enter. */
+  pro: boolean;
+  /** open: entries editable; locked: the Main kicked off; final: every Main game is in and scored. */
+  status: 'no_slate' | 'open' | 'locked' | 'final';
+  slate_label: string | null;
+  lock_at?: string | null;
+  entrants: number;
+  sizes: Record<PickPosition, number>;
+  perfect: number;
+  scoring: { hit: number; exact: number; lower: number; higher: number };
+  players?: PickPlayer[];
+  mine?: ProPicksEntry | null;
+  default_name?: string;
+  /** Once locked, before results: who entered. */
+  entrant_names?: string[];
+  standings?: ProPicksStanding[];
+  my_result?: (ProPicksStanding & { positions: Record<PickPosition, ProPicksPositionScore> }) | null;
+  /** Each position's actual top scorers (ties share a spot). */
+  actual_top?: Record<PickPosition, { id: number; points: number; spot: number }[]>;
+}
 
 // ------------------------------------------------------------- Big Picture (master-only pilot)
 interface BigPictureRow {

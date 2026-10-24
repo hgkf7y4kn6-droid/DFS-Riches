@@ -23,6 +23,7 @@ import { DfsModelProvider } from '@/lib/dfs-model-context';
 import { GlossaryProvider } from '@/lib/glossary-context';
 import { OnboardingProvider } from '@/lib/onboarding-context';
 import { PrefsProvider } from '@/lib/prefs-context';
+import { ProPicksProvider } from '@/lib/pro-picks-context';
 import { LeverageProvider } from '@/lib/leverage-context';
 import { MatchupsProvider } from '@/lib/matchups-context';
 import { PoolTagsProvider } from '@/lib/pool-tags-context';
@@ -73,18 +74,20 @@ export default function RootLayout() {
                       <PoolTagsProvider>
                         <MatchupsProvider>
                           <OnboardingProvider>
-                            <GlossaryProvider>
-                              <Head>
-                                <title>Riches Analytics</title>
-                              </Head>
-                              <StatusBar style={dark ? 'light' : 'dark'} />
-                              {/* Signing in is the way into the app (app/(tabs)/_layout.tsx), so these are full pages, not modals. */}
-                              <Stack screenOptions={{ headerShown: false }}>
-                                <Stack.Screen name="(tabs)" />
-                                <Stack.Screen name="sign-in" options={{ gestureEnabled: false }} />
-                                <Stack.Screen name="sign-up" />
-                              </Stack>
-                            </GlossaryProvider>
+                            <ProPicksProvider>
+                              <GlossaryProvider>
+                                <Head>
+                                  <title>Riches Analytics</title>
+                                </Head>
+                                <StatusBar style={dark ? 'light' : 'dark'} />
+                                {/* Signing in is the way into the app (app/(tabs)/_layout.tsx), so these are full pages, not modals. */}
+                                <Stack screenOptions={{ headerShown: false }}>
+                                  <Stack.Screen name="(tabs)" />
+                                  <Stack.Screen name="sign-in" options={{ gestureEnabled: false }} />
+                                  <Stack.Screen name="sign-up" />
+                                </Stack>
+                              </GlossaryProvider>
+                            </ProPicksProvider>
                           </OnboardingProvider>
                         </MatchupsProvider>
                       </PoolTagsProvider>

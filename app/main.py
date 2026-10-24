@@ -24,6 +24,7 @@ import subprocess
 import tempfile
 import time
 
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Annotated
 
@@ -355,11 +356,15 @@ async def api_slate_players(slate_id: str, season: Season = DEFAULT_SEASON, week
         raise HTTPException(status_code=502, detail=f"Could not load slate players: {exc}") from exc
 
 
+BUILD_MIN_PICKS = 2       # "Build for me" fills a lineup around the user's own picks
+
+
 @app.post("/api/slates/{slate_id}/build")
 async def api_build(request: Request, slate_id: str, body: dict = Body(...)):
     """"Build for me": up to 5 distinct lineups for a slate from the model's projections
     {season, week, metric: proj_points|ceiling, count, locked: [dk ids], excluded: [dk ids], max_exposure}.
-    Pro (it builds optimal lineups); more than one lineup is also multiple_lineups."""
+    Pro (it builds optimal lineups); more than one lineup is also multiple_lineups. Needs BUILD_MIN_PICKS
+    locked players: the user picks some, the model builds around them."""
     from app.optimizer import build_many
     try:
         season, week, _ = _slate_args({**body, "slate_id": slate_id})
@@ -375,6 +380,8 @@ async def api_build(request: Request, slate_id: str, body: dict = Body(...)):
     await _require_feature(request, "optimal")          # it builds optimal lineups
     if count > 1:
         await _require_feature(request, "multiple_lineups")
+    if len(locked) < BUILD_MIN_PICKS:
+        raise HTTPException(status_code=400, detail=f"Pick at least {BUILD_MIN_PICKS} players first: the model builds around them.")
     try:
         _, slate_list = await slates.list_slates(season, week)
         slate = next((s for s in slate_list if s.slate_id == slate_id), None)
@@ -568,6 +575,96 @@ async def api_me(authorization: Annotated[str | None, Header()] = None):
         return await accounts.load(user_id, await accounts.verify_claims(authorization))
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not load account data: {exc}") from exc
+
+
+# ------------------------------------------------------------- Weekly Pro Picks (app.competition)
+async def _picks_caller(authorization: str | None) -> tuple[str, bool]:
+    """(user id, whether the account is Pro or admin). The competition is for Pro accounts whatever PRO_GATING says."""
+    user_id = await _user(authorization)
+    claims = await accounts.verify_claims(authorization)
+    return user_id, await accounts.plan(user_id, claims) in ("pro", "admin")
+
+
+def _pick_player(p) -> dict:
+    return {"id": p.dk_draftable_id, "name": p.name, "team": p.team, "opponent": p.opponent, "position": p.position,
+            "salary": p.salary, "proj": round(p.proj_points, 1), "injury": p.injury}
+
+
+@app.get("/api/pro-picks")
+async def api_pro_picks(season: Annotated[int, Query(ge=2000, le=2100)], week: Annotated[int, Query(ge=1, le=22)],
+                        authorization: Annotated[str | None, Header()] = None):
+    """This week's Pro Picks for the caller: the Main's players and lock time, their own entry, how many have
+    entered, and -- once every Main game is final -- the standings and the actual top scorers. Other users'
+    entries stay hidden until the Main locks."""
+    from app import competition as comp
+    user_id, pro = await _picks_caller(authorization)
+    base = {"season": season, "week": week, "pro": pro, "sizes": comp.SIZES, "perfect": comp.PERFECT,
+            "scoring": {"hit": comp.HIT_POINTS, "exact": comp.EXACT_BONUS, "lower": comp.LOWER_PENALTY, "higher": comp.HIGHER_PENALTY}}
+    try:
+        slate, players = await comp.main_slate(season, week)
+        entries = await asyncio.to_thread(comp.load_entries, season, week)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not load Pro Picks: {exc}") from exc
+    if slate is None or not players:
+        return {**base, "status": "no_slate", "slate_label": slate.label if slate else None, "entrants": len(entries)}
+    lock_at = comp.lock_time(slate)
+    locked = lock_at is not None and datetime.now(timezone.utc) >= lock_at
+    mine = next((e for e in entries if e["user_id"] == user_id), None)
+    out = {**base, "status": "locked" if locked else "open", "slate_label": slate.label,
+           "lock_at": lock_at.isoformat() if lock_at else None, "entrants": len(entries),
+           "players": [_pick_player(p) for p in sorted(players, key=lambda p: -p.proj_points)],
+           "mine": {"name": mine["name"], "picks": mine["picks"], "updated_at": mine["updated_at"]} if mine else None}
+    if mine is None and pro:
+        try:
+            out["default_name"] = comp.default_name(await accounts.clerk_user(user_id))
+        except Exception:
+            out["default_name"] = "Pro user"
+    if locked:
+        actual = await comp.actual_points(season, week, slate, players)
+        if actual is None:
+            out["entrant_names"] = sorted(e["name"] for e in entries)
+        else:
+            rows = comp.standings(entries, actual, me=user_id)
+            out["status"] = "final"
+            out["standings"] = [{k: r[k] for k in ("rank", "name", "me", "points", "hits", "exact", "pct_of_perfect")} for r in rows]
+            out["my_result"] = next((r for r in rows if r["me"]), None)
+            out["actual_top"] = {}
+            for pos, n in comp.SIZES.items():
+                ranges = comp.finish_ranges(actual[pos])
+                top = sorted((pid for pid, (best, _) in ranges.items() if best <= n), key=lambda pid: ranges[pid][0])
+                out["actual_top"][pos] = [{"id": pid, "points": actual[pos][pid], "spot": ranges[pid][0]} for pid in top]
+    return out
+
+
+@app.put("/api/pro-picks")
+async def api_pro_picks_save(body: dict = Body(...), authorization: Annotated[str | None, Header()] = None):
+    """Save the caller's rankings {season, week, picks: {QB: [dk ids], ...}, name} until the Main's first kickoff."""
+    from app import competition as comp
+    user_id, pro = await _picks_caller(authorization)
+    if not pro:
+        raise HTTPException(status_code=402, detail="Weekly Pro Picks is for Riches Analytics Pro accounts.")
+    try:
+        season, week = int(body["season"]), int(body["week"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="season and week are required") from exc
+    slate, players = await comp.main_slate(season, week)
+    if slate is None or not players:
+        raise HTTPException(status_code=409, detail="This week's main slate isn't posted yet.")
+    lock_at = comp.lock_time(slate)
+    if lock_at is not None and datetime.now(timezone.utc) >= lock_at:
+        raise HTTPException(status_code=409, detail="The main slate has kicked off: picks are locked.")
+    try:
+        picks = comp.validate_picks(body.get("picks"), {p.dk_draftable_id: p.position for p in players})
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    fallback = "Pro user"
+    if not body.get("name"):
+        try:
+            fallback = comp.default_name(await accounts.clerk_user(user_id))
+        except Exception:
+            pass
+    saved = await asyncio.to_thread(comp.save_entry, season, week, user_id, comp.clean_name(body.get("name"), fallback), picks)
+    return {"mine": {k: saved[k] for k in ("name", "picks", "updated_at")}}
 
 
 @app.delete("/api/me")
