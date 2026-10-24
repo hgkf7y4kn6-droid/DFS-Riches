@@ -1107,14 +1107,18 @@ interface ProPicksEntry {
   picks: Partial<Record<PickPosition, number[]>>;
   updated_at: string;
 }
-interface ProPicksStanding {
+/** The caller's own result (no other user's name, picks or place is ever sent). */
+interface ProPicksResult {
+  /** Place among every submitted entry (equal points share a place). */
   rank: number;
-  name: string;
-  me: boolean;
   points: number;
+  /** Ranked players who finished in their position's top list. */
   hits: number;
   exact: number;
+  /** hits as a share of every spot on every list (38). */
+  accuracy: number;
   pct_of_perfect: number;
+  positions: Record<PickPosition, ProPicksPositionScore>;
 }
 interface ProPicksPositionScore {
   points: number;
@@ -1138,10 +1142,7 @@ interface ProPicksState {
   players?: PickPlayer[];
   mine?: ProPicksEntry | null;
   default_name?: string;
-  /** Once locked, before results: who entered. */
-  entrant_names?: string[];
-  standings?: ProPicksStanding[];
-  my_result?: (ProPicksStanding & { positions: Record<PickPosition, ProPicksPositionScore> }) | null;
+  my_result?: ProPicksResult | null;
   /** Each position's actual top scorers (ties share a spot). */
   actual_top?: Record<PickPosition, { id: number; points: number; spot: number }[]>;
 }

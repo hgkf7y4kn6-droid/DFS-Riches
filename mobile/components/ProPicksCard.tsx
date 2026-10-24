@@ -6,11 +6,16 @@ import { track } from '@/lib/analytics';
 import { rankedCount, useProPicks } from '@/lib/pro-picks-context';
 import { formatEt, formatPoints } from '@/lib/utils';
 
-const STANDINGS_SHOWN = 5;
+/** 1 -> "1st", 22 -> "22nd", 13 -> "13th". */
+function ordinal(n: number): string {
+  const s = n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10] ?? 'th';
+  return `${n}${s}`;
+}
 
 /**
- * Home: this week's Weekly Pro Picks -- rank the Sunday Main's top scorers by position, see who else entered
- * once it locks, and the standings once it's scored. Free accounts see what it is and how to unlock it.
+ * Home: this week's Weekly Pro Picks -- rank the Sunday Main's top scorers by position, then, once it's
+ * scored, where you finished among every Pro entry and how accurate you were (only your own result: no
+ * leaderboard of other users). Free accounts see what it is and how to unlock it.
  */
 export default function ProPicksCard() {
   const { state, loading, error, refresh, setEditorOpen } = useProPicks();
@@ -24,10 +29,7 @@ export default function ProPicksCard() {
   };
   const { ranked, total } = rankedCount(state, state?.mine?.picks);
   const s = state?.scoring;
-  const top = state?.standings ?? [];
   const me = state?.my_result;
-  const shown = top.slice(0, STANDINGS_SHOWN);
-  const meBelow = me && !shown.some((r) => r.me) ? top.find((r) => r.me) : null;
 
   return (
     <View className="section card">
@@ -75,14 +77,9 @@ export default function ProPicksCard() {
       ) : state.status === 'locked' ? (
         <>
           <Text className="caption mt-2">
-            Locked at kickoff. Results post once every Main game is final.
+            Locked at kickoff · {state.entrants} Pro user{state.entrants === 1 ? '' : 's'} submitted rankings. Results post once every Main game is final.
             {state.mine ? ` You ranked ${ranked} of ${total}.` : " You didn't enter this week."}
           </Text>
-          {state.entrant_names?.length ? (
-            <Text className="caption mt-1" numberOfLines={2}>
-              In this week: {state.entrant_names.join(', ')}
-            </Text>
-          ) : null}
           {state.mine ? (
             <Pressable className="btn-outline mt-3" onPress={openEditor} accessibilityRole="button">
               <Text className="btn-outline-text">View your picks</Text>
@@ -92,24 +89,21 @@ export default function ProPicksCard() {
       ) : (
         <>
           {me ? (
-            <Text className="detail-headline mt-2">
-              You finished #{me.rank} of {top.length} · {formatPoints(me.points)} pts ({me.pct_of_perfect}% of perfect)
-            </Text>
+            <>
+              <Text className="detail-headline mt-2">
+                You finished {ordinal(me.rank)} out of {state.entrants} Pro user submitted ranking{state.entrants === 1 ? '' : 's'} with an accuracy of{' '}
+                {me.accuracy}% of players ranked correctly as the top performers.
+              </Text>
+              <Text className="caption mt-1">
+                {me.hits} of {total} top-scorer spots hit · {me.exact} in the exact spot · {formatPoints(me.points)} points ({me.pct_of_perfect}% of a
+                perfect week)
+              </Text>
+            </>
           ) : (
-            <Text className="caption mt-2">You didn&apos;t enter this week. {top.length} Pro users did.</Text>
+            <Text className="caption mt-2">
+              You didn&apos;t enter this week. {state.entrants} Pro user{state.entrants === 1 ? '' : 's'} did.
+            </Text>
           )}
-          <View className="mt-2">
-            {[...shown, ...(meBelow ? [meBelow] : [])].map((r) => (
-              <View key={`${r.rank}-${r.name}`} className="detail-row">
-                <Text className={`detail-row-label ${r.me ? 'font-bold' : ''}`} numberOfLines={1}>
-                  {r.rank}. {r.name}
-                  {r.me ? ' (you)' : ''}
-                </Text>
-                <Text className="detail-row-value">{formatPoints(r.points)}</Text>
-                <Text className="detail-row-value">{r.hits} hits</Text>
-              </View>
-            ))}
-          </View>
           <Pressable className="btn-outline mt-3" onPress={openEditor} accessibilityRole="button">
             <Text className="btn-outline-text">{me ? 'Your scorecard and the actual top scorers' : 'See the actual top scorers'}</Text>
           </Pressable>

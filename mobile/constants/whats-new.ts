@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.46',
+    title: "What's new",
+    items: [
+      "Weekly Pro Picks: once the Sunday Main is scored you'll see where you finished out of every Pro entry and your accuracy -- the share of players you ranked who finished as top performers. Other users' rankings stay private.",
+    ],
+  },
+  {
     version: '1.1.45',
     title: "What's new",
     items: [

@@ -967,8 +967,11 @@ server start (`grant_founding_pro`); masters stay Admin. `DELETE /api/me`
 A weekly competition for Pro accounts (`app/competition.py`, the Home card in the app). Each Pro user can
 rank who they think will be the top DraftKings scorers at each position on the week's Classic Sunday Main:
 5 QBs, 10 RBs, 15 WRs, 3 TEs and 5 DSTs. Entering is optional, and picks can be changed until the Main's
-first kickoff. Other users' entries stay hidden until then; once every Main game is final, everyone is
-scored and ranked.
+first kickoff. Once every Main game is final, every entry is scored and ranked, and each user sees only
+their own result: "You finished 25th out of 350 Pro user submitted rankings with an accuracy of 42% of
+players ranked correctly as the top performers." No leaderboard, names or other users' picks are ever sent
+to the app. Accuracy is the share of all 38 spots filled with a player who finished in that top list, so
+ranking fewer players can't raise it.
 
 | For each ranked player | Points |
 |---|---|

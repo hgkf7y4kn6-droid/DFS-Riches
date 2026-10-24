@@ -594,8 +594,8 @@ def _pick_player(p) -> dict:
 async def api_pro_picks(season: Annotated[int, Query(ge=2000, le=2100)], week: Annotated[int, Query(ge=1, le=22)],
                         authorization: Annotated[str | None, Header()] = None):
     """This week's Pro Picks for the caller: the Main's players and lock time, their own entry, how many have
-    entered, and -- once every Main game is final -- the standings and the actual top scorers. Other users'
-    entries stay hidden until the Main locks."""
+    entered, and -- once every Main game is final -- where the caller finished among them, their accuracy and the
+    actual top scorers. Other users' names, picks and places are never sent: only the caller's own result."""
     from app import competition as comp
     user_id, pro = await _picks_caller(authorization)
     base = {"season": season, "week": week, "pro": pro, "sizes": comp.SIZES, "perfect": comp.PERFECT,
@@ -621,13 +621,11 @@ async def api_pro_picks(season: Annotated[int, Query(ge=2000, le=2100)], week: A
             out["default_name"] = "Pro user"
     if locked:
         actual = await comp.actual_points(season, week, slate, players)
-        if actual is None:
-            out["entrant_names"] = sorted(e["name"] for e in entries)
-        else:
+        if actual is not None:
             rows = comp.standings(entries, actual, me=user_id)
             out["status"] = "final"
-            out["standings"] = [{k: r[k] for k in ("rank", "name", "me", "points", "hits", "exact", "pct_of_perfect")} for r in rows]
-            out["my_result"] = next((r for r in rows if r["me"]), None)
+            mine_row = next((r for r in rows if r["me"]), None)
+            out["my_result"] = {k: v for k, v in mine_row.items() if k not in ("name", "me")} if mine_row else None
             out["actual_top"] = {}
             for pos, n in comp.SIZES.items():
                 ranges = comp.finish_ranges(actual[pos])

@@ -100,7 +100,9 @@ export default function ProPicksEditor() {
             {state.status === 'open'
               ? `Rank who you think finishes as each position's top DraftKings scorers on the ${state.slate_label ?? 'Sunday Main'}. Locks ${formatEt(state.lock_at ?? null)}. ${ranked} of ${total} ranked.`
               : state.status === 'final'
-                ? `Scored: ${formatPoints(state.my_result?.points ?? 0)} points, ${state.my_result?.pct_of_perfect ?? 0}% of perfect.`
+                ? state.my_result
+                  ? `Scored: ${state.my_result.accuracy}% of players ranked correctly as the top performers · ${formatPoints(state.my_result.points)} points.`
+                  : "Scored. You didn't enter this week."
                 : 'Locked at kickoff. Results post once every Main game is final and its stats are in.'}
           </Text>
           {open ? (

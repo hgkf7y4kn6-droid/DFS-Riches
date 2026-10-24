@@ -1,8 +1,10 @@
 """Weekly Pro Picks: Pro users rank the players they think will be the top DraftKings scorers at each position
-on the week's Classic Sunday Main, and are scored against how the slate actually finished.
+on the week's Classic Sunday Main, and are scored against how the slate actually finished. Each user sees only
+their own result: where they finished out of everyone who entered, and their accuracy -- never a leaderboard
+of other users.
 
 Lists (the DFS Bros weekly MVP sheet): top 5 QBs, 10 RBs, 15 WRs, 3 TEs and 5 DSTs. Entries are optional and
-can be changed until the Main's first kickoff; other users' entries stay hidden until then.
+can be changed until the Main's first kickoff; other users' entries are never shown.
 
 Scoring, per position, for each ranked player who finished in that position's actual top N:
   HIT_POINTS          for making the list at all, whatever the spot
@@ -33,7 +35,8 @@ HIT_POINTS = 10.0
 EXACT_BONUS = 3.0
 LOWER_PENALTY = 0.5
 HIGHER_PENALTY = 0.25
-PERFECT = sum(n * (HIT_POINTS + EXACT_BONUS) for n in SIZES.values())
+SPOTS = sum(SIZES.values())
+PERFECT = SPOTS * (HIT_POINTS + EXACT_BONUS)
 NAME_MAX = 24
 
 SCHEMA = """
@@ -91,12 +94,15 @@ def score_position(picks: list[int], ranges: dict[int, tuple[int, int]], size: i
 
 
 def score_entry(picks: dict[str, list[int]], actual: dict[str, dict[int, float]]) -> dict:
-    """{points, hits, exact, pct_of_perfect, positions: {pos: score_position}} for one entry."""
+    """{points, hits, exact, accuracy, pct_of_perfect, positions: {pos: score_position}} for one entry.
+    accuracy: the share of all SPOTS (every list, full) filled with a player who finished in that top list, so a
+    partial entry can't look more accurate by ranking fewer players."""
     positions = {pos: score_position(picks.get(pos) or [], finish_ranges(actual.get(pos) or {}), n) for pos, n in SIZES.items()}
     points = round(sum(p["points"] for p in positions.values()), 2)
-    return {"points": points, "hits": sum(p["hits"] for p in positions.values()),
-            "exact": sum(p["exact"] for p in positions.values()),
-            "pct_of_perfect": round(100 * points / PERFECT, 1), "positions": positions}
+    hits = sum(p["hits"] for p in positions.values())
+    return {"points": points, "hits": hits, "exact": sum(p["exact"] for p in positions.values()),
+            "accuracy": round(100 * hits / SPOTS, 1), "pct_of_perfect": round(100 * points / PERFECT, 1),
+            "positions": positions}
 
 
 def standings(entries: list[dict], actual: dict[str, dict[int, float]], me: str | None = None) -> list[dict]:

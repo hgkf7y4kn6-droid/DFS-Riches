@@ -43,7 +43,8 @@ def test_perfect_and_standings_rank_equal_scores_together():
     entries = [{"user_id": "a", "name": "Ann", "picks": perfect}, {"user_id": "b", "name": "Bo", "picks": perfect},
                {"user_id": "c", "name": "Cy", "picks": {}}]
     rows = comp.standings(entries, actual, me="b")
-    assert rows[0]["points"] == comp.PERFECT and rows[0]["pct_of_perfect"] == 100.0
+    assert rows[0]["points"] == comp.PERFECT and rows[0]["pct_of_perfect"] == 100.0 and rows[0]["accuracy"] == 100.0
+    assert rows[2]["accuracy"] == 0.0
     assert [r["rank"] for r in rows] == [1, 1, 3] and rows[1]["me"]
 
 
@@ -104,17 +105,24 @@ def test_pro_picks_flow_open_then_locked_then_final(picks_api):
     assert saved["mine"]["name"] == "Pat L." and saved["mine"]["picks"]["QB"] == [1, 2, 3]
     client.put("/api/pro-picks", json={**body, "picks": {"QB": [3, 2]}, "name": "Rival"}, headers={"authorization": "Bearer pro2"})
     open_ = client.get(url, headers={"authorization": "Bearer pro"}).json()
-    assert open_["status"] == "open" and open_["entrants"] == 2 and "entrant_names" not in open_ and "standings" not in open_
+    assert open_["status"] == "open" and open_["entrants"] == 2
     assert open_["mine"]["picks"]["QB"] == [1, 2, 3] and len(open_["players"]) == 7
 
     state["kickoff"] = datetime.now(timezone.utc) - timedelta(minutes=1)          # the Main kicked off
     assert client.put("/api/pro-picks", json=body, headers={"authorization": "Bearer pro"}).status_code == 409
     locked = client.get(url, headers={"authorization": "Bearer pro"}).json()
-    assert locked["status"] == "locked" and locked["entrant_names"] == ["Pat L.", "Rival"]
+    assert locked["status"] == "locked" and locked["entrants"] == 2
 
     state["actual"] = {"QB": {1: 30, 2: 28, 3: 26, 4: 5, 5: 4, 6: 3, 7: 2}, "RB": {}, "WR": {}, "TE": {}, "DST": {}}
     final = client.get(url, headers={"authorization": "Bearer pro"}).json()
-    assert final["status"] == "final"
-    assert [(r["name"], r["rank"], r["me"]) for r in final["standings"]] == [("Pat L.", 1, True), ("Rival", 2, False)]
-    assert final["my_result"]["points"] == pytest.approx(3 * (comp.HIT_POINTS + comp.EXACT_BONUS))
+    assert final["status"] == "final" and final["entrants"] == 2
+    mine = final["my_result"]
+    assert mine["rank"] == 1 and mine["points"] == pytest.approx(3 * (comp.HIT_POINTS + comp.EXACT_BONUS))
+    assert mine["accuracy"] == pytest.approx(round(100 * 3 / comp.SPOTS, 1))
+    rival = client.get(url, headers={"authorization": "Bearer pro2"}).json()["my_result"]
+    assert rival["rank"] == 2
+    # Nobody else's name, picks or place ever leaves the server.
+    for body in (open_, locked, final):
+        assert "Rival" not in str(body) and "standings" not in body and "entrant_names" not in body
+    assert "Pat L." not in str(client.get(url, headers={"authorization": "Bearer pro2"}).json())
     assert [r["id"] for r in final["actual_top"]["QB"]] == [1, 2, 3, 4, 5]
