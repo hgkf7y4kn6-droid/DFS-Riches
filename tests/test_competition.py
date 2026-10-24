@@ -126,3 +126,6 @@ def test_pro_picks_flow_open_then_locked_then_final(picks_api):
         assert "Rival" not in str(body) and "standings" not in body and "entrant_names" not in body
     assert "Pat L." not in str(client.get(url, headers={"authorization": "Bearer pro2"}).json())
     assert [r["id"] for r in final["actual_top"]["QB"]] == [1, 2, 3, 4, 5]
+    # Side by side: each pick with his actual DK points, next to who actually finished in that spot.
+    assert [(r["ranked"], r["dk"]) for r in mine["positions"]["QB"]["rows"]] == [(1, 30), (2, 28), (3, 26)]
+    assert [(r["spot"], r["points"]) for r in final["actual_top"]["QB"][:3]] == [(1, 30), (2, 28), (3, 26)]

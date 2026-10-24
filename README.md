@@ -971,7 +971,9 @@ first kickoff. Once every Main game is final, every entry is scored and ranked, 
 their own result: "You finished 25th out of 350 Pro user submitted rankings with an accuracy of 42% of
 players ranked correctly as the top performers." No leaderboard, names or other users' picks are ever sent
 to the app. Accuracy is the share of all 38 spots filled with a player who finished in that top list, so
-ranking fewer players can't raise it.
+ranking fewer players can't raise it. Under the result, each position is shown side by side: the user's pick at each spot
+(his actual DraftKings points, where he finished, and what he earned) next to who actually finished at that
+spot and his DraftKings points.
 
 | For each ranked player | Points |
 |---|---|

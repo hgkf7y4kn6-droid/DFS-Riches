@@ -72,13 +72,16 @@ def finish_ranges(points: dict[int, float]) -> dict[int, tuple[int, int]]:
     return out
 
 
-def score_position(picks: list[int], ranges: dict[int, tuple[int, int]], size: int) -> dict:
-    """One position's score: {points, hits, exact, rows: [{id, ranked, finished, points}]}."""
+def score_position(picks: list[int], ranges: dict[int, tuple[int, int]], size: int,
+                   dk: dict[int, float] | None = None) -> dict:
+    """One position's score: {points, hits, exact, rows: [{id, ranked, finished, points, dk}]}; dk is each
+    pick's actual DraftKings points when `dk` ({id: points}) is given."""
     rows, total, hits, exact = [], 0.0, 0, 0
     for ranked, pid in enumerate(picks[:size], start=1):
         best, worst = ranges.get(pid, (10 ** 6, 10 ** 6))
         if best > size:                                   # missed the top N
-            rows.append({"id": pid, "ranked": ranked, "finished": best if best < 10 ** 6 else None, "points": 0.0})
+            rows.append({"id": pid, "ranked": ranked, "finished": best if best < 10 ** 6 else None, "points": 0.0,
+                         "dk": (dk or {}).get(pid)})
             continue
         if best <= ranked <= worst:
             finished, pts = ranked, HIT_POINTS + EXACT_BONUS
@@ -89,7 +92,7 @@ def score_position(picks: list[int], ranges: dict[int, tuple[int, int]], size: i
             finished, pts = worst, HIT_POINTS - HIGHER_PENALTY * (ranked - worst)
         hits += 1
         total += pts
-        rows.append({"id": pid, "ranked": ranked, "finished": finished, "points": round(pts, 2)})
+        rows.append({"id": pid, "ranked": ranked, "finished": finished, "points": round(pts, 2), "dk": (dk or {}).get(pid)})
     return {"points": round(total, 2), "hits": hits, "exact": exact, "rows": rows}
 
 
@@ -97,7 +100,8 @@ def score_entry(picks: dict[str, list[int]], actual: dict[str, dict[int, float]]
     """{points, hits, exact, accuracy, pct_of_perfect, positions: {pos: score_position}} for one entry.
     accuracy: the share of all SPOTS (every list, full) filled with a player who finished in that top list, so a
     partial entry can't look more accurate by ranking fewer players."""
-    positions = {pos: score_position(picks.get(pos) or [], finish_ranges(actual.get(pos) or {}), n) for pos, n in SIZES.items()}
+    positions = {pos: score_position(picks.get(pos) or [], finish_ranges(actual.get(pos) or {}), n, actual.get(pos))
+                 for pos, n in SIZES.items()}
     points = round(sum(p["points"] for p in positions.values()), 2)
     hits = sum(p["hits"] for p in positions.values())
     return {"points": points, "hits": hits, "exact": sum(p["exact"] for p in positions.values()),

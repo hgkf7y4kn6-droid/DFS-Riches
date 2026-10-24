@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Image, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
+import PicksComparison from '@/components/PicksComparison';
 import SafeAreaView from '@/components/SafeAreaView';
 import icons from '@/constants/icons';
 import { useThemeColors } from '@/constants/theme';
@@ -13,8 +14,8 @@ const CANDIDATE_PAGE = 30;
 /**
  * Weekly Pro Picks, full screen: rank the players you think will be each position's top DraftKings scorers on
  * the Sunday Main (5 QBs, 10 RBs, 15 WRs, 3 TEs, 5 DSTs). Tap a player to add him at the next open spot; move
- * him with the arrows. Read-only once the Main kicks off; once it's scored, each pick shows where he finished
- * and what he earned. The draft survives closing the editor until the app restarts.
+ * him with the arrows. Read-only once the Main kicks off; once it's scored, each position shows the user's picks
+ * side by side with who actually finished at each spot, with DraftKings points (PicksComparison). The draft survives closing the editor until the app restarts.
  */
 export default function ProPicksEditor() {
   const { state, save, editorOpen, setEditorOpen } = useProPicks();
@@ -145,75 +146,63 @@ export default function ProPicksEditor() {
             })}
           </ScrollView>
 
-          <Text className="section-title mb-1">
-            Your top {size} {position === 'DST' ? 'defenses' : `${position}s`}
-            {scored ? ` · ${formatPoints(scored.points)} pts` : ''}
-          </Text>
-          <View className="lineup-card">
-            {Array.from({ length: size }, (_, i) => {
-              const p = list[i] != null ? byId.get(list[i]) : undefined;
-              const row = scored?.rows.find((r) => r.ranked === i + 1);
-              return (
-                <View key={i} className="lineup-row">
-                  <Text className="lineup-slot">{i + 1}.</Text>
-                  <View className="flex-1">
-                    {p ? (
-                      <>
-                        <Text className="lineup-player-name" numberOfLines={1}>
-                          {p.name}
-                        </Text>
-                        <Text className="lineup-player-meta" numberOfLines={1}>
-                          {p.team} vs {p.opponent} · {formatCurrency(p.salary).replace('.00', '')} · {formatPoints(p.proj)} proj
-                          {row ? (row.points > 0 ? ` · finished #${row.finished} · +${formatPoints(row.points)}` : ` · missed the top ${size}`) : ''}
-                        </Text>
-                      </>
-                    ) : (
-                      <Text className="caption">{open ? 'Open: tap a player below' : 'Not ranked'}</Text>
-                    )}
-                  </View>
-                  {open && p ? (
-                    <View className="flex-row items-center gap-3">
-                      <Pressable onPress={() => move(i, -1)} disabled={i === 0} accessibilityRole="button" accessibilityLabel={`Move ${p.name} up`} hitSlop={6}>
-                        <Text className={`link-text ${i === 0 ? 'opacity-30' : ''}`}>▲</Text>
-                      </Pressable>
-                      <Pressable
-                        onPress={() => move(i, 1)}
-                        disabled={i === list.length - 1}
-                        accessibilityRole="button"
-                        accessibilityLabel={`Move ${p.name} down`}
-                        hitSlop={6}>
-                        <Text className={`link-text ${i === list.length - 1 ? 'opacity-30' : ''}`}>▼</Text>
-                      </Pressable>
-                      <Pressable className="player-remove" onPress={() => remove(i)} accessibilityRole="button" accessibilityLabel={`Remove ${p.name}`}>
-                        <Image source={icons.close} style={{ width: 12, height: 12, tintColor: colors.mutedForeground }} />
-                      </Pressable>
-                    </View>
-                  ) : null}
-                </View>
-              );
-            })}
-          </View>
-
-          {state.status === 'final' && state.actual_top ? (
+          {state.status === 'final' ? (
             <>
-              <Text className="section-title mb-1 mt-3">Actual top {size}</Text>
+              <Text className="section-title mb-1">
+                Your {position === 'DST' ? 'defenses' : `${position}s`} vs. the actual top {size}
+                {scored ? ` · ${scored.hits}/${size} hit · ${formatPoints(scored.points)} pts` : ''}
+              </Text>
+              <PicksComparison state={state} position={position} picks={list} byId={byId} />
+            </>
+          ) : (
+            <>
+              <Text className="section-title mb-1">
+                Your top {size} {position === 'DST' ? 'defenses' : `${position}s`}
+              </Text>
               <View className="lineup-card">
-                {state.actual_top[position].map((a) => {
-                  const p = byId.get(a.id);
+                {Array.from({ length: size }, (_, i) => {
+                  const p = list[i] != null ? byId.get(list[i]) : undefined;
                   return (
-                    <View key={a.id} className="lineup-row">
-                      <Text className="lineup-slot">{a.spot}.</Text>
-                      <Text className="lineup-player-name flex-1" numberOfLines={1}>
-                        {p?.name ?? a.id}
-                        {list.includes(a.id) ? ' ✓' : ''}
-                      </Text>
-                      <Text className="lineup-proj">{formatPoints(a.points)}</Text>
+                    <View key={i} className="lineup-row">
+                      <Text className="lineup-slot">{i + 1}.</Text>
+                      <View className="flex-1">
+                        {p ? (
+                          <>
+                            <Text className="lineup-player-name" numberOfLines={1}>
+                              {p.name}
+                            </Text>
+                            <Text className="lineup-player-meta" numberOfLines={1}>
+                              {p.team} vs {p.opponent} · {formatCurrency(p.salary).replace('.00', '')} · {formatPoints(p.proj)} proj
+                            </Text>
+                          </>
+                        ) : (
+                          <Text className="caption">{open ? 'Open: tap a player below' : 'Not ranked'}</Text>
+                        )}
+                      </View>
+                      {open && p ? (
+                        <View className="flex-row items-center gap-3">
+                          <Pressable onPress={() => move(i, -1)} disabled={i === 0} accessibilityRole="button" accessibilityLabel={`Move ${p.name} up`} hitSlop={6}>
+                            <Text className={`link-text ${i === 0 ? 'opacity-30' : ''}`}>▲</Text>
+                          </Pressable>
+                          <Pressable
+                            onPress={() => move(i, 1)}
+                            disabled={i === list.length - 1}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Move ${p.name} down`}
+                            hitSlop={6}>
+                            <Text className={`link-text ${i === list.length - 1 ? 'opacity-30' : ''}`}>▼</Text>
+                          </Pressable>
+                          <Pressable className="player-remove" onPress={() => remove(i)} accessibilityRole="button" accessibilityLabel={`Remove ${p.name}`}>
+                            <Image source={icons.close} style={{ width: 12, height: 12, tintColor: colors.mutedForeground }} />
+                          </Pressable>
+                        </View>
+                      ) : null}
                     </View>
                   );
                 })}
               </View>
             </>
-          ) : null}
+          )}
 
           {message ? <Text className={`lineup-message ${message.error ? 'text-negative' : ''}`}>{message.text}</Text> : null}
 

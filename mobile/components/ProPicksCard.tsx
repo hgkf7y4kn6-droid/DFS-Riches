@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
+import PicksComparison from '@/components/PicksComparison';
 import { ProSheet } from '@/components/ProLock';
 import { track } from '@/lib/analytics';
-import { rankedCount, useProPicks } from '@/lib/pro-picks-context';
+import { PICK_POSITIONS, rankedCount, useProPicks } from '@/lib/pro-picks-context';
 import { formatEt, formatPoints } from '@/lib/utils';
 
 /** 1 -> "1st", 22 -> "22nd", 13 -> "13th". */
@@ -14,13 +15,16 @@ function ordinal(n: number): string {
 
 /**
  * Home: this week's Weekly Pro Picks -- rank the Sunday Main's top scorers by position, then, once it's
- * scored, where you finished among every Pro entry and how accurate you were (only your own result: no
- * leaderboard of other users). Free accounts see what it is and how to unlock it.
+ * scored, where you finished among every Pro entry, how accurate you were, and your picks side by side with
+ * who actually finished at each spot (only your own result: no leaderboard of other users). Free accounts
+ * see what it is and how to unlock it.
  */
 export default function ProPicksCard() {
   const { state, loading, error, refresh, setEditorOpen } = useProPicks();
   const [proOpen, setProOpen] = useState(false);
   const [howOpen, setHowOpen] = useState(false);
+  const [position, setPosition] = useState<PickPosition>('QB');
+  const byId = useMemo(() => new Map((state?.players ?? []).map((p) => [p.id, p])), [state?.players]);
   if (!state && !loading && !error) return null;
 
   const openEditor = () => {
@@ -104,9 +108,26 @@ export default function ProPicksCard() {
               You didn&apos;t enter this week. {state.entrants} Pro user{state.entrants === 1 ? '' : 's'} did.
             </Text>
           )}
-          <Pressable className="btn-outline mt-3" onPress={openEditor} accessibilityRole="button">
-            <Text className="btn-outline-text">{me ? 'Your scorecard and the actual top scorers' : 'See the actual top scorers'}</Text>
-          </Pressable>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row mb-2 mt-3" contentContainerClassName="chip-row-content">
+            {PICK_POSITIONS.map((pos) => {
+              const active = pos === position;
+              const hits = me?.positions[pos]?.hits;
+              return (
+                <Pressable
+                  key={pos}
+                  className={`filter-chip ${active ? 'filter-chip-active' : ''}`}
+                  onPress={() => setPosition(pos)}
+                  accessibilityRole="tab"
+                  aria-selected={active}>
+                  <Text className={`filter-chip-text ${active ? 'filter-chip-text-active' : ''}`}>
+                    {pos}
+                    {hits != null ? ` ${hits}/${state.sizes[pos]}` : ''}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+          <PicksComparison state={state} position={position} picks={state.mine?.picks[position] ?? []} byId={byId} />
         </>
       )}
 

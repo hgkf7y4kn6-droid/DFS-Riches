@@ -1124,7 +1124,8 @@ interface ProPicksPositionScore {
   points: number;
   hits: number;
   exact: number;
-  rows: { id: number; ranked: number; finished: number | null; points: number }[];
+  /** dk: his actual DraftKings points. */
+  rows: { id: number; ranked: number; finished: number | null; points: number; dk: number | null }[];
 }
 interface ProPicksState {
   season: number;

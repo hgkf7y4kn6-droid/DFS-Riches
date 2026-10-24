@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.47',
+    title: "What's new",
+    items: [
+      "Weekly Pro Picks results now show each position side by side: who you ranked at every spot next to who actually finished there, with their DraftKings points.",
+    ],
+  },
+  {
     version: '1.1.46',
     title: "What's new",
     items: [
