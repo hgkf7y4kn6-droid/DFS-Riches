@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.49',
+    title: "What's new",
+    items: [
+      'Best contests now include cash games: 50/50s, Double Ups and Triple Ups. Turn each on or off under Show. Cash games are scored against other cash games, so they rank on rake and payouts without crowding out tournaments.',
+    ],
+  },
+  {
     version: '1.1.48',
     title: "What's new",
     items: [

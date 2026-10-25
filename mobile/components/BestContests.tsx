@@ -32,7 +32,14 @@ const KINDS: Option<ContestKind>[] = [
   { id: 'Booster', label: 'Boosters' },
   { id: 'League', label: 'Leagues' },
   { id: 'Qualifier', label: 'Qualifiers' },
+  { id: '50/50', label: '50/50s' },
+  { id: 'Double Up', label: 'Double Ups' },
+  { id: 'Triple Up', label: 'Triple Ups' },
 ];
+const CASH_KINDS: ContestKind[] = ['50/50', 'Double Up', 'Triple Up'];
+const GPP_KINDS: ContestKind[] = KINDS.map((k) => k.id).filter((k) => !CASH_KINDS.includes(k));
+// Saved filters from before cash games were listed (version 1) get the cash kinds' default for the user's focus.
+const KINDS_VERSION = 2;
 
 /** Score factors, with the server's default points (app.contests.WEIGHTS). */
 const FACTORS: { id: ContestFactor; label: string; hint: string }[] = [
@@ -48,6 +55,7 @@ const STORAGE_KEY = 'dfsriches:best-contests-filters';
 const OLD_HIDDEN_KEY = 'dfsriches:best-contests-hidden';
 
 interface Filters {
+  kindsVersion?: number;
   /** Entry and fee group ids; empty = all. */
   entries: string[];
   fees: string[];
@@ -69,9 +77,10 @@ const savedWeights = (w: unknown): Record<ContestFactor, number> => {
 const only = <T extends string>(ids: unknown, options: Option<T>[]): T[] =>
   Array.isArray(ids) ? options.map((o) => o.id).filter((id) => ids.includes(id)) : [];
 
-/** The card's filters, remembered on this device; until they're set, the fees fit the user's weekly budget. */
+/** The card's filters, remembered on this device; until they're set, the fees fit the user's weekly budget and the kinds
+ *  what they play: tournament players start without cash games, cash players with only them. */
 function useFilters() {
-  const [filters, setFilters] = useState<Filters>({ entries: [], fees: [], hidden: [], weights: DEFAULT_WEIGHTS });
+  const [filters, setFilters] = useState<Filters>({ kindsVersion: KINDS_VERSION, entries: [], fees: [], hidden: [], weights: DEFAULT_WEIGHTS });
   const [loaded, setLoaded] = useState(false);
   const { prefs, loaded: prefsLoaded } = usePrefs();
   const budgetFees = prefs.spend ? FEES_FOR_SPEND[prefs.spend] : [];
@@ -80,10 +89,16 @@ function useFilters() {
     Promise.all([AsyncStorage.getItem(STORAGE_KEY), AsyncStorage.getItem(OLD_HIDDEN_KEY)])
       .then(([raw, oldHidden]) => {
         const saved = raw ? JSON.parse(raw) : { hidden: oldHidden ? JSON.parse(oldHidden) : [], fees: budgetFees };
+        let hidden = only(saved.hidden, KINDS);
+        if (saved.kindsVersion !== KINDS_VERSION) {
+          if (prefs.focus === 'gpp') hidden = [...new Set([...hidden, ...CASH_KINDS])];
+          else if (prefs.focus === 'cash' && !raw) hidden = GPP_KINDS;
+        }
         setFilters({
+          kindsVersion: KINDS_VERSION,
           entries: only(saved.entries, ENTRY_GROUPS),
           fees: only(saved.fees, FEE_GROUPS),
-          hidden: only(saved.hidden, KINDS),
+          hidden,
           weights: savedWeights(saved.weights),
         });
       })
@@ -360,9 +375,10 @@ function ContestRow({ contest: c, rank, pinned }: { contest: BestContest; rank: 
 }
 
 /**
- * The 15 best DraftKings NFL GPPs for any mix of max-entries limits, entry fees and
- * contest kinds: low rake, a big share of the field paid, and a big first prize for
- * the fee. Only slates that haven't started; the slate selected above (Sunday Main, Full Week, a
+ * The 15 best DraftKings NFL contests -- tournaments and cash games (50/50s, Double Ups,
+ * Triple Ups) -- for any mix of max-entries limits, entry fees and contest kinds: low rake,
+ * a big share of the field paid, and a big first prize for the fee. Cash games are scored
+ * against cash games and tournaments against tournaments (app.contests.score_contests). Only slates that haven't started; the slate selected above (Sunday Main, Full Week, a
  * Showdown) is listed first. Tapping one opens it on DraftKings.
  */
 export default function BestContests({ slate }: { slate?: Slate | null }) {
@@ -399,7 +415,7 @@ export default function BestContests({ slate }: { slate?: Slate | null }) {
         <>
           <Text className="caption mb-1">
             Best {data.contests.length} of {data.matching.toLocaleString('en-US')} matching. Score ranks each against the
-            other matches on {weighs}.{slateNote}
+            other matches of its type (cash games against cash games, tournaments against tournaments) on {weighs}.{slateNote}
           </Text>
           {data.contests.length ? (
             data.contests.map((c, i) => <ContestRow key={c.id} contest={c} rank={i + 1} pinned={c.on_selected_slate} />)

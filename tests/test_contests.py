@@ -55,6 +55,28 @@ def test_gpp_filter_keeps_boosters_leagues_qualifiers_but_drops_cash_h2h_and_oth
     assert not contests.is_gpp(_contest(1, 5, 100, 450, attr={"IsCasual": "true"}))
 
 
+def test_cash_games_are_listed_and_named_by_kind():
+    fifty = {**_contest(1, 5, 100, 450, attr={"IsDoubleUp": "true", "IsFiftyfifty": "true"}), "n": "NFL $5 50-50 [50 Entry Max]"}
+    double = {**_contest(2, 5, 100, 450, attr={"IsDoubleUp": "true", "IsFiftyfifty": "true"}), "n": "NFL Single Entry $5 Double Up"}
+    triple = {**_contest(3, 10, 31, 270, attr={"Multiplier": "true"}), "n": "NFL Showdown $10 Triple Up [Top 9 Win $30] (PIT vs NO)"}
+    booster = {**_contest(4, 5, 100, 450, attr={"Multiplier": "true"}), "n": "NFL 10x Booster"}
+    h2h = {**_contest(5, 5, 2, 9, attr={"IsDoubleUp": "true", "IsFiftyfifty": "true"}), "n": "NFL $5 Double Up"}
+    beginner = {**_contest(6, 5, 100, 450, attr={"IsDoubleUp": "true", "IsBeginner": "true"}), "n": "Beginner NFL $5 Double Up"}
+    assert [contests.is_cash(c) for c in (fifty, double, triple, booster, h2h, beginner)] == [True, True, True, False, False, False]
+    assert not contests.is_gpp(triple) and contests.is_gpp(booster)
+    assert [contests._row(c)["kind"] for c in (fifty, double, triple, booster)] == ["50/50", "Double Up", "Triple Up", "Booster"]
+
+
+def test_cash_games_are_scored_against_cash_games():
+    gpp = {"kind": "Tournament", "rake": 0.15, "paid_pct": 0.22, "top_multiple": 1000.0, "field_size": 50000, "prize_pool": 1.0}
+    cash = {"kind": "Double Up", "rake": 0.12, "paid_pct": 0.45, "top_multiple": 1.8, "field_size": 100, "prize_pool": 1.0}
+    rows = contests.score_contests([{**gpp, "id": 1}, {**gpp, "id": 2, "rake": 0.20},
+                                    {**cash, "id": 3}, {**cash, "id": 4, "rake": 0.16}])
+    score = {r["id"]: r["score"] for r in rows}
+    # The cheaper of each pair is best of its family, whatever the other family's payout share.
+    assert score[1] == score[3] > score[2] == score[4]
+
+
 def test_groups_cover_every_fee_and_entry_limit():
     assert [contests.entry_group(n) for n in (1, 2, 10, 11, 20, 21, 150, 151)] == \
         ["se", "2-10", "2-10", "20", "20", "150", "150", None]
@@ -72,7 +94,7 @@ async def test_score_weighs_rake_share_paid_and_top_prize(lobby):
     ], "DraftGroups": [{"DraftGroupId": 1, "ContestStartTimeSuffix": " (Thu-Mon)"}]}
     lobby["payouts"] = {1: (22, 60.0), 2: (20, 60.0), 3: (25, 90.0), 5: (20, 500.0)}
 
-    result = await contests.best_contests(frozenset({"se"}), frozenset({"1-5"}))
+    result = await contests.best_contests(frozenset({"se"}), frozenset({"1-5"}), frozenset(contests.CASH_KINDS))
     rows = result["contests"]
     assert [c["id"] for c in rows] == [3, 2, 1]
     assert rows[0]["score"] == 90.0 and rows[0]["paid_pct"] == 0.25 and rows[0]["top_multiple"] == 30.0
@@ -80,7 +102,7 @@ async def test_score_weighs_rake_share_paid_and_top_prize(lobby):
     assert result["matching"] == 3
 
     everything = await contests.best_contests()
-    assert {c["id"] for c in everything["contests"]} == {1, 2, 3, 5}
+    assert {c["id"] for c in everything["contests"]} == {1, 2, 3, 4, 5}      # the 50/50-flagged one too
     both = await contests.best_contests(frozenset({"se", "150"}), frozenset({"1-5", "over25"}))
     assert {(c["id"], c["kind"]) for c in both["contests"]} >= {(5, "Booster")}
 

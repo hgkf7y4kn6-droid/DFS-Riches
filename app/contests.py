@@ -1,4 +1,4 @@
-"""Best contests: the cheapest-to-play NFL GPPs in DraftKings' lobby.
+"""Best contests: the cheapest-to-play NFL contests in DraftKings' lobby -- GPPs and cash games.
 
 Two public (unauthenticated, undocumented) DraftKings endpoints:
   - GET www.draftkings.com/lobby/getcontests?sport=NFL
@@ -10,14 +10,21 @@ Two public (unauthenticated, undocumented) DraftKings endpoints:
         same template share it, so it's fetched once per template and gives
         the share of the field that gets paid and the first-place prize.
 
-GPPs here are salary-cap Classic and Showdown tournaments on any slate (main,
-early, Sun-Mon, full-week Thu-Mon, single-game Showdown), including boosters
-(multipliers), leagues and qualifiers (ticket and seat prizes count at face
-value, as DraftKings' prize pool does); no double-ups / 50-50s (cash games),
-head-to-heads, free contests, or Beginner / Casual contests (closed to
-experienced players). The user picks any mix of max-entries groups, fee groups
-and kinds; the 15 best of those are listed, scored with the user's weights on
-low rake, share of the field paid, first prize for the fee and field size.
+Listed: salary-cap Classic and Showdown contests on any slate (main, early,
+Sun-Mon, full-week Thu-Mon, single-game Showdown) --
+  GPPs        tournaments, boosters (multipliers), leagues and qualifiers
+              (ticket and seat prizes count at face value, as DraftKings'
+              prize pool does);
+  cash games  50/50s, Double Ups and Triple Ups. DraftKings flags 50/50s and
+              Double Ups alike (IsDoubleUp + IsFiftyfifty), so the name tells
+              them apart; Triple Ups are multipliers named "Triple Up".
+Not listed: head-to-heads, free contests, or Beginner / Casual contests (closed
+to experienced players). The user picks any mix of max-entries groups, fee
+groups and kinds; the 15 best of those are listed, scored with the user's
+weights on low rake, share of the field paid, first prize for the fee and
+field size. Cash games are scored against cash games and GPPs against GPPs (a
+Double Up always pays far more of its field than any tournament), then merged
+by score.
 """
 from __future__ import annotations
 
@@ -40,9 +47,13 @@ GPP_GAME_TYPES = {"Classic", "Showdown Captain Mode"}
 NOT_GPP_ATTRS = {"IsDoubleUp", "IsFiftyfifty"}
 # Beginner and Casual contests: only newer / less experienced players can enter.
 RESTRICTED_ATTRS = {"IsBeginner", "IsCasual"}
+CASH_ATTRS = {"IsDoubleUp", "IsFiftyfifty"}
 # Shown on each row: (attr flag, label), first match wins.
 KINDS = [("IsQualifier", "Qualifier"), ("Multiplier", "Booster"), ("League", "League")]
-CONTEST_KINDS = ["Tournament", "Booster", "League", "Qualifier"]
+CASH_KINDS = ["50/50", "Double Up", "Triple Up"]
+CONTEST_KINDS = ["Tournament", "Booster", "League", "Qualifier", *CASH_KINDS]
+FIFTY_RE = re.compile(r"\b50\s*[-/]\s*50\b")
+TRIPLE_RE = re.compile(r"\btriple[\s-]*up\b", re.IGNORECASE)
 TOP_N = 15
 PAYOUT_CONCURRENCY = 8
 # How much each percentile counts in a contest's score (score_contests), in points the user
@@ -74,14 +85,25 @@ def _start_utc(value: str | None) -> str | None:
     return datetime.fromtimestamp(int(m.group(1)) / 1000, tz=timezone.utc).isoformat() if m else None
 
 
-def is_gpp(c: dict) -> bool:
+def _salary_cap_paid(c: dict) -> bool:
+    """A paid Classic / Showdown contest of more than two entries, open to everyone."""
     return (
         c.get("gameType") in GPP_GAME_TYPES
-        and not (NOT_GPP_ATTRS | RESTRICTED_ATTRS) & set(c.get("attr") or {})
+        and not RESTRICTED_ATTRS & set(c.get("attr") or {})
         and (c.get("m") or 0) > 2
         and (c.get("a") or 0) > 0
         and (c.get("po") or 0) > 0
     )
+
+
+def is_gpp(c: dict) -> bool:
+    return _salary_cap_paid(c) and not NOT_GPP_ATTRS & set(c.get("attr") or {}) and not TRIPLE_RE.search(c.get("n") or "")
+
+
+def is_cash(c: dict) -> bool:
+    """A 50/50, Double Up or Triple Up."""
+    return _salary_cap_paid(c) and (bool(CASH_ATTRS & set(c.get("attr") or {})) or
+                                    ("Multiplier" in (c.get("attr") or {}) and bool(TRIPLE_RE.search(c.get("n") or ""))))
 
 
 def entry_group(max_entries: int) -> str | None:
@@ -92,7 +114,11 @@ def fee_group(fee: float) -> str | None:
     return next((gid for gid, _, lo, hi in FEE_GROUPS if lo <= fee < hi), None)
 
 
-def _kind(attr: dict) -> str:
+def _kind(attr: dict, name: str = "") -> str:
+    if CASH_ATTRS & set(attr):
+        return "50/50" if FIFTY_RE.search(name) else "Double Up"
+    if "Multiplier" in attr and TRIPLE_RE.search(name):
+        return "Triple Up"
     return next((label for flag, label in KINDS if flag in attr), "Tournament")
 
 
@@ -115,7 +141,7 @@ def _row(c: dict, groups: dict[int, dict] | None = None) -> dict:
         "prize_pool": pool,
         "rake": round(1 - pool / (fee * size), 4),
         "guaranteed": (c.get("attr") or {}).get("IsGuaranteed") == "true",
-        "kind": _kind(c.get("attr") or {}),
+        "kind": _kind(c.get("attr") or {}, c.get("n") or ""),
         "slate": _slate((groups or {}).get(c.get("dg")), c.get("gameType")),
         "start_utc": _start_utc(c.get("sd")),
         "start_label": c.get("sdstring") or "",
@@ -148,17 +174,17 @@ def _free_row(c: dict, groups: dict[int, dict]) -> dict:
 
 
 async def _lobby() -> dict[str, list[dict]]:
-    """The lobby trimmed to what the cards use: {"gpps": [...], "free": [...]}."""
+    """The lobby trimmed to what the cards use: {"contests": [GPPs and cash games], "free": [...]}."""
     async def fetch() -> dict[str, list[dict]]:
         data = await _get_json(LOBBY_URL)
         groups = {g.get("DraftGroupId"): g for g in data.get("DraftGroups") or []}
         lobby = data.get("Contests", [])
         return {
-            "gpps": [_row(c, groups) for c in lobby if is_gpp(c)],
+            "contests": [_row(c, groups) for c in lobby if is_gpp(c) or is_cash(c)],
             "free": [_free_row(c, groups) for c in lobby if is_free_cash(c)],
         }
 
-    return await cached_fetch("dk_lobby_nfl_v4", TTL_LOBBY, fetch)
+    return await cached_fetch("dk_lobby_nfl_v5", TTL_LOBBY, fetch)
 
 
 async def free_contests() -> dict[str, Any]:
@@ -242,8 +268,17 @@ def normalize_weights(weights: dict[str, float] | None) -> dict[str, float]:
 
 def score_contests(rows: list[dict], weights: dict[str, float] | None = None) -> list[dict]:
     """Ranks contests on low rake, a big share of the field paid, a big first-place prize
-    for the entry fee and a small field, each as a percentile among these contests, weighted
-    by weights (points per factor; WEIGHTS by default). Score is 0-100; ties go to the lower rake."""
+    for the entry fee and a small field, each as a percentile among the same family (cash games
+    against cash games, GPPs against GPPs), weighted by weights (points per factor; WEIGHTS by
+    default), then merges them. Score is 0-100; ties go to the lower rake."""
+    families: dict[bool, list[dict]] = {}
+    for r in rows:
+        families.setdefault(r.get("kind") in CASH_KINDS, []).append(r)
+    scored = [r for fam in families.values() for r in _score_family(fam, weights)]
+    return sorted(scored, key=lambda r: (-r["score"], r["rake"], -r["prize_pool"]))
+
+
+def _score_family(rows: list[dict], weights: dict[str, float] | None) -> list[dict]:
     if not rows:
         return []
     shares = normalize_weights(weights)
@@ -254,13 +289,11 @@ def score_contests(rows: list[dict], weights: dict[str, float] | None = None) ->
         "field": [-r["field_size"] for r in rows],
     }
     ranks = {k: _pct_ranks(v) for k, v in metrics.items() if shares[k]}
-    scored = [{**r, "score": round(100 * sum(shares[k] * ranks[k][i] for k in ranks), 1)}
-              for i, r in enumerate(rows)]
-    return sorted(scored, key=lambda r: (-r["score"], r["rake"], -r["prize_pool"]))
+    return [{**r, "score": round(100 * sum(shares[k] * ranks[k][i] for k in ranks), 1)} for i, r in enumerate(rows)]
 
 
 def select(rows: list[dict], entries: frozenset[str], fees: frozenset[str], exclude: frozenset[str]) -> list[dict]:
-    """GPPs in the chosen max-entries and fee groups (empty = all), minus excluded kinds."""
+    """Contests in the chosen max-entries and fee groups (empty = all), minus excluded kinds."""
     return [r for r in rows
             if r["kind"] not in exclude
             and (eg := entry_group(r["max_entries"])) and (not entries or eg in entries)
@@ -298,7 +331,7 @@ def collapse_copies(rows: list[dict], draft_group_id: int | None = None) -> list
 async def warm_payouts() -> None:
     """Fetches every listed GPP's payout table so the first ranking doesn't wait on them."""
     try:
-        await _with_payouts((await _lobby())["gpps"])
+        await _with_payouts((await _lobby())["contests"])
     except Exception:
         pass
 
@@ -321,10 +354,10 @@ def prioritize(scored: list[dict]) -> list[dict]:
 async def best_contests(entries: frozenset[str] = frozenset(), fees: frozenset[str] = frozenset(),
                         exclude: frozenset[str] = frozenset(), weights: dict[str, float] | None = None,
                         draft_group_id: int | None = None) -> dict[str, Any]:
-    """The TOP_N best GPPs (score_contests, with the user's weights) across the chosen
+    """The TOP_N best contests (score_contests, with the user's weights) across the chosen
     max-entries groups, fee groups and contest kinds, on slates that haven't started. With
     draft_group_id (the slate picked in the app), that slate's contests come first."""
-    rows = collapse_copies(await _with_payouts(select(upcoming((await _lobby())["gpps"]), entries, fees, exclude)),
+    rows = collapse_copies(await _with_payouts(select(upcoming((await _lobby())["contests"]), entries, fees, exclude)),
                            draft_group_id)
     on_slate = sum(1 for r in rows if r["on_selected_slate"])
     return {

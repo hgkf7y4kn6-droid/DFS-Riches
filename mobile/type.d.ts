@@ -317,7 +317,7 @@ interface OptimalLineup {
 type ContestFactor = 'rake' | 'paid' | 'payout' | 'field';
 
 /** Tournament, Booster (multiplier), League or Qualifier. */
-type ContestKind = 'Tournament' | 'Booster' | 'League' | 'Qualifier';
+type ContestKind = 'Tournament' | 'Booster' | 'League' | 'Qualifier' | '50/50' | 'Double Up' | 'Triple Up';
 
 /** One DraftKings GPP from /api/contests/best. rake and paid_pct are 0-1 ratios; score is 0-100. */
 interface BestContest {
