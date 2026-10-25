@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.50',
+    title: "What's new",
+    items: [
+      'Best contests: bigger Double Ups and 50/50s now rank higher -- more room for error and a better chance to cash -- with low rake breaking ties. Raise Low rake in the sort settings to weigh price more.',
+    ],
+  },
+  {
     version: '1.1.49',
     title: "What's new",
     items: [

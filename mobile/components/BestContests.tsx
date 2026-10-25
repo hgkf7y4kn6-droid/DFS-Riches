@@ -46,7 +46,7 @@ const FACTORS: { id: ContestFactor; label: string; hint: string }[] = [
   { id: 'rake', label: 'Low rake', hint: 'Less of the entry fees kept by DraftKings' },
   { id: 'paid', label: 'Payout %', hint: 'More of the field gets paid' },
   { id: 'payout', label: 'First prize', hint: '1st place prize for the entry fee' },
-  { id: 'field', label: 'Small field', hint: 'Fewer entries to beat' },
+  { id: 'field', label: 'Small field', hint: 'Fewer entries to beat (tournaments; cash games always favor bigger fields)' },
 ];
 const DEFAULT_WEIGHTS: Record<ContestFactor, number> = { rake: 4, paid: 3, payout: 3, field: 0 };
 const MAX_WEIGHT = 10;
@@ -378,7 +378,8 @@ function ContestRow({ contest: c, rank, pinned }: { contest: BestContest; rank: 
  * The 15 best DraftKings NFL contests -- tournaments and cash games (50/50s, Double Ups,
  * Triple Ups) -- for any mix of max-entries limits, entry fees and contest kinds: low rake,
  * a big share of the field paid, and a big first prize for the fee. Cash games are scored
- * against cash games and tournaments against tournaments (app.contests.score_contests). Only slates that haven't started; the slate selected above (Sunday Main, Full Week, a
+ * against cash games on low rake and a bigger field, tournaments against tournaments
+ * (app.contests.score_contests). Only slates that haven't started; the slate selected above (Sunday Main, Full Week, a
  * Showdown) is listed first. Tapping one opens it on DraftKings.
  */
 export default function BestContests({ slate }: { slate?: Slate | null }) {
@@ -414,8 +415,8 @@ export default function BestContests({ slate }: { slate?: Slate | null }) {
       ) : (
         <>
           <Text className="caption mb-1">
-            Best {data.contests.length} of {data.matching.toLocaleString('en-US')} matching. Score ranks each against the
-            other matches of its type (cash games against cash games, tournaments against tournaments) on {weighs}.{slateNote}
+            Best {data.contests.length} of {data.matching.toLocaleString('en-US')} matching. Tournaments are scored against
+            each other on {weighs}; cash games against cash games on low rake and a bigger field (more room for error).{slateNote}
           </Text>
           {data.contests.length ? (
             data.contests.map((c, i) => <ContestRow key={c.id} contest={c} rank={i + 1} pinned={c.on_selected_slate} />)

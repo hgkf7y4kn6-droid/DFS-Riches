@@ -24,7 +24,9 @@ groups and kinds; the 15 best of those are listed, scored with the user's
 weights on low rake, share of the field paid, first prize for the fee and
 field size. Cash games are scored against cash games and GPPs against GPPs (a
 Double Up always pays far more of its field than any tournament), then merged
-by score.
+by score. Cash games are scored on rake and field size only, bigger better
+(CASH_BIG_FIELD_POINTS: a few sharp players can't take most of the paying
+spots); share paid and first prize trade off against each other by design.
 """
 from __future__ import annotations
 
@@ -60,6 +62,11 @@ PAYOUT_CONCURRENCY = 8
 # can set from 0 to MAX_WEIGHT; each counts for its share of the total. Field size starts off.
 WEIGHTS = {"rake": 4, "paid": 3, "payout": 3, "field": 0}
 MAX_WEIGHT = 10
+# Cash games are scored on rake (the user's rake points) and field size, bigger better (more room for error: a
+# few sharp players can't take most of the paying spots), at these points. Share paid and first prize are left
+# out for them: a 50/50 pays more people less and a Triple Up fewer people more, the same value once rake is set.
+# The user's "small field" points apply to tournaments only.
+CASH_BIG_FIELD_POINTS = 8
 
 # (id, label, lowest, highest max entries per user)
 ENTRY_GROUPS = [
@@ -257,6 +264,12 @@ def _pct_ranks(values: list[float]) -> list[float]:
     return ranks
 
 
+def _scaled(values: list[float]) -> list[float]:
+    """Each value's place (0-1) between the lowest and the highest, higher = better; all equal -> 0.5."""
+    lo, hi = min(values), max(values)
+    return [0.5] * len(values) if hi == lo else [(v - lo) / (hi - lo) for v in values]
+
+
 def normalize_weights(weights: dict[str, float] | None) -> dict[str, float]:
     """Each factor's share (0-1) of the user's points; WEIGHTS when none are given or all are 0."""
     points = {k: max(0.0, float((weights or {}).get(k, 0))) for k in WEIGHTS}
@@ -274,21 +287,30 @@ def score_contests(rows: list[dict], weights: dict[str, float] | None = None) ->
     families: dict[bool, list[dict]] = {}
     for r in rows:
         families.setdefault(r.get("kind") in CASH_KINDS, []).append(r)
-    scored = [r for fam in families.values() for r in _score_family(fam, weights)]
+    scored = [r for cash, fam in families.items() for r in _score_family(fam, weights, cash)]
     return sorted(scored, key=lambda r: (-r["score"], r["rake"], -r["prize_pool"]))
 
 
-def _score_family(rows: list[dict], weights: dict[str, float] | None) -> list[dict]:
+def _score_family(rows: list[dict], weights: dict[str, float] | None, cash: bool = False) -> list[dict]:
+    """Tournaments: the user's weights, a smaller field better. Cash games: the user's rake points (the default
+    when they're 0) and CASH_BIG_FIELD_POINTS for a bigger field."""
     if not rows:
         return []
     shares = normalize_weights(weights)
+    if cash:
+        rake = max(0.0, float((weights or {}).get("rake", 0))) or float(WEIGHTS["rake"])
+        points = {"rake": rake, "paid": 0.0, "payout": 0.0, "field": float(CASH_BIG_FIELD_POINTS)}
+        shares = {k: v / sum(points.values()) for k, v in points.items()}
     metrics = {
         "rake": [-r["rake"] for r in rows],
         "paid": [r["paid_pct"] or 0.0 for r in rows],
         "payout": [math.log10(r["top_multiple"]) if r["top_multiple"] else 0.0 for r in rows],
-        "field": [-r["field_size"] for r in rows],
+        "field": [math.log10(max(r["field_size"], 1)) if cash else -r["field_size"] for r in rows],
     }
-    ranks = {k: _pct_ranks(v) for k, v in metrics.items() if shares[k]}
+    # Cash games differ by small amounts (13.0% vs 12.7% rake is nearly a tie), so they're scored on where each
+    # value falls between the lowest and highest (field size on a log scale); tournaments on percentiles.
+    rank = _scaled if cash else _pct_ranks
+    ranks = {k: rank(v) for k, v in metrics.items() if shares[k]}
     return [{**r, "score": round(100 * sum(shares[k] * ranks[k][i] for k in ranks), 1)} for i, r in enumerate(rows)]
 
 

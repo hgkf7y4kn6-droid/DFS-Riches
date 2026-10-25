@@ -73,8 +73,21 @@ def test_cash_games_are_scored_against_cash_games():
     rows = contests.score_contests([{**gpp, "id": 1}, {**gpp, "id": 2, "rake": 0.20},
                                     {**cash, "id": 3}, {**cash, "id": 4, "rake": 0.16}])
     score = {r["id"]: r["score"] for r in rows}
-    # The cheaper of each pair is best of its family, whatever the other family's payout share.
-    assert score[1] == score[3] > score[2] == score[4]
+    # The cheaper of each pair wins within its family, whatever the other family's payout share.
+    assert score[1] > score[2] and score[3] > score[4]
+    assert score[3] > score[2]                               # a cheap Double Up isn't buried under tournaments
+
+
+def test_bigger_cash_games_rank_higher_and_tournaments_keep_the_users_field_setting():
+    du = {"kind": "Double Up", "rake": 0.13, "paid_pct": 0.435, "top_multiple": 2.0, "prize_pool": 1.0}
+    gpp = {"kind": "Tournament", "rake": 0.15, "paid_pct": 0.22, "top_multiple": 100.0, "prize_pool": 1.0}
+    rows = [{**du, "id": 1, "field_size": 23}, {**du, "id": 2, "field_size": 2873}, {**du, "id": 3, "field_size": 287},
+            {**gpp, "id": 4, "field_size": 100}, {**gpp, "id": 5, "field_size": 50000}]
+    order = [r["id"] for r in contests.score_contests(rows) if r["kind"] == "Double Up"]
+    assert order == [2, 3, 1]                                        # bigger double ups first, same rake
+    small = {r["id"]: r["score"] for r in contests.score_contests(rows, {"rake": 4, "paid": 3, "payout": 3, "field": 5})}
+    assert small[4] > small[5]                                       # "small field" still means small for tournaments
+    assert small[2] > small[1]
 
 
 def test_groups_cover_every_fee_and_entry_limit():
