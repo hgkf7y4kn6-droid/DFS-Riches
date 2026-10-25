@@ -9428,7 +9428,7 @@
     },
     "7": {
       "classic_sunday": {
-        "saved_at": "2026-10-25T11:15:00+00:00",
+        "saved_at": "2026-10-25T12:09:15+00:00",
         "draft_group_id": 155198,
         "lineups": [
           {
@@ -9443,9 +9443,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 5000,
-                "proj_points": 19.48,
-                "ceiling": 28.0,
-                "sleeper_proj": 19.39,
+                "proj_points": 19.43,
+                "ceiling": 27.9,
+                "sleeper_proj": 19.29,
                 "game_info": "DEN @ ARI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44556899,
@@ -9581,8 +9581,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 149.44,
-            "ceiling": 237.7
+            "proj_points": 149.39,
+            "ceiling": 237.6
           },
           {
             "metric": "tournament",
@@ -9740,7 +9740,7 @@
         ]
       },
       "classic": {
-        "saved_at": "2026-10-25T11:15:08+00:00",
+        "saved_at": "2026-10-25T12:09:24+00:00",
         "draft_group_id": 155197,
         "lineups": [
           {
@@ -9755,9 +9755,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 5000,
-                "proj_points": 19.48,
-                "ceiling": 28.0,
-                "sleeper_proj": 19.39,
+                "proj_points": 19.43,
+                "ceiling": 27.9,
+                "sleeper_proj": 19.29,
                 "game_info": "DEN @ ARI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44560760,
@@ -9894,8 +9894,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 149.36,
-            "ceiling": 237.8
+            "proj_points": 149.31,
+            "ceiling": 237.7
           },
           {
             "metric": "tournament",
@@ -10364,7 +10364,7 @@
         "results_at": "2026-10-23T11:21:28+00:00"
       },
       "showdown_sun_morning": {
-        "saved_at": "2026-10-25T11:15:11+00:00",
+        "saved_at": "2026-10-25T12:09:27+00:00",
         "draft_group_id": 155205,
         "lineups": [
           {
@@ -10395,8 +10395,8 @@
                 "opponent": "PIT",
                 "roster_slot": "FLEX",
                 "salary": 11200,
-                "proj_points": 16.3,
-                "ceiling": 26.8,
+                "proj_points": 16.27,
+                "ceiling": 26.7,
                 "sleeper_proj": 16.98,
                 "game_info": "PIT @ NO",
                 "injury": "Healthy",
@@ -10411,7 +10411,7 @@
                 "opponent": "NO",
                 "roster_slot": "FLEX",
                 "salary": 10400,
-                "proj_points": 18.12,
+                "proj_points": 18.11,
                 "ceiling": 29.5,
                 "sleeper_proj": 17.04,
                 "game_info": "PIT @ NO",
@@ -10427,7 +10427,7 @@
                 "opponent": "NO",
                 "roster_slot": "FLEX",
                 "salary": 9000,
-                "proj_points": 15.94,
+                "proj_points": 15.91,
                 "ceiling": 25.2,
                 "sleeper_proj": 17.22,
                 "game_info": "PIT @ NO",
@@ -10443,8 +10443,8 @@
                 "opponent": "NO",
                 "roster_slot": "FLEX",
                 "salary": 6800,
-                "proj_points": 11.67,
-                "ceiling": 19.9,
+                "proj_points": 11.65,
+                "ceiling": 19.8,
                 "sleeper_proj": 11.47,
                 "game_info": "PIT @ NO",
                 "injury": "Healthy",
@@ -10459,7 +10459,7 @@
                 "opponent": "NO",
                 "roster_slot": "FLEX",
                 "salary": 5400,
-                "proj_points": 9.14,
+                "proj_points": 9.12,
                 "ceiling": 15.5,
                 "sleeper_proj": 8.9,
                 "game_info": "PIT @ NO",
@@ -10469,8 +10469,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 86.62,
-            "ceiling": 142.4
+            "proj_points": 86.51,
+            "ceiling": 142.2
           },
           {
             "metric": "ceiling",
@@ -10500,8 +10500,8 @@
                 "opponent": "PIT",
                 "roster_slot": "FLEX",
                 "salary": 11200,
-                "proj_points": 16.3,
-                "ceiling": 26.8,
+                "proj_points": 16.27,
+                "ceiling": 26.7,
                 "sleeper_proj": 16.98,
                 "game_info": "PIT @ NO",
                 "injury": "Healthy",
@@ -10516,7 +10516,7 @@
                 "opponent": "NO",
                 "roster_slot": "FLEX",
                 "salary": 10400,
-                "proj_points": 18.12,
+                "proj_points": 18.11,
                 "ceiling": 29.5,
                 "sleeper_proj": 17.04,
                 "game_info": "PIT @ NO",
@@ -10532,7 +10532,7 @@
                 "opponent": "NO",
                 "roster_slot": "FLEX",
                 "salary": 9000,
-                "proj_points": 15.94,
+                "proj_points": 15.91,
                 "ceiling": 25.2,
                 "sleeper_proj": 17.22,
                 "game_info": "PIT @ NO",
@@ -10548,8 +10548,8 @@
                 "opponent": "NO",
                 "roster_slot": "FLEX",
                 "salary": 6800,
-                "proj_points": 11.67,
-                "ceiling": 19.9,
+                "proj_points": 11.65,
+                "ceiling": 19.8,
                 "sleeper_proj": 11.47,
                 "game_info": "PIT @ NO",
                 "injury": "Healthy",
@@ -10564,7 +10564,7 @@
                 "opponent": "NO",
                 "roster_slot": "FLEX",
                 "salary": 5400,
-                "proj_points": 9.14,
+                "proj_points": 9.12,
                 "ceiling": 15.5,
                 "sleeper_proj": 8.9,
                 "game_info": "PIT @ NO",
@@ -10574,13 +10574,13 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 86.62,
-            "ceiling": 142.4
+            "proj_points": 86.51,
+            "ceiling": 142.2
           }
         ]
       },
       "showdown_sun_night": {
-        "saved_at": "2026-10-25T11:15:11+00:00",
+        "saved_at": "2026-10-25T12:09:27+00:00",
         "draft_group_id": 155216,
         "lineups": [
           {
@@ -10627,7 +10627,7 @@
                 "opponent": "KC",
                 "roster_slot": "FLEX",
                 "salary": 11600,
-                "proj_points": 22.48,
+                "proj_points": 22.49,
                 "ceiling": 35.7,
                 "sleeper_proj": 24.05,
                 "game_info": "KC @ SEA",
@@ -10643,7 +10643,7 @@
                 "opponent": "KC",
                 "roster_slot": "FLEX",
                 "salary": 9400,
-                "proj_points": 16.62,
+                "proj_points": 16.64,
                 "ceiling": 25.5,
                 "sleeper_proj": 15.27,
                 "game_info": "KC @ SEA",
@@ -10685,7 +10685,7 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 91.83,
+            "proj_points": 91.86,
             "ceiling": 146.0
           },
           {
@@ -10700,7 +10700,7 @@
                 "opponent": "KC",
                 "roster_slot": "CPT",
                 "salary": 17400,
-                "proj_points": 33.72,
+                "proj_points": 33.73,
                 "ceiling": 53.6,
                 "sleeper_proj": 36.08,
                 "game_info": "KC @ SEA",
@@ -10732,7 +10732,7 @@
                 "opponent": "KC",
                 "roster_slot": "FLEX",
                 "salary": 9400,
-                "proj_points": 16.62,
+                "proj_points": 16.64,
                 "ceiling": 25.5,
                 "sleeper_proj": 15.27,
                 "game_info": "KC @ SEA",
@@ -10790,7 +10790,7 @@
               }
             ],
             "salary": 49800,
-            "proj_points": 89.91,
+            "proj_points": 89.94,
             "ceiling": 147.6
           }
         ]
