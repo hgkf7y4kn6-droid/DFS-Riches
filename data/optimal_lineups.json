@@ -9428,7 +9428,7 @@
     },
     "7": {
       "classic_sunday": {
-        "saved_at": "2026-10-25T15:39:24+00:00",
+        "saved_at": "2026-10-25T18:44:46+00:00",
         "draft_group_id": 155198,
         "lineups": [
           {
@@ -9443,8 +9443,8 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 5000,
-                "proj_points": 19.14,
-                "ceiling": 27.6,
+                "proj_points": 19.48,
+                "ceiling": 28.0,
                 "sleeper_proj": 19.39,
                 "game_info": "DEN @ ARI",
                 "injury": "Healthy",
@@ -9465,7 +9465,8 @@
                 "game_info": "SF @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44556960,
-                "dk_fppg": 20.5
+                "dk_fppg": 20.5,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -9475,9 +9476,9 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 7000,
-                "proj_points": 21.19,
-                "ceiling": 32.6,
-                "sleeper_proj": 19.95,
+                "proj_points": 21.11,
+                "ceiling": 32.5,
+                "sleeper_proj": 19.87,
                 "game_info": "LAR @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44556962,
@@ -9529,7 +9530,8 @@
                 "game_info": "TB @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44557502,
-                "dk_fppg": 5.6
+                "dk_fppg": 5.6,
+                "locked": true
               },
               {
                 "slot": "TE",
@@ -9545,7 +9547,8 @@
                 "game_info": "SF @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44557568,
-                "dk_fppg": 15.0
+                "dk_fppg": 15.0,
+                "locked": true
               },
               {
                 "slot": "FLEX",
@@ -9561,7 +9564,8 @@
                 "game_info": "TB @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44556974,
-                "dk_fppg": 14.9
+                "dk_fppg": 14.9,
+                "locked": true
               },
               {
                 "slot": "DST",
@@ -9577,12 +9581,13 @@
                 "game_info": "CLE @ TEN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44557811,
-                "dk_fppg": 6.5
+                "dk_fppg": 6.5,
+                "locked": true
               }
             ],
             "salary": 50000,
-            "proj_points": 148.85,
-            "ceiling": 237.5
+            "proj_points": 149.11,
+            "ceiling": 237.8
           },
           {
             "metric": "tournament",
@@ -9618,7 +9623,8 @@
                 "game_info": "SF @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44556960,
-                "dk_fppg": 20.5
+                "dk_fppg": 20.5,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -9634,7 +9640,8 @@
                 "game_info": "TB @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44556974,
-                "dk_fppg": 14.9
+                "dk_fppg": 14.9,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -9714,7 +9721,8 @@
                 "game_info": "TB @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44557600,
-                "dk_fppg": 6.3
+                "dk_fppg": 6.3,
+                "locked": true
               },
               {
                 "slot": "DST",
@@ -9730,7 +9738,8 @@
                 "game_info": "MIA @ NYJ",
                 "injury": "Healthy",
                 "dk_draftable_id": 44557808,
-                "dk_fppg": 6.8
+                "dk_fppg": 6.8,
+                "locked": true
               }
             ],
             "salary": 50000,
@@ -9740,7 +9749,7 @@
         ]
       },
       "classic": {
-        "saved_at": "2026-10-25T15:39:36+00:00",
+        "saved_at": "2026-10-25T18:44:59+00:00",
         "draft_group_id": 155197,
         "lineups": [
           {
@@ -9755,8 +9764,8 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 5000,
-                "proj_points": 19.14,
-                "ceiling": 27.6,
+                "proj_points": 19.48,
+                "ceiling": 28.0,
                 "sleeper_proj": 19.39,
                 "game_info": "DEN @ ARI",
                 "injury": "Healthy",
@@ -9787,9 +9796,9 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 7000,
-                "proj_points": 21.19,
-                "ceiling": 32.6,
-                "sleeper_proj": 19.95,
+                "proj_points": 21.11,
+                "ceiling": 32.5,
+                "sleeper_proj": 19.87,
                 "game_info": "LAR @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44560846,
@@ -9841,7 +9850,8 @@
                 "game_info": "TB @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44561272,
-                "dk_fppg": 7.7
+                "dk_fppg": 7.7,
+                "locked": true
               },
               {
                 "slot": "TE",
@@ -9857,7 +9867,8 @@
                 "game_info": "SF @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44561708,
-                "dk_fppg": 15.0
+                "dk_fppg": 15.0,
+                "locked": true
               },
               {
                 "slot": "FLEX",
@@ -9890,12 +9901,13 @@
                 "game_info": "CLE @ TEN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44562056,
-                "dk_fppg": 6.5
+                "dk_fppg": 6.5,
+                "locked": true
               }
             ],
             "salary": 50000,
-            "proj_points": 148.8,
-            "ceiling": 237.6
+            "proj_points": 149.06,
+            "ceiling": 237.9
           },
           {
             "metric": "tournament",
@@ -9931,7 +9943,8 @@
                 "game_info": "SF @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44560842,
-                "dk_fppg": 20.5
+                "dk_fppg": 20.5,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -9947,7 +9960,8 @@
                 "game_info": "TB @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44560864,
-                "dk_fppg": 14.9
+                "dk_fppg": 14.9,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -10027,7 +10041,8 @@
                 "game_info": "TB @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44561758,
-                "dk_fppg": 6.3
+                "dk_fppg": 6.3,
+                "locked": true
               },
               {
                 "slot": "DST",
@@ -10043,7 +10058,8 @@
                 "game_info": "MIA @ NYJ",
                 "injury": "Healthy",
                 "dk_draftable_id": 44562050,
-                "dk_fppg": 6.8
+                "dk_fppg": 6.8,
+                "locked": true
               }
             ],
             "salary": 50000,
