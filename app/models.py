@@ -240,6 +240,7 @@ class GameDetail(BaseModel):
     insights: dict[str, str]                 # section -> 1-2 sentence game/DFS impact, generated from the numbers
     trenches: dict | None = None             # unit ranks, scheme rates and matchup edges (app.trenches); None if unavailable
     units: dict | None = None                # offense/defense yards, DK points, giveaways: ranks + L3/L6/L9 (app.team_units)
+    pace: dict | None = None                 # seconds per drive, explosive pass rate, drive velocity (app.advanced_env pace_card)
 
 
 class WeekBreakdown(BaseModel):

@@ -532,6 +532,25 @@ interface GameDetail {
   insights: Record<string, string>;
   trenches?: TrenchDetail | null;
   units?: GameUnits | null;
+  /** Seconds per drive, explosive pass rate and drive velocity (app.advanced_env pace_card). */
+  pace?: GamePace | null;
+}
+
+/** One offense's drive pace: season-to-date seconds per drive and explosive pass rate, league ranks (1 = quickest / most explosive). */
+interface TeamPace {
+  sec_per_drive: number;
+  sec_per_drive_rank: number;
+  explosive_pass: number;
+  explosive_pass_rank: number;
+}
+
+interface GamePace {
+  teams: Record<string, TeamPace>;
+  /** Both offenses' explosive pass rates over their combined seconds per drive, x 1000. */
+  drive_velocity: number;
+  league_drive_velocity: number;
+  vs_league: number;
+  note: string;
 }
 
 /** One unit metric: season-to-date per game, league rank (1 = best) and trailing windows (null until played). */

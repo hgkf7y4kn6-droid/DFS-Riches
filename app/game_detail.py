@@ -8,7 +8,7 @@ from __future__ import annotations
 import statistics
 
 from app import nflverse_client as nc
-from app import team_units, trenches
+from app import advanced_env, team_units, trenches
 from app.breakdown import WeekData, game_breakdown, load_week
 from app.models import Game, GameDetail, LeagueContext, PositionMatchup, TeamStatLine, UsageShare
 
@@ -265,6 +265,10 @@ async def build_game_detail(season: int, week: int, game_id: str) -> GameDetail:
         units = team_units.game_units(await team_units.unit_table(season, week), game.away, game.home)
     except Exception:
         units = None
+    try:
+        pace = advanced_env.pace_card(game.away, game.home, *await advanced_env.week_features(season, week))
+    except Exception:
+        pace = None
     if trench:
         insights["trenches"] = trench["insight"]
     return GameDetail(
@@ -277,4 +281,5 @@ async def build_game_detail(season: int, week: int, game_id: str) -> GameDetail:
         insights={k: v for k, v in insights.items() if v},
         trenches=trench,
         units=units,
+        pace=pace,
     )

@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.51',
+    title: "What's new",
+    items: [
+      'Game breakdowns: a new Pace and drive velocity section puts each offense\'s tempo, plays per game, seconds per drive and explosive pass rate side by side, with league ranks and a one-line read on what the mix means for possessions and big plays.',
+    ],
+  },
+  {
     version: '1.1.50',
     title: "What's new",
     items: [

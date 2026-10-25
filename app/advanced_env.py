@@ -150,7 +150,7 @@ def game_index(away: str, home: str, total: float | None, feats: dict, lg: dict)
     a, b = feats.get(away), feats.get(home)
     if not a or not b:
         return None
-    dv = (a["explosive_pass"] + b["explosive_pass"]) / max(a["sec_per_drive"] + b["sec_per_drive"], 120) * 1000
+    dv = drive_velocity(a, b)
     fa = max(0.0, (lg["rush_epa"] - a["rush_epa"]) + (lg["rush_epa_allowed"] - b["rush_epa_allowed"])) * a["neutral_pass_rate"]
     fb = max(0.0, (lg["rush_epa"] - b["rush_epa"]) + (lg["rush_epa_allowed"] - a["rush_epa_allowed"])) * b["neutral_pass_rate"]
     pa = max(0.0, (b["front4_pressure"] - lg["front4_pressure"]) + (a["pressure_allowed"] - lg["pressure_allowed"]))
@@ -180,6 +180,44 @@ def game_index(away: str, home: str, total: float | None, feats: dict, lg: dict)
         "sec_per_drive": {away: round(a["sec_per_drive"], 1), home: round(b["sec_per_drive"], 1)},
         "proe": {away: round(a["proe"], 3), home: round(b["proe"], 3)},
     }
+
+
+VELOCITY_BAND = 0.10         # drive velocity within 10% of the league average reads as average
+
+
+def drive_velocity(a: dict, b: dict) -> float:
+    """Both offenses' explosive pass rates over their combined seconds per drive, x 1000."""
+    return (a["explosive_pass"] + b["explosive_pass"]) / max(a["sec_per_drive"] + b["sec_per_drive"], 120) * 1000
+
+
+def pace_card(away: str, home: str, feats: dict, lg: dict) -> dict | None:
+    """Pace and drive velocity for a game breakdown (app.game_detail): each offense's seconds per drive and
+    explosive pass rate with league ranks (1 = quickest drives / most explosive), the game's drive velocity
+    against a league-average matchup, and a one-line read. None without both teams' stats."""
+    a, b = feats.get(away), feats.get(home)
+    if not a or not b or not lg:
+        return None
+    ranks = {key: {t: i + 1 for i, t in enumerate(sorted(feats, key=lambda t: feats[t][key], reverse=rev))}
+             for key, rev in (("sec_per_drive", False), ("explosive_pass", True))}
+    teams = {t: {"sec_per_drive": round(f["sec_per_drive"], 1), "sec_per_drive_rank": ranks["sec_per_drive"][t],
+                 "explosive_pass": round(f["explosive_pass"], 4), "explosive_pass_rank": ranks["explosive_pass"][t]}
+             for t, f in ((away, a), (home, b))}
+    dv, league = drive_velocity(a, b), drive_velocity(lg, lg)
+    vs = dv / league - 1 if league else 0.0
+    setup = ("quick, explosive drives: more possessions and more big plays than a typical game" if vs > VELOCITY_BAND
+             else "long, low-explosive drives: fewer possessions and fewer big plays than a typical game" if vs < -VELOCITY_BAND
+             else "about a league-average mix of drive length and big plays")
+    note = (f"Drive velocity {dv:.2f} ({vs:+.0%} vs league). {away} hits a 20+ yard pass on {a['explosive_pass']:.1%} of "
+            f"dropbacks with {a['sec_per_drive']:.0f}s drives; {home} on {b['explosive_pass']:.1%} with {b['sec_per_drive']:.0f}s "
+            f"drives. Together: {setup}.")
+    return {"teams": teams, "drive_velocity": round(dv, 3), "league_drive_velocity": round(league, 3),
+            "vs_league": round(vs, 3), "note": note}
+
+
+@memoize_async(600)
+async def week_features(season: int, week: int) -> tuple[dict[str, dict], dict[str, float]]:
+    """team_features for a week (the play-by-play aggregates are cached per season)."""
+    return team_features(await _aggregates(season), week)
 
 
 def add_leans(games: dict[str, dict]) -> None:

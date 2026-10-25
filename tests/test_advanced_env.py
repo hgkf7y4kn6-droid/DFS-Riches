@@ -54,3 +54,15 @@ def test_pass_funnel_floor_and_slate_leans():
 def test_no_pressure_read_without_charting():
     g = ae.game_index("A", "B", 45.0, {"A": _feats(charted=False, pressure_allowed=0.4), "B": _feats(front4_pressure=0.4)}, LG)
     assert g["parts"]["trench_penalty"] == 0 and not g["fragile"]
+
+
+def test_pace_card_ranks_drives_and_reads_drive_velocity():
+    feats = {"A": _feats(sec_per_drive=130.0, explosive_pass=0.12), "B": _feats(sec_per_drive=140.0, explosive_pass=0.10),
+             "C": _feats(sec_per_drive=175.0, explosive_pass=0.05), "D": _feats(sec_per_drive=180.0, explosive_pass=0.04)}
+    fast = ae.pace_card("A", "B", feats, LG)
+    assert fast["teams"]["A"] == {"sec_per_drive": 130.0, "sec_per_drive_rank": 1, "explosive_pass": 0.12, "explosive_pass_rank": 1}
+    assert fast["drive_velocity"] == round(0.22 / 270 * 1000, 3) and fast["vs_league"] > ae.VELOCITY_BAND
+    assert "quick, explosive drives" in fast["note"]
+    slow = ae.pace_card("C", "D", feats, LG)
+    assert slow["teams"]["D"]["sec_per_drive_rank"] == 4 and "long, low-explosive drives" in slow["note"]
+    assert ae.pace_card("A", "Z", feats, LG) is None

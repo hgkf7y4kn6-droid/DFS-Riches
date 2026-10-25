@@ -111,6 +111,8 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
   const c = g.context;
   const w = g.weather;
   const ins = detail.insights;
+  const pa = detail.pace?.teams[g.away];
+  const ph = detail.pace?.teams[g.home];
 
   return (
     <View className="detail-panel">
@@ -153,8 +155,6 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
         <Row label="Points allowed" away={`${a.points_against?.toFixed(1) ?? '-'}${rank(a.points_against_rank)}`} home={`${h.points_against?.toFixed(1) ?? '-'}${rank(h.points_against_rank)}`} />
         <Row label="Yards / play" away={`${a.yards_per_play?.toFixed(2) ?? '-'}${rank(a.yards_per_play_rank)}`} home={`${h.yards_per_play?.toFixed(2) ?? '-'}${rank(h.yards_per_play_rank)}`} />
         <Row label="Yds / play allowed" away={`${a.yards_allowed_per_play?.toFixed(2) ?? '-'}${rank(a.yards_allowed_per_play_rank)}`} home={`${h.yards_allowed_per_play?.toFixed(2) ?? '-'}${rank(h.yards_allowed_per_play_rank)}`} />
-        <Row label="Tempo (sec / snap)" away={`${a.tempo_secs?.toFixed(1) ?? '-'}${rank(a.tempo_rank)}`} home={`${h.tempo_secs?.toFixed(1) ?? '-'}${rank(h.tempo_rank)}`} />
-        <Row label="Plays / game" away={`${a.plays_per_game?.toFixed(1) ?? '-'}${rank(a.plays_rank)}`} home={`${h.plays_per_game?.toFixed(1) ?? '-'}${rank(h.plays_rank)}`} />
         <Row label="Pass rate" away={formatPercent(a.pass_pct, 0)} home={formatPercent(h.pass_pct, 0)} />
         <Row label="Pass rate faced" away={`${formatPercent(a.opp_pass_pct_allowed, 0)}${rank(a.opp_pass_pct_allowed_rank)}`} home={`${formatPercent(h.opp_pass_pct_allowed, 0)}${rank(h.opp_pass_pct_allowed_rank)}`} />
       </Section>
@@ -191,10 +191,30 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
         </Section>
       ) : null}
 
-      {ins.tempo || ins.tendency ? (
-        <Section title="Tempo and tendencies">
-          {ins.tempo ? <Text className="detail-insight">{ins.tempo}</Text> : null}
-          {ins.tendency ? <Text className="detail-insight">{ins.tendency}</Text> : null}
+      <Section title="Pace and drive velocity" insight={ins.tempo}>
+        <Row label="" away={g.away} home={g.home} />
+        <Row label="Tempo (sec / snap)" away={`${a.tempo_secs?.toFixed(1) ?? '-'}${rank(a.tempo_rank)}`} home={`${h.tempo_secs?.toFixed(1) ?? '-'}${rank(h.tempo_rank)}`} />
+        <Row label="Plays / game" away={`${a.plays_per_game?.toFixed(1) ?? '-'}${rank(a.plays_rank)}`} home={`${h.plays_per_game?.toFixed(1) ?? '-'}${rank(h.plays_rank)}`} />
+        {pa && ph ? (
+          <>
+            <Row label="Seconds / drive" away={`${pa.sec_per_drive.toFixed(0)}${rank(pa.sec_per_drive_rank)}`} home={`${ph.sec_per_drive.toFixed(0)}${rank(ph.sec_per_drive_rank)}`} />
+            <Row
+              label="Explosive pass rate"
+              away={`${formatPercent(pa.explosive_pass, 1)}${rank(pa.explosive_pass_rank)}`}
+              home={`${formatPercent(ph.explosive_pass, 1)}${rank(ph.explosive_pass_rank)}`}
+            />
+          </>
+        ) : null}
+        {detail.pace ? <Text className="detail-insight">{detail.pace.note}</Text> : null}
+        <Text className="detail-note">
+          Tempo is neutral-situation seconds from snap to snap; seconds per drive and explosive passes (20+ yards) are season to date. Ranks: 1 = fastest / most
+          explosive.
+        </Text>
+      </Section>
+
+      {ins.tendency ? (
+        <Section title="Tendencies">
+          <Text className="detail-insight">{ins.tendency}</Text>
         </Section>
       ) : null}
 
