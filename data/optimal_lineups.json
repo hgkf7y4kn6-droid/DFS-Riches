@@ -9428,7 +9428,7 @@
     },
     "7": {
       "classic_sunday": {
-        "saved_at": "2026-10-25T18:44:46+00:00",
+        "saved_at": "2026-10-25T19:03:52+00:00",
         "draft_group_id": 155198,
         "lineups": [
           {
@@ -9443,9 +9443,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 5000,
-                "proj_points": 19.48,
+                "proj_points": 19.49,
                 "ceiling": 28.0,
-                "sleeper_proj": 19.39,
+                "sleeper_proj": 19.43,
                 "game_info": "DEN @ ARI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44556899,
@@ -9476,8 +9476,8 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 7000,
-                "proj_points": 21.11,
-                "ceiling": 32.5,
+                "proj_points": 20.81,
+                "ceiling": 32.0,
                 "sleeper_proj": 19.87,
                 "game_info": "LAR @ LV",
                 "injury": "Healthy",
@@ -9586,8 +9586,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 149.11,
-            "ceiling": 237.8
+            "proj_points": 148.82,
+            "ceiling": 237.3
           },
           {
             "metric": "tournament",
@@ -9699,8 +9699,8 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 3500,
-                "proj_points": 10.4,
-                "ceiling": 17.9,
+                "proj_points": 10.05,
+                "ceiling": 17.3,
                 "sleeper_proj": 9.74,
                 "game_info": "LAR @ LV",
                 "injury": "Healthy",
@@ -9743,13 +9743,13 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 146.46,
-            "ceiling": 232.5
+            "proj_points": 146.11,
+            "ceiling": 231.9
           }
         ]
       },
       "classic": {
-        "saved_at": "2026-10-25T18:44:59+00:00",
+        "saved_at": "2026-10-25T19:04:04+00:00",
         "draft_group_id": 155197,
         "lineups": [
           {
@@ -9764,9 +9764,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 5000,
-                "proj_points": 19.48,
+                "proj_points": 19.49,
                 "ceiling": 28.0,
-                "sleeper_proj": 19.39,
+                "sleeper_proj": 19.43,
                 "game_info": "DEN @ ARI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44560760,
@@ -9796,8 +9796,8 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 7000,
-                "proj_points": 21.11,
-                "ceiling": 32.5,
+                "proj_points": 20.81,
+                "ceiling": 32.0,
                 "sleeper_proj": 19.87,
                 "game_info": "LAR @ LV",
                 "injury": "Healthy",
@@ -9906,8 +9906,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 149.06,
-            "ceiling": 237.9
+            "proj_points": 148.77,
+            "ceiling": 237.4
           },
           {
             "metric": "tournament",
@@ -10019,8 +10019,8 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 3500,
-                "proj_points": 10.4,
-                "ceiling": 17.9,
+                "proj_points": 10.05,
+                "ceiling": 17.3,
                 "sleeper_proj": 9.74,
                 "game_info": "LAR @ LV",
                 "injury": "Healthy",
@@ -10063,8 +10063,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 146.46,
-            "ceiling": 232.5
+            "proj_points": 146.11,
+            "ceiling": 231.9
           }
         ]
       },
