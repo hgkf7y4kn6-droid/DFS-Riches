@@ -9449,7 +9449,8 @@
                 "game_info": "DEN @ ARI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44556899,
-                "dk_fppg": 12.4
+                "dk_fppg": 12.4,
+                "actual": 26.18
               },
               {
                 "slot": "RB",
@@ -9466,7 +9467,8 @@
                 "injury": "Healthy",
                 "dk_draftable_id": 44556960,
                 "dk_fppg": 20.5,
-                "locked": true
+                "locked": true,
+                "actual": 22.0
               },
               {
                 "slot": "RB",
@@ -9482,7 +9484,8 @@
                 "game_info": "LAR @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44556962,
-                "dk_fppg": 20.0
+                "dk_fppg": 20.0,
+                "actual": 19.1
               },
               {
                 "slot": "WR",
@@ -9498,7 +9501,8 @@
                 "game_info": "GB @ DET",
                 "injury": "Healthy",
                 "dk_draftable_id": 44557198,
-                "dk_fppg": 20.8
+                "dk_fppg": 20.8,
+                "actual": 10.7
               },
               {
                 "slot": "WR",
@@ -9514,7 +9518,8 @@
                 "game_info": "GB @ DET",
                 "injury": "Healthy",
                 "dk_draftable_id": 44557216,
-                "dk_fppg": 18.3
+                "dk_fppg": 18.3,
+                "actual": 9.9
               },
               {
                 "slot": "WR",
@@ -9531,7 +9536,8 @@
                 "injury": "Healthy",
                 "dk_draftable_id": 44557502,
                 "dk_fppg": 5.6,
-                "locked": true
+                "locked": true,
+                "actual": 0.0
               },
               {
                 "slot": "TE",
@@ -9548,7 +9554,8 @@
                 "injury": "Healthy",
                 "dk_draftable_id": 44557568,
                 "dk_fppg": 15.0,
-                "locked": true
+                "locked": true,
+                "actual": 15.8
               },
               {
                 "slot": "FLEX",
@@ -9565,7 +9572,8 @@
                 "injury": "Healthy",
                 "dk_draftable_id": 44556974,
                 "dk_fppg": 14.9,
-                "locked": true
+                "locked": true,
+                "actual": 27.0
               },
               {
                 "slot": "DST",
@@ -9582,12 +9590,14 @@
                 "injury": "Healthy",
                 "dk_draftable_id": 44557811,
                 "dk_fppg": 6.5,
-                "locked": true
+                "locked": true,
+                "actual": 5.0
               }
             ],
             "salary": 50000,
             "proj_points": 148.82,
-            "ceiling": 237.3
+            "ceiling": 237.3,
+            "actual": 135.68
           },
           {
             "metric": "tournament",
@@ -9607,7 +9617,8 @@
                 "game_info": "GB @ DET",
                 "injury": "Healthy",
                 "dk_draftable_id": 44556889,
-                "dk_fppg": 20.7
+                "dk_fppg": 20.7,
+                "actual": 17.96
               },
               {
                 "slot": "RB",
@@ -9624,7 +9635,8 @@
                 "injury": "Healthy",
                 "dk_draftable_id": 44556960,
                 "dk_fppg": 20.5,
-                "locked": true
+                "locked": true,
+                "actual": 22.0
               },
               {
                 "slot": "RB",
@@ -9641,7 +9653,8 @@
                 "injury": "Healthy",
                 "dk_draftable_id": 44556974,
                 "dk_fppg": 14.9,
-                "locked": true
+                "locked": true,
+                "actual": 27.0
               },
               {
                 "slot": "WR",
@@ -9657,7 +9670,8 @@
                 "game_info": "GB @ DET",
                 "injury": "Healthy",
                 "dk_draftable_id": 44557188,
-                "dk_fppg": 21.4
+                "dk_fppg": 21.4,
+                "actual": 27.2
               },
               {
                 "slot": "WR",
@@ -9673,7 +9687,8 @@
                 "game_info": "GB @ DET",
                 "injury": "Healthy",
                 "dk_draftable_id": 44557198,
-                "dk_fppg": 20.8
+                "dk_fppg": 20.8,
+                "actual": 10.7
               },
               {
                 "slot": "WR",
@@ -9689,7 +9704,8 @@
                 "game_info": "GB @ DET",
                 "injury": "Healthy",
                 "dk_draftable_id": 44557216,
-                "dk_fppg": 18.3
+                "dk_fppg": 18.3,
+                "actual": 9.9
               },
               {
                 "slot": "TE",
@@ -9705,7 +9721,8 @@
                 "game_info": "LAR @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44557592,
-                "dk_fppg": 8.8
+                "dk_fppg": 8.8,
+                "actual": 3.4
               },
               {
                 "slot": "FLEX",
@@ -9722,7 +9739,8 @@
                 "injury": "Healthy",
                 "dk_draftable_id": 44557600,
                 "dk_fppg": 6.3,
-                "locked": true
+                "locked": true,
+                "actual": 0.0
               },
               {
                 "slot": "DST",
@@ -9739,14 +9757,133 @@
                 "injury": "Healthy",
                 "dk_draftable_id": 44557808,
                 "dk_fppg": 6.8,
-                "locked": true
+                "locked": true,
+                "actual": 1.0
               }
             ],
             "salary": 50000,
             "proj_points": 146.11,
-            "ceiling": 231.9
+            "ceiling": 231.9,
+            "actual": 119.16
           }
-        ]
+        ],
+        "hindsight": {
+          "metric": "actual",
+          "label": "Best possible (actual)",
+          "players": [
+            {
+              "slot": "QB",
+              "name": "Joe Burrow",
+              "position": "QB",
+              "team": "CIN",
+              "opponent": "BAL",
+              "roster_slot": "",
+              "salary": 6900,
+              "game_info": "CIN @ BAL",
+              "dk_draftable_id": 44556884,
+              "actual": 28.88
+            },
+            {
+              "slot": "RB",
+              "name": "Bucky Irving",
+              "position": "RB",
+              "team": "TB",
+              "opponent": "CAR",
+              "roster_slot": "",
+              "salary": 6100,
+              "game_info": "TB @ CAR",
+              "dk_draftable_id": 44556974,
+              "actual": 27.0
+            },
+            {
+              "slot": "RB",
+              "name": "Tony Pollard",
+              "position": "RB",
+              "team": "TEN",
+              "opponent": "CLE",
+              "roster_slot": "",
+              "salary": 5300,
+              "game_info": "CLE @ TEN",
+              "dk_draftable_id": 44556994,
+              "actual": 39.5
+            },
+            {
+              "slot": "WR",
+              "name": "Zay Flowers",
+              "position": "WR",
+              "team": "BAL",
+              "opponent": "CIN",
+              "roster_slot": "",
+              "salary": 6900,
+              "game_info": "CIN @ BAL",
+              "dk_draftable_id": 44557200,
+              "actual": 30.7
+            },
+            {
+              "slot": "WR",
+              "name": "Tee Higgins",
+              "position": "WR",
+              "team": "CIN",
+              "opponent": "BAL",
+              "roster_slot": "",
+              "salary": 6600,
+              "game_info": "CIN @ BAL",
+              "dk_draftable_id": 44557204,
+              "actual": 29.8
+            },
+            {
+              "slot": "WR",
+              "name": "KC Concepcion Jr.",
+              "position": "WR",
+              "team": "CLE",
+              "opponent": "TEN",
+              "roster_slot": "",
+              "salary": 4400,
+              "game_info": "CLE @ TEN",
+              "dk_draftable_id": 44557248,
+              "actual": 26.2
+            },
+            {
+              "slot": "TE",
+              "name": "Trey McBride",
+              "position": "TE",
+              "team": "ARI",
+              "opponent": "DEN",
+              "roster_slot": "",
+              "salary": 7400,
+              "game_info": "DEN @ ARI",
+              "dk_draftable_id": 44557566,
+              "actual": 30.1
+            },
+            {
+              "slot": "FLEX",
+              "name": "Omar Cooper Jr.",
+              "position": "WR",
+              "team": "NYJ",
+              "opponent": "MIA",
+              "roster_slot": "",
+              "salary": 4100,
+              "game_info": "MIA @ NYJ",
+              "dk_draftable_id": 44557256,
+              "actual": 25.5
+            },
+            {
+              "slot": "DST",
+              "name": "Buccaneers",
+              "position": "DST",
+              "team": "TB",
+              "opponent": "CAR",
+              "roster_slot": "",
+              "salary": 2200,
+              "game_info": "TB @ CAR",
+              "dk_draftable_id": 44557818,
+              "actual": 19.0
+            }
+          ],
+          "salary": 49900,
+          "actual": 256.68
+        },
+        "results_at": "2026-10-26T11:14:40+00:00"
       },
       "classic": {
         "saved_at": "2026-10-25T22:59:28+00:00",
@@ -10722,7 +10859,8 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628457,
-                "dk_fppg": 9.8
+                "dk_fppg": 9.8,
+                "actual": 7.5
               },
               {
                 "slot": "FLEX",
@@ -10738,7 +10876,8 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628385,
-                "dk_fppg": 30.0
+                "dk_fppg": 30.0,
+                "actual": 9.7
               },
               {
                 "slot": "FLEX",
@@ -10754,7 +10893,8 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628386,
-                "dk_fppg": 30.0
+                "dk_fppg": 30.0,
+                "actual": 34.3
               },
               {
                 "slot": "FLEX",
@@ -10770,7 +10910,8 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628388,
-                "dk_fppg": 14.2
+                "dk_fppg": 14.2,
+                "actual": 14.98
               },
               {
                 "slot": "FLEX",
@@ -10786,7 +10927,8 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628400,
-                "dk_fppg": 10.0
+                "dk_fppg": 10.0,
+                "actual": 8.0
               },
               {
                 "slot": "FLEX",
@@ -10802,12 +10944,14 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628402,
-                "dk_fppg": 5.8
+                "dk_fppg": 5.8,
+                "actual": 8.6
               }
             ],
             "salary": 50000,
             "proj_points": 92.23,
-            "ceiling": 146.7
+            "ceiling": 146.7,
+            "actual": 83.08
           },
           {
             "metric": "ceiling",
@@ -10827,7 +10971,8 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628442,
-                "dk_fppg": 30.0
+                "dk_fppg": 30.0,
+                "actual": 51.45
               },
               {
                 "slot": "FLEX",
@@ -10843,7 +10988,8 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628385,
-                "dk_fppg": 30.0
+                "dk_fppg": 30.0,
+                "actual": 9.7
               },
               {
                 "slot": "FLEX",
@@ -10859,7 +11005,8 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628388,
-                "dk_fppg": 14.2
+                "dk_fppg": 14.2,
+                "actual": 14.98
               },
               {
                 "slot": "FLEX",
@@ -10875,7 +11022,8 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628400,
-                "dk_fppg": 10.0
+                "dk_fppg": 10.0,
+                "actual": 8.0
               },
               {
                 "slot": "FLEX",
@@ -10891,7 +11039,8 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628406,
-                "dk_fppg": 8.0
+                "dk_fppg": 8.0,
+                "actual": 3.0
               },
               {
                 "slot": "FLEX",
@@ -10907,17 +11056,100 @@
                 "game_info": "KC @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628411,
-                "dk_fppg": 2.3
+                "dk_fppg": 2.3,
+                "actual": 1.3
               }
             ],
             "salary": 49800,
             "proj_points": 90.26,
-            "ceiling": 147.9
+            "ceiling": 147.9,
+            "actual": 88.43
           }
-        ]
+        ],
+        "hindsight": {
+          "metric": "actual",
+          "label": "Best possible (actual)",
+          "players": [
+            {
+              "slot": "CPT",
+              "name": "Jaxon Smith-Njigba",
+              "position": "WR",
+              "team": "SEA",
+              "opponent": "KC",
+              "roster_slot": "CPT",
+              "salary": 17400,
+              "game_info": "KC @ SEA",
+              "dk_draftable_id": 44628442,
+              "actual": 51.45
+            },
+            {
+              "slot": "FLEX",
+              "name": "Sam Darnold",
+              "position": "QB",
+              "team": "SEA",
+              "opponent": "KC",
+              "roster_slot": "FLEX",
+              "salary": 9400,
+              "game_info": "KC @ SEA",
+              "dk_draftable_id": 44628388,
+              "actual": 14.98
+            },
+            {
+              "slot": "FLEX",
+              "name": "Travis Kelce",
+              "position": "TE",
+              "team": "KC",
+              "opponent": "SEA",
+              "roster_slot": "FLEX",
+              "salary": 8000,
+              "game_info": "KC @ SEA",
+              "dk_draftable_id": 44628390,
+              "actual": 8.4
+            },
+            {
+              "slot": "FLEX",
+              "name": "Emanuel Wilson",
+              "position": "RB",
+              "team": "SEA",
+              "opponent": "KC",
+              "roster_slot": "FLEX",
+              "salary": 6400,
+              "game_info": "KC @ SEA",
+              "dk_draftable_id": 44628393,
+              "actual": 21.5
+            },
+            {
+              "slot": "FLEX",
+              "name": "AJ Barner",
+              "position": "TE",
+              "team": "SEA",
+              "opponent": "KC",
+              "roster_slot": "FLEX",
+              "salary": 4600,
+              "game_info": "KC @ SEA",
+              "dk_draftable_id": 44628402,
+              "actual": 8.6
+            },
+            {
+              "slot": "FLEX",
+              "name": "Seahawks",
+              "position": "DST",
+              "team": "SEA",
+              "opponent": "KC",
+              "roster_slot": "FLEX",
+              "salary": 4200,
+              "game_info": "KC @ SEA",
+              "dk_draftable_id": 44628404,
+              "actual": 10.0
+            }
+          ],
+          "salary": 50000,
+          "actual": 114.93
+        },
+        "results_at": "2026-10-26T11:14:57+00:00"
       },
       "showdown_mon_night": {
-        "saved_at": "2026-10-25T11:15:11+00:00",
+        "saved_at": "2026-10-26T11:14:58+00:00",
         "draft_group_id": 155217,
         "lineups": [
           {
@@ -10932,9 +11164,9 @@
                 "opponent": "DAL",
                 "roster_slot": "CPT",
                 "salary": 4800,
-                "proj_points": 14.76,
+                "proj_points": 14.73,
                 "ceiling": 25.8,
-                "sleeper_proj": 14.41,
+                "sleeper_proj": 14.38,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628573,
@@ -10948,9 +11180,9 @@
                 "opponent": "PHI",
                 "roster_slot": "FLEX",
                 "salary": 11000,
-                "proj_points": 18.18,
-                "ceiling": 30.1,
-                "sleeper_proj": 17.28,
+                "proj_points": 18.1,
+                "ceiling": 30.0,
+                "sleeper_proj": 17.2,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628497,
@@ -10964,9 +11196,9 @@
                 "opponent": "PHI",
                 "roster_slot": "FLEX",
                 "salary": 10600,
-                "proj_points": 18.92,
-                "ceiling": 28.5,
-                "sleeper_proj": 17.93,
+                "proj_points": 18.81,
+                "ceiling": 28.4,
+                "sleeper_proj": 17.82,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628498,
@@ -10980,9 +11212,9 @@
                 "opponent": "PHI",
                 "roster_slot": "FLEX",
                 "salary": 10400,
-                "proj_points": 18.08,
+                "proj_points": 18.05,
                 "ceiling": 26.8,
-                "sleeper_proj": 16.27,
+                "sleeper_proj": 16.18,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628499,
@@ -10996,9 +11228,9 @@
                 "opponent": "DAL",
                 "roster_slot": "FLEX",
                 "salary": 8600,
-                "proj_points": 14.01,
+                "proj_points": 13.98,
                 "ceiling": 22.5,
-                "sleeper_proj": 14.36,
+                "sleeper_proj": 14.27,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628503,
@@ -11012,9 +11244,9 @@
                 "opponent": "DAL",
                 "roster_slot": "FLEX",
                 "salary": 3800,
-                "proj_points": 8.88,
+                "proj_points": 8.86,
                 "ceiling": 15.1,
-                "sleeper_proj": 8.95,
+                "sleeper_proj": 8.93,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628517,
@@ -11022,8 +11254,8 @@
               }
             ],
             "salary": 49200,
-            "proj_points": 92.83,
-            "ceiling": 148.8
+            "proj_points": 92.53,
+            "ceiling": 148.6
           },
           {
             "metric": "ceiling",
@@ -11037,9 +11269,9 @@
                 "opponent": "DAL",
                 "roster_slot": "CPT",
                 "salary": 4800,
-                "proj_points": 14.76,
+                "proj_points": 14.73,
                 "ceiling": 25.8,
-                "sleeper_proj": 14.41,
+                "sleeper_proj": 14.38,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628573,
@@ -11053,9 +11285,9 @@
                 "opponent": "PHI",
                 "roster_slot": "FLEX",
                 "salary": 11000,
-                "proj_points": 18.18,
-                "ceiling": 30.1,
-                "sleeper_proj": 17.28,
+                "proj_points": 18.1,
+                "ceiling": 30.0,
+                "sleeper_proj": 17.2,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628497,
@@ -11069,9 +11301,9 @@
                 "opponent": "PHI",
                 "roster_slot": "FLEX",
                 "salary": 10600,
-                "proj_points": 18.92,
-                "ceiling": 28.5,
-                "sleeper_proj": 17.93,
+                "proj_points": 18.81,
+                "ceiling": 28.4,
+                "sleeper_proj": 17.82,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628498,
@@ -11085,9 +11317,9 @@
                 "opponent": "PHI",
                 "roster_slot": "FLEX",
                 "salary": 10400,
-                "proj_points": 18.08,
+                "proj_points": 18.05,
                 "ceiling": 26.8,
-                "sleeper_proj": 16.27,
+                "sleeper_proj": 16.18,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628499,
@@ -11101,9 +11333,9 @@
                 "opponent": "DAL",
                 "roster_slot": "FLEX",
                 "salary": 8600,
-                "proj_points": 14.01,
+                "proj_points": 13.98,
                 "ceiling": 22.5,
-                "sleeper_proj": 14.36,
+                "sleeper_proj": 14.27,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628503,
@@ -11117,9 +11349,9 @@
                 "opponent": "DAL",
                 "roster_slot": "FLEX",
                 "salary": 3800,
-                "proj_points": 8.88,
+                "proj_points": 8.86,
                 "ceiling": 15.1,
-                "sleeper_proj": 8.95,
+                "sleeper_proj": 8.93,
                 "game_info": "DAL @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44628517,
@@ -11127,8 +11359,8 @@
               }
             ],
             "salary": 49200,
-            "proj_points": 92.83,
-            "ceiling": 148.8
+            "proj_points": 92.53,
+            "ceiling": 148.6
           }
         ]
       }
