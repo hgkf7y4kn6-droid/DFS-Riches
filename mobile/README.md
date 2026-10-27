@@ -12,7 +12,7 @@ npm install
 npx expo start            # scan the QR code with Expo Go, or press i / a / w
 ```
 
-The app talks to `https://dfs-riches.onrender.com` by default. To use a local
+The app talks to `https://dfsriches.richesdigitalventures.com` by default. To use a local
 API server instead (`python -m uvicorn app.main:app --host 0.0.0.0` from the
 repo root), set its address before starting:
 

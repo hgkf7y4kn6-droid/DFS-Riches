@@ -46,7 +46,7 @@ Sleeper (schedule + projections)     DraftKings (draft groups + salaries)
         - Value = proj points / (salary / 1000)
                     |
                     v
-              app/main.py (FastAPI)  -->  templates/index.html + static/app.js
+              app/main.py (FastAPI)  -->  the app's web build (mobile/, served at /)
 ```
 
 ### Data sources (all real, no fabricated data)
@@ -925,26 +925,20 @@ The website is the mobile app's web build (`mobile/`): Home, DFS Model,
 Safe Plays, Tournaments and Lineups, with Settings behind the header's gear. The Dockerfile builds it (`npx expo export
 --platform web`) into `web/`, and the server serves it at `/`. Locally,
 build it the same way (`cd mobile && npx expo export --platform web
---output-dir ../web`); without a build, `/` redirects to the original
-pages, which live under `/classic`.
-
-Then open http://127.0.0.1:8000/classic for the original pages. They share one season/week
-selector in the header. It opens on the current NFL week (from Sleeper's
-NFL state; week 1 in the preseason, week 18 after the season) and falls
-back to `app/config.py`'s default if Sleeper is unreachable. Change either
-field and the page reloads on its own. The choice travels with you through
-the nav links (`?season=&week=` in the URL) and stays for the rest of the
-browser session. Any past or future week works the same way.
+--output-dir ../web`); without a build, `/` answers 503. The original
+server-rendered pages (`/classic`) are retired: their old addresses
+redirect to `/`, and their templates and scripts are gone.
 
 ### Sign-in required
 
-The app, the classic pages and the API are for signed-in accounts (Clerk).
-Every `/api/` request needs the user's Clerk session token
-(`Authorization: Bearer ...`): the app attaches it to each request, and the
-classic pages load clerk-js, which shares the app's session on the same
-domain, and send theirs (signed out, both go to `/sign-in`). The one open
-endpoint is `/api/odds` (DraftKings sportsbook lines), which the odds-snapshot
-and Big Picture GitHub workflows read. Locally, `REQUIRE_SIGN_IN=0` turns the
+The app and the API are for signed-in accounts (Clerk). Every `/api/`
+request needs the user's Clerk session token (`Authorization: Bearer ...`),
+which the app attaches to each request (signed out, it goes to `/sign-in`).
+The one open call is `/api/odds?summary=1` (capture status and the week's
+matchups, no lines or prices), which the odds-snapshot workflow uses; the
+Big Picture workflow reads stored lines straight from the database.
+`https://dfs-riches.onrender.com` serves the same server: its pages redirect
+to the site's own domain. Locally, `REQUIRE_SIGN_IN=0` turns the
 check off (Clerk's production sign-in only works on the site's own domain).
 
 ### Plans and accounts
@@ -1064,11 +1058,9 @@ What's already wired up for sitting behind Cloudflare:
   `X-Forwarded-For` from Cloudflare's edge are honored and
   `request.url.scheme` reflects the real client's HTTPS connection rather
   than the plain-HTTP hop from Cloudflare to the origin.
-- **Edge-cacheable static assets** -- `/static/*` (the CSS/JS) is served
-  with `Cache-Control: public, max-age=300`, so Cloudflare can serve it from
-  cache instead of round-tripping to the origin on every request. Kept
-  short (5 minutes) since there's no cache-busting filename hash yet, so a
-  deploy is never more than 5 minutes from being visible everywhere.
+- **Edge-cacheable assets** -- the web build's content-hashed bundles,
+  fonts and images (`/_expo/*`, `/assets/*`) are served as immutable, so
+  Cloudflare can serve them from cache; pages are `no-cache`.
 - **`$PORT`** -- both the Dockerfile and the `python -m app.main`
   entrypoint bind `0.0.0.0` on `$PORT` (default 8000), the convention most
   container platforms (Fly.io, Render, Railway, etc.) use to tell a
@@ -1141,10 +1133,5 @@ scripts/weather_effects.py       fits weather effects on 2016-2025 games -> data
 scripts/late_down_monitor.py     checks whether fading late-down over-performance or penalty-drive luck beats the closing spread
   name_aliases.json manual DK-name -> Sleeper-name bridge, empty by default
   cache/            runtime API response cache (gitignored)
-templates/_base.html      shared head, header, nav and season/week selector
-templates/index.html, templates/breakdown.html, templates/dfs_model.html
-static/common.js    shared season/week selector + helpers (esc, money, abortable getJson)
-static/style.css, static/app.js, static/breakdown.js, static/dfs_model.js, static/ownership.js   frontend
-static/lineups.js   DK Classic/Showdown roster rules for the lineup builder
 tests/                                                    pytest suite
 ```

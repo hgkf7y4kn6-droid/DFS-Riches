@@ -84,7 +84,15 @@ def _unit(position: str | None) -> str:
 
 
 async def fetch_odds(season: int, week: int) -> dict:
-    """DraftKings quotes for the week via the site (its server captures and stores snapshots)."""
+    """DraftKings quotes for the week: from the shared database when this run has DATABASE_URL (the site and the
+    odds-snapshot workflow store every capture there), else through the site's API."""
+    if store._url():
+        try:
+            history = await asyncio.to_thread(store.odds_history, season, week)
+            return {"available": bool(history), "status": "ok" if history else "no stored quotes",
+                    "games": odds_module.summarize(history)}
+        except Exception as exc:
+            log.warning("stored odds unavailable (%s); trying the site", type(exc).__name__)
     try:
         async with httpx.AsyncClient(timeout=90) as client:
             r = await client.get(f"{SITE}/api/odds", params={"season": season, "week": week})

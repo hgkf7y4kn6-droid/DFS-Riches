@@ -15,7 +15,6 @@ section.
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import json
 import logging
 import os
@@ -31,9 +30,7 @@ from typing import Annotated
 from fastapi import Body, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 
 from app import breakdown as breakdown_module
 from app import leverage as leverage_module
@@ -50,29 +47,6 @@ from app.config import BASE_DIR, DEFAULT_SEASON, DEFAULT_WEEK
 from app.models import GameDetail, SlatePlayers, WeekBreakdown, WeekData, WeekSchedule
 from app import sleeper_client
 from app.sleeper_client import get_nfl_state
-
-
-def _asset_version() -> str:
-    """Content hash of static/*, appended to asset URLs (?v=...) so they can be
-    cached for a year and still change the moment a deploy changes them."""
-    h = hashlib.sha1()
-    for f in sorted((BASE_DIR / "static").glob("*")):
-        h.update(f.name.encode())
-        h.update(f.read_bytes())
-    return h.hexdigest()[:10]
-
-
-ASSET_VERSION = _asset_version()
-
-
-class _CachedStaticFiles(StaticFiles):
-    """Versioned asset URLs (?v=hash) are immutable; anything else gets a short TTL."""
-
-    async def get_response(self, path: str, scope):
-        response = await super().get_response(path, scope)
-        versioned = b"v=" in scope.get("query_string", b"")
-        response.headers.setdefault("Cache-Control", "public, max-age=31536000, immutable" if versioned else "public, max-age=300")
-        return response
 
 
 Season = Annotated[int, Query(ge=2000, le=2100)]
@@ -187,11 +161,15 @@ async def _canonical_host(request: Request, call_next):
 
 # The data behind the app is for signed-in accounts: every /api/ request needs
 # a Clerk session token (`Authorization: Bearer`), which the app sends with each
-# request and the classic pages send from clerk-js (static/common.js). Open:
-# /api/odds -- DraftKings sportsbook lines and capture status, read by the
-# odds-snapshot and Big Picture GitHub workflows. Preflights pass to CORS.
+# request. Open: /api/odds?summary=1 only -- the capture status and the week's
+# matchups (no lines or prices), which the odds-snapshot GitHub workflow uses to
+# trigger the site's capture. Preflights pass to CORS.
 # REQUIRE_SIGN_IN=0 turns the check off (local development).
 OPEN_API_PATHS = ("/api/odds",)
+
+
+def _open_api(request: Request) -> bool:
+    return request.url.path in OPEN_API_PATHS and request.query_params.get("summary", "").lower() in ("1", "true")
 
 
 def sign_in_required() -> bool:
@@ -201,7 +179,7 @@ def sign_in_required() -> bool:
 @app.middleware("http")
 async def _require_sign_in(request: Request, call_next):
     path = request.url.path
-    if not path.startswith("/api/") or path in OPEN_API_PATHS or request.method == "OPTIONS" or not sign_in_required():
+    if not path.startswith("/api/") or _open_api(request) or request.method == "OPTIONS" or not sign_in_required():
         return await call_next(request)
     try:
         request.state.claims = await accounts.verify_claims(request.headers.get("authorization"))
@@ -220,11 +198,9 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "P
 # Outermost: per-client rate limits and body-size caps on /api/ (app.guard).
 app.add_middleware(guard.GuardMiddleware)
 
-app.mount("/static", _CachedStaticFiles(directory=str(BASE_DIR / "static")), name="static")
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
-
 # The website is the mobile app's web build (mobile/, `expo export --platform web`,
-# built into web/ by the Dockerfile). The original pages live under /classic.
+# built into web/ by the Dockerfile). The original server-rendered pages (/classic) were retired: their
+# addresses redirect to the app.
 WEB_DIR = BASE_DIR / "web"
 
 
@@ -285,22 +261,12 @@ def _int(value: str | None) -> int | None:
         return None
 
 
-async def _page(request: Request, template: str, active: str, season_q: str | None, week_q: str | None):
-    season, week = _int(season_q), _int(week_q)
-    if not (season and week and 2000 <= season <= 2100 and 1 <= week <= 18):
-        season, week = await current_season_week()
-    # The page itself holds no data: its scripts load clerk-js and call the API
-    # with the signed-in user's token, and send signed-out visitors to /sign-in.
-    return templates.TemplateResponse(request, template, {"season": season, "week": week, "active": active,
-                                                          "asset_version": ASSET_VERSION,
-                                                          "require_sign_in": sign_in_required(),
-                                                          "clerk_publishable_key": accounts.publishable_key(),
-                                                          "clerk_frontend_api": accounts.frontend_api()})
-
-
-@app.get("/classic", response_class=HTMLResponse)
-async def index(request: Request, season: str | None = None, week: str | None = None):
-    return await _page(request, "index.html", "/classic", season, week)
+@app.get("/classic", include_in_schema=False)
+@app.get("/classic/{rest:path}", include_in_schema=False)
+@app.get("/breakdown", include_in_schema=False)
+async def retired_pages(rest: str = ""):
+    """The retired server-rendered site: its old links open the app (which asks visitors to sign in)."""
+    return RedirectResponse("/", status_code=301)
 
 
 @app.get("/api/state")
@@ -424,21 +390,6 @@ async def api_slate_optimal(request: Request, slate_id: str, season: Season = DE
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Could not build optimal lineups: {exc}") from exc
-
-
-@app.get("/classic/breakdown", response_class=HTMLResponse)
-async def breakdown_page(request: Request, season: str | None = None, week: str | None = None):
-    return await _page(request, "breakdown.html", "/classic/breakdown", season, week)
-
-
-@app.get("/classic/dfs-model", response_class=HTMLResponse)
-async def dfs_model_page(request: Request, season: str | None = None, week: str | None = None):
-    return await _page(request, "dfs_model.html", "/classic/dfs-model", season, week)
-
-
-@app.get("/breakdown", include_in_schema=False)
-async def old_breakdown_page():
-    return RedirectResponse("/classic/breakdown")
 
 
 @app.get("/api/breakdown/game/{game_id}", response_model=GameDetail)
@@ -1212,11 +1163,11 @@ def _web_file(path: str):
 
 @app.get("/{path:path}", include_in_schema=False)
 async def web_app(path: str):
-    """Serve the app (registered last, so every API and /classic route wins)."""
+    """Serve the app (registered last, so every API route wins)."""
     if path.startswith(("api/", "static/")):
         raise HTTPException(status_code=404)
     if not (WEB_DIR / "index.html").is_file():
-        return RedirectResponse("/classic")
+        raise HTTPException(status_code=503, detail="The web app isn't built on this server")
     f = _web_file(path)
     hashed = path.startswith(("_expo/", "assets/"))   # content-hashed bundles, fonts and images
     if hashed and f.name == "index.html":              # a missing hashed file: never cache the app shell under it

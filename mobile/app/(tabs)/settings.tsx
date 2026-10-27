@@ -66,12 +66,6 @@ function Row({ label, value, onPress, danger, last }: { label: string; value?: s
   );
 }
 
-/** The original website pages, now under /classic on the same server. */
-function openClassic() {
-  if (Platform.OS === 'web') window.location.assign('/classic');
-  else Linking.openURL(`${API_BASE_URL}/classic`);
-}
-
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
@@ -171,8 +165,7 @@ export default function SettingsScreen() {
         <View className="settings-group mt-0">
           <Row label="Lineup builder" value="All slates ›" onPress={() => router.push('/lineups')} />
           <Row label="Lines & Performance" value="Every game ›" onPress={() => router.push('/lines')} />
-          <Row label="How we did" value="Our lineups vs results ›" onPress={() => router.push('/results')} />
-          <Row label="Classic website" value="Original pages ›" onPress={openClassic} last />
+          <Row label="How we did" value="Our lineups vs results ›" onPress={() => router.push('/results')} last />
         </View>
 
         <Text className="settings-group-title">Saved data (synced to your account when signed in)</Text>

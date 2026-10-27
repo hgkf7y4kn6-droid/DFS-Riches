@@ -49,18 +49,6 @@ def test_current_week_falls_back_to_config_when_sleeper_fails(monkeypatch):
     assert asyncio.run(fn()) == (main.DEFAULT_SEASON, main.DEFAULT_WEEK)
 
 
-def test_pages_render_requested_week_and_fall_back_on_bad_params(client, monkeypatch):
-    async def fixed():
-        return 2026, 4
-    monkeypatch.setattr(main, "current_season_week", fixed)
-    html = client.get("/classic/breakdown?season=2025&week=7").text
-    assert 'id="season-input"' in html and 'value="2025"' in html and 'value="7"' in html
-    assert 'href="/classic/dfs-model?season=2025&amp;week=7"' in html
-    bad = client.get("/classic/dfs-model?season=abc&week=99")
-    assert bad.status_code == 200 and 'value="2026"' in bad.text and 'value="4"' in bad.text
-    assert 'aria-current="page"' in bad.text
-
-
 def test_web_app_serves_routes_files_and_shell(client, monkeypatch, tmp_path):
     (tmp_path / "_expo").mkdir()
     (tmp_path / "index.html").write_text("home")
@@ -81,12 +69,16 @@ def test_web_app_serves_routes_files_and_shell(client, monkeypatch, tmp_path):
     assert client.get("/cash").headers["cache-control"] == "no-cache"
     assert client.get("/../app/main.py").text == "home"           # never outside the build
     assert client.get("/api/nope").status_code == 404
-    assert client.get("/breakdown", follow_redirects=False).headers["location"] == "/classic/breakdown"
 
 
-def test_root_falls_back_to_classic_without_a_web_build(client, monkeypatch, tmp_path):
+
+def test_retired_pages_open_the_app_and_nothing_serves_without_a_web_build(client, monkeypatch, tmp_path):
+    for old in ("/classic", "/classic/breakdown?season=2025&week=7", "/classic/dfs-model", "/breakdown", "/static/common.js"):
+        r = client.get(old, follow_redirects=False)
+        assert (r.status_code, r.headers.get("location")) in ((301, "/"), (404, None)), old
+    assert client.get("/classic", follow_redirects=False).status_code == 301
     monkeypatch.setattr(main, "WEB_DIR", tmp_path)
-    assert client.get("/", follow_redirects=False).headers["location"] == "/classic"
+    assert client.get("/", follow_redirects=False).status_code == 503
 
 
 def test_api_rejects_out_of_range_weeks(client, monkeypatch):
@@ -97,12 +89,6 @@ def test_api_rejects_out_of_range_weeks(client, monkeypatch):
     assert client.get("/api/breakdown?season=1800&week=3").status_code == 422
     assert client.post("/api/ownership/source", json={"season": 2026, "week": 3, "slate_id": "../etc",
                                                       "source": "x", "text": "a, 1"}).status_code == 400
-
-
-def test_versioned_static_assets_are_immutable(client):
-    r = client.get(f"/static/common.js?v={main.ASSET_VERSION}")
-    assert r.status_code == 200 and "immutable" in r.headers["cache-control"]
-    assert "max-age=300" in client.get("/static/common.js").headers["cache-control"]
 
 
 def test_memoize_is_bounded_and_expires():
@@ -230,20 +216,9 @@ def test_api_needs_a_signed_in_account(client, monkeypatch):
     assert client.get("/api/nope", headers={"authorization": "Bearer bad"}).status_code == 401
     assert client.get("/api/nope", headers={"authorization": "Bearer good"}).status_code == 404   # through to routing
     assert client.options("/api/week", headers={"origin": "https://x.example", "access-control-request-method": "GET"}).status_code == 200
-    assert client.get("/healthz").status_code == 200                   # pages, health and odds stay open
-    assert "/api/odds" in main.OPEN_API_PATHS
-
-
-def test_classic_pages_load_clerk_when_sign_in_is_required(client, monkeypatch):
-    async def week():
-        return 2026, 7
-    monkeypatch.setattr(main, "current_season_week", week)
-    monkeypatch.setenv("REQUIRE_SIGN_IN", "1")
-    html = client.get("/classic").text
-    assert 'data-require-sign-in="1"' in html and "clerk.browser.js" in html
-    assert main.accounts.publishable_key() in html
-    monkeypatch.setenv("REQUIRE_SIGN_IN", "0")
-    assert "clerk.browser.js" not in client.get("/classic").text
+    assert client.get("/healthz").status_code == 200                   # pages and health stay open
+    assert client.get("/api/odds").status_code == 401                  # lines and prices need an account
+    assert client.get("/api/odds?season=2026&week=7").status_code == 401
 
 
 def test_pro_features_need_pro_once_gating_is_on(client, monkeypatch):

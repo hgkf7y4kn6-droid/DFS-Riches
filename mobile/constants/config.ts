@@ -5,7 +5,7 @@ import { Platform } from 'react-native';
 // The web build is served by that same server (the website), so on the web
 // it calls its own origin; the phone app calls the hosted server.
 export const API_BASE_URL = (
-  process.env.EXPO_PUBLIC_API_URL ?? (Platform.OS === 'web' ? '' : 'https://dfs-riches.onrender.com')
+  process.env.EXPO_PUBLIC_API_URL ?? (Platform.OS === 'web' ? '' : 'https://dfsriches.richesdigitalventures.com')
 ).replace(/\/$/, '');
 
 /** DraftKings Classic and Showdown salary cap. */
