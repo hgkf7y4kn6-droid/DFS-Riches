@@ -203,6 +203,24 @@
           "label": "Showdown - Sun Night (KC @ SEA)"
         }
       }
+    },
+    "8": {
+      "classic_sunday": {
+        "draft_group_id": 153728,
+        "label": "Classic - Sunday Main (11 games)",
+        "first_kickoff": "2026-11-01T18:00:00+00:00",
+        "last_kickoff": "2026-11-01T21:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 155589,
+        "label": "Full Week 8 Slate (14 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 155596,
+          "label": "Showdown - Thu Night (CAR @ GB)"
+        }
+      }
     }
   }
 }
