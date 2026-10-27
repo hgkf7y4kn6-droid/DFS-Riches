@@ -114,9 +114,15 @@ async def _warm_current_slates() -> None:
 
 
 # Sign-in (Clerk production) only works on the site's own domain, so pages opened on
-# Render's address (e.g. an old bookmark) move there. The API stays reachable on both
-# (the native app calls it), and so does the health check.
+# another address of this server -- Render's (e.g. an old bookmark) or the api.
+# subdomain -- move there. The API stays reachable on all of them (installed phone
+# apps call Render's), and so does the health check.
 CANONICAL_HOST = os.environ.get("CANONICAL_HOST", "dfsriches.richesdigitalventures.com")
+ALIAS_HOSTS = {h.strip().lower() for h in os.environ.get("ALIAS_HOSTS", "api.richesdigitalventures.com").split(",") if h.strip()}
+
+
+def _alias_host(host: str) -> bool:
+    return host.endswith(".onrender.com") or host in ALIAS_HOSTS
 
 
 @app.middleware("http")
@@ -152,7 +158,7 @@ async def _metrics_summary() -> None:
 async def _canonical_host(request: Request, call_next):
     host = (request.headers.get("host") or "").split(":")[0].lower()
     path = request.url.path
-    if (CANONICAL_HOST and host.endswith(".onrender.com") and request.method in ("GET", "HEAD")
+    if (CANONICAL_HOST and _alias_host(host) and request.method in ("GET", "HEAD")
             and not path.startswith(("/api/", "/healthz"))):
         query = f"?{request.url.query}" if request.url.query else ""
         return RedirectResponse(f"https://{CANONICAL_HOST}{path}{query}", status_code=301)

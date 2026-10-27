@@ -135,6 +135,9 @@ def test_pages_on_the_render_address_move_to_the_site_domain(client):
     assert client.get("/healthz", headers={"host": "dfs-riches.onrender.com"}).status_code == 200
     assert client.get("/api/nope", headers={"host": "dfs-riches.onrender.com"}, follow_redirects=False).status_code != 301
     assert client.get("/healthz", headers={"host": "dfsriches.richesdigitalventures.com"}, follow_redirects=False).status_code == 200
+    r = client.get("/lineups", headers={"host": "api.richesdigitalventures.com"}, follow_redirects=False)
+    assert r.status_code == 301 and r.headers["location"] == "https://dfsriches.richesdigitalventures.com/lineups"
+    assert client.get("/api/nope", headers={"host": "api.richesdigitalventures.com"}, follow_redirects=False).status_code != 301
 
 
 def test_best_contests_rejects_unknown_kinds(client):
