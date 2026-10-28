@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 import { useAccountSync, useSyncedDoc } from '@/lib/account-sync';
 import { getNflState, getOptimal, getSlatePlayers, getWeek } from '@/lib/api';
-import { emptyLineup } from '@/lib/lineups';
+import { emptyLineup, restoreSlots } from '@/lib/lineups';
 import { MAX_LINEUPS } from '@/constants/config';
 
 interface Loadable<T> {
@@ -97,7 +97,11 @@ export function WeekProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     AsyncStorage.getItem(SAVED_KEY)
-      .then((raw) => raw && setSaved(JSON.parse(raw)))
+      .then((raw) => {
+        const parsed = raw ? JSON.parse(raw) : null;
+        // Anything but a plain object (a corrupted or foreign value) is ignored rather than trusted.
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) setSaved(parsed);
+      })
       .catch(() => {})
       .finally(() => setSavedLoaded(true));
   }, []);
@@ -199,16 +203,16 @@ export function WeekProvider({ children }: { children: ReactNode }) {
     const pool = players.data?.players;
     if (!pool || players.data?.slate.slate_id !== slateKey) return;
     const byId = new Map(pool.map((p) => [p.dk_draftable_id, p]));
-    const size = emptyLineup(slateType).length;
     const restored: Record<string, { lineups: BuilderLineup[]; active: number }> = {};
     for (const scope of SCOPES) {
       const entry = savedEntryFor(scope);
       if (!entry || builder[builderKey(scope)]) continue;
-      const lineups = entry.lineups
-        .filter((ids) => ids.length === size)
+      const lineups = (Array.isArray(entry.lineups) ? entry.lineups : [])
         .slice(0, MAX_LINEUPS)
-        .map((ids) => ids.map((id) => (id == null ? null : byId.get(id) ?? null)));
-      if (lineups.length) restored[builderKey(scope)] = { lineups, active: Math.min(entry.active, lineups.length - 1) };
+        .map((ids) => restoreSlots(ids, slateType, byId))
+        .filter((slots): slots is BuilderLineup => slots != null);
+      const active = Number.isInteger(entry.active) ? entry.active : 0;
+      if (lineups.length) restored[builderKey(scope)] = { lineups, active: Math.max(0, Math.min(active, lineups.length - 1)) };
     }
     if (Object.keys(restored).length) setBuilder((all) => ({ ...all, ...restored }));
     // savedEntryFor / builderKey derive from the listed state

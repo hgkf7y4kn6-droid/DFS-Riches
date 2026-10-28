@@ -206,3 +206,25 @@ export function slotFitChecker(slots: BuilderLineup, slateType: SlateType, pool:
     return { ok: true };
   };
 }
+
+/**
+ * A saved lineup (draftable ids by slot) rebuilt from the current pool, or null if the record is malformed or
+ * stale: wrong length, non-id entries, or an id whose player can no longer fill that slot. Ids missing from
+ * the pool (a player DraftKings dropped) become open slots. Salaries always come from the live pool.
+ */
+export function restoreSlots(ids: unknown, slateType: SlateType, byId: Map<number | null, Player>): BuilderLineup | null {
+  const size = template(slateType).length;
+  if (!Array.isArray(ids) || ids.length !== size) return null;
+  const slots: BuilderLineup = [];
+  for (let i = 0; i < size; i++) {
+    const id = ids[i];
+    if (id == null) {
+      slots.push(null);
+      continue;
+    }
+    if (typeof id !== 'number') return null;
+    const player = byId.get(id);
+    slots.push(player && slotTakes(slateType, i, player) && !slots.some((p) => p && samePerson(p, player)) ? player : null);
+  }
+  return slots;
+}

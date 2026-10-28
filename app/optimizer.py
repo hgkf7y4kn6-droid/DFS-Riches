@@ -37,6 +37,7 @@ class SolverError(RuntimeError):
     """HiGHS failed for a reason other than infeasibility (time limit, numerical trouble): not "no valid lineup"."""
 
 
+SOLVER_SECONDS = 20       # per solve: a pathological model errors out (SolverError) rather than holding a worker
 INFEASIBLE_STATUS = 2    # scipy.optimize.milp: 0 optimal, 1 limit reached, 2 infeasible, 3 unbounded, 4 other
 
 
@@ -45,12 +46,12 @@ def _solve(values, rows, lows, highs):
     args = dict(c=-np.asarray(values, dtype=float),
                 constraints=LinearConstraint(np.asarray(rows, dtype=float), lows, highs),
                 integrality=np.ones(n), bounds=Bounds(0, 1))
-    res = milp(**args)   # presolve on: ~30% faster on Classic models
+    res = milp(**args, options={"time_limit": SOLVER_SECONDS})   # presolve on: ~30% faster on Classic models
     if not res.success:
         # HiGHS presolve (SciPy 1.14) wrongly reports some small, feasible
         # Showdown models as infeasible, so "no solution" is always re-checked
         # without it.
-        res = milp(**args, options={"presolve": False})
+        res = milp(**args, options={"presolve": False, "time_limit": SOLVER_SECONDS})
     if not res.success:
         if res.status == INFEASIBLE_STATUS:
             return None

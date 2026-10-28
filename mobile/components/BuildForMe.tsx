@@ -94,7 +94,7 @@ export default function BuildForMe({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable className="week-backdrop" onPress={onClose} accessibilityLabel="Close">
+      <Pressable className="week-backdrop" onPress={onClose} accessibilityRole="button" accessibilityLabel="Close">
         <Pressable className="week-sheet intro-sheet" onPress={() => {}}>
           <Text className="week-sheet-title">Build for me</Text>
           <Text className="caption mb-3">

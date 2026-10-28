@@ -37,7 +37,7 @@ export default function WeekPicker() {
         <Text className="picker-seg-caret">▾</Text>
       </Pressable>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
-        <Pressable className="week-backdrop" onPress={() => setOpen(false)} accessibilityLabel="Close">
+        <Pressable className="week-backdrop" onPress={() => setOpen(false)} accessibilityRole="button" accessibilityLabel="Close">
           <Pressable className="week-sheet" onPress={() => {}}>
             <Text className="week-sheet-title">Season and week</Text>
             <Text className="input-label">Season</Text>

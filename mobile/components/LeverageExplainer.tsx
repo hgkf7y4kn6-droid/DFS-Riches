@@ -26,7 +26,7 @@ export default function LeverageExplainer({ shown, onClose }: { shown: LeverageE
   const d = shown?.detail;
   return (
     <Modal visible={shown != null} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable className="week-backdrop" onPress={onClose} accessibilityLabel="Close">
+      <Pressable className="week-backdrop" onPress={onClose} accessibilityRole="button" accessibilityLabel="Close">
         <Pressable className="week-sheet" onPress={() => {}}>
           {shown ? (
             <ScrollView style={{ maxHeight: 520 }}>

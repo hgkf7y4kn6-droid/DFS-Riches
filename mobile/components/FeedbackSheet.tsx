@@ -15,7 +15,7 @@ export default function FeedbackSheet({ visible, onClose }: { visible: boolean; 
   };
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
-      <Pressable className="week-backdrop" onPress={close} accessibilityLabel="Close">
+      <Pressable className="week-backdrop" onPress={close} accessibilityRole="button" accessibilityLabel="Close">
         <Pressable className="week-sheet intro-sheet" onPress={() => {}}>
           <Text className="week-sheet-title">{sent ? 'Thanks!' : 'Send feedback'}</Text>
           {sent ? (

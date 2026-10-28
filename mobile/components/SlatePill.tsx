@@ -53,7 +53,7 @@ export default function SlatePill({ scope = 'week', slates: modelSlates }: { sco
         <Text className="picker-seg-caret">▾</Text>
       </Pressable>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
-        <Pressable className="week-backdrop" onPress={() => setOpen(false)} accessibilityLabel="Close">
+        <Pressable className="week-backdrop" onPress={() => setOpen(false)} accessibilityRole="button" accessibilityLabel="Close">
           <Pressable className="week-sheet" onPress={() => {}}>
             <Text className="week-sheet-title">Pick a slate</Text>
             <Text className="caption mb-3">

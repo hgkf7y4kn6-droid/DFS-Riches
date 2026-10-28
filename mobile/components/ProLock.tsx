@@ -19,7 +19,7 @@ const FEATURE_LABEL: Record<ProFeature, string> = {
 export function ProSheet({ feature, visible, onClose }: { feature: ProFeature; visible: boolean; onClose: () => void }) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable className="week-backdrop" onPress={onClose} accessibilityLabel="Close">
+      <Pressable className="week-backdrop" onPress={onClose} accessibilityRole="button" accessibilityLabel="Close">
         <Pressable className="week-sheet intro-sheet" onPress={() => {}}>
           <Text className="intro-kicker">Riches Analytics Pro</Text>
           <Text className="intro-title">{FEATURE_LABEL[feature]} is part of Pro</Text>
