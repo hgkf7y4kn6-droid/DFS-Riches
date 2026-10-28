@@ -33,6 +33,13 @@ def _attr(p, name: str):
     return p.get(name) if isinstance(p, dict) else getattr(p, name)
 
 
+class SolverError(RuntimeError):
+    """HiGHS failed for a reason other than infeasibility (time limit, numerical trouble): not "no valid lineup"."""
+
+
+INFEASIBLE_STATUS = 2    # scipy.optimize.milp: 0 optimal, 1 limit reached, 2 infeasible, 3 unbounded, 4 other
+
+
 def _solve(values, rows, lows, highs):
     n = len(values)
     args = dict(c=-np.asarray(values, dtype=float),
@@ -45,7 +52,9 @@ def _solve(values, rows, lows, highs):
         # without it.
         res = milp(**args, options={"presolve": False})
     if not res.success:
-        return None
+        if res.status == INFEASIBLE_STATUS:
+            return None
+        raise SolverError(f"lineup solver failed (status {res.status}): {res.message}")
     return [i for i, x in enumerate(res.x) if x > 0.5]
 
 
@@ -54,7 +63,7 @@ def optimize(players: list, slate_type: str, metric: str, *, hindsight: bool = F
              min_unique: int = 2, max_punts: int | None = None) -> list | None:
     """Returns the optimal lineup's players in DraftKings slot order (Classic:
     QB, RB, RB, WR, WR, WR, TE, FLEX, DST; Showdown: CPT then FLEX by salary),
-    or None if no valid lineup exists. metric is the player field to maximize,
+    or None if no valid lineup exists (SolverError if the solver itself fails). metric is the player field to maximize,
     e.g. "proj_points" or "ceiling". hindsight=True is for scoring a finished
     slate on actual points: any player with a salary is eligible. `locked`
     (DK draftable ids) must be in the lineup -- players whose games have

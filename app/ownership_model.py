@@ -24,6 +24,10 @@ plain average:
            newcomer MAE until they have a graded history) and their stated
            confidence; crowd N = sum of reliability, discounted for herding.
 
+What "Bayesian" means here: the Beta's parameters are pooled pseudo-counts (each model's mean times its effective
+sample size), a conjugate-style approximation, not a likelihood fitted to observed ownership. The intervals'
+coverage, and the MAE and bucket calibration of the means, have not been measured out of sample.
+
 Posterior: alpha = sum(mu_m N_m), beta = sum((1 - mu_m) N_m) -- the
 conjugate Beta update. Observations decay with age (half-life 12h early,
 6h mid-slate, 2h in the last 3 hours, ~20 min in the last 30) and nothing

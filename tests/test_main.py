@@ -293,3 +293,8 @@ def test_responses_carry_basic_security_headers(client):
     r = client.get("/healthz")
     assert r.headers["x-content-type-options"] == "nosniff"
     assert r.headers["referrer-policy"] == "strict-origin-when-cross-origin"
+
+
+def test_upstream_failures_do_not_leak_exception_text():
+    err = main._upstream_failure("Could not load week", RuntimeError("https://secret.internal/path?key=abc"))
+    assert err.status_code == 502 and "secret" not in err.detail and err.detail.startswith("Could not load week")

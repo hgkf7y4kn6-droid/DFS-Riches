@@ -105,8 +105,13 @@ by team abbreviation, not a person's name). A small manual alias map
 name and Sleeper's on-file name genuinely don't normalize to the same
 string (e.g. DraftKings shows "Hollywood Brown" where Sleeper has him on
 file as "Marquise Brown"). Players DraftKings lists that Sleeper has no
-record of at all (backup/practice-squad players, mostly) show up in the
-site's "unmatched" banner rather than being silently guessed at.
+record of at all (backup/practice-squad players, mostly) are listed in the
+"Check these numbers" notice on the Lineups screen (`DataNotice`) rather
+than being silently guessed at. A name that matches several Sleeper players
+with the same team and position is also left unmatched, never picked. The
+same notice lists any input the server couldn't load or refresh (a model
+that failed, Sleeper lines missing, a provider serving its last saved
+copy), so degraded numbers aren't presented as current.
 
 ### Projections
 
@@ -129,6 +134,14 @@ Hover a Proj value to see the line and any adjustment. Players without a
 line (kickers, deep backups) fall back to DraftKings' season FPPG, still
 shown in its own column. Showdown Captain rows show salary and projections
 at DraftKings' 1.5x multiplier.
+
+> **Not independently reproducible yet.** The table below comes from a
+> backtest run outside this repository (no script here regenerates it), and
+> the matchup-adjustment settings below were tuned on the same 2025 weeks
+> used to report their gain, so treat these numbers as in-sample and
+> unverified. Don't quote them as evidence of accuracy. A committed
+> walk-forward backtest with separate tuning and reporting windows is the
+> open item (see `docs/AUDIT_2026-10-28.md`, F-04).
 
 Backtested against actual DK points (mean absolute error; lower is better):
 
@@ -221,9 +234,16 @@ lineup's ceiling.
 ### Optimal lineups
 
 Every slate shows two **optimal lineups** above your own in the lineup
-builder: one maximizing total Proj and one maximizing total Ceiling. They
-come from an exact integer-program solver (`app/optimizer.py`, SciPy/HiGHS)
-under DraftKings' real rules:
+builder. Classic slates get a **Safe lineup** (the most total Proj: a high
+floor that cashes often) and a **Tournament lineup** (stacked: QB + two of
+his pass catchers + an opposing WR, one RB per team, $49,000+ spent;
+`app/dfs_strategy.py`). Showdown slates get **Optimal - Proj** and
+**Optimal - Ceiling**. (Classic used to show an Optimal - Ceiling lineup; it
+is retired because it never beat its own projection on 2026 Weeks 3-6, and
+old saved records keep it labeled "retired".) They come from an exact
+integer-program solver (`app/optimizer.py`, SciPy/HiGHS) under DraftKings'
+real rules. The solver reports "no valid lineup" only when the rules are
+infeasible; any other solver failure is an error, never an empty result:
 
 - **Classic:** QB, 2-3 RB, 3-4 WR, 1-2 TE, DST, $50,000 cap, at least 2
   games.
@@ -807,6 +827,16 @@ the latest data. A source that still projects a player DraftKings has ruled
 out is named in the news list, since its line may predate the news.
 
 ### Bayesian ownership (Ownership tab)
+
+> **What "Bayesian" means here, and what isn't measured.** The posterior is a
+> Beta whose parameters are pooled *pseudo-counts*: each model's estimate
+> times a hand-set or residual-derived effective sample size (alpha = sum of
+> mu x N). That is a conjugate-style approximation, not a likelihood fitted
+> to observed ownership, so the credible intervals have **no measured
+> coverage**. Out-of-sample MAE, calibration by ownership bucket, Captain vs
+> Flex calibration and a comparison with a salary/projection baseline have
+> not been run. Until they are, treat the intervals as indicators of relative
+> uncertainty, not as probabilities, and don't market them as calibrated.
 
 Ownership is an estimate of the *probability distribution* of true field
 ownership for each player and contest type, P(true ownership | everything

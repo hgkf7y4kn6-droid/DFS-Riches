@@ -274,6 +274,8 @@ interface SlatePlayers {
   unmatched_dk_names: string[];
   match_count: number;
   total_count: number;
+  /** Inputs that were missing or older than their refresh allows. */
+  warnings?: string[];
 }
 
 // ------------------------------------------------------------------- lineups

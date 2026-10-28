@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AlertsCard from '@/components/AlertsCard';
 import BrandHeader from '@/components/BrandHeader';
+import DataNotice from '@/components/DataNotice';
 import LineupBuilder from '@/components/LineupBuilder';
 import ListHeading from '@/components/ListHeading';
 import OptimalLineups from '@/components/OptimalLineups';
@@ -89,6 +90,7 @@ export default function Lineups() {
         ) : data ? (
           <>
             <SlateList slates={data.slates} selectedId={selectedSlate?.slate_id ?? null} onSelect={(id) => choose(id)} />
+            <DataNotice />
 
             <Text className="input-label mt-4">Building for</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row" contentContainerClassName="chip-row-content">

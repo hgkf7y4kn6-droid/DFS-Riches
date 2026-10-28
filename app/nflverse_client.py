@@ -40,6 +40,7 @@ import asyncio
 import csv
 import gzip
 import io
+import logging
 from typing import Any, Iterable
 
 import httpx
@@ -58,6 +59,8 @@ from app.config import (
     TTL_NFLVERSE_TEAM_STATS,
 )
 from app.matching import normalize_name, resolve_alias
+
+log = logging.getLogger("dfsriches.nflverse")
 
 _HEADERS = {"User-Agent": "DFSRiches/1.0 (+https://github.com/)"}
 
@@ -389,6 +392,16 @@ def player_key(name: str, position: str) -> str:
     return f"{resolve_alias(normalize_name(name))}|{position.upper()}"
 
 
+def drop_ambiguous_keys(index: dict[str, list[list]]) -> dict[str, list[list]]:
+    """Removes player keys (name|position) that carry two games in the same (season, week): a player plays one game
+    a week, so that is two same-named players sharing a key. Their history would be a blend of both, so they get
+    none (no trend, no history-based ceiling) rather than a wrong one."""
+    clash = {k for k, entries in index.items() if len({(e[0], e[1]) for e in entries}) < len(entries)}
+    if clash:
+        log.warning("nflverse: %d player keys span two same-named players and were dropped: %s", len(clash), sorted(clash)[:10])
+    return {k: v for k, v in index.items() if k not in clash}
+
+
 async def get_player_trailing_index(season: int) -> dict[str, list[list]]:
     """player_key(name, position) -> [[season, week, dk_points, team], ...]
     combining this season and the prior one, for computing a trailing
@@ -410,9 +423,9 @@ async def get_player_trailing_index(season: int) -> dict[str, list[list]]:
                 key = player_key(name, position)
                 points = dk_scoring.dk_offense_points(row)
                 index.setdefault(key, []).append([szn, week, points, to_app_team(row.get("team", ""))])
-        return index
+        return drop_ambiguous_keys(index)
 
-    return await cached_fetch(f"nflverse_player_trailing_index_v2_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+    return await cached_fetch(f"nflverse_player_trailing_index_v3_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
 
 
 async def get_team_dst_trailing_index(season: int) -> dict[str, list[list]]:
@@ -495,14 +508,14 @@ async def get_player_game_log_index(season: int) -> dict:
                     games[(szn, week)] = games.get((szn, week), 0.0) + points
 
         return {
-            "players": players,
+            "players": drop_ambiguous_keys(players),
             "def_vs_pos": {
                 team: {pos: [[s, w, round(p, 2)] for (s, w), p in sorted(games.items())] for pos, games in by_pos.items()}
                 for team, by_pos in def_vs_pos.items()
             },
         }
 
-    return await cached_fetch(f"nflverse_player_game_log_index_v2_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+    return await cached_fetch(f"nflverse_player_game_log_index_v3_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
 
 
 async def get_week_actuals(season: int, week: int) -> dict:
@@ -542,6 +555,15 @@ def actual_points(actuals: dict, *, name: str, position: str, team: str, roster_
     else:
         points = actuals["players"].get(player_key(name, position), 0.0)
     return round(points * (1.5 if roster_slot == "CPT" else 1.0), 2)
+
+
+def missing_actuals(actuals: dict, players: list[dict]) -> list[str]:
+    """Names of non-DST players on a team whose box scores are in but who have no row of their own. actual_points
+    scores them 0, which is right for a player who played without a stat and wrong for one whose name failed to
+    match, so slates scored this way list them for review."""
+    teams = set(actuals["teams"])
+    return sorted({p["name"] for p in players
+                   if p["position"] != "DST" and p["team"] in teams and player_key(p["name"], p["position"]) not in actuals["players"]})
 
 
 def trailing_dk_fppg(season: int, week: int, n: int, *, player_index: dict, name: str, position: str,

@@ -27,6 +27,7 @@ from app.config import CACHE_DIR
 _memory: dict[str, tuple[float, Any]] = {}
 MAX_MEMORY_ENTRIES = 48
 _in_flight: dict[str, asyncio.Task] = {}
+_stale_served: dict[str, float] = {}      # key -> when a failed refresh last made us serve its old disk copy
 
 
 def _cache_path(key: str) -> Path:
@@ -73,6 +74,7 @@ async def _fetch_and_store(key: str, fetch_fn: Callable[[], Awaitable[Any]], mem
         stale = _read_disk(key, ttl_seconds=None)
         if stale is not None:
             metrics.cache_event(key, "stale")
+            _stale_served[key] = time.time()
             _remember(key, stale, memory)
             return stale
         metrics.cache_event(key, "error")
@@ -81,6 +83,13 @@ async def _fetch_and_store(key: str, fetch_fn: Callable[[], Awaitable[Any]], mem
     _write_disk(key, value)
     _remember(key, value, memory)
     return value
+
+
+def recently_stale(prefixes: tuple[str, ...], within: float = 900.0) -> list[str]:
+    """Cache keys starting with one of `prefixes` whose refresh failed in the last `within` seconds, so the
+    data behind them is an older copy than its TTL allows."""
+    cutoff = time.time() - within
+    return sorted(k for k, t in _stale_served.items() if t >= cutoff and k.startswith(prefixes))
 
 
 async def cached_fetch(

@@ -167,3 +167,21 @@ def test_dk_dst_points_counts_kick_and_punt_return_touchdowns():
     # DraftKings scores a DST +6 for a kick/punt/FG return TD, same as a defensive TD
     assert dk_dst_points({"special_teams_tds": "1"}, points_allowed=21) == 6
     assert dk_dst_points({"def_tds": "1", "special_teams_tds": "1"}, points_allowed=21) == 12
+
+
+def test_same_named_players_sharing_a_key_lose_their_blended_history():
+    from app.nflverse_client import drop_ambiguous_keys
+    index = {
+        "mike williams|WR": [[2025, 1, 10.0, "NYJ"], [2025, 1, 4.0, "PIT"], [2025, 2, 8.0, "NYJ"]],   # two people, week 1 twice
+        "davante adams|WR": [[2025, 1, 12.0, "LV"], [2025, 2, 9.0, "LV"], [2026, 1, 11.0, "NYJ"]],
+    }
+    assert list(drop_ambiguous_keys(index)) == ["davante adams|WR"]
+
+
+def test_missing_actuals_are_listed_not_just_zeroed():
+    from app.nflverse_client import missing_actuals
+    actuals = {"players": {"a|QB": 20.0}, "dst": {"SEA": 5.0}, "teams": ["SEA", "BUF"]}
+    rows = [dict(name="A", position="QB", team="BUF"), dict(name="Ghost", position="WR", team="BUF"),
+            dict(name="Late", position="RB", team="DAL"), dict(name="Seahawks", position="DST", team="SEA")]
+    # Ghost's team has box scores in but he has no row; DAL's box scores aren't in at all, so that's not "missing"
+    assert missing_actuals(actuals, rows) == ["Ghost"]

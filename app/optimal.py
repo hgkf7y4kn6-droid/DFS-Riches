@@ -39,6 +39,7 @@ _FIELDS = (
     "name", "position", "team", "opponent", "roster_slot", "salary", "proj_points",
     "ceiling", "sleeper_proj", "game_info", "injury", "dk_draftable_id", "dk_fppg",
 )
+STARTER_PROJ = 8.0   # projected at least this many points: expected to have a box-score row
 _HINDSIGHT_FIELDS = ("name", "position", "team", "opponent", "roster_slot", "salary", "game_info", "dk_draftable_id")
 
 
@@ -152,6 +153,10 @@ def score_results(saved_lineups: list[dict], players: list, slate_type: str, act
             "players": rows,
             "salary": sum(r["salary"] for r in rows),
             "actual": round(sum(r["actual"] for r in rows), 2),
+            # Players projected for a real role with no box-score row: inactive, or a name that didn't match.
+            # Either way they were scored 0, so a human can check the list before trusting the totals.
+            "no_box_score": nc.missing_actuals(
+                actuals, [{f: getattr(p, f) for f in ("name", "position", "team")} for p in players if (p.proj_points or 0) >= STARTER_PROJ]),
         }
     return scored, hindsight
 

@@ -14,6 +14,7 @@ import asyncio
 from datetime import datetime
 
 from app import ceiling, ceiling_model, dk_client, dst_model, game_model, injury_news, matching, news_overrides, player_model, nflverse_client, player_games, projections, roles, sleeper_client, vacated, weather
+from app import cache
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
 from app.models import Player, Slate, SlatePlayers, WeekSchedule
@@ -118,12 +119,19 @@ async def list_slates(season: int, week: int) -> tuple[WeekSchedule, list[Slate]
     return schedule, slates
 
 
-async def _optional(coro, default):
-    """An input the slate can do without: its value, or `default` if it fails."""
+async def _optional(coro, default, label: str | None = None, warnings: list[str] | None = None):
+    """An input the slate can do without: its value, or `default` if it fails (noted in `warnings`)."""
     try:
         return await coro
     except Exception:
+        if warnings is not None and label:
+            warnings.append(f"{label} unavailable: projections are built without it.")
         return default
+
+
+# Cache keys that feed a slate: a failed refresh behind any of these means older data than its TTL allows.
+_STALE_SOURCES = (("dk_", "DraftKings"), ("sleeper_", "Sleeper"), ("proj_source_", "Sleeper"), ("nflverse_", "nflverse"),
+                  ("defense_vs_", "nflverse"), ("weather_", "weather"))
 
 
 def _recent_points(ctx, name: str, position: str, season: int, week: int) -> list[float]:
@@ -142,6 +150,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
     if not slate.available or slate.draft_group_id is None:
         return SlatePlayers(slate=slate, players=[], unmatched_dk_names=[], match_count=0, total_count=0)
 
+    warnings: list[str] = []
     # The slate's inputs are independent of each other: load them concurrently (shared files are fetched once --
     # app.cache dedupes in-flight requests). The last three are optional and fall back to no adjustment.
     (raw, sleeper_points, index, player_trailing_index, team_dst_trailing_index, ceiling_ctx, projection_ctx,
@@ -153,13 +162,18 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         nflverse_client.get_team_dst_trailing_index(season),
         ceiling.context_for(season, week),
         projections.build_context(season, week),
-        _optional(player_model.context(season, week), None),
-        _optional(game_model.team_context(season, week), {}),
-        _optional(dst_model.context(season, week), {}) if dst_model.load() else asyncio.sleep(0, result={}),
+        _optional(player_model.context(season, week), None, "Role & script model", warnings),
+        _optional(game_model.team_context(season, week), {}, "Team matchup model", warnings),
+        _optional(dst_model.context(season, week), {}, "Defense model", warnings) if dst_model.load() else asyncio.sleep(0, result={}),
     )
     # Only the slate's own games: a no-op for its own draft group, and how a Sunday
     # Main DraftKings no longer serves is rebuilt from that week's Full Week group
     # (same players, salaries and ids -- data/dk_overrides.json).
+    if not projection_ctx.lines:
+        warnings.append("Sleeper projections unavailable: players are shown at DraftKings season averages.")
+    stale = cache.recently_stale(tuple(p for p, _ in _STALE_SOURCES))
+    for source in sorted({name for key in stale for prefix, name in _STALE_SOURCES if key.startswith(prefix)}):
+        warnings.append(f"{source} could not be refreshed just now: showing the last saved copy, which may be out of date.")
     slate_teams = {t for g in slate.games for t in (g.away, g.home)}
     rows = [r for r in dk_client.parse_draftables(raw, slate.slate_type) if r["team"] in slate_teams]
 
@@ -331,4 +345,5 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         unmatched_dk_names=sorted(set(unmatched)),
         match_count=sum(1 for p in players if p.sleeper_player_id),
         total_count=len(players),
+        warnings=warnings,
     )

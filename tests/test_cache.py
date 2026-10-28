@@ -132,3 +132,22 @@ async def test_memoize_async_serves_stale_results_while_refreshing(monkeypatch):
     assert await compute(1) == 2                   # ...and the refreshed one next time
     now[0] += 500                                  # past the stale window: waits for a fresh build
     assert await compute(1) == 3
+
+
+@pytest.mark.anyio
+async def test_a_failed_refresh_serving_old_data_is_reported(tmp_path, monkeypatch):
+    monkeypatch.setattr(cache, "CACHE_DIR", tmp_path)
+    cache._memory.clear()
+    cache._stale_served.clear()
+    await cache.cached_fetch("sleeper_x", 0, lambda: _value({"a": 1}))
+    cache._memory.clear()
+
+    async def boom():
+        raise RuntimeError("provider down")
+    assert await cache.cached_fetch("sleeper_x", 0, boom) == {"a": 1}
+    assert cache.recently_stale(("sleeper_",)) == ["sleeper_x"] and cache.recently_stale(("dk_",)) == []
+    assert cache.recently_stale(("sleeper_",), within=-1) == []
+
+
+async def _value(v):
+    return v

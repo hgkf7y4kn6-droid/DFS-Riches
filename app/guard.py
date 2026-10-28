@@ -56,6 +56,10 @@ def body_limit(path: str) -> int:
 
 
 def client_ip(headers: dict[str, str], peer: str | None) -> str:
+    # TRUST_PROXY_HEADERS=0: the origin is reachable without Cloudflare/the host's proxy in front, so these
+    # headers can be forged to dodge the limits -- count by the socket peer instead.
+    if os.environ.get("TRUST_PROXY_HEADERS", "1") == "0":
+        return peer or "unknown"
     for name in ("cf-connecting-ip", "true-client-ip"):
         if headers.get(name):
             return headers[name].strip()

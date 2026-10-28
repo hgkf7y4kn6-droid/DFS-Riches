@@ -128,6 +128,7 @@ class SlatePlayers(BaseModel):
     unmatched_dk_names: list[str]
     match_count: int
     total_count: int
+    warnings: list[str] = []    # inputs that were missing or older than their refresh allows: the numbers may be degraded
 
 
 class WeekData(BaseModel):

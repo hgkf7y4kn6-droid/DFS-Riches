@@ -132,3 +132,15 @@ def test_build_many_lineups_are_each_valid_and_distinct():
         assert classic_violations(lu) == []
     ids = [frozenset(p["dk_draftable_id"] for p in lu) for lu in lineups]
     assert len(set(ids)) == 5 and all(len(a & b) <= 7 for i, a in enumerate(ids) for b in ids[i + 1:])
+
+
+def test_solver_failure_is_an_error_not_an_empty_result(monkeypatch):
+    from types import SimpleNamespace
+
+    import app.optimizer as opt
+    pool = _classic_pool(random.Random(6))
+    monkeypatch.setattr(opt, "milp", lambda **kw: SimpleNamespace(success=False, status=1, message="time limit", x=None))
+    with pytest.raises(opt.SolverError):
+        optimize(pool, "classic", "proj_points")
+    monkeypatch.setattr(opt, "milp", lambda **kw: SimpleNamespace(success=False, status=2, message="infeasible", x=None))
+    assert optimize(pool, "classic", "proj_points") is None

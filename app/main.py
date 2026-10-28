@@ -53,6 +53,13 @@ Season = Annotated[int, Query(ge=2000, le=2100)]
 Week = Annotated[int, Query(ge=1, le=22)]
 
 log = logging.getLogger("dfsriches.main")
+
+
+def _upstream_failure(what: str, exc: Exception) -> HTTPException:
+    """A 502 for the client that says what failed but not why: the exception text (URLs, paths, provider
+    responses) goes to the server log only."""
+    log.warning("%s: %r", what, exc, exc_info=exc)
+    return HTTPException(status_code=502, detail=f"{what}. Try again shortly.")
 app = FastAPI(title="Riches Analytics", description="DraftKings DFS explorer")
 
 
@@ -288,7 +295,7 @@ async def api_state():
     try:
         state = await get_nfl_state()
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not reach Sleeper: {exc}") from exc
+        raise _upstream_failure("Could not reach Sleeper", exc) from exc
     # The app opens on display_week: use ours, which moves on once the week's games are all complete.
     season, week = await current_season_week()
     if str(state.get("season")) == str(season) and state.get("season_type") == "regular":
@@ -301,7 +308,7 @@ async def api_schedule(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEE
     try:
         schedule, _slates = await slates.list_slates(season, week)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not build schedule: {exc}") from exc
+        raise _upstream_failure("Could not build schedule", exc) from exc
     return schedule
 
 
@@ -310,7 +317,7 @@ async def api_slates(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK)
     try:
         _schedule, slate_list = await slates.list_slates(season, week)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not list slates: {exc}") from exc
+        raise _upstream_failure("Could not list slates", exc) from exc
     return slate_list
 
 
@@ -322,7 +329,7 @@ async def api_week(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
     try:
         schedule, slate_list = await slates.list_slates(season, week)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not load week: {exc}") from exc
+        raise _upstream_failure("Could not load week", exc) from exc
     return WeekData(schedule=schedule, slates=slate_list)
 
 
@@ -333,7 +340,7 @@ async def api_slate_players(slate_id: str, season: Season = DEFAULT_SEASON, week
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not load slate players: {exc}") from exc
+        raise _upstream_failure("Could not load slate players", exc) from exc
 
 
 BUILD_MIN_PICKS = 2       # "Build for me" fills a lineup around the user's own picks
@@ -373,7 +380,7 @@ async def api_build(request: Request, slate_id: str, body: dict = Body(...)):
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not build lineups: {exc}") from exc
+        raise _upstream_failure("Could not build lineups", exc) from exc
     slots = optimal_module._slots(slate.slate_type)
     return {"lineups": [{
         "players": [{"slot": slot, "dk_draftable_id": p.dk_draftable_id, "name": p.name, "team": p.team} for slot, p in zip(slots, lu)],
@@ -403,7 +410,7 @@ async def api_slate_optimal(request: Request, slate_id: str, season: Season = DE
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not build optimal lineups: {exc}") from exc
+        raise _upstream_failure("Could not build optimal lineups", exc) from exc
 
 
 @app.get("/api/breakdown/game/{game_id}", response_model=GameDetail)
@@ -413,7 +420,7 @@ async def api_game_detail(game_id: str, season: Season = DEFAULT_SEASON, week: W
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not build game detail: {exc}") from exc
+        raise _upstream_failure("Could not build game detail", exc) from exc
 
 
 @app.get("/api/breakdown", response_model=WeekBreakdown)
@@ -421,7 +428,7 @@ async def api_breakdown(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WE
     try:
         return await breakdown_module.build_week_breakdown(season, week)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not build week breakdown: {exc}") from exc
+        raise _upstream_failure("Could not build week breakdown", exc) from exc
 
 
 def _json_default(o):
@@ -493,7 +500,7 @@ async def api_plays(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, 
     try:
         body = await _plays(season, week, slate_id, contest, _model_version())
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not build {contest} plays: {exc}") from exc
+        raise _upstream_failure(f"Could not build {contest} plays", exc) from exc
     return Response(body, media_type="application/json")
 
 
@@ -539,7 +546,7 @@ async def api_me(authorization: Annotated[str | None, Header()] = None):
     try:
         return await accounts.load(user_id, await accounts.verify_claims(authorization))
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not load account data: {exc}") from exc
+        raise _upstream_failure("Could not load account data", exc) from exc
 
 
 # ------------------------------------------------------------- Weekly Pro Picks (app.competition)
@@ -569,7 +576,7 @@ async def api_pro_picks(season: Annotated[int, Query(ge=2000, le=2100)], week: A
         slate, players = await comp.main_slate(season, week)
         entries = await asyncio.to_thread(comp.load_entries, season, week)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not load Pro Picks: {exc}") from exc
+        raise _upstream_failure("Could not load Pro Picks", exc) from exc
     if slate is None or not players:
         return {**base, "status": "no_slate", "slate_label": slate.label if slate else None, "entrants": len(entries)}
     lock_at = comp.lock_time(slate)
@@ -638,7 +645,7 @@ async def api_me_delete(authorization: Annotated[str | None, Header()] = None):
     try:
         return await accounts.delete_account(user_id)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not delete the account: {exc}") from exc
+        raise _upstream_failure("Could not delete the account", exc) from exc
 
 
 @app.put("/api/me/data/{key}")
@@ -652,7 +659,7 @@ async def api_me_save(key: str, body: dict = Body(...), authorization: Annotated
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not save: {exc}") from exc
+        raise _upstream_failure("Could not save", exc) from exc
 
 
 @memoize_async(ttl_seconds=60, max_entries=64)    # short: a slate that kicks off drops out within a minute
@@ -695,7 +702,7 @@ async def api_best_contests(entries: str = "", fees: str = "", exclude: str = ""
     try:
         return await _best_contests(*chosen)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not load DraftKings contests: {exc}") from exc
+        raise _upstream_failure("Could not load DraftKings contests", exc) from exc
 
 
 @app.get("/api/contests/free")
@@ -704,7 +711,7 @@ async def api_free_contests():
     try:
         return await contests.free_contests()
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not load DraftKings contests: {exc}") from exc
+        raise _upstream_failure("Could not load DraftKings contests", exc) from exc
 
 
 @app.get("/api/defense-vs-position")
@@ -714,7 +721,7 @@ async def api_defense_vs_position(season: Season = DEFAULT_SEASON, week: Week = 
     try:
         return await matchups.defense_vs_position(season, week)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not build matchup ranks: {exc}") from exc
+        raise _upstream_failure("Could not build matchup ranks", exc) from exc
 
 
 @app.get("/api/player-games")
@@ -725,7 +732,7 @@ async def api_player_games(name: str, position: str, team: str, season: Season =
     try:
         return await player_games.player_games(season, week, name=name, position=position, team=team, n=games)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not load game logs: {exc}") from exc
+        raise _upstream_failure("Could not load game logs", exc) from exc
 
 
 def _check_contest(contest: str) -> str:
@@ -769,7 +776,7 @@ async def api_slate_ownership(request: Request, slate_id: str, season: Season = 
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not build ownership: {exc}") from exc
+        raise _upstream_failure("Could not build ownership", exc) from exc
 
 
 @app.get("/api/dfs-model")
@@ -784,7 +791,7 @@ async def api_dfs_model(request: Request, season: Season = DEFAULT_SEASON, week:
     try:
         body = await build(season, week, slate_id, contest, contest_size, _model_version())
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not build the DFS model: {exc}") from exc
+        raise _upstream_failure("Could not build the DFS model", exc) from exc
     return Response(body, media_type="application/json")
 
 
@@ -1015,7 +1022,7 @@ async def api_odds(season: Annotated[int | None, Query(ge=2000, le=2100)] = None
         matchups = {"games": games, "next_games": next_games or []}
         history = await asyncio.to_thread(bp_store.odds_history, season, week)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not load odds: {exc}") from exc
+        raise _upstream_failure("Could not load odds", exc) from exc
     out = {"source": odds_module.SOURCE, "season": season, "week": week, "available": bool(history),
            "status": snap.get("status"), "captured_at": snap.get("fetched_at"), "stored": snap.get("stored"),
            "via": snap.get("via"), "credits_remaining": (snap.get("credits") or {}).get("remaining"),
@@ -1059,7 +1066,7 @@ async def api_big_picture(id: int | None = None, authorization: Annotated[str | 
         report = await asyncio.to_thread(bp_store.get_report, id, with_dossier=True)
         versions = await asyncio.to_thread(bp_store.list_reports, None, 40)
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Could not load the Big Picture: {exc}") from exc
+        raise _upstream_failure("Could not load the Big Picture", exc) from exc
     return {"report": report, "versions": versions, "can_run": bool(os.environ.get("GITHUB_DISPATCH_TOKEN")),
             "run": await _workflow_status()}
 

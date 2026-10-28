@@ -72,3 +72,11 @@ def test_shared_ownership_uploads_need_a_master_account(client, monkeypatch):
     for ep in ("source", "crowd", "actual"):
         r = client.post(f"/api/ownership/{ep}", json=body, headers={**ip, "authorization": "Bearer t"})
         assert r.status_code == 403
+
+
+def test_proxy_headers_can_be_distrusted(monkeypatch):
+    from app.guard import client_ip
+    headers = {"cf-connecting-ip": "1.2.3.4", "x-forwarded-for": "5.6.7.8"}
+    assert client_ip(headers, "10.0.0.1") == "1.2.3.4"
+    monkeypatch.setenv("TRUST_PROXY_HEADERS", "0")
+    assert client_ip(headers, "10.0.0.1") == "10.0.0.1"
