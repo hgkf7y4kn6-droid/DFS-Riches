@@ -161,3 +161,9 @@ def test_team_windows_are_this_season_only():
     assert team_trailing(index, "A", "neutral_secs", 2026, 1) is None          # Week 1: no current-season data
     assert team_trailing(index, "A", "plays", 2026, 3) == 60.0                 # trailing 8 = the 2 played
     assert rank_teams(index, "neutral_secs", 2026, 3, descending=False) == {"A": 1, "B": 2}
+
+
+def test_dk_dst_points_counts_kick_and_punt_return_touchdowns():
+    # DraftKings scores a DST +6 for a kick/punt/FG return TD, same as a defensive TD
+    assert dk_dst_points({"special_teams_tds": "1"}, points_allowed=21) == 6
+    assert dk_dst_points({"def_tds": "1", "special_teams_tds": "1"}, points_allowed=21) == 12

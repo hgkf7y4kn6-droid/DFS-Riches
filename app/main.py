@@ -196,6 +196,14 @@ async def _require_sign_in(request: Request, call_next):
     return await call_next(request)
 
 
+@app.middleware("http")
+async def _security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    return response
+
+
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 # The mobile app (mobile/) reads the JSON API with the user's session token; its
 # web build can run on another origin, so allow cross-origin requests.

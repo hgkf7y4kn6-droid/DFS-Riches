@@ -235,6 +235,9 @@ def test_pro_features_need_pro_once_gating_is_on(client, monkeypatch):
         return False
     monkeypatch.setattr(main.accounts, "verify_claims", verify_claims)
     monkeypatch.setattr(main.accounts, "is_master", not_master)
+    async def no_slates(season, week):          # hermetic: an unknown slate id 404s without calling Sleeper/DraftKings
+        return None, []
+    monkeypatch.setattr(main.slates, "list_slates", no_slates)
     url = "/api/slates/nope/ownership?season=2026&week=3"
     monkeypatch.delenv("PRO_GATING", raising=False)                                  # default: optimal lineups and props
     assert client.get(url, headers={"authorization": "Bearer free"}).status_code == 404
@@ -284,3 +287,9 @@ def test_deleting_the_account_removes_its_data(client, monkeypatch):
     monkeypatch.setattr(main.accounts, "delete_account", delete_account)
     assert client.delete("/api/me", headers={"authorization": "Bearer x"}).json()["deleted_account"] is True
     assert deleted == ["user_9"]
+
+
+def test_responses_carry_basic_security_headers(client):
+    r = client.get("/healthz")
+    assert r.headers["x-content-type-options"] == "nosniff"
+    assert r.headers["referrer-policy"] == "strict-origin-when-cross-origin"
