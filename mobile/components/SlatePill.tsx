@@ -20,11 +20,10 @@ interface Option {
  * slates the DFS model runs on (DFS Model, Safe Plays, Tournaments);
  * otherwise every slate this week (Home, Lineups).
  */
-export default function SlatePill({ scope = 'week', slates: modelSlates }: { scope?: 'week' | 'model'; slates?: { slate_id: string; label: string }[] }) {
+/** The slate options for a header scope and which one is selected (null `current` while none is available). */
+export function useSlateSummary(scope: 'week' | 'model' = 'week', modelSlates?: { slate_id: string; label: string }[]) {
   const { weekData, selectedSlate } = useWeek();
   const { model, slateId } = useDfsModel();
-  const choose = useChooseSlate();
-  const [open, setOpen] = useState(false);
   const all = weekData.data?.slates ?? [];
 
   const options: Option[] =
@@ -36,7 +35,13 @@ export default function SlatePill({ scope = 'week', slates: modelSlates }: { sco
           return { id: m.slate_id, kicker: 'Classic', title: s ? slateTitle(s) : m.label, meta: s ? slateMeta(s) : m.label };
         });
   const selectedId = scope === 'week' ? selectedSlate?.slate_id : slateId ?? model?.slate?.slate_id;
-  const current = options.find((o) => o.id === selectedId);
+  return { options, selectedId, current: options.find((o) => o.id === selectedId) };
+}
+
+export default function SlatePill({ scope = 'week', slates: modelSlates }: { scope?: 'week' | 'model'; slates?: { slate_id: string; label: string }[] }) {
+  const { options, selectedId, current } = useSlateSummary(scope, modelSlates);
+  const choose = useChooseSlate();
+  const [open, setOpen] = useState(false);
   if (!options.length || !current) return null;
 
   return (

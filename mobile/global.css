@@ -169,7 +169,29 @@
     @apply mb-3 flex-row items-center justify-between;
   }
   .brand-title {
-    @apply text-3xl font-sans-extrabold text-foreground;
+    @apply text-2xl font-sans-extrabold text-foreground;
+  }
+  /* The title's line: the title, and the condensed week / slate control at its right edge. */
+  .brand-top {
+    @apply flex-row items-center gap-3;
+  }
+  .brand-chip {
+    @apply min-h-10 max-w-[48%] flex-row items-center rounded-xl border border-border bg-card px-3 py-1;
+  }
+  .brand-chip-week {
+    @apply text-sm font-sans-bold text-foreground;
+  }
+  .brand-chip-slate {
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .brand-panel {
+    @apply mt-2 rounded-xl border border-border bg-card px-3;
+  }
+  .brand-panel-row {
+    @apply min-h-11 flex-row items-center justify-between;
+  }
+  .brand-panel-label {
+    @apply text-sm font-sans-semibold text-muted-foreground;
   }
   .brand-accent {
     /* Gold in both themes (light mode's accent is orange). */

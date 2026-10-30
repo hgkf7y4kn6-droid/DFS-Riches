@@ -90,7 +90,6 @@ export default function Lineups() {
         ) : data ? (
           <>
             <SlateList slates={data.slates} selectedId={selectedSlate?.slate_id ?? null} onSelect={(id) => choose(id)} />
-            <DataNotice />
 
             <Text className="input-label mt-4">Building for</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="chip-row" contentContainerClassName="chip-row-content">
@@ -136,6 +135,7 @@ export default function Lineups() {
             <ListHeading title="Model lineups" subtitle="Safe lineup to cash · Tournament lineup to win" />
             <OptimalLineups scope={scope} collapsible />
             <ListHeading title={mode === 'cash' ? 'Build cash lineups' : mode === 'any' ? 'Build lineups' : 'Build tournament lineups'} />
+            <DataNotice />
             <View>
               <LineupBuilder key={scope} scope={scope} field={field} />
             </View>
