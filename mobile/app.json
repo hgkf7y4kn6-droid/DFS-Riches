@@ -2,7 +2,7 @@
   "expo": {
     "name": "DFSRiches",
     "slug": "dfs-riches",
-    "version": "1.1.58",
+    "version": "1.1.59",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "dfsriches",
