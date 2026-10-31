@@ -1,0 +1,4 @@
+{
+  "note": "Tracked beat writers. One row per writer: name, team (app abbreviation), outlet, bluesky (handle) and/or rss (feed URL), verified (true only after a person confirmed the account is that reporter), status (omit, or 'rejected' to stop tracking), source_url (where the account was found). Empty until reviewed: run scripts/discover_beat_writers.py to propose candidates.",
+  "writers": []
+}
