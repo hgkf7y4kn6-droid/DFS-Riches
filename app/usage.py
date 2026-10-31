@@ -14,9 +14,10 @@ starts with no profile:
 
 Per team: pass-catcher concentration = the top two target shares combined.
 
-nflverse doesn't publish snaps, routes, red-zone targets or goal-line work,
-so those stay unknown here (listed as missing in the DFS Model), never
-guessed.
+The box scores don't carry routes, red-zone targets or goal-line work, so those
+stay unknown here (listed as missing in the DFS Model), never guessed. Snap share
+comes from nflverse's snap counts instead (app.player_games), and red-zone work could
+be derived from play-by-play but isn't yet.
 """
 from __future__ import annotations
 

@@ -74,6 +74,18 @@ def fit_qr(X: np.ndarray, y: np.ndarray, tau: float = TAU) -> dict:
     return {"mu": mu.round(5).tolist(), "sd": sd.round(5).tolist(), "b": b.round(5).tolist()}
 
 
+def fit_model(train: list[dict]) -> dict:
+    """The ceiling model (app.ceiling_model's JSON shape, without records) fit to `train` rows from rows_for."""
+    model = {"cv_pos": typical_cv(train), "positions": {}}
+    for pos in pm.POSITIONS:
+        tr = [r for r in train if r["pos"] == pos]
+        xs = [cm.inputs(pos, r["proj"], r["history"], r["line"], r["implied"], r["spread"], r["ts_l3"], r["snap_l3"], model)
+              for r in tr]
+        X = np.array([[x[f] for f in FEATURES[pos]] for x in xs])
+        model["positions"][pos] = {"features": FEATURES[pos], **fit_qr(X, np.array([r["actual"] for r in tr]))}
+    return model
+
+
 def evaluate(rows, ceil) -> dict:
     """Pinball loss, how often the actual beat the ceiling (target 15%), within position-week rank correlation,
     and the share of each position-week's top 10% scorers whose ceiling ranked in its top 20%."""
@@ -130,14 +142,9 @@ def main():
     train = [r for s in seasons for r in rows_for(d, s, range(2, 19))]
     test = rows_for(d, args.test_season, range(2, args.test_weeks + 1))
     print(f"train player-weeks {len(train)} ({seasons}), test {len(test)}")
-    cv = typical_cv(train)
-    model = {"cv_pos": cv, "positions": {}}
+    model = fit_model(train)
+    cv = model["cv_pos"]
     for pos in pm.POSITIONS:
-        tr = [r for r in train if r["pos"] == pos]
-        xs = [cm.inputs(pos, r["proj"], r["history"], r["line"], r["implied"], r["spread"], r["ts_l3"], r["snap_l3"], model)
-              for r in tr]
-        X = np.array([[x[f] for f in FEATURES[pos]] for x in xs])
-        model["positions"][pos] = {"features": FEATURES[pos], **fit_qr(X, np.array([r["actual"] for r in tr]))}
         print(pos, dict(zip(["const"] + FEATURES[pos], model["positions"][pos]["b"])))
     mult = {p: float(np.quantile([r["actual"] / r["proj"] for r in train if r["pos"] == p], TAU)) for p in pm.POSITIONS}
 

@@ -84,9 +84,9 @@ ALPHA_WR_TARGETS, BLOCKING_TE_TARGETS = 8.0, 2.5
 
 MISSING_DATA = [
     ("Player props", "no props feed is connected"),
-    ("Snap share and route participation", "not in nflverse's public box scores"),
+    ("Route participation", "not published; offensive snap share is connected (nflverse snap counts, app.player_games)"),
     ("Targets per route run / yards per route run", "need route data"),
-    ("Red-zone, end-zone and goal-line work", "not in the box-score feed"),
+    ("Red-zone, end-zone and goal-line work", "not in the box scores; derivable from play-by-play (yardline_100) but not computed yet"),
     ("Depth charts", "not connected; roles are read from projected carries/targets and recent usage"),
     ("Individual lineman / defender grades", "no open source; line strength is graded at the unit level from play-by-play "
                                             "(sack, QB-hit, stuff and success rates) and FTN charting"),

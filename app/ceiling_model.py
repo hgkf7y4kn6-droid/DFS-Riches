@@ -14,8 +14,11 @@ record. Inputs, all known before the game:
   implied     the team's implied total; abs_spread how lopsided the game is
   ts_l3, snap_l3  target share and snap share over the last three games
 
-On 2026 Weeks 4-6 it beat the formula ceiling it replaced (history x matchup x environment multipliers) on
-pinball loss (1.81 vs 1.91) and caught more of each week's top-10% scorers in its top 20% (59% vs 53%).
+Held-out 2026 record (data/ceiling_model.json "test": n=1,140 player-weeks, trainer default Weeks 2-6): pinball loss
+1.82 vs 1.89 for the formula ceiling it replaced (history x matchup x environment multipliers); the actual score beat
+the ceiling 15.2% of the time (target 15%); 56% of each position-week's top-10% scorers ranked in its top 20% by
+ceiling vs 50% for the formula. These are aggregates only: scripts/eval_walkforward.py reports them by position,
+implied total and spread. The stored numbers are the source of truth if this text drifts.
 DSTs keep app.ceiling's formula.
 """
 from __future__ import annotations

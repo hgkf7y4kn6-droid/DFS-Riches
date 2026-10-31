@@ -231,6 +231,16 @@ the season a hot starter's "Proj" (DK's season FPPG over just a couple of
 games) can sit slightly above their Ceiling. Lineup cards also total each
 lineup's ceiling.
 
+**Evaluating the ceiling.** `python -m scripts.eval_walkforward` is the gate
+for any ceiling or projection change. Each fold trains on the three prior
+seasons and scores the next (2025, then 2026 through the latest week), and
+reports pinball loss, beat rate (target 15%), ceiling and projection bias by
+position, implied-total tercile, spread bucket, history length and the
+high-target-share pass catcher on a low-total team. A candidate ships only if
+`passes_gate` shows it beating the current model overall and in the low-total
+tercile. It needs nflverse and Sleeper's historical projections, so run it
+where those are reachable; its output goes to `data/eval_walkforward.json`.
+
 ### Optimal lineups
 
 Every slate shows two **optimal lineups** above your own in the lineup
