@@ -11925,7 +11925,7 @@
         ]
       },
       "classic": {
-        "saved_at": "2026-11-01T20:03:41+00:00",
+        "saved_at": "2026-11-01T23:58:30+00:00",
         "draft_group_id": 155589,
         "lineups": [
           {
@@ -11963,7 +11963,8 @@
                 "game_info": "LAC @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44670884,
-                "dk_fppg": 19.9
+                "dk_fppg": 19.9,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -12063,7 +12064,8 @@
                 "game_info": "NE @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44670920,
-                "dk_fppg": 12.6
+                "dk_fppg": 12.6,
+                "locked": true
               },
               {
                 "slot": "DST",
@@ -12122,7 +12124,8 @@
                 "game_info": "LAC @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44670884,
-                "dk_fppg": 19.9
+                "dk_fppg": 19.9,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -12223,7 +12226,8 @@
                 "game_info": "NE @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44670920,
-                "dk_fppg": 12.6
+                "dk_fppg": 12.6,
+                "locked": true
               },
               {
                 "slot": "DST",
@@ -12235,7 +12239,7 @@
                 "salary": 2900,
                 "proj_points": 7.94,
                 "ceiling": 10.7,
-                "sleeper_proj": 7.65,
+                "sleeper_proj": 7.69,
                 "game_info": "PHI @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44672062,
@@ -12561,7 +12565,7 @@
         "results_at": "2026-10-31T11:14:02+00:00"
       },
       "showdown_sun_night": {
-        "saved_at": "2026-11-01T19:43:40+00:00",
+        "saved_at": "2026-11-01T23:58:39+00:00",
         "draft_group_id": 155951,
         "lineups": [
           {
@@ -12576,9 +12580,9 @@
                 "opponent": "PHI",
                 "roster_slot": "CPT",
                 "salary": 15600,
-                "proj_points": 27.59,
+                "proj_points": 27.66,
                 "ceiling": 40.5,
-                "sleeper_proj": 27.72,
+                "sleeper_proj": 27.88,
                 "game_info": "PHI @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44722658,
@@ -12592,9 +12596,9 @@
                 "opponent": "PHI",
                 "roster_slot": "FLEX",
                 "salary": 9000,
-                "proj_points": 13.3,
-                "ceiling": 21.4,
-                "sleeper_proj": 12.49,
+                "proj_points": 12.81,
+                "ceiling": 20.6,
+                "sleeper_proj": 12.57,
                 "game_info": "PHI @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44722603,
@@ -12608,9 +12612,9 @@
                 "opponent": "WAS",
                 "roster_slot": "FLEX",
                 "salary": 8800,
-                "proj_points": 12.67,
+                "proj_points": 12.76,
                 "ceiling": 21.3,
-                "sleeper_proj": 13.51,
+                "sleeper_proj": 13.74,
                 "game_info": "PHI @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44722604,
@@ -12624,9 +12628,9 @@
                 "opponent": "PHI",
                 "roster_slot": "FLEX",
                 "salary": 8000,
-                "proj_points": 11.58,
-                "ceiling": 20.2,
-                "sleeper_proj": 10.79,
+                "proj_points": 11.71,
+                "ceiling": 20.3,
+                "sleeper_proj": 10.91,
                 "game_info": "PHI @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44722606,
@@ -12658,7 +12662,7 @@
                 "salary": 4000,
                 "proj_points": 7.94,
                 "ceiling": 10.7,
-                "sleeper_proj": 7.65,
+                "sleeper_proj": 7.69,
                 "game_info": "PHI @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44722624,
@@ -12666,8 +12670,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 81.08,
-            "ceiling": 127.2
+            "proj_points": 80.88,
+            "ceiling": 126.5
           },
           {
             "metric": "ceiling",
@@ -12681,9 +12685,9 @@
                 "opponent": "PHI",
                 "roster_slot": "CPT",
                 "salary": 15600,
-                "proj_points": 27.59,
+                "proj_points": 27.66,
                 "ceiling": 40.5,
-                "sleeper_proj": 27.72,
+                "sleeper_proj": 27.88,
                 "game_info": "PHI @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44722658,
@@ -12691,19 +12695,19 @@
               },
               {
                 "slot": "FLEX",
-                "name": "Stefon Diggs",
-                "position": "WR",
-                "team": "WAS",
-                "opponent": "PHI",
+                "name": "Saquon Barkley",
+                "position": "RB",
+                "team": "PHI",
+                "opponent": "WAS",
                 "roster_slot": "FLEX",
-                "salary": 9000,
-                "proj_points": 13.3,
-                "ceiling": 21.4,
-                "sleeper_proj": 12.49,
+                "salary": 9800,
+                "proj_points": 12.67,
+                "ceiling": 22.0,
+                "sleeper_proj": 13.23,
                 "game_info": "PHI @ WAS",
                 "injury": "Healthy",
-                "dk_draftable_id": 44722603,
-                "dk_fppg": 13.9
+                "dk_draftable_id": 44722601,
+                "dk_fppg": 7.6
               },
               {
                 "slot": "FLEX",
@@ -12713,9 +12717,9 @@
                 "opponent": "WAS",
                 "roster_slot": "FLEX",
                 "salary": 8800,
-                "proj_points": 12.67,
+                "proj_points": 12.76,
                 "ceiling": 21.3,
-                "sleeper_proj": 13.51,
+                "sleeper_proj": 13.74,
                 "game_info": "PHI @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44722604,
@@ -12723,35 +12727,35 @@
               },
               {
                 "slot": "FLEX",
-                "name": "Dallas Goedert",
-                "position": "TE",
-                "team": "PHI",
-                "opponent": "WAS",
-                "roster_slot": "FLEX",
-                "salary": 7400,
-                "proj_points": 10.46,
-                "ceiling": 17.9,
-                "sleeper_proj": 10.18,
-                "game_info": "PHI @ WAS",
-                "injury": "Healthy",
-                "dk_draftable_id": 44722608,
-                "dk_fppg": 11.4
-              },
-              {
-                "slot": "FLEX",
-                "name": "Antonio Williams",
-                "position": "WR",
+                "name": "Rachaad White",
+                "position": "RB",
                 "team": "WAS",
                 "opponent": "PHI",
                 "roster_slot": "FLEX",
-                "salary": 6200,
-                "proj_points": 9.16,
-                "ceiling": 16.1,
-                "sleeper_proj": 8.28,
+                "salary": 8000,
+                "proj_points": 11.71,
+                "ceiling": 20.3,
+                "sleeper_proj": 10.91,
                 "game_info": "PHI @ WAS",
                 "injury": "Healthy",
-                "dk_draftable_id": 44722613,
-                "dk_fppg": 7.4
+                "dk_draftable_id": 44722606,
+                "dk_fppg": 9.8
+              },
+              {
+                "slot": "FLEX",
+                "name": "Drew Stevens",
+                "position": "K",
+                "team": "WAS",
+                "opponent": "PHI",
+                "roster_slot": "FLEX",
+                "salary": 4600,
+                "proj_points": 8.0,
+                "ceiling": 13.1,
+                "sleeper_proj": null,
+                "game_info": "PHI @ WAS",
+                "injury": "Healthy",
+                "dk_draftable_id": 44722623,
+                "dk_fppg": 8.0
               },
               {
                 "slot": "FLEX",
@@ -12761,23 +12765,23 @@
                 "opponent": "PHI",
                 "roster_slot": "FLEX",
                 "salary": 3000,
-                "proj_points": 5.63,
-                "ceiling": 11.0,
-                "sleeper_proj": 5.7,
+                "proj_points": 5.62,
+                "ceiling": 10.9,
+                "sleeper_proj": 5.69,
                 "game_info": "PHI @ WAS",
                 "injury": "Healthy",
                 "dk_draftable_id": 44722627,
                 "dk_fppg": 3.4
               }
             ],
-            "salary": 50000,
-            "proj_points": 78.81,
-            "ceiling": 128.2
+            "salary": 49800,
+            "proj_points": 78.42,
+            "ceiling": 128.1
           }
         ]
       },
       "showdown_mon_night": {
-        "saved_at": "2026-11-01T19:43:40+00:00",
+        "saved_at": "2026-11-01T23:58:39+00:00",
         "draft_group_id": 155609,
         "lineups": [
           {
@@ -12841,7 +12845,7 @@
                 "roster_slot": "FLEX",
                 "salary": 5000,
                 "proj_points": 9.0,
-                "ceiling": 14.3,
+                "ceiling": 14.2,
                 "sleeper_proj": null,
                 "game_info": "CHI @ SEA",
                 "injury": "Healthy",
@@ -12883,7 +12887,7 @@
             ],
             "salary": 50000,
             "proj_points": 100.48,
-            "ceiling": 157.5
+            "ceiling": 157.4
           },
           {
             "metric": "ceiling",
