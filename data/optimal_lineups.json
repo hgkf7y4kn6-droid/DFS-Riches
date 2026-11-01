@@ -11599,7 +11599,7 @@
     },
     "8": {
       "classic_sunday": {
-        "saved_at": "2026-11-01T19:43:28+00:00",
+        "saved_at": "2026-11-01T20:03:31+00:00",
         "draft_group_id": 153728,
         "lineups": [
           {
@@ -11631,9 +11631,9 @@
                 "opponent": "LAC",
                 "roster_slot": "",
                 "salary": 7500,
-                "proj_points": 22.02,
-                "ceiling": 33.9,
-                "sleeper_proj": 19.84,
+                "proj_points": 21.9,
+                "ceiling": 33.6,
+                "sleeper_proj": 20.14,
                 "game_info": "LAC @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44664475,
@@ -11759,8 +11759,8 @@
               }
             ],
             "salary": 49900,
-            "proj_points": 151.62,
-            "ceiling": 238.4
+            "proj_points": 151.5,
+            "ceiling": 238.1
           },
           {
             "metric": "tournament",
@@ -11791,9 +11791,9 @@
                 "opponent": "LAC",
                 "roster_slot": "",
                 "salary": 7500,
-                "proj_points": 22.02,
-                "ceiling": 33.9,
-                "sleeper_proj": 19.84,
+                "proj_points": 21.9,
+                "ceiling": 33.6,
+                "sleeper_proj": 20.14,
                 "game_info": "LAC @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44664475,
@@ -11919,13 +11919,13 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 148.56,
-            "ceiling": 239.1
+            "proj_points": 148.44,
+            "ceiling": 238.8
           }
         ]
       },
       "classic": {
-        "saved_at": "2026-11-01T19:43:38+00:00",
+        "saved_at": "2026-11-01T20:03:41+00:00",
         "draft_group_id": 155589,
         "lineups": [
           {
@@ -11957,9 +11957,9 @@
                 "opponent": "LAC",
                 "roster_slot": "",
                 "salary": 7500,
-                "proj_points": 22.02,
-                "ceiling": 33.9,
-                "sleeper_proj": 19.84,
+                "proj_points": 21.9,
+                "ceiling": 33.6,
+                "sleeper_proj": 20.14,
                 "game_info": "LAC @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44670884,
@@ -12084,8 +12084,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 152.71,
-            "ceiling": 237.9
+            "proj_points": 152.59,
+            "ceiling": 237.6
           },
           {
             "metric": "tournament",
@@ -12116,9 +12116,9 @@
                 "opponent": "LAC",
                 "roster_slot": "",
                 "salary": 7500,
-                "proj_points": 22.02,
-                "ceiling": 33.9,
-                "sleeper_proj": 19.84,
+                "proj_points": 21.9,
+                "ceiling": 33.6,
+                "sleeper_proj": 20.14,
                 "game_info": "LAC @ LAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44670884,
@@ -12243,8 +12243,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 149.38,
-            "ceiling": 234.0
+            "proj_points": 149.26,
+            "ceiling": 233.7
           }
         ]
       },
