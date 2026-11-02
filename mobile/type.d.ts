@@ -470,10 +470,70 @@ interface TopPlayer {
   reasons: string[];
 }
 
+/** One side's play-by-play line for the game (app.postgame team_stats). */
+interface PostgameTeamStats {
+  plays: number | null;
+  success: number | null;
+  epa_play: number | null;
+  db_epa: number | null;
+  rush_epa: number | null;
+  explosive: number | null;
+  sacks_taken: number | null;
+  turnovers: number | null;
+  yards_per_play: number | null;
+}
+
+/** A pregame trench matchup against what happened on the game's competitive plays. */
+interface PostgameMatchup {
+  label: string;
+  offense: string;
+  attempts: number;
+  actual: number;
+  expected: number;
+  league: number;
+  z: number;
+  better: number;
+  verdict: 'exploited' | 'held' | 'to form' | string;
+  call: string | null;
+  pregame: { edge: number; strength: string } | null;
+  text: string;
+}
+
+interface PostgameDfsPlayer {
+  name: string;
+  team: string;
+  position: string;
+  points: number;
+  salary: number | null;
+  value?: number | null;
+}
+
+interface PostgameDfsTarget extends PostgameDfsPlayer {
+  proj: number | null;
+  ceiling: number | null;
+  role: string;
+  result: string;
+}
+
 interface GamePostgame {
   headline?: string;
   result?: string[];
   flow?: string[];
+  team_stats?: Record<string, PostgameTeamStats>;
+  matchups?: PostgameMatchup[];
+  predictability?: {
+    verdict: string;
+    surprises?: string[];
+    winner?: string;
+    line_win_prob?: number | null;
+    margin_miss?: number | null;
+    margin_miss_share?: number | null;
+    total_miss?: number | null;
+    total_miss_share?: number | null;
+    text?: string[];
+  } | null;
+  dfs?: { top_scorers: PostgameDfsPlayer[]; targets: PostgameDfsTarget[]; text?: string | null; note?: string | null } | null;
+  note?: string | null;
 }
 
 interface GameBreakdown {

@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.60',
+    title: "What's new",
+    items: [
+      "Postgame analysis is back in full. Open a finished game and its breakdown shows both teams' game stats (success rate, EPA, explosive plays), which pregame matchups were exploited or held, how predictable the result was, and how the top scorers and pregame targets did.",
+    ],
+  },
+  {
     version: '1.1.51',
     title: "What's new",
     items: [
