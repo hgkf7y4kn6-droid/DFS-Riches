@@ -10,6 +10,13 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '1.1.61',
+    title: "What's new",
+    items: [
+      "Home now has a recap of last week. It audits every finished game as signal vs noise (early-down success, neutral-script EPA, pass rate over expected, pressure vs turnovers, fumble luck, red-zone and third-and-long rates, garbage time), flags the teams that look ascending or fragile, and shows who they play this week.",
+    ],
+  },
+  {
     version: '1.1.60',
     title: "What's new",
     items: [

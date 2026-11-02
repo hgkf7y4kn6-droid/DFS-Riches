@@ -1013,6 +1013,25 @@ server start (`grant_founding_pro`); masters stay Admin. `DELETE /api/me`
 (Settings > Delete account) deletes the account's data and, with
 `CLERK_SECRET_KEY`, the Clerk account. Legal drafts for review are in `docs/legal/`.
 
+### Last week's recap (Home)
+
+`GET /api/recap` (default: the week before the NFL's current one; `app/recap.py`) audits every finished game of a
+week as signal vs noise, from the same nflverse play-by-play pass as the trenches and game model
+(`RecapAccumulator`, cached with the other aggregates). Home shows it as a collapsed card: the teams flagged
+**ascending** (out-played the opponent in the neutral script but lost or lost the bounces) and **fragile**
+(out-played but won, or won with the bounces), each with its opponent and spread this week, and every game's
+audit one tap away.
+
+- **Signal:** early-down success (48%+ is "structurally sound", counted at 10-90% win probability), neutral-script
+  EPA per play and pass rate over expected (20-80% win probability), and the sack-or-QB-hit rate each line gave
+  and took against the league's own rate.
+- **Noise:** turnover margin, fumble recoveries, red-zone touchdown rate (3+ trips), third-and-7+ conversions (4+
+  tries), defensive and special-teams touchdowns, and volume with under 10% win probability.
+- **Not available, and said so in the card:** pass-rush win rate and charted pressure, turnover-worthy plays, route
+  participation / yards per route run, and an expected score. Pressure is a sack or QB hit over dropbacks, not a
+  charted rate.
+- Every threshold is a constant in `app/recap.py`; every sentence is generated from the counts, never from a model.
+
 ### Weekly Pro Picks
 
 A weekly competition for Pro accounts (`app/competition.py`, the Home card in the app). Each Pro user can

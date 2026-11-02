@@ -1320,3 +1320,65 @@ interface BigPictureResponse {
   can_run: boolean;
   run: { status: string | null; conclusion?: string | null; started_at?: string | null } | null;
 }
+
+/** One team's side of a recap game (app.recap): its tag, the repeatable play (signal) and the situational swings (noise). */
+interface RecapTeam {
+  score: number;
+  tag: 'ascending' | 'fragile' | 'steady';
+  reason: string;
+  /** Its neutral-script EPA per play minus the opponent's; null without enough neutral plays. */
+  neutral_margin: number | null;
+  /** Net situational swings: positive when the bounces helped this team. */
+  luck: number;
+  won?: boolean;
+  signal: string[];
+  noise: string[];
+}
+
+interface RecapGame {
+  game_id: string;
+  away: string;
+  home: string;
+  kickoff_et: string;
+  away_score: number;
+  home_score: number;
+  home_spread: number | null;
+  total_line: number | null;
+  verdict: string;
+  tone: 'good' | 'warn' | 'neutral';
+  teams: Record<string, RecapTeam>;
+}
+
+/** This week's game for a flagged team. */
+interface RecapNext {
+  opponent: string;
+  home: boolean;
+  spread: number | null;
+  kickoff_et: string;
+  final: boolean;
+  team_score: number | null;
+  opponent_score: number | null;
+}
+
+interface RecapFlag {
+  team: string;
+  opponent: string;
+  reason: string;
+  neutral_margin: number | null;
+  game_id: string;
+  next: RecapNext | null;
+}
+
+interface Recap {
+  season: number;
+  week: number;
+  available: boolean;
+  games: RecapGame[];
+  ascending: RecapFlag[];
+  fragile: RecapFlag[];
+  /** What the framework asks for that the data can't provide. */
+  unavailable: string[];
+  note?: string;
+  games_final?: number;
+  games_total?: number;
+}

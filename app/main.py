@@ -413,6 +413,23 @@ async def api_slate_optimal(request: Request, slate_id: str, season: Season = DE
         raise _upstream_failure("Could not build optimal lineups", exc) from exc
 
 
+@app.get("/api/recap")
+async def api_recap(season: Annotated[int | None, Query(ge=2000, le=2100)] = None, week: Annotated[int | None, Query(ge=1, le=22)] = None):
+    """Last week's recap (app.recap): each finished game's signal vs noise audit. Defaults to the week before the
+    NFL's current one."""
+    from app import recap as recap_module
+    if season is None or week is None:
+        season, current = await current_season_week()
+        week = current - 1
+    if week < 1:
+        return {"season": season, "week": week, "available": False, "games": [], "ascending": [], "fragile": [],
+                "unavailable": recap_module.UNAVAILABLE, "note": "The season hasn't had a finished week yet."}
+    try:
+        return await recap_module.week_recap(season, week)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not build the recap: {exc}") from exc
+
+
 @app.get("/api/breakdown/game/{game_id}", response_model=GameDetail)
 async def api_game_detail(game_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
     try:

@@ -149,6 +149,11 @@ export function getGameDetail(season: number, week: number, gameId: string) {
   return getJson<GameDetail>(`/api/breakdown/game/${encodeURIComponent(gameId)}?${q(season, week)}`);
 }
 
+/** The recap of one finished week: each game's signal vs noise audit and the teams it flags. */
+export function getRecap(season: number, week: number) {
+  return getJson<Recap>(`/api/recap?${q(season, week)}`);
+}
+
 /** The DFS model for a Classic slate (the server picks the main slate when slateId is omitted). */
 export function getDfsModel(season: number, week: number, slateId?: string | null) {
   const slate = slateId ? `&slate_id=${encodeURIComponent(slateId)}` : '';
