@@ -1,0 +1,184 @@
+{
+ "n_questionable": 13927,
+ "base_rates_by_position": {
+  "Questionable": {
+   "DB": {
+    "n": 3153,
+    "played": 0.61
+   },
+   "DL": {
+    "n": 2194,
+    "played": 0.689
+   },
+   "LB": {
+    "n": 1921,
+    "played": 0.696
+   },
+   "OL": {
+    "n": 2537,
+    "played": 0.611
+   },
+   "QB": {
+    "n": 319,
+    "played": 0.458
+   },
+   "RB": {
+    "n": 1167,
+    "played": 0.62
+   },
+   "TE": {
+    "n": 837,
+    "played": 0.682
+   },
+   "WR": {
+    "n": 2026,
+    "played": 0.663
+   }
+  },
+  "Doubtful": {
+   "DB": {
+    "n": 409,
+    "played": 0.01
+   },
+   "DL": {
+    "n": 187,
+    "played": 0.021
+   },
+   "LB": {
+    "n": 206,
+    "played": 0.0
+   },
+   "OL": {
+    "n": 300,
+    "played": 0.0
+   },
+   "QB": {
+    "n": 55,
+    "played": 0.0
+   },
+   "RB": {
+    "n": 160,
+    "played": 0.013
+   },
+   "TE": {
+    "n": 101,
+    "played": 0.01
+   },
+   "WR": {
+    "n": 206,
+    "played": 0.015
+   }
+  },
+  "Out": {
+   "DB": {
+    "n": 2278,
+    "played": 0.0
+   },
+   "DL": {
+    "n": 1336,
+    "played": 0.0
+   },
+   "LB": {
+    "n": 1424,
+    "played": 0.001
+   },
+   "OL": {
+    "n": 1736,
+    "played": 0.0
+   },
+   "QB": {
+    "n": 331,
+    "played": 0.0
+   },
+   "RB": {
+    "n": 810,
+    "played": 0.0
+   },
+   "TE": {
+    "n": 726,
+    "played": 0.0
+   },
+   "WR": {
+    "n": 1335,
+    "played": 0.001
+   }
+  }
+ },
+ "loso_logloss": {
+  "practice_only": 0.62872,
+  "+position": 0.62428,
+  "+years": 0.62352,
+  "+position+years": 0.61876
+ },
+ "coefficients_full_model": {
+  "intercept": 0.012,
+  "practice=lp": -0.643,
+  "practice=dnp": -1.627,
+  "pos=RB": 0.706,
+  "pos=WR": 0.925,
+  "pos=TE": 0.904,
+  "pos=OL": 0.627,
+  "pos=DL": 1.042,
+  "pos=LB": 1.035,
+  "pos=DB": 0.65,
+  "years=yr2_4": 0.365,
+  "years=yr5_9": 0.627,
+  "years=yr10_plus": 0.873
+ },
+ "played_rate_by_years_questionable": {
+  "rookie": 0.545,
+  "yr10_plus": 0.705,
+  "yr2_4": 0.624,
+  "yr5_9": 0.674
+ },
+ "played_rate_by_years_and_practice": {
+  "rookie|dnp": {
+   "n": 226,
+   "played": 0.35
+  },
+  "rookie|fp": {
+   "n": 378,
+   "played": 0.624
+  },
+  "rookie|lp": {
+   "n": 1004,
+   "played": 0.559
+  },
+  "yr10_plus|dnp": {
+   "n": 250,
+   "played": 0.544
+  },
+  "yr10_plus|fp": {
+   "n": 232,
+   "played": 0.845
+  },
+  "yr10_plus|lp": {
+   "n": 720,
+   "played": 0.715
+  },
+  "yr2_4|dnp": {
+   "n": 785,
+   "played": 0.377
+  },
+  "yr2_4|fp": {
+   "n": 1134,
+   "played": 0.762
+  },
+  "yr2_4|lp": {
+   "n": 3304,
+   "played": 0.635
+  },
+  "yr5_9|dnp": {
+   "n": 967,
+   "played": 0.45
+  },
+  "yr5_9|fp": {
+   "n": 1145,
+   "played": 0.831
+  },
+  "yr5_9|lp": {
+   "n": 3782,
+   "played": 0.684
+  }
+ }
+}
