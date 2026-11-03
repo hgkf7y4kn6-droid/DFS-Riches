@@ -15,6 +15,7 @@ import ListHeading from '@/components/ListHeading';
 import OptimalLineups from '@/components/OptimalLineups';
 import ProfitLossTracker from '@/components/ProfitLossTracker';
 import ProPicksCard from '@/components/ProPicksCard';
+import RecapCard from '@/components/RecapCard';
 import SafeAreaView from '@/components/SafeAreaView';
 import SlateList from '@/components/SlateList';
 import HomeTopPlays from '@/components/HomeTopPlays';
@@ -110,6 +111,9 @@ export default function Home() {
 
         {/* Weekly Pro Picks: rank the Sunday Main's top scorers, standings once it's scored */}
         <ProPicksCard />
+
+        {/* Last week's recap: what the results hide (signal vs noise), and where teams may be headed */}
+        <RecapCard />
 
         <StatusView loading={weekData.loading && !data} error={weekData.error} onRetry={refresh} />
 

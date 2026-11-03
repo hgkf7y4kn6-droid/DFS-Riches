@@ -954,6 +954,23 @@ contrarian lineups follow it.
 restart. Attach a persistent disk mounted at `/app/data/ownership` to keep
 history, crowd submissions and what the model has learned.
 
+### Beat writers (`app/beat_news.py`, `GET /api/beat-news`)
+
+Reads what the reporters who cover each team post about who plays and how much, from free public sources: Bluesky
+author feeds and RSS/Atom feeds. **Context only**: each player gets a lean on whether his playing time, and so the
+field's ownership of him, may move (down, up, mixed, watch), with the writers, the reasons and a link to every post.
+It changes no projection, play chance or ownership estimate. Posts are read with phrase lists, not a model;
+questions and reposts are ignored; only a short excerpt is kept, with the writer's name and a link.
+
+- **Writers** are listed in `data/beat_writers.json` (empty until reviewed). `python -m scripts.discover_beat_writers`
+  proposes candidates into `data/beat_writer_candidates.json`; a person confirms each account before setting
+  `"verified": true`. Signals from unverified writers are shown as such.
+- **Earning a bigger role.** Every signal is stored with its time. `beat_news.grade` compares each kind of signal
+  with what happened and its base rate; a kind is promoted (`data/beat_signal_evidence.json`, empty today) only with
+  40+ graded signals and an interval that excludes the base rate. Grading against results is not wired up yet.
+- **Limits.** Many beat writers post only on X, which isn't read, so coverage is partial and uneven by team. The
+  endpoint reports which feeds failed.
+
 ## Running it
 
 ```bash
@@ -995,6 +1012,25 @@ with "Unlock with Pro". Accounts created before `FOUNDING_PRO_BEFORE` get Pro at
 server start (`grant_founding_pro`); masters stay Admin. `DELETE /api/me`
 (Settings > Delete account) deletes the account's data and, with
 `CLERK_SECRET_KEY`, the Clerk account. Legal drafts for review are in `docs/legal/`.
+
+### Last week's recap (Home)
+
+`GET /api/recap` (default: the week before the NFL's current one; `app/recap.py`) audits every finished game of a
+week as signal vs noise, from the same nflverse play-by-play pass as the trenches and game model
+(`RecapAccumulator`, cached with the other aggregates). Home shows it as a collapsed card: the teams flagged
+**ascending** (out-played the opponent in the neutral script but lost or lost the bounces) and **fragile**
+(out-played but won, or won with the bounces), each with its opponent and spread this week, and every game's
+audit one tap away.
+
+- **Signal:** early-down success (48%+ is "structurally sound", counted at 10-90% win probability), neutral-script
+  EPA per play and pass rate over expected (20-80% win probability), and the sack-or-QB-hit rate each line gave
+  and took against the league's own rate.
+- **Noise:** turnover margin, fumble recoveries, red-zone touchdown rate (3+ trips), third-and-7+ conversions (4+
+  tries), defensive and special-teams touchdowns, and volume with under 10% win probability.
+- **Not available, and said so in the card:** pass-rush win rate and charted pressure, turnover-worthy plays, route
+  participation / yards per route run, and an expected score. Pressure is a sack or QB hit over dropbacks, not a
+  charted rate.
+- Every threshold is a constant in `app/recap.py`; every sentence is generated from the counts, never from a model.
 
 ### Weekly Pro Picks
 

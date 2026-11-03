@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import PostgameSection from '@/components/breakdown/PostgameSection';
 import TrenchSection from '@/components/breakdown/TrenchSection';
 import UnitMatchups from '@/components/breakdown/UnitMatchups';
 import StatusView from '@/components/StatusView';
@@ -117,9 +118,8 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
   return (
     <View className="detail-panel">
       {gb.postgame?.headline ? (
-        <Section title="Postgame">
-          <Text className="detail-headline">{gb.postgame.headline}</Text>
-          <Bullets items={[...(gb.postgame.result ?? []), ...(gb.postgame.flow ?? [])]} />
+        <Section title="Postgame: how it played out">
+          <PostgameSection pg={gb.postgame} away={g.away} home={g.home} />
         </Section>
       ) : null}
 

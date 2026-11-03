@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import Stat from '@/components/Stat';
 import { UsageTrendArrow, UsageTrendNote } from '@/components/UsageTrend';
 import CornersOutNote from '@/components/CornersOutNote';
 import PlayChanceNote from '@/components/PlayChanceNote';
@@ -41,18 +42,23 @@ export default function DfsPlayerRow({
   const [propsOpen, setPropsOpen] = useState(false);
   const [proOpen, setProOpen] = useState(false);
   const propsLocked = useAccountSync().locked('props');
-  const stats: [DfsMetric | 'own', string][] = [
-    ['final', `${p.final.toFixed(1)} proj`],
-    ['ceiling', p.ceiling != null ? `${p.ceiling.toFixed(1)} ceil` : ''],
-    ['value', p.value != null ? `${p.value.toFixed(2)} pts/$1k` : ''],
-    ['own', p.ownership != null ? `${formatPercent(p.ownership / 100, 1)} own` : ''],
+  const stats: { key: DfsMetric | 'own'; value: string; label: string; term: string }[] = [
+    { key: 'final', value: p.final.toFixed(1), label: 'proj', term: 'projection' },
+    { key: 'ceiling', value: p.ceiling != null ? p.ceiling.toFixed(1) : '', label: 'ceiling', term: 'ceiling' },
+    { key: 'value', value: p.value != null ? p.value.toFixed(2) : '', label: 'pts/$1k', term: 'value' },
+    { key: 'own', value: p.ownership != null ? formatPercent(p.ownership / 100, 1) : '', label: 'own', term: 'ownership' },
   ];
-  const lead = stats.find(([k]) => k === metric);
-  const rest = stats.filter(([k, v]) => k !== metric && v);
+  const lead = stats.find((x) => x.key === metric);
+  const rest = stats.filter((x) => x.key !== metric && x.value);
   const reasons = (p.reasons ?? (p.reason ? [p.reason] : [])).slice(0, showReasons);
+  const hasProps = !!(p.props && Object.keys(p.props).length);
+  const propsAvailable = propsLocked ? PROP_POSITIONS.has(p.position) : hasProps;
+  // Everything past the ranked metric, salary and first reason waits behind one tap.
+  const hasDrawer = rest.length > 0 || reasons.length > 1 || propsAvailable;
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <View className="dfs-row">
+    <View className="dfs-row-clean">
       <View className="dfs-row-main">
         {rank != null ? <Text className="dfs-rank">{rank}</Text> : null}
         <View className="flex-1 pr-2">
@@ -75,42 +81,68 @@ export default function DfsPlayerRow({
         </View>
         <View className="items-end">
           <Text className="dfs-salary">{formatCurrency(p.salary)}</Text>
-          <Text className="dfs-lead">{lead?.[1] || `- ${METRIC_LABEL[metric]}`}</Text>
+          <Text className="t-value" accessibilityLabel={`${METRIC_LABEL[metric]}: ${lead?.value || 'none'}`}>
+            {lead?.value || '-'}
+            <Text className="t-label"> {METRIC_LABEL[metric]}</Text>
+          </Text>
         </View>
       </View>
-      <View className="flex-row items-center justify-between">
-        <Text className="dfs-stats flex-shrink">{rest.map(([, v]) => v).join(' · ')}</Text>
-        {propsLocked && PROP_POSITIONS.has(p.position) ? (
-          <Pressable
-            onPress={() => {
-              track('pro_unlock_tapped', { feature: 'props' });
-              setProOpen(true);
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="Props, a Pro feature"
-            hitSlop={8}>
-            <Text className="link-text mt-1">Props · Pro</Text>
-          </Pressable>
-        ) : p.props && Object.keys(p.props).length ? (
-          <Pressable
-            onPress={() => {
-              if (!propsOpen) track('props_opened', { position: p.position });
-              setPropsOpen((o) => !o);
-            }}
-            accessibilityRole="button"
-            aria-expanded={propsOpen}
-            hitSlop={8}>
-            <Text className="link-text mt-1">{propsOpen ? 'Hide props' : 'Props ›'}</Text>
-          </Pressable>
-        ) : null}
-      </View>
-      {propsOpen && p.props && !propsLocked ? <PropLadder props={p.props} /> : null}
-      {propsLocked ? <ProSheet feature="props" visible={proOpen} onClose={() => setProOpen(false)} /> : null}
-      {reasons.map((r, i) => (
-        <Text key={i} className="dfs-reason">
-          • {r}
+      {reasons[0] ? (
+        <Text className="dfs-reason-line" numberOfLines={1}>
+          {reasons[0]}
         </Text>
-      ))}
+      ) : null}
+      {hasDrawer ? (
+        <Pressable
+          onPress={() => setDrawerOpen((o) => !o)}
+          accessibilityRole="button"
+          aria-expanded={drawerOpen}
+          accessibilityLabel={`${p.name} details, ${drawerOpen ? 'collapse' : 'expand'}`}
+          hitSlop={8}>
+          <Text className="link-text mt-1">{drawerOpen ? 'Hide details' : 'Details ›'}</Text>
+        </Pressable>
+      ) : null}
+      {drawerOpen ? (
+        <View className="dfs-drawer">
+          {rest.length ? (
+            <View className="dfs-drawer-stats">
+              {rest.map((x) => (
+                <Stat key={x.key} value={x.value} label={x.label} term={x.term} />
+              ))}
+            </View>
+          ) : null}
+          {reasons.slice(1).map((r, i) => (
+            <Text key={i} className="dfs-reason">
+              • {r}
+            </Text>
+          ))}
+          {propsLocked && PROP_POSITIONS.has(p.position) ? (
+            <Pressable
+              onPress={() => {
+                track('pro_unlock_tapped', { feature: 'props' });
+                setProOpen(true);
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Props, a Pro feature"
+              hitSlop={8}>
+              <Text className="link-text mt-2">Props · Pro</Text>
+            </Pressable>
+          ) : hasProps ? (
+            <Pressable
+              onPress={() => {
+                if (!propsOpen) track('props_opened', { position: p.position });
+                setPropsOpen((o) => !o);
+              }}
+              accessibilityRole="button"
+              aria-expanded={propsOpen}
+              hitSlop={8}>
+              <Text className="link-text mt-2">{propsOpen ? 'Hide props' : 'Props ›'}</Text>
+            </Pressable>
+          ) : null}
+          {propsOpen && p.props && !propsLocked ? <PropLadder props={p.props} /> : null}
+        </View>
+      ) : null}
+      {propsLocked ? <ProSheet feature="props" visible={proOpen} onClose={() => setProOpen(false)} /> : null}
     </View>
   );
 }

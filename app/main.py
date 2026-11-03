@@ -37,7 +37,7 @@ from app import leverage as leverage_module
 from app import metrics, ownership_persist, ownership_slate, ownership_video
 from app import trenches as trenches_module
 from app import dfs_model
-from app import accounts, contests, guard, matchups, news_overrides, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
+from app import accounts, beat_news, contests, guard, matchups, news_overrides, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
@@ -411,6 +411,23 @@ async def api_slate_optimal(request: Request, slate_id: str, season: Season = DE
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
         raise _upstream_failure("Could not build optimal lineups", exc) from exc
+
+
+@app.get("/api/recap")
+async def api_recap(season: Annotated[int | None, Query(ge=2000, le=2100)] = None, week: Annotated[int | None, Query(ge=1, le=22)] = None):
+    """Last week's recap (app.recap): each finished game's signal vs noise audit. Defaults to the week before the
+    NFL's current one."""
+    from app import recap as recap_module
+    if season is None or week is None:
+        season, current = await current_season_week()
+        week = current - 1
+    if week < 1:
+        return {"season": season, "week": week, "available": False, "games": [], "ascending": [], "fragile": [],
+                "unavailable": recap_module.UNAVAILABLE, "note": "The season hasn't had a finished week yet."}
+    try:
+        return await recap_module.week_recap(season, week)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Could not build the recap: {exc}") from exc
 
 
 @app.get("/api/breakdown/game/{game_id}", response_model=GameDetail)
@@ -1121,6 +1138,46 @@ async def api_news_override_remove(entry_id: str, season: Season = DEFAULT_SEASO
     gone = await news_overrides.remove(season, week, entry_id)
     _news_changed()
     return {"removed": gone}
+
+
+_beat_state: dict[tuple[int, int], dict] = {}
+
+
+async def _week_roster(season: int, week: int) -> list[tuple[str, str, str]]:
+    """(name, team, position) of every player on the week's DraftKings slates."""
+    _schedule, week_slates = await slates.list_slates(season, week)
+    seen: dict[tuple[str, str], tuple[str, str, str]] = {}
+    for s in week_slates:
+        if not s.available:
+            continue
+        try:
+            sp = await slates.get_slate_players(season, week, s.slate_id)
+        except Exception:
+            continue
+        for p in sp.players:
+            seen[(p.team, p.name)] = (p.name, p.team, p.position)
+    return list(seen.values())
+
+
+@app.get("/api/beat-news")
+async def api_beat_news(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
+    """What the tracked beat writers have said about players' availability and roles this week (app.beat_news).
+    Context only: `watch` is which way each player's playing time, and so the field's ownership of him, may move.
+    Feeds are re-read at most every 10 minutes; `failed` names writers whose feed couldn't be read."""
+    writers = beat_news.load_writers()
+    state = _beat_state.setdefault((season, week), {"at": 0.0, "failed": [], "new": 0})
+    if writers and time.time() - state["at"] > beat_news.FEED_TTL:
+        state["at"] = time.time()
+        try:
+            signals, state["failed"] = await beat_news.collect(writers, await _week_roster(season, week), season, week)
+            state["new"] = await asyncio.to_thread(beat_news.save, signals)
+        except Exception as exc:
+            log.warning("beat news refresh failed: %r", exc, exc_info=exc)
+            state["failed"] = ["all (refresh error)"]
+    rows = await asyncio.to_thread(beat_news.load, season, week)
+    return {"season": season, "week": week, "mode": "context", "coverage": beat_news.coverage(writers),
+            "failed": state["failed"], "promoted": sorted("|".join(k) for k in beat_news.promoted()),
+            "watch": beat_news.ownership_watch(rows), "signals": rows[:200]}
 
 
 async def _news_player(season: int, week: int, name: str, team: str) -> tuple[str, str] | None:

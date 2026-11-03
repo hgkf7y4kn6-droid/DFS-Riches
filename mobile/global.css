@@ -78,6 +78,39 @@
    brand marks, bold for titles and key numbers, semibold for names and
    labels, medium for supporting text, regular for long copy. */
 @layer components {
+  /* ------------------------------------------------- type hierarchy
+     Values outrank labels. Color stays neutral unless a real threshold is
+     crossed (injury, stale data, a warning): use text-success / text-warning /
+     text-danger for those only, never to decorate a plain metric. */
+  .t-value-hero {
+    @apply text-3xl font-sans-extrabold text-foreground;
+  }
+  .t-value {
+    @apply text-base font-sans-bold text-foreground;
+  }
+  .t-label {
+    @apply text-xs font-sans-medium text-muted-foreground;
+  }
+  .t-meta {
+    @apply text-[11px] font-sans-regular text-muted-foreground/70;
+  }
+  .stat {
+    @apply min-w-[64px] pr-4;
+  }
+  /* A player row: spacing, not a rule under every row. */
+  .dfs-row-clean {
+    @apply py-3;
+  }
+  .dfs-drawer {
+    @apply mt-2 rounded-lg bg-muted px-3 py-2.5;
+  }
+  .dfs-drawer-stats {
+    @apply flex-row flex-wrap gap-y-2;
+  }
+  .dfs-reason-line {
+    @apply mt-1 text-xs font-sans-regular text-foreground/80;
+  }
+
   /* ------------------------------------------------------------- auth */
   .auth-safe-area {
     @apply flex-1 bg-background;

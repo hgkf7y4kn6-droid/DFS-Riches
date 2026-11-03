@@ -1,0 +1,305 @@
+{
+ "note": "Proposed only. Verify each account before copying it into data/beat_writers.json.",
+ "candidates": [
+  {
+   "name": "Marc Raimondi",
+   "team": "ATL",
+   "bluesky": "marcraimondi.bsky.social",
+   "bio": "Atlanta Falcons beat reporter, ESPN\n\nSay Hello to the Bad Guys author, Simon & Schuster",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/marcraimondi.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Fabienne",
+   "team": "ATL",
+   "bluesky": "thediaryoff.bsky.social",
+   "bio": "\ud83c\udfc8 Come try to catch me on the sidelines \n\ud83d\udc69\ud83c\udffb\u200d\ud83d\udcbb\ud83d\udcac Head of Communications AFLE \n\ud83c\udde9\ud83c\uddeaAtlanta Falcons beat reporter\n\ud83d\udccd040 | 404 \n",
+   "score": 4,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/thediaryoff.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Giana Han",
+   "team": "BAL",
+   "bluesky": "giana-jade.bsky.social",
+   "bio": "Ravens beat reporter for The Baltimore Banner | articles fueled by lattes or bad press box coffee",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/giana-jade.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Joe Buscaglia",
+   "team": "BUF",
+   "bluesky": "joebuscaglia.bsky.social",
+   "bio": "Bills beat reporter for The Athletic. Creator of too many spreadsheets. Husband. Dad. (dog)Dad.",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/joebuscaglia.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Sal Capaccio",
+   "team": "BUF",
+   "bluesky": "salsports.bsky.social",
+   "bio": "Buffalo Bills beat reporter and radio sideline reporter for WGR550. \nFor inquiries: https://salsportsmedia.com",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/salsports.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Matt Parrino",
+   "team": "BUF",
+   "bluesky": "mattparrino.bsky.social",
+   "bio": "Bills beat reporter Syracuse.com \ud83c\udfc8 Host of SHOUT! podcast \ud83c\udf99 | Buffalo Kickoff Live \ud83d\udcfa | UB grad \ud83e\udd18| Past: @UFC \ud83d\udc4a",
+   "score": 4,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/mattparrino.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "cycling-planner.com",
+   "team": "BUF",
+   "bluesky": "cycling-planner.bsky.social",
+   "bio": "Retired geoinformatics engineer. Now I cycle and write code for fun. Built cycling-planner.com after a 21-day tour from Lake Constance to the North Sea \u2014 because four apps are not a solution. Pro plan covers the server bills, nothing more. \ud83d\udeb4",
+   "score": 2,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/cycling-planner.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Sean Hammond",
+   "team": "CHI",
+   "bluesky": "seanhammond.bsky.social",
+   "bio": "Chicago Bears beat reporter for the Chicago Tribune.",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/seanhammond.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Pat Brennan",
+   "team": "CIN",
+   "bluesky": "pbrennanenq.bsky.social",
+   "bio": "Reds & Bengals beat reporter for The Cincinnati Enquirer, coming off a great decade on the soccer/MLS circuit (with some CBB mixed in).",
+   "score": 4,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/pbrennanenq.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Ben Baby",
+   "team": "CIN",
+   "bluesky": "bbaby41.bsky.social",
+   "bio": "Covers the Bengals for ESPN. IG/Threads: @bbaby41\n",
+   "score": 3,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/bbaby41.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Ashley Bastock",
+   "team": "CLE",
+   "bluesky": "ashleybastock42.bsky.social",
+   "bio": "Browns beat reporter for Cleveland.com | Some Cavs too | John Carroll University alum | Human to PaulAnka the bernedoodle | Pilates goer and Peloton rider. | Thinking about The Eras Tour \ud83e\udef6",
+   "score": 4,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/ashleybastock42.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Josh Tolentino",
+   "team": "DAL",
+   "bluesky": "jctsports.bsky.social",
+   "bio": "Dallas Cowboys beat reporter, LoneStarLive.com",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/jctsports.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Parker Gabriel",
+   "team": "DEN",
+   "bluesky": "parkerjgabriel.bsky.social",
+   "bio": "Broncos beat reporter for The Denver Post. \n\nFormerly: USA Today, Lincoln Journal Star, Bozeman Daily Chronicle \n\nWisconsin grad. New Glarus native. ",
+   "score": 8,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/parkerjgabriel.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Zac Stevens",
+   "team": "DEN",
+   "bluesky": "zacstevens.bsky.social",
+   "bio": "Denver Broncos beat reporter for DNVR Broncos @ DNVR Sports \u2014 Colorado guy covering Colorado's team",
+   "score": 6,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/zacstevens.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Cody Roark",
+   "team": "DEN",
+   "bluesky": "codyroarknfl.bsky.social",
+   "bio": "Credentialed Broncos beat reporter for Mile High Sports | Host of Locked On Broncos.",
+   "score": 4,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/codyroarknfl.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Justin Rogers | DFN",
+   "team": "DET",
+   "bluesky": "detroitfootball.net",
+   "bio": "Detroit Lions beat reporter since 2011. Founder of the Detroit Football Network. Formerly MLive and Detroit News.\n\nhttps://allmylinks.com/detroitfootballnetwork",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/detroitfootball.net",
+   "status": "candidate"
+  },
+  {
+   "name": "Jonathan M. Alexander",
+   "team": "HOU",
+   "bluesky": "jonmalexander.bsky.social",
+   "bio": "Houston Texans beat reporter for the Houston Chronicle. \n\nOn a search for the most interesting stories pertaining to the Texans.",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/jonmalexander.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "noahcompton.bsky.social",
+   "team": "IND",
+   "bluesky": "noahcompton.bsky.social",
+   "bio": "Covers the Colts for Stampede Blue & The Blue Stable.",
+   "score": 2,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/noahcompton.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Elliott Teaford",
+   "team": "LAC",
+   "bluesky": "elliottteaford.bsky.social",
+   "bio": "Los Angeles Chargers beat reporter for the OC Register/Southern California News Group. Recovering MLB, NBA, NHL reporter. ",
+   "score": 8,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/elliottteaford.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Matthew Coller",
+   "team": "MIN",
+   "bluesky": "matthewcoller.bsky.social",
+   "bio": "Former AM radio host. Current Vikings beat reporter for Purple Insider. Author: Football is a Numbers Game. Adopt greyhounds.",
+   "score": 7,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/matthewcoller.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Doug Kyed",
+   "team": "NE",
+   "bluesky": "dougkyed.bsky.social",
+   "bio": "Patriots beat reporter at the Boston Herald, Pats Chat Podcast, Olivia and Hallie's \ud83e\udebd dad",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/dougkyed.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Taylor Kyles",
+   "team": "NE",
+   "bluesky": "tkyles39.bsky.social",
+   "bio": "Patriots beat reporter and analyst for @patriotsclns.bsky.social \u2022 @tkyles39 on the other app",
+   "score": 4,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/tkyles39.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Matthew Paras",
+   "team": "NO",
+   "bluesky": "matthewparas.bsky.social",
+   "bio": "New Orleans Saints beat reporter for The Times-Picayune and The Advocate. DePaul alum.",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/matthewparas.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Evan Barnes",
+   "team": "NYG",
+   "bluesky": "evanbarnes.bsky.social",
+   "bio": "NY Giants beat reporter for Newsday. Previous stops: LA Daily News, The Commercial Appeal + more. We\u2019ve moved on up to a new house in the (blue) sky?",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/evanbarnes.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Zach Berman",
+   "team": "PHI",
+   "bluesky": "zberm.bsky.social",
+   "bio": "Senior Writer at The Athletic\nCovers the Eagles and the NFL\nPrev.: PHLY, Inquirer, Star-Ledger, Wash. Post\nAuthor: UNDERDOGS, The Franchise, Leap Year\nAdjunct: Colo. State.\nzberman@theathletic.com",
+   "score": 10,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/zberm.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Olivia Reiner",
+   "team": "PHI",
+   "bluesky": "oliviareiner.bsky.social",
+   "bio": "Eagles beat reporter for The Philadelphia Inquirer",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/oliviareiner.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Brooks Kubena",
+   "team": "PHI",
+   "bluesky": "bkubena.bsky.social",
+   "bio": "Eagles beat reporter for The Athletic",
+   "score": 5,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/bkubena.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "EJ Smith",
+   "team": "PHI",
+   "bluesky": "ej-smith.bsky.social",
+   "bio": "Eagles beat reporter for the AllPHLY. Norristown native and living-room guitarist for my two Rhodesian Ridgebacks.",
+   "score": 4,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/ej-smith.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "Nick Farabaugh ",
+   "team": "PIT",
+   "bluesky": "nickfarabaugh.bsky.social",
+   "bio": "Pittsburgh Steelers beat reporter for PennLive | PFWA Member | Establish the Run",
+   "score": 4,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/nickfarabaugh.bsky.social",
+   "status": "candidate"
+  },
+  {
+   "name": "David Harrison",
+   "team": "WAS",
+   "bluesky": "dwharrison.bsky.social",
+   "bio": "Proud Husband for 21 Years | Retired Army | Host/Producer of Locked On Commanders | Beat Reporter for CommanderGameday On SI | Contributor to WUSA9 | Cronkite Kid",
+   "score": 4,
+   "verified": false,
+   "source_url": "https://bsky.app/profile/dwharrison.bsky.social",
+   "status": "candidate"
+  }
+ ]
+}
