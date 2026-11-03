@@ -8,7 +8,8 @@ spread: if the market already prices who is playing, the slope will be ~0.
 
 LINEUP modes: "known" = the lineup that actually played that game (what the Sunday inactives list would give you, with
 a little hindsight from in-game injuries); "last" = last game's lineup (a no-news proxy); "report" = last 3 games' snap leaders minus players Out/Doubtful on this
-week's injury report (everything known before kickoff, so no hindsight; the one to trust).
+week's injury report (known before kickoff, no hindsight); "active" = the game-day active list (ACT status) plus the report,
+ranked by recent per-game snaps so returning starters are included (known ~90 minutes before kickoff; the version to trust).
 Needs pandas (analysis only). Data: data/cache/train/play_by_play_YYYY.csv.gz, games.csv, snap_counts_YYYY.csv
 (download: https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_YYYY.csv).
     python -m scripts.backtest_context_change
@@ -80,6 +81,41 @@ def reported_out() -> dict:
     return out
 
 
+def active_lists() -> dict:
+    """(season, week, team) -> normalized names with roster status ACT that week (the game-day active list: inactives, IR and
+    practice-squad players are not ACT). Announced ~90 minutes before kickoff."""
+    out = {}
+    for s in SEASONS:
+        f = TRAIN / f"roster_weekly_{s}.csv"
+        if not f.exists():
+            continue
+        d = pd.read_csv(f, usecols=["season", "team", "week", "status", "full_name", "game_type"], low_memory=False)
+        d = d[(d.game_type == "REG") & (d.status == "ACT")]
+        for (w, t), g in d.groupby(["week", "team"]):
+            out[(s, int(w), t)] = {norm(n) for n in g.full_name}
+    return out
+
+
+def active_lineup(lu: dict, outs: dict, actives: dict, season: int, week: int, team: str, unit: str):
+    """Expected lineup from everything known on game day: who is ACTIVE (not inactive/IR) and not Out/Doubtful on the report,
+    ranked by their average snaps in the games they played over the last 6 (so a returning starter counts, a bench player does not)."""
+    act = actives.get((season, week, team))
+    if not act:
+        return None
+    games = [lu[(season, w, team)] for w in range(week - 1, 0, -1) if (season, w, team) in lu][:6]
+    idx = 0 if unit == "off" else 1
+    played: dict[str, list[float]] = {}
+    for g in games:
+        for k, v in g["snaps"].items():
+            if v[idx] > 0:
+                played.setdefault(k, []).append(v[idx])
+    gone = outs.get((season, week, team), set())
+    cand = {k: float(np.mean(v)) for k, v in played.items() if k in act and k not in gone and len(v) >= 2}
+    if len(cand) < 11:
+        return None
+    return set(sorted(cand, key=lambda k: -cand[k])[:11])
+
+
 def pregame_lineup(lu: dict, outs: dict, season: int, week: int, team: str, unit: str):
     """No-hindsight expected lineup: the top 11 by average snaps over the last 3 games, minus anyone Out/Doubtful this week."""
     games = [lu[(season, w, team)] for w in range(week - 1, 0, -1) if (season, w, team) in lu][:3]
@@ -130,14 +166,17 @@ def main() -> None:
     hist = unit_epa()
     lu = lineups()
     outs = reported_out()
+    actives = active_lists()
     games = pd.read_csv(TRAIN / "games.csv")
     games = games[(games.game_type == "REG") & games.season.isin(SEASONS) & (games.week >= MIN_WEEK)].dropna(subset=["total_line", "spread_line", "result"])
     rows = []
-    for mode in ("known", "last", "report"):
+    for mode in ("known", "last", "report", "active"):
         for _, g in games.iterrows():
             eff = {}
             for team, opp in ((g.away_team, g.home_team), (g.home_team, g.away_team)):
                 def target(t, unit):
+                    if mode == "active":
+                        return active_lineup(lu, outs, actives, g.season, g.week, t, unit)
                     if mode == "report":
                         return pregame_lineup(lu, outs, g.season, g.week, t, unit)
                     wk = g.week if mode == "known" else g.week - 1
