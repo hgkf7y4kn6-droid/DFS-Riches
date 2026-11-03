@@ -128,6 +128,21 @@ class TrenchAccumulator:
                      ("explosive", explosive), ("db_epa", (epa or 0.0) if dropback else 0.0),
                      ("rush", not dropback), ("rush_epa", 0.0 if dropback else (epa or 0.0))):
             g[k] = g.get(k, 0.0) + float(v)
+        # Context for the postgame recap: dropbacks per QB (starter availability) and EPA in the
+        # high-leverage spots (3rd/4th down, red zone).
+        if dropback and r.get("passer_player_name"):
+            k = f"qb:{r['passer_player_name']}"
+            if not any(x.startswith("qb:") for x in g):       # play-by-play is chronological: first QB = the starter
+                g[f"qb1:{r['passer_player_name']}"] = 1.0
+            g[k] = g.get(k, 0.0) + 1.0
+        down = nc._to_int(r.get("down"))
+        yardline = _f(r.get("yardline_100"))
+        if down in (3, 4):
+            g["ld"] = g.get("ld", 0.0) + 1.0
+            g["ld_epa"] = g.get("ld_epa", 0.0) + (epa or 0.0)
+        if yardline is not None and yardline <= 20:
+            g["rz"] = g.get("rz", 0.0) + 1.0
+            g["rz_epa"] = g.get("rz_epa", 0.0) + (epa or 0.0)
         if wp is None or not WP_MIN <= wp <= WP_MAX:
             return
         c: dict[str, float] = {"plays": 1, "epa": epa or 0.0, "succ": success}

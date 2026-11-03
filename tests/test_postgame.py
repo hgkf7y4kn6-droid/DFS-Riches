@@ -97,3 +97,24 @@ def test_summarize_handles_unfinished_ties_and_missing_pbp():
     assert not tie["pbp_available"] and tie["note"] and tie["matchups"] == []
     upset = postgame.summarize(_game(30, 10, home_spread=-10), **{**kw, "hist": HIST})
     assert upset["predictability"]["verdict"] in ("Upset", "Mild upset") and upset["predictability"]["winner"] == "AAA"
+
+
+def test_flow_flags_qb_attrition_and_leverage_wins():
+    # AAA loses the efficiency battle by both measures but wins on 3rd/4th down; BBB's QB changed after play 1
+    g = _game(36, 10, home_spread=3.0)            # AAA (away) scores 36 and wins
+    full = {"4|AAA": {"plays": 75, "epa": 2.0, "succ": 37, "db": 30, "db_epa": 1.0, "rush": 45, "rush_epa": 1.0, "sack": 1, "explosive": 7,
+                      "ld": 19, "ld_epa": 2.5, "qb:Allen": 30.0, "qb1:Allen": 1.0},
+            "4|BBB": {"plays": 48, "epa": -24.0, "succ": 16, "db": 30, "db_epa": -20.0, "rush": 18, "rush_epa": -4.0, "sack": 2, "explosive": 2,
+                      "ld": 14, "ld_epa": -15.0, "qb:Starter": 1.0, "qb1:Starter": 1.0, "qb:Backup1": 5.0, "qb:Third": 24.0}}
+    away_s, home_s = (postgame._team_game(full["4|AAA"], None), postgame._team_game(full["4|BBB"], None))
+    flow = postgame._flow(g, away_s, home_s)
+    assert any("BBB played most of the game with a backup QB" in l and "Third 24 dropbacks" in l for l in flow)
+    assert not any(l.startswith("AAA played most") for l in flow)
+    assert any("3rd/4th-down EPA" in l for l in flow)
+
+
+def test_qb_note_ignores_a_starter_who_kept_the_job_and_tiny_samples():
+    kept = {"qb_dropbacks": {"Starter": 30, "Backup": 3}, "qb_first": "Starter"}
+    assert postgame._qb_note("AAA", kept) is None
+    assert postgame._qb_note("AAA", {"qb_dropbacks": {"A": 4, "B": 5}, "qb_first": "A"}) is None
+    assert postgame._qb_note("AAA", None) is None

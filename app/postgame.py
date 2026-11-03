@@ -208,7 +208,31 @@ def _team_game(counts: dict | None, box: dict | None) -> dict | None:
         "sacks_taken": int(c["sack"]) if plays else (int(b["sacks_taken"]) if b.get("sacks_taken") is not None else None),
         "turnovers": int(b["giveaways"]) if b.get("giveaways") is not None else None,
         "yards_per_play": b.get("yards_per_play"),
+        # High-leverage EPA (3rd/4th down, red zone). None for aggregates cached before these were counted.
+        "late_down_epa": round(c["ld_epa"] / c["ld"], 3) if c.get("ld") else None,
+        "red_zone_epa": round(c["rz_epa"] / c["rz"], 3) if c.get("rz") else None,
+        "qb_dropbacks": {k[3:]: int(v) for k, v in c.items() if k.startswith("qb:")},
+        "qb_first": next((k[4:] for k in c if k.startswith("qb1:")), None),
     }
+
+
+STARTER_SHARE = 0.6     # the QB with less of the dropbacks than this means the game was played by backups
+MIN_DROPBACKS = 10
+
+
+def _qb_note(team: str, s: dict | None) -> str | None:
+    """Flag a team whose QB changed mid-game (injury or benching): it reshapes the game for both sides."""
+    qbs = (s or {}).get("qb_dropbacks") or {}
+    total = sum(qbs.values())
+    first = (s or {}).get("qb_first")
+    if len(qbs) < 2 or total < MIN_DROPBACKS or first not in qbs:
+        return None
+    if qbs[first] / total >= STARTER_SHARE:        # the QB who opened the game (the starter) kept the job
+        return None
+    ranked = sorted(qbs.items(), key=lambda kv: -kv[1])
+    split = ", ".join(f"{name} {n} dropbacks" for name, n in ranked)
+    return (f"{team} played most of the game with a backup QB ({split}); efficiency and the scoreboard "
+            f"reflect that, and the opponent could play conservatively on both sides of the ball.")
 
 
 def matchup_review(tw: dict | None, competitive: dict | None, offense: str, defense: str) -> list[dict]:
@@ -255,6 +279,17 @@ def matchup_review(tw: dict | None, competitive: dict | None, offense: str, defe
     return out
 
 
+LEVERAGE_GAP = 0.3      # EPA/play the winner must beat the loser by in 3rd/4th down for it to count as a reason
+
+
+def _leverage_edge(winner: str, ws: dict, loser: str, ls: dict) -> str | None:
+    """The winner converted the high-leverage downs better even if the volume numbers say otherwise."""
+    w, l = ws.get("late_down_epa"), ls.get("late_down_epa")
+    if w is None or l is None or w - l < LEVERAGE_GAP:
+        return None
+    return f"3rd/4th-down EPA ({winner} {_signed(w)}, {loser} {_signed(l)})"
+
+
 def _flow(game, away_s: dict | None, home_s: dict | None) -> list[str]:
     ctx = game.context
     a, h = game.away, game.home
@@ -267,8 +302,13 @@ def _flow(game, away_s: dict | None, home_s: dict | None) -> list[str]:
         return lines
     ws, ls = (away_s, home_s) if winner == a else (home_s, away_s)
     loser = h if winner == a else a
+    # QB attrition first: a team playing its 2nd/3rd-string QB changes how both sides play.
+    lines.extend(n for n in (_qb_note(a, away_s), _qb_note(h, home_s)) if n)
     if winner and ws.get("success") is not None and ls.get("success") is not None:
         why = []
+        lev = _leverage_edge(winner, ws, loser, ls)
+        if lev:
+            why.append(lev)
         if (ws.get("turnovers") or 0) < (ls.get("turnovers") or 0):
             why.append(f"turnovers ({loser} {ls['turnovers']}, {winner} {ws['turnovers']})")
         if (ws.get("explosive") or 0) > (ls.get("explosive") or 0):
