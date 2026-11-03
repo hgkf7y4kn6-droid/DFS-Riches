@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import TrendChips from '@/components/TrendChips';
 
-import { atsCell, finalCell, impliedCell, paceCell, spreadCell, totalCell, totalResultCell, weatherText, type Cell } from '@/lib/lines';
+import { LINES_LEGEND, atsCell, finalCell, impliedCell, paceCell, spreadCell, totalCell, totalResultCell, weatherText, type Cell } from '@/lib/lines';
 
 const TONE_CLASS: Record<string, string> = {
   positive: 'text-positive',
@@ -59,7 +59,8 @@ function GameLines({ game }: { game: Game }) {
         <LinesCell label="Vs total" cell={totalResultCell(game)} detail={open} />
         {open ? <LinesCell label="Pace vs baseline (plays)" cell={paceCell(game)} wide detail /> : null}
       </View>
-      <Text className="upcoming-expand-hint mt-1">{open ? 'Less ▲' : 'Recent form and pace ▼'}</Text>
+      {open ? <Text className="lines-sub mt-1">{LINES_LEGEND}</Text> : null}
+      <Text className="upcoming-expand-hint mt-1">{open ? 'Less ▲' : 'Line history, results and pace ▼'}</Text>
     </Pressable>
   );
 }

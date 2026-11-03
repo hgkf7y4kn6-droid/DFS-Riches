@@ -1,0 +1,121 @@
+{
+ "seasons": [
+  2014,
+  2019
+ ],
+ "games": 1415,
+ "spread": {
+  "n": 1415,
+  "buckets": {
+   "0.5-1": {
+    "n": 669,
+    "move_follows_pct": 47.7,
+    "n_decided": 644,
+    "lands_between_pct": 6.9,
+    "mean_miss_close": 9.81,
+    "sd_res_minus_close": 12.9,
+    "slope_res_open_on_move": 1.42
+   },
+   "2.5+": {
+    "n": 209,
+    "move_follows_pct": 46.6,
+    "n_decided": 206,
+    "lands_between_pct": 12.9,
+    "mean_miss_close": 9.86,
+    "sd_res_minus_close": 12.57,
+    "slope_res_open_on_move": 0.49
+   },
+   "0": {
+    "n": 272,
+    "move_follows_pct": null,
+    "n_decided": 0,
+    "lands_between_pct": null,
+    "mean_miss_close": 10.34,
+    "sd_res_minus_close": 13.4,
+    "slope_res_open_on_move": null
+   },
+   "1.5-2": {
+    "n": 265,
+    "move_follows_pct": 51.3,
+    "n_decided": 261,
+    "lands_between_pct": 6.0,
+    "mean_miss_close": 10.68,
+    "sd_res_minus_close": 13.47,
+    "slope_res_open_on_move": 1.4
+   }
+  },
+  "overall_slope_res_open_on_move": 0.84,
+  "overall_corr_res_close_vs_move": -0.023,
+  "variance": {
+   "no_move_no_range": {
+    "n": 47,
+    "sd_res_minus_close": 13.89
+   },
+   "no_net_move_but_wiggled": {
+    "n": 51,
+    "sd_res_minus_close": 13.41
+   },
+   "moved_2_plus": {
+    "n": 322,
+    "sd_res_minus_close": 12.89
+   }
+  }
+ },
+ "total": {
+  "n": 1415,
+  "buckets": {
+   "0": {
+    "n": 185,
+    "move_follows_pct": null,
+    "n_decided": 0,
+    "lands_between_pct": null,
+    "mean_miss_close": 10.98,
+    "sd_res_minus_close": 13.66,
+    "slope_res_open_on_move": null
+   },
+   "2.5+": {
+    "n": 210,
+    "move_follows_pct": 53.1,
+    "n_decided": 207,
+    "lands_between_pct": 9.5,
+    "mean_miss_close": 10.9,
+    "sd_res_minus_close": 13.96,
+    "slope_res_open_on_move": 1.22
+   },
+   "0.5-1": {
+    "n": 633,
+    "move_follows_pct": 51.2,
+    "n_decided": 625,
+    "lands_between_pct": 3.3,
+    "mean_miss_close": 10.95,
+    "sd_res_minus_close": 13.52,
+    "slope_res_open_on_move": 1.23
+   },
+   "1.5-2": {
+    "n": 387,
+    "move_follows_pct": 48.4,
+    "n_decided": 386,
+    "lands_between_pct": 7.2,
+    "mean_miss_close": 9.77,
+    "sd_res_minus_close": 12.37,
+    "slope_res_open_on_move": 0.89
+   }
+  },
+  "overall_slope_res_open_on_move": 1.18,
+  "overall_corr_res_close_vs_move": 0.023,
+  "variance": {
+   "no_move_no_range": {
+    "n": 13,
+    "sd_res_minus_close": 14.94
+   },
+   "no_net_move_but_wiggled": {
+    "n": 23,
+    "sd_res_minus_close": 16.77
+   },
+   "moved_2_plus": {
+    "n": 352,
+    "sd_res_minus_close": 13.53
+   }
+  }
+ }
+}

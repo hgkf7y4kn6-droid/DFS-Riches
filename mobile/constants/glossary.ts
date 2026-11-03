@@ -240,7 +240,8 @@ export const GLOSSARY: GlossaryEntry[] = [
     id: 'trailing',
     term: 'L3 / L6 / L9',
     match: ['L3', 'L6', 'L9'],
-    definition: "A team's average over its last 3, 6 or 9 games, colored against its baseline.",
+    definition:
+      "A team's average over its last 3, 6 or 9 games, colored against its baseline. On the Lines card, \"line\" chips average the closing betting line (not results) and \"actual\" chips average what the team really scored or won by; both are colored against this week's number.",
   },
   {
     id: 'pace',

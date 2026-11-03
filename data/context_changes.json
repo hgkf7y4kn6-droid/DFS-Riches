@@ -1,0 +1,5 @@
+{
+  "_about": "Manual log of changes the free nflverse data cannot see (play-caller changes, trades, coaching changes). Not yet read by the app; scripts/backtest_context_change.py will use it once there is history to test. Add entries as {\"team\", \"season\", \"effective_week\", \"type\", \"note\"}; effective_week is the first game affected.",
+  "_types": ["playcaller", "trade_in", "trade_out", "head_coach", "other"],
+  "changes": []
+}

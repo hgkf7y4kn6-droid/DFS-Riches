@@ -113,6 +113,11 @@ interface GameContext {
   home_total_trend: TeamTrend | null;
   away_implied_total_trend: TeamTrend | null;
   home_implied_total_trend: TeamTrend | null;
+  /** What each team actually scored / allowed over its recent games (results, not market lines). */
+  away_points_for_trend?: TeamTrend | null;
+  home_points_for_trend?: TeamTrend | null;
+  away_points_against_trend?: TeamTrend | null;
+  home_points_against_trend?: TeamTrend | null;
   is_final: boolean;
   away_score: number | null;
   home_score: number | null;

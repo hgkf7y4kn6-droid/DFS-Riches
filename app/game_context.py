@@ -96,6 +96,10 @@ async def _build_context(game: Game, line_row: dict | None, team_trends: dict) -
         home_total_trend=TeamTrend(**team_trends["home"]["total"]),
         away_implied_total_trend=TeamTrend(**team_trends["away"]["implied_total"]),
         home_implied_total_trend=TeamTrend(**team_trends["home"]["implied_total"]),
+        away_points_for_trend=TeamTrend(**team_trends["away"].get("points_for", {})),
+        home_points_for_trend=TeamTrend(**team_trends["home"].get("points_for", {})),
+        away_points_against_trend=TeamTrend(**team_trends["away"].get("points_against", {})),
+        home_points_against_trend=TeamTrend(**team_trends["home"].get("points_against", {})),
         is_final=is_final,
         away_score=away_score,
         home_score=home_score,
@@ -112,7 +116,7 @@ async def _actual_plays(season: int, week: int, team: str) -> float | None:
 
 
 def _team_trends_for_game(index: dict, game: Game) -> dict:
-    metrics = ("spread", "total", "implied_total", "plays")
+    metrics = ("spread", "total", "implied_total", "plays", "points_for", "points_against")
     return {
         side: {
             metric: nflverse_client.team_trend(index, team, metric, game.season, game.week)

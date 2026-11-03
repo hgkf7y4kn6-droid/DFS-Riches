@@ -74,7 +74,7 @@ from app.models import Game
 def _context(spread_line, total_line, away_score, home_score, final=True):
     game = Game(game_id="g", season=2026, week=1, away="AWY", home="HME", kickoff_utc=datetime(2026, 9, 13, 17, tzinfo=timezone.utc),
                 kickoff_et="Sun", day_part="SUN_EARLY")
-    trends = {side: {m: {} for m in ("spread", "total", "implied_total", "plays")} for side in ("away", "home")}
+    trends = {side: {m: {} for m in ("spread", "total", "implied_total", "plays", "points_for", "points_against")} for side in ("away", "home")}
     row = {"spread_line": spread_line, "total_line": total_line, "is_final": final, "away_score": away_score, "home_score": home_score}
 
     async def no_plays(*args, **kwargs):

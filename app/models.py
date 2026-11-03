@@ -41,6 +41,11 @@ class GameContext(BaseModel):
     home_total_trend: TeamTrend | None = None
     away_implied_total_trend: TeamTrend | None = None  # trailing avg of away team's own implied total
     home_implied_total_trend: TeamTrend | None = None
+    # What actually happened in each team's recent games (not market lines): trailing avg points scored / allowed.
+    away_points_for_trend: TeamTrend | None = None
+    home_points_for_trend: TeamTrend | None = None
+    away_points_against_trend: TeamTrend | None = None
+    home_points_against_trend: TeamTrend | None = None
 
     is_final: bool = False
     away_score: int | None = None
