@@ -1,5 +1,18 @@
 {
-  "_about": "Manual log of changes the free nflverse data cannot see (play-caller changes, trades, coaching changes). Not yet read by the app; scripts/backtest_context_change.py will use it once there is history to test. Add entries as {\"team\", \"season\", \"effective_week\", \"type\", \"note\"}; effective_week is the first game affected.",
-  "_types": ["playcaller", "trade_in", "trade_out", "head_coach", "other"],
-  "changes": []
+  "_about": "Manual log of changes the free nflverse data cannot see (play-caller changes, trades, coaching and front-office changes). Not yet read by the app; scripts/backtest_context_change.py will use it once there is history to test. Entries: {team, season, effective_week, type, note, source}. effective_week is the first game affected. 'source' says who supplied it; schedule-derived dates were checked against games.csv.",
+  "_types": ["playcaller", "trade_in", "trade_out", "head_coach", "coordinator", "front_office", "other"],
+  "changes": [
+    {"team": "DEN", "season": 2026, "effective_week": 5, "type": "playcaller",
+     "note": "Sean Payton took back offensive play-calling from OC Davis Webb (decided Mon 10/5, announced Thu 10/8); first game Week 5 at LAC (W 23-17, 10/11).",
+     "source": "user-provided; week 5 date and result match games.csv"},
+    {"team": "CAR", "season": 2026, "effective_week": 9, "type": "coordinator",
+     "note": "DC Ejiro Evero and defensive passing game coordinator Jonathan Cooley fired after the Week 8 loss at GB; DL coach Todd Wash is interim DC; DeAngelo Hall added as CBs coach.",
+     "source": "user-provided; Week 8 loss at GB (19-27) matches games.csv"},
+    {"team": "NO", "season": 2026, "effective_week": 9, "type": "coordinator",
+     "note": "Run game coordinator T.J. Paganetti fired after the Week 8 bye (18 rushing yards on 17 carries vs PIT in Paris).",
+     "source": "user-provided; Week 8 bye matches games.csv"},
+    {"team": "IND", "season": 2026, "effective_week": 7, "type": "front_office",
+     "note": "GM Chris Ballard fired 10/19 after a 2-4 start and a loss to TEN; HC Shane Steichen retained for now.",
+     "source": "user-provided; 2-4 record and loss to TEN match games.csv"}
+  ]
 }
