@@ -249,6 +249,14 @@
         "SUN_MORNING": {
           "draft_group_id": 156001,
           "label": "Showdown - Sun Morning (CIN @ ATL)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 156014,
+          "label": "Showdown - Mon Night (BUF @ MIN)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 156013,
+          "label": "Showdown - Sun Night (TB @ CHI)"
         }
       }
     }
