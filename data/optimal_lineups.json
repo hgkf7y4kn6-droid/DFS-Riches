@@ -13478,7 +13478,7 @@
     },
     "9": {
       "classic_sunday": {
-        "saved_at": "2026-11-05T23:53:18+00:00",
+        "saved_at": "2026-11-06T12:17:37+00:00",
         "draft_group_id": 155994,
         "lineups": [
           {
@@ -13541,8 +13541,8 @@
                 "opponent": "WAS",
                 "roster_slot": "",
                 "salary": 8800,
-                "proj_points": 23.98,
-                "ceiling": 37.0,
+                "proj_points": 23.65,
+                "ceiling": 36.6,
                 "sleeper_proj": 23.25,
                 "game_info": "LAR @ WAS",
                 "injury": "Healthy",
@@ -13631,8 +13631,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 145.32,
-            "ceiling": 222.9
+            "proj_points": 144.99,
+            "ceiling": 222.5
           },
           {
             "metric": "tournament",
@@ -13678,9 +13678,9 @@
                 "opponent": "CAR",
                 "roster_slot": "",
                 "salary": 5300,
-                "proj_points": 15.05,
-                "ceiling": 23.7,
-                "sleeper_proj": 14.43,
+                "proj_points": 15.16,
+                "ceiling": 23.9,
+                "sleeper_proj": 14.53,
                 "game_info": "DEN @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758413,
@@ -13694,8 +13694,8 @@
                 "opponent": "WAS",
                 "roster_slot": "",
                 "salary": 8800,
-                "proj_points": 23.98,
-                "ceiling": 37.0,
+                "proj_points": 23.65,
+                "ceiling": 36.6,
                 "sleeper_proj": 23.25,
                 "game_info": "LAR @ WAS",
                 "injury": "Healthy",
@@ -13784,13 +13784,13 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 140.85,
-            "ceiling": 219.5
+            "proj_points": 140.63,
+            "ceiling": 219.3
           }
         ]
       },
       "classic": {
-        "saved_at": "2026-11-05T23:53:27+00:00",
+        "saved_at": "2026-11-06T12:17:47+00:00",
         "draft_group_id": 155993,
         "lineups": [
           {
@@ -13917,9 +13917,9 @@
                 "opponent": "CAR",
                 "roster_slot": "",
                 "salary": 5300,
-                "proj_points": 15.05,
-                "ceiling": 23.7,
-                "sleeper_proj": 14.43,
+                "proj_points": 15.16,
+                "ceiling": 23.9,
+                "sleeper_proj": 14.53,
                 "game_info": "DEN @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762028,
@@ -13943,8 +13943,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 146.77,
-            "ceiling": 229.6
+            "proj_points": 146.88,
+            "ceiling": 229.8
           },
           {
             "metric": "tournament",
@@ -13990,9 +13990,9 @@
                 "opponent": "CAR",
                 "roster_slot": "",
                 "salary": 5300,
-                "proj_points": 15.05,
-                "ceiling": 23.7,
-                "sleeper_proj": 14.43,
+                "proj_points": 15.16,
+                "ceiling": 23.9,
+                "sleeper_proj": 14.53,
                 "game_info": "DEN @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762028,
@@ -14096,8 +14096,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 145.46,
-            "ceiling": 226.6
+            "proj_points": 145.57,
+            "ceiling": 226.8
           }
         ]
       },
@@ -14123,7 +14123,8 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763320,
-                "dk_fppg": 20.7
+                "dk_fppg": 20.7,
+                "actual": 20.37
               },
               {
                 "slot": "FLEX",
@@ -14139,7 +14140,8 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763269,
-                "dk_fppg": 18.7
+                "dk_fppg": 18.7,
+                "actual": 5.3
               },
               {
                 "slot": "FLEX",
@@ -14155,7 +14157,8 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763272,
-                "dk_fppg": 14.1
+                "dk_fppg": 14.1,
+                "actual": 14.1
               },
               {
                 "slot": "FLEX",
@@ -14171,7 +14174,8 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763283,
-                "dk_fppg": 8.9
+                "dk_fppg": 8.9,
+                "actual": 11.0
               },
               {
                 "slot": "FLEX",
@@ -14187,7 +14191,8 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763284,
-                "dk_fppg": 9.0
+                "dk_fppg": 9.0,
+                "actual": 17.0
               },
               {
                 "slot": "FLEX",
@@ -14203,12 +14208,14 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763292,
-                "dk_fppg": 4.0
+                "dk_fppg": 4.0,
+                "actual": 1.0
               }
             ],
             "salary": 49900,
             "proj_points": 80.03,
-            "ceiling": 128.4
+            "ceiling": 128.4,
+            "actual": 68.77
           },
           {
             "metric": "ceiling",
@@ -14228,7 +14235,8 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763320,
-                "dk_fppg": 20.7
+                "dk_fppg": 20.7,
+                "actual": 20.37
               },
               {
                 "slot": "FLEX",
@@ -14244,7 +14252,8 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763271,
-                "dk_fppg": 17.3
+                "dk_fppg": 17.3,
+                "actual": 8.9
               },
               {
                 "slot": "FLEX",
@@ -14260,7 +14269,8 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763272,
-                "dk_fppg": 14.1
+                "dk_fppg": 14.1,
+                "actual": 14.1
               },
               {
                 "slot": "FLEX",
@@ -14276,7 +14286,8 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763283,
-                "dk_fppg": 8.9
+                "dk_fppg": 8.9,
+                "actual": 11.0
               },
               {
                 "slot": "FLEX",
@@ -14292,7 +14303,8 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763284,
-                "dk_fppg": 9.0
+                "dk_fppg": 9.0,
+                "actual": 17.0
               },
               {
                 "slot": "FLEX",
@@ -14308,14 +14320,100 @@
                 "game_info": "JAX @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763291,
-                "dk_fppg": 5.4
+                "dk_fppg": 5.4,
+                "actual": 18.2
               }
             ],
             "salary": 49500,
             "proj_points": 79.61,
-            "ceiling": 133.4
+            "ceiling": 133.4,
+            "actual": 89.57
           }
-        ]
+        ],
+        "hindsight": {
+          "metric": "actual",
+          "label": "Best possible (actual)",
+          "players": [
+            {
+              "slot": "CPT",
+              "name": "Justice Hill",
+              "position": "RB",
+              "team": "BAL",
+              "opponent": "JAX",
+              "roster_slot": "CPT",
+              "salary": 4800,
+              "game_info": "JAX @ BAL",
+              "dk_draftable_id": 44763343,
+              "actual": 27.3
+            },
+            {
+              "slot": "FLEX",
+              "name": "Trevor Lawrence",
+              "position": "QB",
+              "team": "JAX",
+              "opponent": "BAL",
+              "roster_slot": "FLEX",
+              "salary": 10600,
+              "game_info": "JAX @ BAL",
+              "dk_draftable_id": 44763268,
+              "actual": 13.58
+            },
+            {
+              "slot": "FLEX",
+              "name": "Parker Washington",
+              "position": "WR",
+              "team": "JAX",
+              "opponent": "BAL",
+              "roster_slot": "FLEX",
+              "salary": 9400,
+              "game_info": "JAX @ BAL",
+              "dk_draftable_id": 44763272,
+              "actual": 14.1
+            },
+            {
+              "slot": "FLEX",
+              "name": "Jaguars",
+              "position": "DST",
+              "team": "JAX",
+              "opponent": "BAL",
+              "roster_slot": "FLEX",
+              "salary": 5800,
+              "game_info": "JAX @ BAL",
+              "dk_draftable_id": 44763283,
+              "actual": 11.0
+            },
+            {
+              "slot": "FLEX",
+              "name": "Cam Little",
+              "position": "K",
+              "team": "JAX",
+              "opponent": "BAL",
+              "roster_slot": "FLEX",
+              "salary": 5400,
+              "game_info": "JAX @ BAL",
+              "dk_draftable_id": 44763284,
+              "actual": 17.0
+            },
+            {
+              "slot": "FLEX",
+              "name": "Chris Rodriguez Jr.",
+              "position": "RB",
+              "team": "JAX",
+              "opponent": "BAL",
+              "roster_slot": "FLEX",
+              "salary": 3400,
+              "game_info": "JAX @ BAL",
+              "dk_draftable_id": 44763290,
+              "actual": 11.2
+            }
+          ],
+          "salary": 39400,
+          "actual": 94.18,
+          "no_box_score": [
+            "Tyler Loop"
+          ]
+        },
+        "results_at": "2026-11-06T12:17:49+00:00"
       },
       "showdown_sun_morning": {
         "saved_at": "2026-11-05T23:53:28+00:00",
