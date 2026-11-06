@@ -35,7 +35,7 @@ export default function SubmissionForm({ slateId, lineup, onDone }: { slateId?: 
   const submit = () => {
     const chosen = slates.find((s) => s.slate_id === slate);
     if (!season || !week || !chosen) return setError('Pick a slate.');
-    if (feeValue == null || feeValue <= 0) return setError('Enter the entry fee, e.g. 5 or 3.00.');
+    if (feeValue == null) return setError('Enter the entry fee, e.g. 5, 3.00 or 0 for a free contest.');
     if (!Number.isInteger(entriesValue) || entriesValue < 1 || entriesValue > 150) return setError('Entries must be a whole number from 1 to 150.');
     const won = winnings.trim() ? parseMoney(winnings) : null;
     if (winnings.trim() && won == null) return setError('Winnings must be a dollar amount, or blank if pending.');
@@ -103,7 +103,7 @@ export default function SubmissionForm({ slateId, lineup, onDone }: { slateId?: 
       <View className="input-row">
         <View className="input-field-half">
           <Text className="input-label">Entry fee</Text>
-          <TextInput className="input" value={fee} onChangeText={setFee} placeholder="$5.00" keyboardType="decimal-pad" placeholderTextColor={colors.mutedForeground} />
+          <TextInput className="input" value={fee} onChangeText={setFee} placeholder="$5.00 (0 for free)" keyboardType="decimal-pad" placeholderTextColor={colors.mutedForeground} />
         </View>
         <View className="input-field-half">
           <Text className="input-label">Entries</Text>
