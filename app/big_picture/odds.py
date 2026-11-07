@@ -317,7 +317,14 @@ async def snapshot_via_runner(site: str) -> dict:
     """When the site's server can't read DraftKings, fetch it from here (a GitHub Actions runner) and store
     the week's changed quotes in the same database. Returns the capture status (no odds are printed)."""
     async with httpx.AsyncClient(timeout=120) as client:
-        info = (await client.get(f"{site}/api/odds", params={"summary": 1})).json()
+        resp = await client.get(f"{site}/api/odds", params={"summary": 1})
+        try:
+            info = resp.json()
+        except ValueError:
+            # Say what came back (e.g. a Cloudflare challenge page) instead of a bare JSONDecodeError.
+            raise SystemExit(f"{site}/api/odds returned HTTP {resp.status_code} "
+                             f"({resp.headers.get('content-type', 'no content-type')}, server "
+                             f"{resp.headers.get('server', '?')}), not JSON: {resp.text[:300]!r}")
         season, week = info["season"], info["week"]
         if info.get("status") == "ok":
             return {"via": "site", **info}
