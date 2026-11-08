@@ -13805,7 +13805,7 @@
         ]
       },
       "classic": {
-        "saved_at": "2026-11-08T19:43:39+00:00",
+        "saved_at": "2026-11-08T23:59:01+00:00",
         "draft_group_id": 155993,
         "lineups": [
           {
@@ -13826,7 +13826,8 @@
                 "game_info": "ARI @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44761950,
-                "dk_fppg": 17.1
+                "dk_fppg": 17.1,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -13859,7 +13860,8 @@
                 "game_info": "LV @ SF",
                 "injury": "Healthy",
                 "dk_draftable_id": 44761970,
-                "dk_fppg": 20.7
+                "dk_fppg": 20.7,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -13959,7 +13961,8 @@
                 "game_info": "ARI @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763267,
-                "dk_fppg": 3.4
+                "dk_fppg": 3.4,
+                "locked": true
               }
             ],
             "salary": 50000,
@@ -14001,7 +14004,8 @@
                 "game_info": "LV @ SF",
                 "injury": "Healthy",
                 "dk_draftable_id": 44761970,
-                "dk_fppg": 20.7
+                "dk_fppg": 20.7,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -14465,7 +14469,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785613,
-                "dk_fppg": 14.8
+                "dk_fppg": 14.8,
+                "actual": 21.72
               },
               {
                 "slot": "FLEX",
@@ -14481,7 +14486,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785554,
-                "dk_fppg": 19.9
+                "dk_fppg": 19.9,
+                "actual": 29.7
               },
               {
                 "slot": "FLEX",
@@ -14497,7 +14503,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785556,
-                "dk_fppg": 26.1
+                "dk_fppg": 26.1,
+                "actual": 29.54
               },
               {
                 "slot": "FLEX",
@@ -14513,7 +14520,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785559,
-                "dk_fppg": 14.5
+                "dk_fppg": 14.5,
+                "actual": 11.8
               },
               {
                 "slot": "FLEX",
@@ -14529,7 +14537,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785571,
-                "dk_fppg": 7.5
+                "dk_fppg": 7.5,
+                "actual": 3.6
               },
               {
                 "slot": "FLEX",
@@ -14545,12 +14554,14 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785582,
-                "dk_fppg": 2.8
+                "dk_fppg": 2.8,
+                "actual": 0.0
               }
             ],
             "salary": 49800,
             "proj_points": 105.93,
-            "ceiling": 164.5
+            "ceiling": 164.5,
+            "actual": 96.36
           },
           {
             "metric": "ceiling",
@@ -14570,7 +14581,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785612,
-                "dk_fppg": 14.5
+                "dk_fppg": 14.5,
+                "actual": 17.7
               },
               {
                 "slot": "FLEX",
@@ -14586,7 +14598,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785554,
-                "dk_fppg": 19.9
+                "dk_fppg": 19.9,
+                "actual": 29.7
               },
               {
                 "slot": "FLEX",
@@ -14602,7 +14615,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785556,
-                "dk_fppg": 26.1
+                "dk_fppg": 26.1,
+                "actual": 29.54
               },
               {
                 "slot": "FLEX",
@@ -14618,7 +14632,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785560,
-                "dk_fppg": 14.8
+                "dk_fppg": 14.8,
+                "actual": 14.48
               },
               {
                 "slot": "FLEX",
@@ -14634,7 +14649,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785571,
-                "dk_fppg": 7.5
+                "dk_fppg": 7.5,
+                "actual": 3.6
               },
               {
                 "slot": "FLEX",
@@ -14650,14 +14666,98 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44785582,
-                "dk_fppg": 2.8
+                "dk_fppg": 2.8,
+                "actual": 0.0
               }
             ],
             "salary": 49900,
             "proj_points": 105.47,
-            "ceiling": 165.9
+            "ceiling": 165.9,
+            "actual": 95.02
           }
-        ]
+        ],
+        "hindsight": {
+          "metric": "actual",
+          "label": "Best possible (actual)",
+          "players": [
+            {
+              "slot": "CPT",
+              "name": "Ja'Marr Chase",
+              "position": "WR",
+              "team": "CIN",
+              "opponent": "ATL",
+              "roster_slot": "CPT",
+              "salary": 16200,
+              "game_info": "CIN @ ATL",
+              "dk_draftable_id": 44785608,
+              "actual": 51.75
+            },
+            {
+              "slot": "FLEX",
+              "name": "Bijan Robinson",
+              "position": "RB",
+              "team": "ATL",
+              "opponent": "CIN",
+              "roster_slot": "FLEX",
+              "salary": 11200,
+              "game_info": "CIN @ ATL",
+              "dk_draftable_id": 44785554,
+              "actual": 29.7
+            },
+            {
+              "slot": "FLEX",
+              "name": "Joe Burrow",
+              "position": "QB",
+              "team": "CIN",
+              "opponent": "ATL",
+              "roster_slot": "FLEX",
+              "salary": 10400,
+              "game_info": "CIN @ ATL",
+              "dk_draftable_id": 44785556,
+              "actual": 29.54
+            },
+            {
+              "slot": "FLEX",
+              "name": "Michael Penix Jr.",
+              "position": "QB",
+              "team": "ATL",
+              "opponent": "CIN",
+              "roster_slot": "FLEX",
+              "salary": 8800,
+              "game_info": "CIN @ ATL",
+              "dk_draftable_id": 44785560,
+              "actual": 14.48
+            },
+            {
+              "slot": "FLEX",
+              "name": "Dohnte Meyers",
+              "position": "WR",
+              "team": "CIN",
+              "opponent": "ATL",
+              "roster_slot": "FLEX",
+              "salary": 3000,
+              "game_info": "CIN @ ATL",
+              "dk_draftable_id": 44785577,
+              "actual": 8.3
+            },
+            {
+              "slot": "FLEX",
+              "name": "Charlie Woerner",
+              "position": "TE",
+              "team": "ATL",
+              "opponent": "CIN",
+              "roster_slot": "FLEX",
+              "salary": 400,
+              "game_info": "CIN @ ATL",
+              "dk_draftable_id": 44785588,
+              "actual": 7.1
+            }
+          ],
+          "salary": 50000,
+          "actual": 140.87,
+          "no_box_score": []
+        },
+        "results_at": "2026-11-08T23:59:11+00:00"
       },
       "showdown_sun_night": {
         "saved_at": "2026-11-08T16:38:10+00:00",
