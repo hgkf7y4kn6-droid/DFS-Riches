@@ -13478,7 +13478,7 @@
     },
     "9": {
       "classic_sunday": {
-        "saved_at": "2026-11-08T13:11:10+00:00",
+        "saved_at": "2026-11-08T16:38:00+00:00",
         "draft_group_id": 155994,
         "lineups": [
           {
@@ -13493,9 +13493,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 4000,
-                "proj_points": 17.24,
+                "proj_points": 17.25,
                 "ceiling": 24.8,
-                "sleeper_proj": 17.42,
+                "sleeper_proj": 17.43,
                 "game_info": "ARI @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758326,
@@ -13509,9 +13509,9 @@
                 "opponent": "MIA",
                 "roster_slot": "",
                 "salary": 10000,
-                "proj_points": 29.18,
+                "proj_points": 29.26,
                 "ceiling": 44.2,
-                "sleeper_proj": 25.69,
+                "sleeper_proj": 25.8,
                 "game_info": "DET @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758369,
@@ -13535,35 +13535,35 @@
               },
               {
                 "slot": "WR",
-                "name": "Puka Nacua",
+                "name": "CeeDee Lamb",
                 "position": "WR",
-                "team": "LAR",
-                "opponent": "WAS",
+                "team": "DAL",
+                "opponent": "IND",
                 "roster_slot": "",
-                "salary": 8800,
-                "proj_points": 23.88,
-                "ceiling": 36.8,
-                "sleeper_proj": 23.46,
-                "game_info": "LAR @ WAS",
+                "salary": 8300,
+                "proj_points": 23.15,
+                "ceiling": 38.4,
+                "sleeper_proj": 20.27,
+                "game_info": "DAL @ IND",
                 "injury": "Healthy",
-                "dk_draftable_id": 44758637,
-                "dk_fppg": 24.1
+                "dk_draftable_id": 44758639,
+                "dk_fppg": 22.2
               },
               {
                 "slot": "WR",
-                "name": "Jordan Watkins",
+                "name": "Xavier Worthy",
                 "position": "WR",
-                "team": "SF",
-                "opponent": "LV",
+                "team": "KC",
+                "opponent": "NYJ",
                 "roster_slot": "",
-                "salary": 3300,
-                "proj_points": 8.19,
-                "ceiling": 14.9,
-                "sleeper_proj": 7.21,
-                "game_info": "LV @ SF",
+                "salary": 4400,
+                "proj_points": 10.57,
+                "ceiling": 17.7,
+                "sleeper_proj": 10.27,
+                "game_info": "NYJ @ KC",
                 "injury": "Healthy",
-                "dk_draftable_id": 44758775,
-                "dk_fppg": 4.0
+                "dk_draftable_id": 44758715,
+                "dk_fppg": 8.0
               },
               {
                 "slot": "WR",
@@ -13573,9 +13573,9 @@
                 "opponent": "DET",
                 "roster_slot": "",
                 "salary": 3300,
-                "proj_points": 8.71,
+                "proj_points": 8.69,
                 "ceiling": 15.3,
-                "sleeper_proj": 6.97,
+                "sleeper_proj": 7.0,
                 "game_info": "DET @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758779,
@@ -13583,19 +13583,19 @@
               },
               {
                 "slot": "TE",
-                "name": "Sam LaPorta",
+                "name": "Tyler Warren",
                 "position": "TE",
-                "team": "DET",
-                "opponent": "MIA",
+                "team": "IND",
+                "opponent": "DAL",
                 "roster_slot": "",
-                "salary": 5100,
-                "proj_points": 14.35,
-                "ceiling": 23.4,
-                "sleeper_proj": 13.39,
-                "game_info": "DET @ MIA",
+                "salary": 4600,
+                "proj_points": 13.77,
+                "ceiling": 22.4,
+                "sleeper_proj": 13.33,
+                "game_info": "DAL @ IND",
                 "injury": "Healthy",
-                "dk_draftable_id": 44759069,
-                "dk_fppg": 12.3
+                "dk_draftable_id": 44759077,
+                "dk_fppg": 12.6
               },
               {
                 "slot": "FLEX",
@@ -13605,9 +13605,9 @@
                 "opponent": "PHI",
                 "roster_slot": "",
                 "salary": 4600,
-                "proj_points": 15.19,
+                "proj_points": 15.13,
                 "ceiling": 23.7,
-                "sleeper_proj": 14.36,
+                "sleeper_proj": 14.3,
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758449,
@@ -13623,16 +13623,16 @@
                 "salary": 2800,
                 "proj_points": 8.13,
                 "ceiling": 11.2,
-                "sleeper_proj": 7.4,
+                "sleeper_proj": 7.34,
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44759331,
                 "dk_fppg": 5.1
               }
             ],
-            "salary": 49900,
-            "proj_points": 150.53,
-            "ceiling": 233.6
+            "salary": 50000,
+            "proj_points": 151.61,
+            "ceiling": 237.0
           },
           {
             "metric": "tournament",
@@ -13640,35 +13640,19 @@
             "players": [
               {
                 "slot": "QB",
-                "name": "Malik Willis",
+                "name": "Dak Prescott",
                 "position": "QB",
-                "team": "MIA",
-                "opponent": "DET",
+                "team": "DAL",
+                "opponent": "IND",
                 "roster_slot": "",
-                "salary": 5100,
-                "proj_points": 19.3,
-                "ceiling": 27.4,
-                "sleeper_proj": 17.82,
-                "game_info": "DET @ MIA",
+                "salary": 6500,
+                "proj_points": 21.71,
+                "ceiling": 29.9,
+                "sleeper_proj": 19.94,
+                "game_info": "DAL @ IND",
                 "injury": "Healthy",
-                "dk_draftable_id": 44758312,
-                "dk_fppg": 15.6
-              },
-              {
-                "slot": "RB",
-                "name": "Jahmyr Gibbs",
-                "position": "RB",
-                "team": "DET",
-                "opponent": "MIA",
-                "roster_slot": "",
-                "salary": 10000,
-                "proj_points": 29.18,
-                "ceiling": 44.2,
-                "sleeper_proj": 25.69,
-                "game_info": "DET @ MIA",
-                "injury": "Healthy",
-                "dk_draftable_id": 44758369,
-                "dk_fppg": 30.0
+                "dk_draftable_id": 44758300,
+                "dk_fppg": 19.9
               },
               {
                 "slot": "RB",
@@ -13687,68 +13671,84 @@
                 "dk_fppg": 20.7
               },
               {
-                "slot": "WR",
-                "name": "Jameson Williams",
-                "position": "WR",
-                "team": "DET",
-                "opponent": "MIA",
+                "slot": "RB",
+                "name": "Jonah Coleman",
+                "position": "RB",
+                "team": "DEN",
+                "opponent": "CAR",
                 "roster_slot": "",
-                "salary": 6100,
-                "proj_points": 14.53,
-                "ceiling": 24.5,
-                "sleeper_proj": 13.33,
-                "game_info": "DET @ MIA",
+                "salary": 5300,
+                "proj_points": 15.73,
+                "ceiling": 24.7,
+                "sleeper_proj": 14.7,
+                "game_info": "DEN @ CAR",
                 "injury": "Healthy",
-                "dk_draftable_id": 44758669,
-                "dk_fppg": 14.8
+                "dk_draftable_id": 44758413,
+                "dk_fppg": 11.0
               },
               {
                 "slot": "WR",
-                "name": "Malik Washington",
+                "name": "CeeDee Lamb",
                 "position": "WR",
-                "team": "MIA",
-                "opponent": "DET",
+                "team": "DAL",
+                "opponent": "IND",
                 "roster_slot": "",
-                "salary": 4700,
-                "proj_points": 11.54,
-                "ceiling": 19.1,
-                "sleeper_proj": 10.83,
-                "game_info": "DET @ MIA",
+                "salary": 8300,
+                "proj_points": 23.15,
+                "ceiling": 38.4,
+                "sleeper_proj": 20.27,
+                "game_info": "DAL @ IND",
                 "injury": "Healthy",
-                "dk_draftable_id": 44758703,
-                "dk_fppg": 10.4
+                "dk_draftable_id": 44758639,
+                "dk_fppg": 22.2
               },
               {
                 "slot": "WR",
-                "name": "Chris Bell",
+                "name": "Josh Downs",
                 "position": "WR",
-                "team": "MIA",
-                "opponent": "DET",
+                "team": "IND",
+                "opponent": "DAL",
                 "roster_slot": "",
-                "salary": 3300,
-                "proj_points": 8.71,
-                "ceiling": 15.3,
-                "sleeper_proj": 6.97,
-                "game_info": "DET @ MIA",
+                "salary": 5100,
+                "proj_points": 12.19,
+                "ceiling": 19.5,
+                "sleeper_proj": 10.97,
+                "game_info": "DAL @ IND",
                 "injury": "Healthy",
-                "dk_draftable_id": 44758779,
-                "dk_fppg": 4.2
+                "dk_draftable_id": 44758687,
+                "dk_fppg": 8.7
+              },
+              {
+                "slot": "WR",
+                "name": "Ryan Flournoy",
+                "position": "WR",
+                "team": "DAL",
+                "opponent": "IND",
+                "roster_slot": "",
+                "salary": 4800,
+                "proj_points": 12.2,
+                "ceiling": 21.6,
+                "sleeper_proj": 8.7,
+                "game_info": "DAL @ IND",
+                "injury": "Healthy",
+                "dk_draftable_id": 44758699,
+                "dk_fppg": 9.6
               },
               {
                 "slot": "TE",
-                "name": "Sam LaPorta",
+                "name": "Tyler Warren",
                 "position": "TE",
-                "team": "DET",
-                "opponent": "MIA",
+                "team": "IND",
+                "opponent": "DAL",
                 "roster_slot": "",
-                "salary": 5100,
-                "proj_points": 14.35,
-                "ceiling": 23.4,
-                "sleeper_proj": 13.39,
-                "game_info": "DET @ MIA",
+                "salary": 4600,
+                "proj_points": 13.77,
+                "ceiling": 22.4,
+                "sleeper_proj": 13.33,
+                "game_info": "DAL @ IND",
                 "injury": "Healthy",
-                "dk_draftable_id": 44759069,
-                "dk_fppg": 12.3
+                "dk_draftable_id": 44759077,
+                "dk_fppg": 12.6
               },
               {
                 "slot": "FLEX",
@@ -13758,9 +13758,9 @@
                 "opponent": "PHI",
                 "roster_slot": "",
                 "salary": 4600,
-                "proj_points": 15.19,
+                "proj_points": 15.13,
                 "ceiling": 23.7,
-                "sleeper_proj": 14.36,
+                "sleeper_proj": 14.3,
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758449,
@@ -13776,21 +13776,21 @@
                 "salary": 2800,
                 "proj_points": 8.13,
                 "ceiling": 11.2,
-                "sleeper_proj": 7.4,
+                "sleeper_proj": 7.34,
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44759331,
                 "dk_fppg": 5.1
               }
             ],
-            "salary": 49700,
-            "proj_points": 146.59,
-            "ceiling": 228.1
+            "salary": 50000,
+            "proj_points": 147.67,
+            "ceiling": 230.7
           }
         ]
       },
       "classic": {
-        "saved_at": "2026-11-08T13:11:18+00:00",
+        "saved_at": "2026-11-08T16:38:08+00:00",
         "draft_group_id": 155993,
         "lineups": [
           {
@@ -13805,9 +13805,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 4000,
-                "proj_points": 17.24,
+                "proj_points": 17.25,
                 "ceiling": 24.8,
-                "sleeper_proj": 17.42,
+                "sleeper_proj": 17.43,
                 "game_info": "ARI @ SEA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44761950,
@@ -13821,9 +13821,9 @@
                 "opponent": "MIA",
                 "roster_slot": "",
                 "salary": 10000,
-                "proj_points": 29.18,
+                "proj_points": 29.26,
                 "ceiling": 44.2,
-                "sleeper_proj": 25.69,
+                "sleeper_proj": 25.8,
                 "game_info": "DET @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44761964,
@@ -13875,7 +13875,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762346,
-                "dk_fppg": 14.5
+                "dk_fppg": 14.5,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -13891,7 +13892,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762466,
-                "dk_fppg": 7.5
+                "dk_fppg": 7.5,
+                "locked": true
               },
               {
                 "slot": "TE",
@@ -13901,8 +13903,8 @@
                 "opponent": "DAL",
                 "roster_slot": "",
                 "salary": 4600,
-                "proj_points": 13.73,
-                "ceiling": 22.2,
+                "proj_points": 13.77,
+                "ceiling": 22.4,
                 "sleeper_proj": 13.33,
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
@@ -13917,9 +13919,9 @@
                 "opponent": "PHI",
                 "roster_slot": "",
                 "salary": 4600,
-                "proj_points": 15.19,
+                "proj_points": 15.13,
                 "ceiling": 23.7,
-                "sleeper_proj": 14.36,
+                "sleeper_proj": 14.3,
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762070,
@@ -13943,8 +13945,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 152.48,
-            "ceiling": 236.2
+            "proj_points": 152.55,
+            "ceiling": 236.4
           },
           {
             "metric": "tournament",
@@ -13964,7 +13966,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44761887,
-                "dk_fppg": 14.8
+                "dk_fppg": 14.8,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -13990,8 +13993,8 @@
                 "opponent": "IND",
                 "roster_slot": "",
                 "salary": 7300,
-                "proj_points": 20.71,
-                "ceiling": 31.3,
+                "proj_points": 20.99,
+                "ceiling": 31.6,
                 "sleeper_proj": 18.29,
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
@@ -14012,7 +14015,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762320,
-                "dk_fppg": 18.7
+                "dk_fppg": 18.7,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -14028,7 +14032,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762346,
-                "dk_fppg": 14.5
+                "dk_fppg": 14.5,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -14044,7 +14049,8 @@
                 "game_info": "CIN @ ATL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762466,
-                "dk_fppg": 7.5
+                "dk_fppg": 7.5,
+                "locked": true
               },
               {
                 "slot": "TE",
@@ -14054,8 +14060,8 @@
                 "opponent": "DAL",
                 "roster_slot": "",
                 "salary": 4600,
-                "proj_points": 13.73,
-                "ceiling": 22.2,
+                "proj_points": 13.77,
+                "ceiling": 22.4,
                 "sleeper_proj": 13.33,
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
@@ -14070,9 +14076,9 @@
                 "opponent": "PHI",
                 "roster_slot": "",
                 "salary": 4600,
-                "proj_points": 15.19,
+                "proj_points": 15.13,
                 "ceiling": 23.7,
-                "sleeper_proj": 14.36,
+                "sleeper_proj": 14.3,
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762070,
@@ -14088,7 +14094,7 @@
                 "salary": 2800,
                 "proj_points": 8.13,
                 "ceiling": 11.2,
-                "sleeper_proj": 7.4,
+                "sleeper_proj": 7.34,
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763252,
@@ -14096,8 +14102,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 150.35,
-            "ceiling": 233.4
+            "proj_points": 150.61,
+            "ceiling": 233.9
           }
         ]
       },
@@ -14632,7 +14638,7 @@
         ]
       },
       "showdown_sun_night": {
-        "saved_at": "2026-11-07T12:13:28+00:00",
+        "saved_at": "2026-11-08T16:38:10+00:00",
         "draft_group_id": 156013,
         "lineups": [
           {
@@ -14641,35 +14647,35 @@
             "players": [
               {
                 "slot": "CPT",
+                "name": "D'Andre Swift",
+                "position": "RB",
+                "team": "CHI",
+                "opponent": "TB",
+                "roster_slot": "CPT",
+                "salary": 15000,
+                "proj_points": 27.9,
+                "ceiling": 42.6,
+                "sleeper_proj": 28.62,
+                "game_info": "TB @ CHI",
+                "injury": "Healthy",
+                "dk_draftable_id": 44817489,
+                "dk_fppg": 19.5
+              },
+              {
+                "slot": "FLEX",
                 "name": "Caleb Williams",
                 "position": "QB",
                 "team": "CHI",
                 "opponent": "TB",
-                "roster_slot": "CPT",
-                "salary": 16200,
-                "proj_points": 29.54,
-                "ceiling": 42.3,
-                "sleeper_proj": 27.9,
-                "game_info": "TB @ CHI",
-                "injury": "Healthy",
-                "dk_draftable_id": 44817488,
-                "dk_fppg": 20.9
-              },
-              {
-                "slot": "FLEX",
-                "name": "Bucky Irving",
-                "position": "RB",
-                "team": "TB",
-                "opponent": "CHI",
                 "roster_slot": "FLEX",
-                "salary": 9800,
-                "proj_points": 16.25,
-                "ceiling": 26.4,
-                "sleeper_proj": 17.7,
+                "salary": 10800,
+                "proj_points": 19.78,
+                "ceiling": 28.3,
+                "sleeper_proj": 18.91,
                 "game_info": "TB @ CHI",
                 "injury": "Healthy",
-                "dk_draftable_id": 44817437,
-                "dk_fppg": 17.7
+                "dk_draftable_id": 44817435,
+                "dk_fppg": 20.9
               },
               {
                 "slot": "FLEX",
@@ -14736,9 +14742,9 @@
                 "dk_fppg": 4.7
               }
             ],
-            "salary": 50000,
-            "proj_points": 91.88,
-            "ceiling": 141.4
+            "salary": 49800,
+            "proj_points": 93.77,
+            "ceiling": 143.6
           },
           {
             "metric": "ceiling",
@@ -14746,35 +14752,35 @@
             "players": [
               {
                 "slot": "CPT",
-                "name": "Caleb Williams",
-                "position": "QB",
-                "team": "CHI",
-                "opponent": "TB",
-                "roster_slot": "CPT",
-                "salary": 16200,
-                "proj_points": 29.54,
-                "ceiling": 42.3,
-                "sleeper_proj": 27.9,
-                "game_info": "TB @ CHI",
-                "injury": "Healthy",
-                "dk_draftable_id": 44817488,
-                "dk_fppg": 20.9
-              },
-              {
-                "slot": "FLEX",
                 "name": "D'Andre Swift",
                 "position": "RB",
                 "team": "CHI",
                 "opponent": "TB",
-                "roster_slot": "FLEX",
-                "salary": 10000,
-                "proj_points": 16.94,
-                "ceiling": 26.4,
-                "sleeper_proj": 16.65,
+                "roster_slot": "CPT",
+                "salary": 15000,
+                "proj_points": 27.9,
+                "ceiling": 42.6,
+                "sleeper_proj": 28.62,
                 "game_info": "TB @ CHI",
                 "injury": "Healthy",
-                "dk_draftable_id": 44817436,
+                "dk_draftable_id": 44817489,
                 "dk_fppg": 19.5
+              },
+              {
+                "slot": "FLEX",
+                "name": "Caleb Williams",
+                "position": "QB",
+                "team": "CHI",
+                "opponent": "TB",
+                "roster_slot": "FLEX",
+                "salary": 10800,
+                "proj_points": 19.78,
+                "ceiling": 28.3,
+                "sleeper_proj": 18.91,
+                "game_info": "TB @ CHI",
+                "injury": "Healthy",
+                "dk_draftable_id": 44817435,
+                "dk_fppg": 20.9
               },
               {
                 "slot": "FLEX",
@@ -14841,9 +14847,9 @@
                 "dk_fppg": 10.0
               }
             ],
-            "salary": 50000,
-            "proj_points": 87.51,
-            "ceiling": 144.3
+            "salary": 49600,
+            "proj_points": 88.71,
+            "ceiling": 146.5
           }
         ]
       },
