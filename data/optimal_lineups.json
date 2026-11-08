@@ -13478,7 +13478,7 @@
     },
     "9": {
       "classic_sunday": {
-        "saved_at": "2026-11-08T16:38:00+00:00",
+        "saved_at": "2026-11-08T19:43:30+00:00",
         "draft_group_id": 155994,
         "lineups": [
           {
@@ -13515,7 +13515,8 @@
                 "game_info": "DET @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758369,
-                "dk_fppg": 30.0
+                "dk_fppg": 30.0,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -13525,8 +13526,8 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 8000,
-                "proj_points": 25.66,
-                "ceiling": 39.3,
+                "proj_points": 25.49,
+                "ceiling": 38.9,
                 "sleeper_proj": 22.7,
                 "game_info": "LV @ SF",
                 "injury": "Healthy",
@@ -13547,7 +13548,8 @@
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758639,
-                "dk_fppg": 22.2
+                "dk_fppg": 22.2,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -13563,7 +13565,8 @@
                 "game_info": "NYJ @ KC",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758715,
-                "dk_fppg": 8.0
+                "dk_fppg": 8.0,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -13579,7 +13582,8 @@
                 "game_info": "DET @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758779,
-                "dk_fppg": 4.2
+                "dk_fppg": 4.2,
+                "locked": true
               },
               {
                 "slot": "TE",
@@ -13595,7 +13599,8 @@
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44759077,
-                "dk_fppg": 12.6
+                "dk_fppg": 12.6,
+                "locked": true
               },
               {
                 "slot": "FLEX",
@@ -13611,7 +13616,8 @@
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758449,
-                "dk_fppg": 8.4
+                "dk_fppg": 8.4,
+                "locked": true
               },
               {
                 "slot": "DST",
@@ -13627,12 +13633,13 @@
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44759331,
-                "dk_fppg": 5.1
+                "dk_fppg": 5.1,
+                "locked": true
               }
             ],
             "salary": 50000,
-            "proj_points": 151.61,
-            "ceiling": 237.0
+            "proj_points": 151.44,
+            "ceiling": 236.6
           },
           {
             "metric": "tournament",
@@ -13652,7 +13659,8 @@
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758300,
-                "dk_fppg": 19.9
+                "dk_fppg": 19.9,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -13662,8 +13670,8 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 8000,
-                "proj_points": 25.66,
-                "ceiling": 39.3,
+                "proj_points": 25.49,
+                "ceiling": 38.9,
                 "sleeper_proj": 22.7,
                 "game_info": "LV @ SF",
                 "injury": "Healthy",
@@ -13684,7 +13692,8 @@
                 "game_info": "DEN @ CAR",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758413,
-                "dk_fppg": 11.0
+                "dk_fppg": 11.0,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -13700,7 +13709,8 @@
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758639,
-                "dk_fppg": 22.2
+                "dk_fppg": 22.2,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -13716,7 +13726,8 @@
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758687,
-                "dk_fppg": 8.7
+                "dk_fppg": 8.7,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -13732,7 +13743,8 @@
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758699,
-                "dk_fppg": 9.6
+                "dk_fppg": 9.6,
+                "locked": true
               },
               {
                 "slot": "TE",
@@ -13748,7 +13760,8 @@
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44759077,
-                "dk_fppg": 12.6
+                "dk_fppg": 12.6,
+                "locked": true
               },
               {
                 "slot": "FLEX",
@@ -13764,7 +13777,8 @@
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44758449,
-                "dk_fppg": 8.4
+                "dk_fppg": 8.4,
+                "locked": true
               },
               {
                 "slot": "DST",
@@ -13780,17 +13794,18 @@
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44759331,
-                "dk_fppg": 5.1
+                "dk_fppg": 5.1,
+                "locked": true
               }
             ],
             "salary": 50000,
-            "proj_points": 147.67,
-            "ceiling": 230.7
+            "proj_points": 147.5,
+            "ceiling": 230.3
           }
         ]
       },
       "classic": {
-        "saved_at": "2026-11-08T16:38:08+00:00",
+        "saved_at": "2026-11-08T19:43:39+00:00",
         "draft_group_id": 155993,
         "lineups": [
           {
@@ -13827,7 +13842,8 @@
                 "game_info": "DET @ MIA",
                 "injury": "Healthy",
                 "dk_draftable_id": 44761964,
-                "dk_fppg": 30.0
+                "dk_fppg": 30.0,
+                "locked": true
               },
               {
                 "slot": "RB",
@@ -13837,8 +13853,8 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 8000,
-                "proj_points": 25.66,
-                "ceiling": 39.3,
+                "proj_points": 25.49,
+                "ceiling": 38.9,
                 "sleeper_proj": 22.7,
                 "game_info": "LV @ SF",
                 "injury": "Healthy",
@@ -13909,7 +13925,8 @@
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762902,
-                "dk_fppg": 12.6
+                "dk_fppg": 12.6,
+                "locked": true
               },
               {
                 "slot": "FLEX",
@@ -13925,7 +13942,8 @@
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762070,
-                "dk_fppg": 8.4
+                "dk_fppg": 8.4,
+                "locked": true
               },
               {
                 "slot": "DST",
@@ -13945,8 +13963,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 152.55,
-            "ceiling": 236.4
+            "proj_points": 152.38,
+            "ceiling": 236.0
           },
           {
             "metric": "tournament",
@@ -13977,8 +13995,8 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 8000,
-                "proj_points": 25.66,
-                "ceiling": 39.3,
+                "proj_points": 25.49,
+                "ceiling": 38.9,
                 "sleeper_proj": 22.7,
                 "game_info": "LV @ SF",
                 "injury": "Healthy",
@@ -13999,7 +14017,8 @@
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44761978,
-                "dk_fppg": 17.5
+                "dk_fppg": 17.5,
+                "locked": true
               },
               {
                 "slot": "WR",
@@ -14066,7 +14085,8 @@
                 "game_info": "DAL @ IND",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762902,
-                "dk_fppg": 12.6
+                "dk_fppg": 12.6,
+                "locked": true
               },
               {
                 "slot": "FLEX",
@@ -14082,7 +14102,8 @@
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762070,
-                "dk_fppg": 8.4
+                "dk_fppg": 8.4,
+                "locked": true
               },
               {
                 "slot": "DST",
@@ -14098,12 +14119,13 @@
                 "game_info": "NYG @ PHI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44763252,
-                "dk_fppg": 5.1
+                "dk_fppg": 5.1,
+                "locked": true
               }
             ],
             "salary": 50000,
-            "proj_points": 150.61,
-            "ceiling": 233.9
+            "proj_points": 150.44,
+            "ceiling": 233.5
           }
         ]
       },
