@@ -403,31 +403,31 @@
      "inj": "Healthy"
     },
     {
-     "id": 44758715,
-     "name": "Xavier Worthy",
-     "position": "WR",
+     "id": 44759073,
+     "name": "Travis Kelce",
+     "position": "TE",
      "team": "KC",
      "opponent": "NYJ",
-     "salary": 4400,
-     "proj": 10.67,
-     "own": 5.4,
+     "salary": 4900,
+     "proj": 11.63,
+     "own": 8.3,
      "inj": "Healthy"
     },
     {
-     "id": 44759324,
-     "name": "Texans",
+     "id": 44759330,
+     "name": "Saints",
      "position": "DST",
-     "team": "HOU",
-     "opponent": "LAC",
-     "salary": 3500,
-     "proj": 8.69,
-     "own": 8.4,
+     "team": "NO",
+     "opponent": "CLE",
+     "salary": 2900,
+     "proj": 7.7,
+     "own": 12.2,
      "inj": "Healthy"
     }
    ],
-   "salary": 50000,
-   "proj": 132.68,
-   "own_sum": 86.5
+   "salary": 49900,
+   "proj": 132.65,
+   "own_sum": 93.2
   },
   {
    "label": "Daniels stack (WAS, Puka/LAR return)",
