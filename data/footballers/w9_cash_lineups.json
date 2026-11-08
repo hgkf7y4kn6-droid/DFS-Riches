@@ -228,36 +228,25 @@
      "inj": "Healthy"
     },
     {
-     "id": 44758369,
-     "name": "Jahmyr Gibbs",
+     "id": 44758371,
+     "name": "Kenneth Walker III",
      "position": "RB",
-     "team": "DET",
-     "opponent": "MIA",
-     "salary": 10000,
-     "proj": 27.02,
-     "own": 25.0,
+     "team": "KC",
+     "opponent": "NYJ",
+     "salary": 9000,
+     "proj": 23.78,
+     "own": 13.58,
      "inj": "Healthy"
     },
     {
-     "id": 44758413,
-     "name": "Jonah Coleman",
+     "id": 44758373,
+     "name": "Christian McCaffrey",
      "position": "RB",
-     "team": "DEN",
-     "opponent": "CAR",
-     "salary": 5300,
-     "proj": 15.49,
-     "own": 6.87,
-     "inj": "Healthy"
-    },
-    {
-     "id": 44758635,
-     "name": "Jaxon Smith-Njigba",
-     "position": "WR",
-     "team": "SEA",
-     "opponent": "ARI",
-     "salary": 9300,
-     "proj": 23.62,
-     "own": 24.21,
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 8000,
+     "proj": 22.83,
+     "own": 17.26,
      "inj": "Healthy"
     },
     {
@@ -272,6 +261,17 @@
      "inj": "Healthy"
     },
     {
+     "id": 44758727,
+     "name": "Antonio Williams",
+     "position": "WR",
+     "team": "WAS",
+     "opponent": "LAR",
+     "salary": 4100,
+     "proj": 10.85,
+     "own": 5.15,
+     "inj": "Healthy"
+    },
+    {
      "id": 44758749,
      "name": "Efton Chism III",
      "position": "WR",
@@ -283,41 +283,41 @@
      "inj": "Healthy"
     },
     {
-     "id": 44759105,
-     "name": "Greg Dulcich",
+     "id": 44759065,
+     "name": "George Kittle",
      "position": "TE",
-     "team": "MIA",
-     "opponent": "DET",
-     "salary": 3100,
-     "proj": 9.48,
-     "own": 6.23,
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 6000,
+     "proj": 16.59,
+     "own": 18.0,
      "inj": "Healthy"
     },
     {
-     "id": 44758449,
-     "name": "Devin Singletary",
+     "id": 44758413,
+     "name": "Jonah Coleman",
      "position": "RB",
+     "team": "DEN",
+     "opponent": "CAR",
+     "salary": 5300,
+     "proj": 15.49,
+     "own": 6.87,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759331,
+     "name": "Giants",
+     "position": "DST",
      "team": "NYG",
      "opponent": "PHI",
-     "salary": 4600,
-     "proj": 12.79,
-     "own": 7.13,
-     "inj": "Healthy"
-    },
-    {
-     "id": 44759330,
-     "name": "Saints",
-     "position": "DST",
-     "team": "NO",
-     "opponent": "CLE",
-     "salary": 2900,
-     "proj": 7.7,
-     "own": 9.31,
+     "salary": 2800,
+     "proj": 8.21,
+     "own": 8.75,
      "inj": "Healthy"
     }
    ],
    "salary": 49800,
-   "proj": 142.31
+   "proj": 143.96
   }
  ]
 }
