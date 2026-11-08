@@ -337,17 +337,6 @@
      "inj": "Healthy"
     },
     {
-     "id": 44758371,
-     "name": "Kenneth Walker III",
-     "position": "RB",
-     "team": "KC",
-     "opponent": "NYJ",
-     "salary": 9000,
-     "proj": 23.78,
-     "own": 13.8,
-     "inj": "Healthy"
-    },
-    {
      "id": 44758379,
      "name": "Javonte Williams",
      "position": "RB",
@@ -356,6 +345,28 @@
      "salary": 7300,
      "proj": 18.62,
      "own": 11.1,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758383,
+     "name": "Chuba Hubbard",
+     "position": "RB",
+     "team": "CAR",
+     "opponent": "DEN",
+     "salary": 6500,
+     "proj": 16.77,
+     "own": 9.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758663,
+     "name": "Rashee Rice",
+     "position": "WR",
+     "team": "KC",
+     "opponent": "NYJ",
+     "salary": 6400,
+     "proj": 15.27,
+     "own": 7.5,
      "inj": "Healthy"
     },
     {
@@ -381,6 +392,17 @@
      "inj": "Healthy"
     },
     {
+     "id": 44759065,
+     "name": "George Kittle",
+     "position": "TE",
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 6000,
+     "proj": 16.59,
+     "own": 26.1,
+     "inj": "Healthy"
+    },
+    {
      "id": 44758715,
      "name": "Xavier Worthy",
      "position": "WR",
@@ -392,42 +414,20 @@
      "inj": "Healthy"
     },
     {
-     "id": 44759073,
-     "name": "Travis Kelce",
-     "position": "TE",
-     "team": "KC",
-     "opponent": "NYJ",
-     "salary": 4900,
-     "proj": 11.63,
-     "own": 8.3,
-     "inj": "Healthy"
-    },
-    {
-     "id": 44758403,
-     "name": "Ollie Gordon II",
-     "position": "RB",
-     "team": "MIA",
-     "opponent": "DET",
-     "salary": 5600,
-     "proj": 15.25,
-     "own": 6.1,
-     "inj": "Healthy"
-    },
-    {
-     "id": 44759330,
-     "name": "Saints",
+     "id": 44759324,
+     "name": "Texans",
      "position": "DST",
-     "team": "NO",
-     "opponent": "CLE",
-     "salary": 2900,
-     "proj": 7.7,
-     "own": 12.2,
+     "team": "HOU",
+     "opponent": "LAC",
+     "salary": 3500,
+     "proj": 8.69,
+     "own": 8.4,
      "inj": "Healthy"
     }
    ],
    "salary": 50000,
-   "proj": 133.72,
-   "own_sum": 75.1
+   "proj": 132.68,
+   "own_sum": 86.5
   },
   {
    "label": "Daniels stack (WAS, Puka/LAR return)",
