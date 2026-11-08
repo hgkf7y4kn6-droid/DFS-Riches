@@ -323,7 +323,7 @@
    "own_sum": 103.3
   },
   {
-   "label": "Mahomes stack (Rice/Kelce)",
+   "label": "Mahomes stack (Rice/Kelce) + Kittle + Lamb",
    "players": [
     {
      "id": 44758303,
@@ -337,25 +337,36 @@
      "inj": "Healthy"
     },
     {
-     "id": 44758379,
-     "name": "Javonte Williams",
+     "id": 44758403,
+     "name": "Ollie Gordon II",
      "position": "RB",
-     "team": "DAL",
-     "opponent": "IND",
-     "salary": 7300,
-     "proj": 18.62,
-     "own": 11.1,
+     "team": "MIA",
+     "opponent": "DET",
+     "salary": 5600,
+     "proj": 15.25,
+     "own": 6.1,
      "inj": "Healthy"
     },
     {
-     "id": 44758383,
-     "name": "Chuba Hubbard",
+     "id": 44758411,
+     "name": "Quinshon Judkins",
      "position": "RB",
-     "team": "CAR",
-     "opponent": "DEN",
-     "salary": 6500,
-     "proj": 16.77,
-     "own": 9.8,
+     "team": "CLE",
+     "opponent": "NO",
+     "salary": 5400,
+     "proj": 13.46,
+     "own": 4.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758639,
+     "name": "CeeDee Lamb",
+     "position": "WR",
+     "team": "DAL",
+     "opponent": "IND",
+     "salary": 8300,
+     "proj": 19.7,
+     "own": 16.6,
      "inj": "Healthy"
     },
     {
@@ -381,17 +392,6 @@
      "inj": "Healthy"
     },
     {
-     "id": 44758695,
-     "name": "Keenan Allen",
-     "position": "WR",
-     "team": "IND",
-     "opponent": "DAL",
-     "salary": 4900,
-     "proj": 12.71,
-     "own": 4.7,
-     "inj": "Healthy"
-    },
-    {
      "id": 44759065,
      "name": "George Kittle",
      "position": "TE",
@@ -414,20 +414,20 @@
      "inj": "Healthy"
     },
     {
-     "id": 44759330,
-     "name": "Saints",
+     "id": 44759335,
+     "name": "Packers",
      "position": "DST",
-     "team": "NO",
-     "opponent": "CLE",
-     "salary": 2900,
-     "proj": 7.7,
-     "own": 12.2,
+     "team": "GB",
+     "opponent": "NE",
+     "salary": 2400,
+     "proj": 6.46,
+     "own": 5.9,
      "inj": "Healthy"
     }
    ],
-   "salary": 49900,
-   "proj": 132.65,
-   "own_sum": 93.2
+   "salary": 50000,
+   "proj": 131.72,
+   "own_sum": 88.8
   },
   {
    "label": "Daniels stack (WAS, Puka/LAR return)",
