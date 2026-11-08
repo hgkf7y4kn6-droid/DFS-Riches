@@ -1,0 +1,323 @@
+{
+ "saved": "pre-lock",
+ "lineups": [
+  {
+   "label": "Cash #1",
+   "players": [
+    {
+     "id": 44758298,
+     "name": "Brock Purdy",
+     "position": "QB",
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 6800,
+     "proj": 26.12,
+     "own": 15.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758373,
+     "name": "Christian McCaffrey",
+     "position": "RB",
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 8000,
+     "proj": 22.83,
+     "own": 17.26,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758413,
+     "name": "Jonah Coleman",
+     "position": "RB",
+     "team": "DEN",
+     "opponent": "CAR",
+     "salary": 5300,
+     "proj": 15.49,
+     "own": 6.87,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758637,
+     "name": "Puka Nacua",
+     "position": "WR",
+     "team": "LAR",
+     "opponent": "WAS",
+     "salary": 8800,
+     "proj": 23.12,
+     "own": 25.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758727,
+     "name": "Antonio Williams",
+     "position": "WR",
+     "team": "WAS",
+     "opponent": "LAR",
+     "salary": 4100,
+     "proj": 10.85,
+     "own": 5.15,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758749,
+     "name": "Efton Chism III",
+     "position": "WR",
+     "team": "NE",
+     "opponent": "GB",
+     "salary": 3600,
+     "proj": 8.88,
+     "own": 2.98,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759065,
+     "name": "George Kittle",
+     "position": "TE",
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 6000,
+     "proj": 16.59,
+     "own": 18.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758449,
+     "name": "Devin Singletary",
+     "position": "RB",
+     "team": "NYG",
+     "opponent": "PHI",
+     "salary": 4600,
+     "proj": 12.79,
+     "own": 7.13,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759331,
+     "name": "Giants",
+     "position": "DST",
+     "team": "NYG",
+     "opponent": "PHI",
+     "salary": 2800,
+     "proj": 8.21,
+     "own": 8.75,
+     "inj": "Healthy"
+    }
+   ],
+   "salary": 50000,
+   "proj": 144.88
+  },
+  {
+   "label": "Cash #2",
+   "players": [
+    {
+     "id": 44758298,
+     "name": "Brock Purdy",
+     "position": "QB",
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 6800,
+     "proj": 26.12,
+     "own": 15.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758369,
+     "name": "Jahmyr Gibbs",
+     "position": "RB",
+     "team": "DET",
+     "opponent": "MIA",
+     "salary": 10000,
+     "proj": 27.02,
+     "own": 25.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758373,
+     "name": "Christian McCaffrey",
+     "position": "RB",
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 8000,
+     "proj": 22.83,
+     "own": 17.26,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758663,
+     "name": "Rashee Rice",
+     "position": "WR",
+     "team": "KC",
+     "opponent": "NYJ",
+     "salary": 6400,
+     "proj": 15.27,
+     "own": 7.03,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758723,
+     "name": "Caleb Douglas",
+     "position": "WR",
+     "team": "MIA",
+     "opponent": "DET",
+     "salary": 4200,
+     "proj": 11.21,
+     "own": 5.36,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758727,
+     "name": "Antonio Williams",
+     "position": "WR",
+     "team": "WAS",
+     "opponent": "LAR",
+     "salary": 4100,
+     "proj": 10.85,
+     "own": 5.15,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759077,
+     "name": "Tyler Warren",
+     "position": "TE",
+     "team": "IND",
+     "opponent": "DAL",
+     "salary": 4600,
+     "proj": 12.59,
+     "own": 11.33,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759105,
+     "name": "Greg Dulcich",
+     "position": "TE",
+     "team": "MIA",
+     "opponent": "DET",
+     "salary": 3100,
+     "proj": 9.48,
+     "own": 6.23,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759331,
+     "name": "Giants",
+     "position": "DST",
+     "team": "NYG",
+     "opponent": "PHI",
+     "salary": 2800,
+     "proj": 8.21,
+     "own": 8.75,
+     "inj": "Healthy"
+    }
+   ],
+   "salary": 50000,
+   "proj": 143.58
+  },
+  {
+   "label": "Cash #3",
+   "players": [
+    {
+     "id": 44758298,
+     "name": "Brock Purdy",
+     "position": "QB",
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 6800,
+     "proj": 26.12,
+     "own": 15.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758369,
+     "name": "Jahmyr Gibbs",
+     "position": "RB",
+     "team": "DET",
+     "opponent": "MIA",
+     "salary": 10000,
+     "proj": 27.02,
+     "own": 25.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758413,
+     "name": "Jonah Coleman",
+     "position": "RB",
+     "team": "DEN",
+     "opponent": "CAR",
+     "salary": 5300,
+     "proj": 15.49,
+     "own": 6.87,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758635,
+     "name": "Jaxon Smith-Njigba",
+     "position": "WR",
+     "team": "SEA",
+     "opponent": "ARI",
+     "salary": 9300,
+     "proj": 23.62,
+     "own": 24.21,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758723,
+     "name": "Caleb Douglas",
+     "position": "WR",
+     "team": "MIA",
+     "opponent": "DET",
+     "salary": 4200,
+     "proj": 11.21,
+     "own": 5.36,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758749,
+     "name": "Efton Chism III",
+     "position": "WR",
+     "team": "NE",
+     "opponent": "GB",
+     "salary": 3600,
+     "proj": 8.88,
+     "own": 2.98,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759105,
+     "name": "Greg Dulcich",
+     "position": "TE",
+     "team": "MIA",
+     "opponent": "DET",
+     "salary": 3100,
+     "proj": 9.48,
+     "own": 6.23,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758449,
+     "name": "Devin Singletary",
+     "position": "RB",
+     "team": "NYG",
+     "opponent": "PHI",
+     "salary": 4600,
+     "proj": 12.79,
+     "own": 7.13,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759330,
+     "name": "Saints",
+     "position": "DST",
+     "team": "NO",
+     "opponent": "CLE",
+     "salary": 2900,
+     "proj": 7.7,
+     "own": 9.31,
+     "inj": "Healthy"
+    }
+   ],
+   "salary": 49800,
+   "proj": 142.31
+  }
+ ]
+}

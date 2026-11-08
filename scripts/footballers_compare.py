@@ -25,6 +25,7 @@ D = DATA_DIR / "footballers"
 SOURCE, SNAP = D / "w9_source.json", D / "w9_model_snapshot.json"
 SOURCE2, LINEUPS1 = D / "w9_source2.json", D / "w9_lineups_v1.json"
 LINEUPS, GRADE = D / "w9_lineups.json", D / "w9_grade.json"
+CASH_SRC, CASH = D / "w9_source_cash.json", D / "w9_cash_lineups.json"
 SLATE = ("classic_sunday", 2026, 9)
 BAD_PROJ: set = set()      # (name, pos) pairs whose source projection is a known typo and should be ignored
 
@@ -117,6 +118,44 @@ def _pool(model: list[dict], rows: list[dict]) -> tuple[list[dict], list[float]]
 QB_PLANS = [("Goff stack (St. Brown/Jameson, MIA return)", "Jared Goff"), ("Stafford stack (Puka, WAS return)", "Matthew Stafford"),
             ("Love stack (Watson/Kraft, NE return)", "Jordan Love"), ("Mahomes stack (Rice/Kelce)", "Patrick Mahomes"),
             ("Daniels stack (WAS, Puka/LAR return)", "Jayden Daniels")]
+
+
+def cmd_cash() -> None:
+    """Three cash lineups: highest blended projection from the cash article's pool plus the Core Plays tables,
+    healthy players only, no leverage or ceiling adjustments (cash wants the floor)."""
+    from app import lineup_builder
+    rows, model, _src = load()
+    src = json.loads(CASH_SRC.read_text())
+    names = {(p["name"], p["pos"]) for p in src["article_cash_plays"]}
+    names |= {(n, pos) for pos, ns in src["core_plays"].items() for n in ns}
+    allowed = {m["id"] for n, pos in names if (m := find(model, n, pos))}
+    byid = {r["m"]["id"]: r for r in rows}
+    two = load2(model)
+    pool, vals = [], []
+    for m in model:
+        if m["id"] not in allowed or m["inj"] != "Healthy" or not (m["salary"] > 0 and (m["proj"] or 0) > 0):
+            continue
+        s1, s2 = byid.get(m["id"]), two.get(m["id"])
+        projs = [m["proj"]] + [x["proj"] for x in (s1, s2) if x and x.get("proj") is not None]
+        proj = statistics.mean(projs)
+        pool.append({"id": m["id"], "name": m["name"], "position": m["pos"], "team": m["team"], "opponent": m["opp"],
+                     "salary": m["salary"], "game": m["game"], "proj": round(proj, 2), "own": m["own"] or 0.0, "inj": m["inj"]})
+        vals.append(proj)
+    out, prior = [], []
+    for k in range(3):
+        lu = lineup_builder.build(pool, vals, prior=prior, min_unique=5)
+        if not lu:
+            print(f"cash #{k + 1}: no feasible lineup")
+            break
+        prior.append({p["id"] for p in lu})
+        out.append({"label": f"Cash #{k + 1}", "players": [{x: p[x] for x in ("id", "name", "position", "team", "opponent", "salary", "proj", "own", "inj")} for p in lu],
+                    "salary": sum(p["salary"] for p in lu), "proj": round(sum(p["proj"] for p in lu), 2)})
+    CASH.write_text(json.dumps({"saved": "pre-lock", "lineups": out}, indent=1))
+    print(f"cash pool: {len(pool)} healthy players")
+    for i, lu in enumerate(out, 1):
+        print(f"\nCash #{i}  ${lu['salary']}  blended proj {lu['proj']}")
+        for p in lu["players"]:
+            print(f"   {p['position']:<4}{p['name']:<24}{p['team']:<4}${p['salary']:<6}{p['proj']:>5.1f}")
 
 
 def cmd_lineups() -> None:
@@ -225,20 +264,28 @@ async def cmd_grade(force: bool = False) -> None:
                     m = next((x for x in model if x["id"] == p["id"]), None)
                     tot += act(m) if m else 0
                 rep["lineups"].append({"version": tag, "label": lu["label"], "proj": lu["proj"], "actual": round(tot, 2)})
+    if CASH.exists():
+        for lu in json.loads(CASH.read_text())["lineups"]:
+            tot = sum(act(next(x for x in model if x["id"] == p["id"])) for p in lu["players"])
+            rep["cash_lineups"] = rep.get("cash_lineups", []) + [{"label": lu["label"], "proj": lu["proj"], "actual": round(tot, 2)}]
+        saved = optimal.load_saved(2026, 9, SLATE[0]) or {}
+        rep["app_safe_lineup"] = [{"label": x.get("label"), "proj": x.get("proj_points"), "actual": x.get("actual")}
+                                  for x in saved.get("lineups", []) if x.get("metric") in ("floor", "safe", "proj")]
+        rep["note_cash"] = "Cash line (50/50, double-up) is not in any box score: compare 'actual' with the contest's cashing score once it is known."
     GRADE.write_text(json.dumps(rep, indent=1))
     print(json.dumps(rep, indent=1))
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("cmd", choices=["compare", "lineups", "grade"])
+    ap.add_argument("cmd", choices=["compare", "lineups", "cash", "grade"])
     ap.add_argument("--force", action="store_true", help="grade even if games are not final")
     args = ap.parse_args()
     cmd = args.cmd
     if cmd == "grade":
         asyncio.run(cmd_grade(args.force))
     else:
-        {"compare": cmd_compare, "lineups": cmd_lineups}[cmd]()
+        {"compare": cmd_compare, "lineups": cmd_lineups, "cash": cmd_cash}[cmd]()
 
 
 if __name__ == "__main__":
