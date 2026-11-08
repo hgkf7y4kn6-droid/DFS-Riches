@@ -23,6 +23,7 @@ from app.config import DATA_DIR
 
 D = DATA_DIR / "footballers"
 SOURCE, SNAP = D / "w9_source.json", D / "w9_model_snapshot.json"
+SOURCE2, LINEUPS1 = D / "w9_source2.json", D / "w9_lineups_v1.json"
 LINEUPS, GRADE = D / "w9_lineups.json", D / "w9_grade.json"
 SLATE = ("classic_sunday", 2026, 9)
 BAD_PROJ: set = set()      # (name, pos) pairs whose source projection is a known typo and should be ignored
@@ -49,6 +50,16 @@ def load() -> tuple[list[dict], list[dict], dict]:
         if len(c) == 1:
             rows.append({**s, "m": c[0]})
     return rows, model, src
+
+
+def load2(model: list[dict]) -> dict[int, dict]:
+    """The large-field GPP article (data/footballers/w9_source2.json) by model player id."""
+    out = {}
+    for s in json.loads(SOURCE2.read_text())["players"]:
+        m = find(model, s["name"], s["pos"])
+        if m:
+            out[m["id"]] = s
+    return out
 
 
 def find(model: list[dict], name: str, pos: str) -> dict | None:
@@ -78,31 +89,34 @@ def cmd_compare() -> None:
 
 
 def _pool(model: list[dict], rows: list[dict]) -> tuple[list[dict], list[float]]:
+    """Blend the model with both sources: equal-weight mean of whichever projections, ownerships and ceilings exist."""
     from app.optimizer import ELIGIBLE_STATUSES
     byid = {r["m"]["id"]: r for r in rows}
+    two = load2(model)
     pool, vals = [], []
     for m in model:
         if not (m["salary"] > 0 and (m["proj"] or 0) > 0 and m["inj"] in ELIGIBLE_STATUSES):
             continue
         if m["pos"] != "DST" and m["proj"] < 6:
             continue
-        s = byid.get(m["id"])
-        sp = s["proj"] if s and s["proj"] is not None and (s["name"], s["pos"]) not in BAD_PROJ else None
-        proj = (m["proj"] + sp) / 2 if sp is not None else m["proj"]
-        owns = [o for o in (m["own"], s["own"] if s else None) if o is not None]
+        s1, s2 = byid.get(m["id"]), two.get(m["id"])
+        projs = [m["proj"]] + [x["proj"] for x in (s1, s2) if x and x.get("proj") is not None and (x["name"], x["pos"]) not in BAD_PROJ]
+        proj = statistics.mean(projs)
+        owns = [o for o in (m["own"], s1["own"] if s1 else None, s2["own"] if s2 else None) if o is not None]
         own = statistics.mean(owns) if owns else 5.0
-        gap = max((m["ceil"] or m["proj"]) - m["proj"], 0)
+        ceils = [c for c in (m["ceil"] or m["proj"], s2.get("ceil") if s2 else None) if c is not None]
+        gap = max(statistics.mean(ceils) - proj, 0)
         # GPP value: blended projection, a ceiling bonus, and a leverage penalty on blended ownership
         v = proj + 0.12 * gap - 0.05 * own
         pool.append({"id": m["id"], "name": m["name"], "position": m["pos"], "team": m["team"], "opponent": m["opp"],
-                     "salary": m["salary"], "game": m["game"], "proj": round(proj, 2), "own": round(own, 1)})
+                     "salary": m["salary"], "game": m["game"], "proj": round(proj, 2), "own": round(own, 1), "inj": m["inj"]})
         vals.append(v)
     return pool, vals
 
 
-QB_PLANS = [("Goff stack (Jameson/LaPorta, MIA return)", "Jared Goff"), ("Stafford stack (Puka, WAS return)", "Matthew Stafford"),
-            ("Daniels stack (WAS, Puka/LAR return)", "Jayden Daniels"), ("Mahomes stack (Rice/Kelce, DET/KC game)", "Patrick Mahomes"),
-            ("Low-owned QB stack (Maye/Love/Shough)", None)]
+QB_PLANS = [("Goff stack (St. Brown/Jameson, MIA return)", "Jared Goff"), ("Stafford stack (Puka, WAS return)", "Matthew Stafford"),
+            ("Love stack (Watson/Kraft, NE return)", "Jordan Love"), ("Mahomes stack (Rice/Kelce)", "Patrick Mahomes"),
+            ("Daniels stack (WAS, Puka/LAR return)", "Jayden Daniels")]
 
 
 def cmd_lineups() -> None:
@@ -132,14 +146,14 @@ def cmd_lineups() -> None:
         prior.append({p["id"] for p in lu})
         for p in lu:
             used[p["id"]] = used.get(p["id"], 0) + 1
-        out.append({"label": label, "players": [{k: p[k] for k in ("id", "name", "position", "team", "opponent", "salary", "proj", "own")} for p in lu],
+        out.append({"label": label, "players": [{k: p[k] for k in ("id", "name", "position", "team", "opponent", "salary", "proj", "own", "inj")} for p in lu],
                     "salary": sum(p["salary"] for p in lu), "proj": round(sum(p["proj"] for p in lu), 2),
                     "own_sum": round(sum(p["own"] for p in lu), 1)})
     LINEUPS.write_text(json.dumps({"saved": "pre-lock", "lineups": out}, indent=1))
     for i, lu in enumerate(out, 1):
         print(f"\n#{i} {lu['label']}  ${lu['salary']}  blended proj {lu['proj']}  summed own {lu['own_sum']}%")
         for p in lu["players"]:
-            print(f"   {p['position']:<4}{p['name']:<24}{p['team']:<4}${p['salary']:<6}{p['proj']:>5.1f}  {p['own']:>5.1f}%")
+            print(f"   {p['position']:<4}{p['name']:<24}{p['team']:<4}${p['salary']:<6}{p['proj']:>5.1f}  {p['own']:>5.1f}%" + ("" if p["inj"] == "Healthy" else f"  [{p['inj']}]"))
 
 
 async def cmd_grade(force: bool = False) -> None:
@@ -166,6 +180,19 @@ async def cmd_grade(force: bool = False) -> None:
                                       "model_mae": round(statistics.mean(abs(r["m"]["proj"] - a) for r, a in g), 2),
                                       "source_bias": round(statistics.mean(r["proj"] - a for r, a in g), 2),
                                       "model_bias": round(statistics.mean(r["m"]["proj"] - a for r, a in g), 2)}
+    two = load2(model)
+    g2 = [(x, next(m for m in model if m["id"] == i), ) for i, x in two.items() if x.get("proj") is not None]
+    g2 = [(x, m, act(m)) for x, m in g2 if m["proj"] >= 3]
+    if g2:
+        rep["projection_source2"] = {"n": len(g2), "source2_mae": round(statistics.mean(abs(x["proj"] - a) for x, m, a in g2), 2),
+                                     "model_mae": round(statistics.mean(abs(m["proj"] - a) for x, m, a in g2), 2),
+                                     "source1_mae_same_players": None,
+                                     "source2_bias": round(statistics.mean(x["proj"] - a for x, m, a in g2), 2),
+                                     "model_bias": round(statistics.mean(m["proj"] - a for x, m, a in g2), 2)}
+        s1 = {r["m"]["id"]: r for r in rows if r["proj"] is not None}
+        both = [(s1[m["id"]]["proj"], a) for x, m, a in g2 if m["id"] in s1]
+        if both:
+            rep["projection_source2"]["source1_mae_same_players"] = round(statistics.mean(abs(p_ - a) for p_, a in both), 2)
     def pts(name, pos):
         m = find(model, name, pos)
         return act(m) if m else None
@@ -190,13 +217,14 @@ async def cmd_grade(force: bool = False) -> None:
         rep["pivots"].append({"pos": pos, "popular": [pop, ap], "pivot": [low, al], "aggressive": [agg, ag],
                               "pivot_beat_popular": None if None in (ap, al) else al > ap,
                               "aggressive_beat_popular": None if None in (ap, ag) else ag > ap})
-    if LINEUPS.exists():
-        for lu in json.loads(LINEUPS.read_text())["lineups"]:
-            tot = 0.0
-            for p in lu["players"]:
-                m = next((x for x in model if x["id"] == p["id"]), None)
-                tot += act(m) if m else 0
-            rep["lineups"].append({"label": lu["label"], "proj": lu["proj"], "actual": round(tot, 2)})
+    for tag, path in (("v2", LINEUPS), ("v1", LINEUPS1)):
+        if path.exists():
+            for lu in json.loads(path.read_text())["lineups"]:
+                tot = 0.0
+                for p in lu["players"]:
+                    m = next((x for x in model if x["id"] == p["id"]), None)
+                    tot += act(m) if m else 0
+                rep["lineups"].append({"version": tag, "label": lu["label"], "proj": lu["proj"], "actual": round(tot, 2)})
     GRADE.write_text(json.dumps(rep, indent=1))
     print(json.dumps(rep, indent=1))
 
