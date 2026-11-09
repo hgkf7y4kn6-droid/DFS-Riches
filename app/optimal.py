@@ -21,7 +21,9 @@ import json
 import os
 from datetime import datetime, timezone
 
+from app import cash_model
 from app import nflverse_client as nc
+from app import salary_log
 from app import slates as slates_module
 from app.config import OPTIMAL_LINEUPS_PATH
 from app.optimizer import CLASSIC_SLOTS, optimize
@@ -91,12 +93,28 @@ def _tournament(players: list, locked: set) -> list | None:
     return None
 
 
+def _cash_pool(players: list, cash: dict) -> list[dict]:
+    """Players as dicts carrying `cash_proj`, the cash model's points. Anyone the model does not cover, or the tested
+    stability filters drop, gets none, so the optimizer cannot pick him."""
+    pool = []
+    for p in players:
+        d = {f: _get(p, f) for f in _FIELDS}
+        c = cash.get(d["dk_draftable_id"])
+        d["cash_proj"] = c["proj"] if c and cash_model.eligible(d["position"], d["salary"], c["proj"], c["snap"]) else None
+        pool.append(d)
+    return pool
+
+
 def build_lineups(players: list, slate_type: str, *, saved: list[dict] | None = None,
-                  started: set[str] | None = None) -> list[dict]:
+                  started: set[str] | None = None, cash: dict | None = None) -> list[dict]:
     """The optimal lineup per metric. With games underway (`started` teams),
     each lineup keeps its saved players from those games (locked, with their
-    saved pre-kickoff rows) and fills the rest from games not yet started."""
+    saved pre-kickoff rows) and fills the rest from games not yet started.
+
+    `cash` (app.cash_model.projections, only with CASH_MODEL=v2) builds the Classic Safe lineup on the cash model's points
+    instead of the app's projection; Showdown and the Tournament lineup are unchanged."""
     started = started or set()
+    cash_players = _cash_pool([p for p in players if _get(p, "team") not in started], cash) if cash and slate_type != "showdown" else None
     prev = {lu.get("metric"): lu for lu in (saved or [])}
     open_players = [p for p in players if _get(p, "team") not in started]
     out = []
@@ -105,6 +123,8 @@ def build_lineups(players: list, slate_type: str, *, saved: list[dict] | None = 
         locks = {r["dk_draftable_id"] for r in locked_rows}
         if metric == "tournament":
             lineup = _tournament(open_players + locked_rows, locks)
+        elif metric == "proj_points" and cash_players is not None:
+            lineup = optimize(cash_players + locked_rows, slate_type, "cash_proj", locked=locks)
         else:
             lineup = optimize(open_players + locked_rows, slate_type, metric, locked=locks)
         if not lineup:
@@ -112,7 +132,9 @@ def build_lineups(players: list, slate_type: str, *, saved: list[dict] | None = 
                 out.append(prev[metric])
             continue
         lock_ids = {r["dk_draftable_id"] for r in locked_rows}
+        cash_built = metric == "proj_points" and cash_players is not None
         rows = [{"slot": slot, **{f: _get(p, f) for f in _FIELDS},
+                 **({"cash_proj": p["cash_proj"]} if cash_built and p.get("cash_proj") is not None else {}),
                  **({"locked": True} if _get(p, "dk_draftable_id") in lock_ids else {})}
                 for slot, p in zip(_slots(slate_type), lineup)]
         out.append({
@@ -122,6 +144,8 @@ def build_lineups(players: list, slate_type: str, *, saved: list[dict] | None = 
             "salary": sum(r["salary"] for r in rows),
             "proj_points": round(sum(r["proj_points"] or 0 for r in rows), 2),
             "ceiling": round(sum(r["ceiling"] or 0 for r in rows), 2),
+            **({"cash_proj": round(sum(r.get("cash_proj", r["proj_points"]) or 0 for r in rows), 2),
+                "note": "Cash model v2 (experimental)"} if cash_built else {}),
         })
     return out
 
@@ -218,7 +242,14 @@ async def get_optimal(season: int, week: int, slate_id: str, now: datetime | Non
     if not slate_locked(slate, now):
         started = started_teams(slate, now)
         players = (await slates_module.get_slate_players(season, week, slate_id)).players
-        lineups = build_lineups(players, slate.slate_type, saved=(saved or {}).get("lineups"), started=started)
+        salary_log.record(season, week, slate_id, slate.draft_group_id, slate.slate_type, players, now)
+        cash = None
+        if cash_model.enabled() and slate.slate_type != "showdown":
+            try:
+                cash = await cash_model.projections(season, week, players, slate)
+            except Exception:       # the experimental model must never take the lineups down: fall back to the app's projection
+                cash = None
+        lineups = build_lineups(players, slate.slate_type, saved=(saved or {}).get("lineups"), started=started, cash=cash or None)
         if lineups and (saved is None or saved.get("lineups") != lineups):
             saved = {"saved_at": now.isoformat(timespec="seconds"), "draft_group_id": slate.draft_group_id, "lineups": lineups}
             save(season, week, slate_id, saved)
