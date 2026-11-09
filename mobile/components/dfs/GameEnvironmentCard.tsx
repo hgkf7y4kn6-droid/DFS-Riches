@@ -101,6 +101,32 @@ function Checklist({ items }: { items: ChecklistItem[] }) {
   );
 }
 
+/** Each offense's style vs the opposing defense's, and what that pairing has done against the line since 2016. */
+function StyleMatchups({ items }: { items: StyleMatchup[] }) {
+  return (
+    <View>
+      {items.map((m) => (
+        <View key={m.offense} className="env-matchup">
+          <Text className="dfs-rank">{m.lean === 'pass' ? 'P' : m.lean === 'run' ? 'R' : '–'}</Text>
+          <View className="flex-1">
+            <Text className="dfs-name">
+              {m.offense} {m.off_style} vs {m.defense} {m.def_style}
+            </Text>
+            <Text className="dfs-meta">
+              {m.pass_att == null
+                ? 'No record for this pairing'
+                : `${formatSigned(m.pass_att, 1)} pass / ${formatSigned(m.rush_att ?? 0, 1)} rush attempts vs the line · WR ${formatSigned(
+                    m.dk.WR ?? 0,
+                    1,
+                  )} · RB ${formatSigned(m.dk.RB ?? 0, 1)} DK pts (team), 2016-2026`}
+            </Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function StackCard({ stack, rank }: { stack: DfsStack; rank: number }) {
   const own = stack.players.reduce((s, p) => s + (p.ownership ?? 0), 0);
   const value = stack.salary > 0 ? stack.final / (stack.salary / 1000) : 0;
@@ -145,6 +171,9 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
     env.shootout_leverage?.flag && { id: 'shootout-leverage', text: `Shootout leverage ${env.shootout_leverage.leverage.toFixed(2)}x` },
     env.negative_script && { id: 'negative-script', text: 'Negative script' },
     env.live_dog && { id: 'live-dog', text: `Live dog: ${env.underdog}` },
+    ...(env.style_matchup ?? [])
+      .filter((m) => m.lean)
+      .map((m) => ({ id: 'style-matchup', text: `${m.offense} leans ${m.lean}` })),
   ].filter(Boolean) as { id: string; text: string }[];
 
   return (
@@ -234,6 +263,14 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
             <>
               <Text className="detail-title mt-4">Weekly audit checklist</Text>
               <Checklist items={env.checklist} />
+            </>
+          ) : null}
+          {env.style_matchup?.length ? (
+            <>
+              <Text className="detail-title mt-4">
+                <Term id="style-matchup">Style matchup</Term>
+              </Text>
+              <StyleMatchups items={env.style_matchup} />
             </>
           ) : null}
           <Text className="detail-title mt-4">Matchups to exploit</Text>

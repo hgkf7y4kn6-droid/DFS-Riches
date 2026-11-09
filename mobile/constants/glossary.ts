@@ -201,6 +201,12 @@ export const GLOSSARY: GlossaryEntry[] = [
     definition: "An underdog of 3+ points that Vegas still expects to score 21.5 or more: its players can outscore the spread's story.",
   },
   {
+    id: 'style-matchup',
+    term: 'Style matchup',
+    definition:
+      "Each offense's style this season (pass-first or run-first, efficient or not) against the opposing defense's (stout or porous, weaker against the pass or the run). Leans pass or run when that pairing moved pass attempts 1.5+ against what the spread and total imply in at least 3 of every 4 seasons since 2016, whichever teams filled it.",
+  },
+  {
     id: 'negative-script',
     term: 'Negative script',
     definition: 'A spread of 6.5 or more: the underdog may fall behind and pass a lot, and the favorite may run the clock out.',

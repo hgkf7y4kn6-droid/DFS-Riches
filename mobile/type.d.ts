@@ -731,6 +731,19 @@ interface PropPrice {
 }
 
 /** One game's environment for DFS, ranked across the slate (1 = best). */
+interface StyleMatchup {
+  offense: string;
+  defense: string;
+  off_style: string;
+  def_style: string;
+  /** 'pass' / 'run' when the cell moved pass attempts 1.5+ vs the line in 75%+ of seasons. */
+  lean: 'pass' | 'run' | null;
+  pass_att: number | null;
+  rush_att: number | null;
+  dk: Record<string, number | null>;
+  text: string;
+}
+
 interface DfsGameEnv {
   /** "JAX@CIN". */
   game: string;
@@ -774,6 +787,8 @@ interface DfsGameEnv {
   shootout_note?: string;
   /** The weekly audit checklist (app.game_model): which items fire and each item's 2023-2025 record. */
   checklist?: ChecklistItem[] | null;
+  /** Each offense's style vs the opposing defense's style, this season (app.style_matchup). */
+  style_matchup?: StyleMatchup[] | null;
   /** Game model v2: the market line plus a correction fit on 2023-2025. */
   model_v2?: {
     fair_total: number;

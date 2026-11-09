@@ -442,6 +442,7 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
         if v is not None and v2.get(k):
             v["model_v2"] = {x: v2[k][x] for x in ("fair_total", "total_adj", "fair_home_margin", "margin_adj", "qbs", "ol_out")}
             v["checklist"] = v2[k]["checklist"]
+            v["style_matchup"] = v2[k].get("style_matchup")
     strategy = dfs_strategy.run(pool, rows, slate, wd, profiles, True, season, week, adv, adv_bt)
     lineup_ids = {lu["label"]: [p["id"] for p in lu["players"]]
                   for grp in ("cash", "gpp", "contrarian") for lu in strategy["lineups"][grp]}

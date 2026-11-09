@@ -313,6 +313,7 @@ def analyze_games(pool: list[dict], slate, wd, has_own: bool, adv: dict | None =
         x["advanced_notes"] = advanced_env.notes(x["advanced_env"])
         x["checklist"] = (x["advanced_env"] or {}).get("checklist")
         x["model_v2"] = (x["advanced_env"] or {}).get("model_v2")
+        x["style_matchup"] = (x["advanced_env"] or {}).get("style_matchup")
         x["env_score"] = round(sum(parts.values()), 2)
         x["env_parts"] = {k: round(v, 2) for k, v in parts.items()}
         x["pop_share"] = round(x["pop_raw"] / pop_total, 3)
