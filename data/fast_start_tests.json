@@ -1554,5 +1554,64 @@
    },
    "pre_game_q1_exp_margin": -0.73
   }
+ },
+ "player_model": {
+  "rows": {
+   "train": 11175,
+   "test": 1752,
+   "train_rated": 9772,
+   "test_rated": 1277
+  },
+  "subset": "|expected Q1 margin| >= 2 points",
+  "test": {
+   "current": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.359,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.492,
+     "adj_vs_miss_rho": 0.062
+    },
+    "test_2026": {
+     "n": 1752,
+     "mae_sleeper": 5.365,
+     "mae_corrected": 5.35,
+     "rank_rho_sleeper": 0.473,
+     "rank_rho_corrected": 0.481,
+     "adj_vs_miss_rho": 0.048,
+     "top_third_boom": 0.226,
+     "top_third_bust": 0.202,
+     "bottom_third_boom": 0.207,
+     "bottom_third_bust": 0.259
+    },
+    "loso_subset_mae": 5.253,
+    "test_2026_subset_mae": 4.866
+   },
+   "+q1_trail_x_pass+q1_trail_x_rb": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.359,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.492,
+     "adj_vs_miss_rho": 0.065
+    },
+    "test_2026": {
+     "n": 1752,
+     "mae_sleeper": 5.365,
+     "mae_corrected": 5.346,
+     "rank_rho_sleeper": 0.473,
+     "rank_rho_corrected": 0.481,
+     "adj_vs_miss_rho": 0.053,
+     "top_third_boom": 0.226,
+     "top_third_bust": 0.199,
+     "bottom_third_boom": 0.205,
+     "bottom_third_bust": 0.262
+    },
+    "loso_subset_mae": 5.254,
+    "test_2026_subset_mae": 4.853
+   }
+  }
  }
 }
