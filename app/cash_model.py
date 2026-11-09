@@ -9,13 +9,17 @@ games before the week, using only features that were backtested:
   RB/WR/TE: trailing-8 DK points, the team's implied total, snap share (last 6), touches per team play (last 6) and its
             recent trend. QB: trailing-8 DK points, implied total, expected margin, rushing attempts, pass attempts.
 
-Backtest (2025 + 2026 Weeks 1-9, 27 weeks, salaries proxied from trailing production because DraftKings keeps no price
-history): the Safe lineup built on these points scored about +10 to +18 DK points a lineup more than one built on a
-trailing-8-plus-Vegas baseline (two implementations of the same model; 90% intervals roughly +2 to +27, so the size is
-uncertain though the sign held in both seasons), and its projection stopped overstating the lineup (about 13 points
-high for the baseline, about 2 for this model). Holdout accuracy per position is in data/cash_model.json. A richer version
-that also used red-zone-weighted opportunity (WOV) and a consistency factor from play-by-play gained about +17 in
-the first implementation; that is not built here.
+Backtest (2024, 2025 and 2026 Weeks 1-9: 45 weeks, salaries proxied from trailing production because DraftKings keeps no
+price history): the Safe lineup built on these points scored about +13 DK points a lineup more than one built on a
+trailing-8-plus-Vegas baseline (90% interval +5 to +21; +7, +10 and +30 in the three seasons, so the size is uncertain
+though the sign held in each). Against the real Week 9 double-up cash lines in data/contest_lines.json (9-slot 132.6 to
+135.0, about 126 to 128 without the DST) it cashed in about 49% of backtest weeks against 24% for the baseline; one week of
+real lines is one data point, and the model's own Week 9 lineup came out about 130 with a DST, just under the line.
+
+Tested and left out, because none improved accuracy or lineups beyond noise: red-zone-weighted opportunity (WOV) from
+play-by-play, vacated opportunity, touchdown-luck regression, a consistency factor (CSF) as a feature or a CSF cutoff,
+trailing standard deviation and best/worst-game features (these made the projection worse), recent form (last 1-3 games),
+games since last played, last season's average, and the ridge penalty.
 
 Rules that were part of the tested lineup, kept here:
   - eligible only with at least 4 prior games and a trailing-6 average of 5+ DK points (QB 10+): no rookies or new roles;
