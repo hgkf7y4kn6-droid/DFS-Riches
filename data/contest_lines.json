@@ -1,33 +1,289 @@
 {
-  "_readme": "Real DraftKings contest results read from screenshots the owner supplied (standings, FINAL). Scores are 9-slot Classic lineups (DST included). 'rows' are the visible (rank, score, payout) lines; the last visible paid row is the lowest score seen to cash. The screenshots carry no date or slate: they are assumed to be the Week 9 (2026-11-08) Sunday main slate, which the app's own Week 9 results are compared against. Use these to calibrate the cash line; one slate is one data point, and the line moves week to week.",
-  "season": 2026,
-  "week_assumed": 9,
-  "contests": [
-    {"name": "NFL Single Entry $5 Double Up (A)", "kind": "double_up", "entry": 5,
-     "rows": [[495, 140.88, 10], [496, 140.80, 10], [498, 140.70, 10], [500, 140.58, 10], [1500, 132.92, 10]],
-     "last_paid_visible": {"rank": 1500, "score": 132.92}},
-    {"name": "NFL Single Entry $5 Double Up (B)", "kind": "double_up", "entry": 5,
-     "rows": [[413, 137.98, 10], [1000, 135.00, 5]],
-     "last_paid_visible": {"rank": 1000, "score": 135.00},
-     "note": "the rank-1,000 row shows a $5 payout while rank 413 shows $10; read as the bottom of the paid places"},
-    {"name": "NFL Single Entry $2 Double Up", "kind": "double_up", "entry": 2,
-     "rows": [[347, 137.98, 4], [1000, 132.60, 4]],
-     "last_paid_visible": {"rank": 1000, "score": 132.60}},
-    {"name": "NFL $25K Pylon [Single Entry]", "kind": "gpp", "entry": null,
-     "rows": [[497, 157.30, 8], [499, 157.28, 8], [509, 157.16, 8], [1033, 147.80, 5.5], [2576, 133.50, 5]],
-     "last_paid_visible": {"rank": 2576, "score": 133.50}},
-    {"name": "NFL Discord-Only Around the World Contest", "kind": "small_field", "entry": null,
-     "rows": [[194, 142.98, 1], [196, 142.92, 1], [197, 142.34, 1], [198, 142.30, 1], [199, 142.28, 1], [200, 142.26, 1]],
-     "last_paid_visible": {"rank": 200, "score": 142.26}},
-    {"name": "NFL $25K Triple Option [5 Entry Max]", "kind": "gpp", "entry": null,
-     "rows": [[510, 158.66, 8], [596, 156.58, 6], [1033, 149.16, 6], [2573, 135.90, 2.86]],
-     "last_paid_visible": {"rank": 2573, "score": 135.90},
-     "owner_entry": {"rank": 596, "score": 156.58, "payout": 6}}
-  ],
-  "summary": {
-    "double_up_cash_line_9_slot": [132.60, 135.00],
-    "double_up_cash_line_8_slot_no_dst": "about 126 to 128 (a DST averages about 7)",
-    "gpp_min_cash_9_slot": [133.50, 135.90],
-    "gpp_top_500_9_slot": 157.3
+ "_readme": "Real DraftKings contest results read from screenshots the owner supplied (standings, FINAL). Scores are 9-slot Classic lineups (DST included). 'rows' are the visible (rank, score, payout) lines; the last visible paid row is the lowest score seen to cash. The screenshots carry no date or slate: they are assumed to be the Week 9 (2026-11-08) Sunday main slate, which the app's own Week 9 results are compared against. Use these to calibrate the cash line; one slate is one data point, and the line moves week to week. Entry counts and the owner's finishes come from the contest list screenshot (all COMPLETED 2026-11-08), which confirms the slate date.",
+ "season": 2026,
+ "week_assumed": 9,
+ "contests": [
+  {
+   "name": "NFL Single Entry $5 Double Up (A)",
+   "kind": "double_up",
+   "entry": 5,
+   "rows": [
+    [
+     495,
+     140.88,
+     10
+    ],
+    [
+     496,
+     140.8,
+     10
+    ],
+    [
+     498,
+     140.7,
+     10
+    ],
+    [
+     500,
+     140.58,
+     10
+    ],
+    [
+     1500,
+     132.92,
+     10
+    ]
+   ],
+   "last_paid_visible": {
+    "rank": 1500,
+    "score": 132.92
+   },
+   "entries": 3400,
+   "note": "about 3.4K entries; the last paid place (1,500) is about 44% of the field"
+  },
+  {
+   "name": "NFL Single Entry $5 Double Up (B)",
+   "kind": "double_up",
+   "entry": 5,
+   "rows": [
+    [
+     413,
+     137.98,
+     10
+    ],
+    [
+     1000,
+     135.0,
+     5
+    ]
+   ],
+   "last_paid_visible": {
+    "rank": 1000,
+    "score": 135.0
+   },
+   "note": "about 2.3K entries; last paid place 1,000 is about 43% of the field. The rank-1,000 row shows a $5 payout while rank 413 shows $10; read as the bottom of the paid places",
+   "entries": 2300
+  },
+  {
+   "name": "NFL Single Entry $2 Double Up",
+   "kind": "double_up",
+   "entry": 2,
+   "rows": [
+    [
+     347,
+     137.98,
+     4
+    ],
+    [
+     1000,
+     132.6,
+     4
+    ]
+   ],
+   "last_paid_visible": {
+    "rank": 1000,
+    "score": 132.6
+   },
+   "entries": 2200
+  },
+  {
+   "name": "NFL $25K Pylon [Single Entry]",
+   "kind": "gpp",
+   "entry": null,
+   "rows": [
+    [
+     497,
+     157.3,
+     8
+    ],
+    [
+     499,
+     157.28,
+     8
+    ],
+    [
+     509,
+     157.16,
+     8
+    ],
+    [
+     1033,
+     147.8,
+     5.5
+    ],
+    [
+     2576,
+     133.5,
+     5
+    ]
+   ],
+   "last_paid_visible": {
+    "rank": 2576,
+    "score": 133.5
+   },
+   "entries": 9900
+  },
+  {
+   "name": "NFL Discord-Only Around the World Contest",
+   "kind": "small_field",
+   "entry": null,
+   "rows": [
+    [
+     194,
+     142.98,
+     1
+    ],
+    [
+     196,
+     142.92,
+     1
+    ],
+    [
+     197,
+     142.34,
+     1
+    ],
+    [
+     198,
+     142.3,
+     1
+    ],
+    [
+     199,
+     142.28,
+     1
+    ],
+    [
+     200,
+     142.26,
+     1
+    ]
+   ],
+   "last_paid_visible": {
+    "rank": 200,
+    "score": 142.26
+   },
+   "entries": 1700
+  },
+  {
+   "name": "NFL $25K Triple Option [5 Entry Max]",
+   "kind": "gpp",
+   "entry": null,
+   "rows": [
+    [
+     510,
+     158.66,
+     8
+    ],
+    [
+     596,
+     156.58,
+     6
+    ],
+    [
+     1033,
+     149.16,
+     6
+    ],
+    [
+     2573,
+     135.9,
+     2.86
+    ]
+   ],
+   "last_paid_visible": {
+    "rank": 2573,
+    "score": 135.9
+   },
+   "owner_entry": {
+    "rank": 596,
+    "score": 156.58,
+    "payout": 6
+   }
   }
+ ],
+ "summary": {
+  "double_up_cash_line_9_slot": [
+   132.6,
+   135.0
+  ],
+  "double_up_cash_line_8_slot_no_dst": "about 126 to 128 (a DST averages about 7)",
+  "gpp_min_cash_9_slot": [
+   133.5,
+   135.9
+  ],
+  "gpp_top_500_9_slot": 157.3,
+  "double_up_paid_share": "about 43-45% of entries",
+  "owner_lineup_156_58_percentile": "rank 93/2.2K, 110/2.3K, 182/3.4K: about the top 4-5% of each double-up",
+  "pylon_181_08": "28th of 9.9K (top 0.3%)"
+ },
+ "owner_results": {
+  "lineup_156_58": {
+   "fpts": 156.58,
+   "note": "one lineup scored 156.58 in all three double-ups and the Triple Option entry; Discord contest entry scored 149.50",
+   "double_up_5_a": {
+    "rank": 182,
+    "of": 3400,
+    "won": 10
+   },
+   "double_up_5_b": {
+    "rank": 110,
+    "of": 2300,
+    "won": 10
+   },
+   "double_up_2": {
+    "rank": 93,
+    "of": 2200,
+    "won": 4
+   }
+  },
+  "pylon_se_25k": {
+   "fpts": 181.08,
+   "rank": 28,
+   "of": 9900,
+   "entry": 3,
+   "won": 50
+  },
+  "triple_option_25k": {
+   "entries": 5,
+   "placed": 2,
+   "entry_total": 15,
+   "won": 16,
+   "best": {
+    "rank": 596,
+    "fpts": 156.58,
+    "won": 6
+   }
+  },
+  "discord_around_the_world": {
+   "fpts": 149.5,
+   "rank": 131,
+   "of": 1700,
+   "won": 1
+  },
+  "thursday_showdown_jax_bal": {
+   "contest": "$5K Little Caesars Fantasy Series (JAX @ BAL)",
+   "fpts": 99.78,
+   "rank": 1,
+   "of": 8600,
+   "won": 152.86,
+   "paid_rows": [
+    [
+     495,
+     85.78,
+     2.0
+    ],
+    [
+     796,
+     81.68,
+     1.83
+    ],
+    [
+     1889,
+     74.46,
+     0.19
+    ]
+   ]
+  }
+ }
 }
