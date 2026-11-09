@@ -345,6 +345,7 @@ function ContestRow({ contest: c, rank, pinned }: { contest: BestContest; rank: 
       <View className="pl-stats">
         {[
           ['Score', String(Math.round(c.score))],
+          ...(c.grade ? [['Grade', c.grade]] : []),
           ['Rake', formatPercent(c.rake)],
           ['Paid', c.paid_pct == null ? '-' : formatPercent(c.paid_pct, 0)],
           ['1st', c.top_prize == null ? '-' : `${shortMoney(c.top_prize)} (${Math.round(c.top_multiple ?? 0).toLocaleString('en-US')}x)`],

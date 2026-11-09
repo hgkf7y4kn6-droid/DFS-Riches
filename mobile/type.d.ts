@@ -351,6 +351,9 @@ interface BestContest {
   top_prize: number | null;
   top_multiple: number | null;
   score: number;
+  /** A-F grade against the other GPPs on its slate (small field, few entries, flat payout); null for cash games. */
+  grade: 'A' | 'B' | 'C' | 'D' | 'F' | null;
+  grade_score: number | null;
   /** The name without its slate when the contest runs on several slates, else the name. */
   title: string;
   /** Copies DraftKings lists of this contest, on this and other slates (this row is the fullest copy). */
