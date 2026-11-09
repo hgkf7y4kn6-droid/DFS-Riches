@@ -13946,7 +13946,7 @@
         "results_at": "2026-11-09T12:20:33+00:00"
       },
       "classic": {
-        "saved_at": "2026-11-09T12:20:42+00:00",
+        "saved_at": "2026-11-09T23:53:22+00:00",
         "draft_group_id": 155993,
         "lineups": [
           {
@@ -14012,9 +14012,9 @@
                 "opponent": "BUF",
                 "roster_slot": "",
                 "salary": 6800,
-                "proj_points": 18.91,
-                "ceiling": 29.9,
-                "sleeper_proj": 17.52,
+                "proj_points": 19.37,
+                "ceiling": 30.5,
+                "sleeper_proj": 17.9,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44762338,
@@ -14107,8 +14107,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 152.28,
-            "ceiling": 235.9
+            "proj_points": 152.74,
+            "ceiling": 236.5
           },
           {
             "metric": "tournament",
@@ -15213,7 +15213,7 @@
         "results_at": "2026-11-09T12:20:44+00:00"
       },
       "showdown_mon_night": {
-        "saved_at": "2026-11-09T12:20:45+00:00",
+        "saved_at": "2026-11-09T23:53:32+00:00",
         "draft_group_id": 156014,
         "lineups": [
           {
@@ -15229,7 +15229,7 @@
                 "roster_slot": "CPT",
                 "salary": 6900,
                 "proj_points": 16.65,
-                "ceiling": 27.3,
+                "ceiling": 28.2,
                 "sleeper_proj": null,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
@@ -15244,9 +15244,9 @@
                 "opponent": "MIN",
                 "roster_slot": "FLEX",
                 "salary": 11400,
-                "proj_points": 20.56,
-                "ceiling": 29.0,
-                "sleeper_proj": 22.12,
+                "proj_points": 21.58,
+                "ceiling": 30.0,
+                "sleeper_proj": 22.69,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44817541,
@@ -15260,9 +15260,9 @@
                 "opponent": "BUF",
                 "roster_slot": "FLEX",
                 "salary": 9800,
-                "proj_points": 18.91,
-                "ceiling": 29.9,
-                "sleeper_proj": 17.52,
+                "proj_points": 19.37,
+                "ceiling": 30.5,
+                "sleeper_proj": 17.9,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44817543,
@@ -15276,9 +15276,9 @@
                 "opponent": "BUF",
                 "roster_slot": "FLEX",
                 "salary": 9000,
-                "proj_points": 15.69,
-                "ceiling": 24.9,
-                "sleeper_proj": 14.48,
+                "proj_points": 16.44,
+                "ceiling": 25.6,
+                "sleeper_proj": 14.85,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44817545,
@@ -15292,9 +15292,9 @@
                 "opponent": "MIN",
                 "roster_slot": "FLEX",
                 "salary": 7800,
-                "proj_points": 12.84,
-                "ceiling": 22.2,
-                "sleeper_proj": 12.77,
+                "proj_points": 12.97,
+                "ceiling": 22.4,
+                "sleeper_proj": 12.79,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44817547,
@@ -15309,7 +15309,7 @@
                 "roster_slot": "FLEX",
                 "salary": 5000,
                 "proj_points": 11.7,
-                "ceiling": 17.7,
+                "ceiling": 18.1,
                 "sleeper_proj": null,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
@@ -15318,8 +15318,8 @@
               }
             ],
             "salary": 49900,
-            "proj_points": 96.35,
-            "ceiling": 151.0
+            "proj_points": 98.71,
+            "ceiling": 154.8
           },
           {
             "metric": "ceiling",
@@ -15334,7 +15334,7 @@
                 "roster_slot": "CPT",
                 "salary": 6900,
                 "proj_points": 16.65,
-                "ceiling": 27.3,
+                "ceiling": 28.2,
                 "sleeper_proj": null,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
@@ -15349,9 +15349,9 @@
                 "opponent": "MIN",
                 "roster_slot": "FLEX",
                 "salary": 11400,
-                "proj_points": 20.56,
-                "ceiling": 29.0,
-                "sleeper_proj": 22.12,
+                "proj_points": 21.58,
+                "ceiling": 30.0,
+                "sleeper_proj": 22.69,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44817541,
@@ -15365,9 +15365,9 @@
                 "opponent": "BUF",
                 "roster_slot": "FLEX",
                 "salary": 9800,
-                "proj_points": 18.91,
-                "ceiling": 29.9,
-                "sleeper_proj": 17.52,
+                "proj_points": 19.37,
+                "ceiling": 30.5,
+                "sleeper_proj": 17.9,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44817543,
@@ -15381,9 +15381,9 @@
                 "opponent": "BUF",
                 "roster_slot": "FLEX",
                 "salary": 9000,
-                "proj_points": 15.69,
-                "ceiling": 24.9,
-                "sleeper_proj": 14.48,
+                "proj_points": 16.44,
+                "ceiling": 25.6,
+                "sleeper_proj": 14.85,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44817545,
@@ -15397,9 +15397,9 @@
                 "opponent": "MIN",
                 "roster_slot": "FLEX",
                 "salary": 7800,
-                "proj_points": 12.84,
-                "ceiling": 22.2,
-                "sleeper_proj": 12.77,
+                "proj_points": 12.97,
+                "ceiling": 22.4,
+                "sleeper_proj": 12.79,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
                 "dk_draftable_id": 44817547,
@@ -15414,7 +15414,7 @@
                 "roster_slot": "FLEX",
                 "salary": 5000,
                 "proj_points": 11.7,
-                "ceiling": 17.7,
+                "ceiling": 18.1,
                 "sleeper_proj": null,
                 "game_info": "BUF @ MIN",
                 "injury": "Healthy",
@@ -15423,8 +15423,8 @@
               }
             ],
             "salary": 49900,
-            "proj_points": 96.35,
-            "ceiling": 151.0
+            "proj_points": 98.71,
+            "ceiling": 154.8
           }
         ]
       }
