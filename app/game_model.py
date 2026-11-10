@@ -511,9 +511,12 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
     raw = await nc.get_games_raw(season)
     priors, lg = m["priors"], m["priors"]["league"]
     est = team_estimates(season_totals(agg, week), priors)
-    from app import style_matchup, team_changes
+    from app import roster_adjust, style_matchup, team_changes
     moves = team_changes.recent_moves(season, week)
-    styles = style_matchup.classify(season_totals(agg, week)) if week >= style_matchup.MIN_WEEK else {}
+    tot = season_totals(agg, week)
+    radj = roster_adjust.for_week(season, week)
+    styles = (style_matchup.classify(tot, {t: radj[nc.to_app_team(t)] for t in tot if nc.to_app_team(t) in radj})
+              if week >= style_matchup.MIN_WEEK else {})
     hist = {q: list(v) for q, v in (m.get("qb_prior") or {}).items()}
     for q, (n, e) in qb_history(agg, before_week=week).items():
         h = hist.setdefault(q, [0.0, 0.0])
@@ -582,6 +585,8 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
             "style_matchup": style_matchup.game(a, h, styles, nc.to_app_team),
             # trades, play-caller and coordinator changes of the last few weeks, which those styles can't have seen yet
             "roster_moves": {nc.to_app_team(t): moves.get(nc.to_app_team(t), []) for t in (a, h)},
+            # what those moves are worth (back-tested; app.roster_adjust) and the styles they were applied to
+            "roster_adjust": {nc.to_app_team(t): radj[nc.to_app_team(t)] for t in (a, h) if nc.to_app_team(t) in radj},
             "final": None if r.get("home_score") in (None, "") else
             {"total": int(r["home_score"]) + int(r["away_score"]), "home_margin": int(r["home_score"]) - int(r["away_score"])},
         }

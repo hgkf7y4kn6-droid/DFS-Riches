@@ -1148,6 +1148,26 @@ Sleeper/DraftKings/nflverse on first request and re-populates it, exactly
 as it does locally. Mounting a persistent volume at `/app/data/cache`
 speeds up cold starts across restarts but is optional.
 
+## Roster moves and injuries (team styles)
+
+A team's style (`app/style_matchup.py`) is read from games already played, so trades, a new quarterback or an injured
+receiver show up in it only after games. `app/roster_adjust.py` applies what a 2016-2025 walk-forward back-test
+(`scripts/backtest_roster_moves.py` -> `data/roster_move_backtest.json`, coefficients in `data/roster_adjust_model.json`)
+found held up out of sample, for the coming week's expected lineup (`scripts/update_roster_adjust.py` ->
+`data/roster_adjust.json`; expected starters that differ from the last game's go in `data/roster_adjust_inputs.json`):
+
+| Move | Effect (vs the team's own last 8 games) | Out-of-sample |
+|---|---|---|
+| New starting QB | 0.51 x the gap in career dropback EPA, 0.15 x the gap in neutral pass rate | EPA/dropback weight t = 9.6 (team's own form: t = 7.7); MSE -1.5%, -7.2% for QBs acquired from another team |
+| QB with < 300 career dropbacks | EPA/dropback -0.073, interceptions +0.3 pts, sacks +0.5 pts, red-zone TD rate -4.4 pts, neutral pass rate -0.9 pts | t = -6.7, 3.0, 2.9, -4.5, -1.9; gone by 300 dropbacks |
+| WR/TE with 8%+ of recent targets out or traded | EPA/dropback -0.10 and neutral pass rate -4.6 pts per 100% of targets lost | t = -3.1, -3.3; pass rate negative in 10 of 10 seasons |
+| Pass rushers added or lost | a defender's own sacks+hits per snap carries to his new team (weight 0.30); a point of pressure rate = -1.07 EPA per dropback allowed | t = 4.1; MSE -0.9% |
+
+Not adopted (no effect out of sample): lost running backs, plays per game, target concentration (rookie QBs do not
+concentrate targets), and lost run-stoppers on rush EPA allowed. A label changes only when a move shifts a team by 0.25
+standard deviations or more. Game cards show the effect line and the reasons under "Recent roster moves".
+Regenerate the back-test and the weekly file with the training data in `data/cache/train` (see the script docstrings).
+
 ## Tests
 
 ```bash

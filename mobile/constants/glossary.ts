@@ -204,13 +204,13 @@ export const GLOSSARY: GlossaryEntry[] = [
     id: 'style-matchup',
     term: 'Style matchup',
     definition:
-      "Each team's style this season, read from games already played. Offense: pass-heavy or run-heavy, and efficient or inefficient (points added per play). Defense: tough or leaky overall, and weaker against the pass or the run. A pairing leans pass or run when it moved pass attempts 1.5+ against what the spread and total imply in at least 3 of every 4 seasons since 2016, whichever teams filled it. Styles update every week; they can't see trades, so check Recent roster moves.",
+      "Each team's style this season, read from games already played. Offense: pass-heavy or run-heavy, and efficient or inefficient (points added per play). Defense: tough or leaky overall, and weaker against the pass or the run. A pairing leans pass or run when it moved pass attempts 1.5+ against what the spread and total imply in at least 3 of every 4 seasons since 2016, whichever teams filled it. Styles update every week and also apply back-tested roster moves (the expected quarterback, receivers who are out or traded away, pass-rush arrivals and departures) when they move a team by a quarter of a standard deviation or more.",
   },
   {
     id: 'roster-moves',
     term: 'Recent roster moves',
     definition:
-      "Trades and coaching changes that took effect in the last 3 weeks (the week shown is the team's first game with the change). Styles come from games played before the change, so a new quarterback, play-caller or defensive coordinator isn't reflected in them yet.",
+      "Trades and coaching changes that took effect in the last 3 weeks (the week shown is the team's first game with the change). Styles come from games played before the change, so a new quarterback, play-caller or defensive coordinator isn't reflected in them until the games are played. The back-tested effect line shows what the model applies: a quarterback's own career carries about as much weight as the team's recent form, a starter with under 300 career dropbacks costs about 0.07 EPA per dropback and 4 points of red-zone TD rate, and lost receivers and pass rushers matter less.",
   },
   {
     id: 'negative-script',

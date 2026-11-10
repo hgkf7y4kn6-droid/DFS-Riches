@@ -43,29 +43,83 @@ def _rates(totals: dict) -> dict[str, dict[str, float]]:
     return {t: {k: (n + kk * lg[k]) / (den + kk) for k, (n, den, kk) in r.items()} for t, r in raw.items()}
 
 
-def _z(vals: dict[str, float]) -> dict[str, float]:
+def _z(vals: dict[str, float], ref: tuple[float, float] | None = None) -> dict[str, float]:
+    """z-scores across the league; `ref` = (mean, sd) to score against instead (adjusted teams vs the games-only league)."""
     if len(vals) < 4:
         return {t: 0.0 for t in vals}
-    m, s = statistics.fmean(vals.values()), statistics.pstdev(vals.values()) or 1.0
+    m, s = ref or (statistics.fmean(vals.values()), statistics.pstdev(vals.values()) or 1.0)
     return {t: (v - m) / s for t, v in vals.items()}
 
 
-def classify(totals: dict) -> dict[str, dict]:
+def _ref(r: dict) -> dict[str, tuple[float, float]]:
+    out = {}
+    for k in ("pass", "eff", "dpass", "drush"):
+        vals = [v[k] for v in r.values()]
+        out[k] = (statistics.fmean(vals), statistics.pstdev(vals) or 1.0) if len(vals) >= 4 else None
+    return out
+
+
+FLIP_Z = 0.25                   # standard deviations a roster move must shift a team to change its label
+OFF_PLAY_SHARE = 0.6            # dropbacks are about 60% of a team's plays: an EPA-per-dropback change moves EPA per play by this much
+
+
+def _shift(r: dict, adjust: dict) -> dict:
+    """The season's rates with roster moves applied (app.roster_adjust): EPA per play, neutral pass rate, and dropback
+    EPA allowed move by the back-tested effects of the expected quarterback, absent receivers and pass-rush changes."""
+    out = {t: dict(v) for t, v in r.items()}
+    for t, a in adjust.items():
+        if t in out:
+            out[t]["eff"] += OFF_PLAY_SHARE * a.get("d_epa_db", 0.0)
+            out[t]["pass"] += a.get("d_pass_rate", 0.0)
+            out[t]["dpass"] += a.get("d_def_epa_db", 0.0)
+    return out
+
+
+def classify(totals: dict, adjust: dict | None = None) -> dict[str, dict]:
     """{team: {"off_style", "def_style", "pass_lean", "off_eff", "def_quality", "pass_funnel"}} (z-scores across
-    the league) from app.game_model.season_totals of this season's earlier weeks."""
+    the league) from app.game_model.season_totals of this season's earlier weeks. `adjust` ({team: {d_epa_db,
+    d_pass_rate, d_def_epa_db}}) applies roster moves first; a team whose style that changes also carries
+    "off_style_raw" / "def_style_raw" with the style the games alone gave."""
     r = _rates(totals)
     if not r:
         return {}
-    lean = _z({t: v["pass"] for t, v in r.items()})
-    eff = _z({t: v["eff"] for t, v in r.items()})
-    dp = _z({t: v["dpass"] for t, v in r.items()})
-    dr = _z({t: v["drush"] for t, v in r.items()})
+    if adjust:
+        raw = _label(r)
+        out = _label(_shift(r, adjust), _ref(r))
+        for t, o in out.items():
+            # a roster move changes a label only if it moved the team by FLIP_Z standard deviations: a nudge across the
+            # line between two near-identical teams is noise, so those keep the games-only label
+            for comp in ("pass_lean", "off_eff", "def_quality", "pass_funnel"):
+                if abs(o[comp] - raw[t][comp]) < FLIP_Z:
+                    o[comp] = raw[t][comp]
+            o["off_style"] = _off_name(o["pass_lean"], o["off_eff"])
+            o["def_style"] = _def_name(o["def_quality"], o["pass_funnel"])
+            for k in ("off_style", "def_style"):
+                if raw[t][k] != o[k]:
+                    o[f"{k}_raw"] = raw[t][k]
+        return out
+    return _label(r)
+
+
+def _off_name(lean: float, eff: float) -> str:
+    return ("pass-first" if lean >= 0 else "run-first") + (" efficient" if eff >= 0 else " inefficient")
+
+
+def _def_name(quality: float, funnel: float) -> str:
+    return ("stout" if quality >= 0 else "porous") + (" pass-funnel" if funnel >= 0 else " run-funnel")
+
+
+def _label(r: dict, ref: dict | None = None) -> dict[str, dict]:
+    ref = ref or {}
+    lean = _z({t: v["pass"] for t, v in r.items()}, ref.get("pass"))
+    eff = _z({t: v["eff"] for t, v in r.items()}, ref.get("eff"))
+    dp = _z({t: v["dpass"] for t, v in r.items()}, ref.get("dpass"))
+    dr = _z({t: v["drush"] for t, v in r.items()}, ref.get("drush"))
     out = {}
     for t in r:
         quality = -(dp[t] + dr[t])
         funnel = dp[t] - dr[t]
-        out[t] = {"off_style": ("pass-first" if lean[t] >= 0 else "run-first") + (" efficient" if eff[t] >= 0 else " inefficient"),
-                  "def_style": ("stout" if quality >= 0 else "porous") + (" pass-funnel" if funnel >= 0 else " run-funnel"),
+        out[t] = {"off_style": _off_name(lean[t], eff[t]), "def_style": _def_name(quality, funnel),
                   "pass_lean": round(lean[t], 3), "off_eff": round(eff[t], 3),
                   "def_quality": round(quality, 3), "pass_funnel": round(funnel, 3)}
     return out
@@ -126,5 +180,13 @@ def game(away: str, home: str, styles: dict[str, dict], app_team=lambda t: t) ->
     a, h = styles.get(away), styles.get(home)
     if not a or not h:
         return None
-    return [describe(app_team(away), app_team(home), a["off_style"], h["def_style"]),
-            describe(app_team(home), app_team(away), h["off_style"], a["def_style"])]
+    sides = [describe(app_team(away), app_team(home), a["off_style"], h["def_style"]),
+             describe(app_team(home), app_team(away), h["off_style"], a["def_style"])]
+    for side, off, de in ((sides[0], a, h), (sides[1], h, a)):
+        flips = []
+        if off.get("off_style_raw"):
+            flips.append(f"{side['offense']} offense now {off_text(off['off_style'])} (was {off_text(off['off_style_raw'])}) after roster moves")
+        if de.get("def_style_raw"):
+            flips.append(f"{side['defense']} defense now {def_text(de['def_style'])} (was {def_text(de['def_style_raw'])}) after roster moves")
+        side["flips"] = flips
+    return sides

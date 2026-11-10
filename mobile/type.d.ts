@@ -741,6 +741,8 @@ interface StyleMatchup {
   def_text?: string;
   /** Why the pairing leans (or doesn't), in a sentence. */
   lean_text?: string;
+  /** Styles that changed because of roster moves ("IND offense now run-heavy ... (was pass-heavy ...)"). */
+  flips?: string[];
   /** 'pass' / 'run' when the cell moved pass attempts 1.5+ vs the line in 75%+ of seasons. */
   lean: 'pass' | 'run' | null;
   pass_att: number | null;
@@ -754,6 +756,15 @@ interface RosterMove {
   label: string;
   type: string;
   effective_week: number;
+}
+
+/** Back-tested effect of a team's roster moves for the game (app.roster_adjust). */
+interface RosterAdjust {
+  d_epa_db: number;
+  d_pass_rate: number;
+  d_def_epa_db: number;
+  d_pressure_events: number;
+  reasons: string[];
 }
 
 interface DfsGameEnv {
@@ -803,6 +814,8 @@ interface DfsGameEnv {
   style_matchup?: StyleMatchup[] | null;
   /** {team: moves} for each side: trades and coaching changes of the last 3 weeks. */
   roster_moves?: Record<string, RosterMove[]> | null;
+  /** {team: effect} for teams whose expected quarterback, receivers or pass rush changed. */
+  roster_adjust?: Record<string, RosterAdjust> | null;
   /** Game model v2: the market line plus a correction fit on 2023-2025. */
   model_v2?: {
     fair_total: number;
