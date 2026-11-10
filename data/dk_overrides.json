@@ -259,6 +259,24 @@
           "label": "Showdown - Sun Night (TB @ CHI)"
         }
       }
+    },
+    "10": {
+      "classic_sunday": {
+        "draft_group_id": 156416,
+        "label": "Classic - Sunday Main (10 games)",
+        "first_kickoff": "2026-11-15T18:00:00+00:00",
+        "last_kickoff": "2026-11-15T21:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 156415,
+        "label": "Full Week 10 Slate (14 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 156421,
+          "label": "Showdown - Thu Night (WAS @ NYG)"
+        }
+      }
     }
   }
 }
