@@ -110,8 +110,9 @@ function StyleMatchups({ items }: { items: StyleMatchup[] }) {
           <Text className="dfs-rank">{m.lean === 'pass' ? 'P' : m.lean === 'run' ? 'R' : '–'}</Text>
           <View className="flex-1">
             <Text className="dfs-name">
-              {m.offense} {m.off_style} vs {m.defense} {m.def_style}
+              {m.offense} offense ({m.off_text ?? m.off_style}) vs {m.defense} defense ({m.def_text ?? m.def_style})
             </Text>
+            {m.lean_text ? <Text className="dfs-meta">{m.lean_text}</Text> : null}
             <Text className="dfs-meta">
               {m.pass_att == null
                 ? 'No record for this pairing'
@@ -120,6 +121,27 @@ function StyleMatchups({ items }: { items: StyleMatchup[] }) {
                     1,
                   )} · RB ${formatSigned(m.dk.RB ?? 0, 1)} DK pts (team), 2016-2026`}
             </Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** Trades and coaching changes of the last few weeks: the styles above come from games already played, so these are what they can't see yet. */
+function RosterMoves({ moves }: { moves: Record<string, RosterMove[]> }) {
+  const teams = Object.keys(moves).filter((t) => moves[t]?.length);
+  return (
+    <View>
+      {teams.map((team) => (
+        <View key={team} className="env-matchup">
+          <Text className="dfs-rank">{team}</Text>
+          <View className="flex-1">
+            {moves[team].map((m, i) => (
+              <Text key={`${m.label}-${i}`} className="dfs-meta">
+                Wk {m.effective_week}: {m.label}
+              </Text>
+            ))}
           </View>
         </View>
       ))}
@@ -174,6 +196,10 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
     ...(env.style_matchup ?? [])
       .filter((m) => m.lean)
       .map((m) => ({ id: 'style-matchup', text: `${m.offense} leans ${m.lean}` })),
+    ...(() => {
+      const teams = Object.keys(env.roster_moves ?? {}).filter((t) => env.roster_moves?.[t]?.length);
+      return teams.length ? [{ id: 'roster-moves', text: `Roster moves: ${teams.join(', ')}` }] : [];
+    })(),
   ].filter(Boolean) as { id: string; text: string }[];
 
   return (
@@ -271,6 +297,14 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
                 <Term id="style-matchup">Style matchup</Term>
               </Text>
               <StyleMatchups items={env.style_matchup} />
+            </>
+          ) : null}
+          {Object.values(env.roster_moves ?? {}).some((m) => m.length) ? (
+            <>
+              <Text className="detail-title mt-4">
+                <Term id="roster-moves">Recent roster moves</Term>
+              </Text>
+              <RosterMoves moves={env.roster_moves ?? {}} />
             </>
           ) : null}
           <Text className="detail-title mt-4">Matchups to exploit</Text>

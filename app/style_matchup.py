@@ -71,6 +71,22 @@ def classify(totals: dict) -> dict[str, dict]:
     return out
 
 
+def off_text(style: str) -> str:
+    """"pass-first efficient" -> "pass-heavy and efficient" (what the card shows)."""
+    if " " not in style:
+        return style
+    lean, eff = style.split(" ", 1)
+    return f"{'pass' if lean == 'pass-first' else 'run'}-heavy and {eff}"
+
+
+def def_text(style: str) -> str:
+    """"stout run-funnel" -> "tough, weaker against the run"; "porous pass-funnel" -> "leaky, weaker against the pass"."""
+    if " " not in style:
+        return style
+    quality, funnel = style.split(" ", 1)
+    return f"{'tough' if quality == 'stout' else 'leaky'}, weaker against the {funnel.split('-')[0]}"
+
+
 _CELLS: dict | None = None
 
 
@@ -93,7 +109,15 @@ def describe(offense: str, defense: str, off_style: str, def_style: str) -> dict
     if pa is not None:
         text += (f": {pa:+.1f} pass / {ra:+.1f} rush attempts vs the line"
                  f" ({same} of {n_s} seasons the same way on passes)")
+    if lean:
+        lean_text = (f"Leans {lean}: this pairing has meant {abs(pa):.1f} {'more' if pa > 0 else 'fewer'} pass attempts than "
+                     f"the line implies, in {same} of {n_s} seasons since 2016")
+    elif pa is None:
+        lean_text = "No history for this pairing"
+    else:
+        lean_text = "No consistent lean: it hasn't moved pass attempts the same way in enough seasons"
     return {"offense": offense, "defense": defense, "off_style": off_style, "def_style": def_style, "lean": lean,
+            "off_text": off_text(off_style), "def_text": def_text(def_style), "lean_text": lean_text,
             "pass_att": pa, "rush_att": ra, "dk": {p: c.get(f"dk_{p}") for p in ("QB", "RB", "WR", "TE")}, "text": text}
 
 

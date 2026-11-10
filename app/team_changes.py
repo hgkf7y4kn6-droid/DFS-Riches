@@ -9,6 +9,10 @@ inactive that week still counts, because the roster snapshot is what changed.
 """
 from __future__ import annotations
 
+import json
+import re
+from pathlib import Path
+
 SKILL = ("QB", "RB", "WR", "TE")
 ROSTERED = ("ACT", "INA", "RES")      # on the 53, not practice-squad (DEV) or released (CUT)
 
@@ -65,4 +69,40 @@ def context_rows(events: list[dict], source: str) -> list[dict]:
                     "note": note, "source": source})
         out.append({"team": e["from_team"], "season": e["season"], "effective_week": e["first_week"], "type": "trade_out",
                     "note": note, "source": source})
+    return out
+
+
+CONTEXT_FILE = Path(__file__).resolve().parent.parent / "data" / "context_changes.json"
+MOVE_LOOKBACK = 3          # weeks a change stays on a game card (a style is read from games played before it)
+_MOVE = re.compile(r"^(?P<name>.+?) \((?P<pos>[A-Z]+)\) (?P<old>[A-Z]+) -> (?P<new>[A-Z]+)")
+_KIND = {"playcaller": "Play-calling", "coordinator": "Coordinator", "head_coach": "Head coach",
+         "front_office": "Front office", "other": "Change"}
+
+
+def move_label(change: dict) -> str:
+    """One short line for a data/context_changes.json row ("Added QB Kirk Cousins (from LV)")."""
+    note = str(change.get("note") or "")
+    m = _MOVE.match(note)
+    if change.get("type") in ("trade_in", "trade_out") and m:
+        if change["type"] == "trade_in":
+            return f"Added {m['pos']} {m['name']} (from {m['old']})"
+        return f"Traded away {m['pos']} {m['name']} (to {m['new']})"
+    first = re.split(r"(?<=[a-z0-9)])[.;]\s", note, maxsplit=1)[0].rstrip(".;")
+    kind = _KIND.get(change.get("type"), "Change")
+    return f"{kind}: {first[:117] + '...' if len(first) > 120 else first}"
+
+
+def recent_moves(season: int, week: int, changes: list[dict] | None = None, lookback: int = MOVE_LOOKBACK) -> dict[str, list[dict]]:
+    """{team: [{"label", "type", "effective_week"}, ...]} for changes that took effect in the last `lookback` weeks
+    through `week` (newest first). Archetypes come from games already played, so these are what they cannot see."""
+    if changes is None:
+        changes = json.loads(CONTEXT_FILE.read_text()).get("changes", []) if CONTEXT_FILE.exists() else []
+    out: dict[str, list[dict]] = {}
+    for c in changes:
+        wk = c.get("effective_week")
+        if int(c.get("season", 0)) != season or wk is None or not (week - lookback < int(wk) <= week):
+            continue
+        out.setdefault(c["team"], []).append({"label": move_label(c), "type": c["type"], "effective_week": int(wk)})
+    for rows in out.values():
+        rows.sort(key=lambda r: -r["effective_week"])
     return out

@@ -57,3 +57,20 @@ def test_cells_file_loads():
     cells = sm.cells()
     assert len(cells) == 16
     assert all("pass_att" in v and "seasons" in v for v in cells.values())
+
+
+def test_plain_english_labels():
+    assert sm.off_text("pass-first inefficient") == "pass-heavy and inefficient"
+    assert sm.off_text("run-first efficient") == "run-heavy and efficient"
+    assert sm.def_text("stout run-funnel") == "tough, weaker against the run"
+    assert sm.def_text("porous pass-funnel") == "leaky, weaker against the pass"
+
+
+def test_describe_has_lean_sentence(monkeypatch):
+    monkeypatch.setattr(sm, "_CELLS", {
+        "run-first efficient vs porous run-funnel": {"pass_att": -2.1, "rush_att": 1.7, "seasons": 11,
+                                                      "pass_att_seasons_same_sign": 10}})
+    d = sm.describe("NYJ", "MIA", "run-first efficient", "porous run-funnel")
+    assert d["off_text"] == "run-heavy and efficient" and d["def_text"] == "leaky, weaker against the run"
+    assert d["lean_text"].startswith("Leans run:") and "10 of 11 seasons" in d["lean_text"]
+    assert sm.describe("A", "B", "pass-first efficient", "stout pass-funnel")["lean_text"] == "No history for this pairing"

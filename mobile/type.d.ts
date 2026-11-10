@@ -736,12 +736,24 @@ interface StyleMatchup {
   defense: string;
   off_style: string;
   def_style: string;
+  /** Plain-English versions: "pass-heavy and efficient", "leaky, weaker against the run". */
+  off_text?: string;
+  def_text?: string;
+  /** Why the pairing leans (or doesn't), in a sentence. */
+  lean_text?: string;
   /** 'pass' / 'run' when the cell moved pass attempts 1.5+ vs the line in 75%+ of seasons. */
   lean: 'pass' | 'run' | null;
   pass_att: number | null;
   rush_att: number | null;
   dk: Record<string, number | null>;
   text: string;
+}
+
+/** A trade or coaching change of the last few weeks (data/context_changes.json). */
+interface RosterMove {
+  label: string;
+  type: string;
+  effective_week: number;
 }
 
 interface DfsGameEnv {
@@ -789,6 +801,8 @@ interface DfsGameEnv {
   checklist?: ChecklistItem[] | null;
   /** Each offense's style vs the opposing defense's style, this season (app.style_matchup). */
   style_matchup?: StyleMatchup[] | null;
+  /** {team: moves} for each side: trades and coaching changes of the last 3 weeks. */
+  roster_moves?: Record<string, RosterMove[]> | null;
   /** Game model v2: the market line plus a correction fit on 2023-2025. */
   model_v2?: {
     fair_total: number;
