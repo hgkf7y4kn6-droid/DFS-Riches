@@ -322,7 +322,7 @@ async def snapshot_via_runner(site: str) -> dict:
             info = resp.json()
         except ValueError:
             # Say what came back (e.g. a Cloudflare challenge page) instead of a bare JSONDecodeError.
-            raise SystemExit(f"{site}/api/odds returned HTTP {resp.status_code} "
+            raise RuntimeError(f"{site}/api/odds returned HTTP {resp.status_code} "
                              f"({resp.headers.get('content-type', 'no content-type')}, server "
                              f"{resp.headers.get('server', '?')}), not JSON: {resp.text[:300]!r}")
         season, week = info["season"], info["week"]
@@ -351,7 +351,10 @@ def main() -> None:
     if os.environ.get("DATABASE_URL"):
         os.environ["DATABASE_URL"] = clean_database_url(os.environ["DATABASE_URL"])
     site = os.environ.get("BIG_PICTURE_SITE", "https://dfsriches.richesdigitalventures.com")
-    print(json.dumps(asyncio.run(snapshot_via_runner(site))))
+    try:
+        print(json.dumps(asyncio.run(snapshot_via_runner(site))))
+    except RuntimeError as exc:         # the odds-snapshot workflow should fail loudly; the research run just carries on
+        raise SystemExit(str(exc)) from exc
 
 
 if __name__ == "__main__":

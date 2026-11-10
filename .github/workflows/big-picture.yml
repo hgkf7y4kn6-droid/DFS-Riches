@@ -48,6 +48,9 @@ jobs:
       BIG_PICTURE_MODEL: ${{ vars.BIG_PICTURE_MODEL }}
       BIG_PICTURE_PROVIDER: ${{ vars.BIG_PICTURE_PROVIDER }}
       BIG_PICTURE_WEEK: ${{ inputs.week }}
+      # The Render address, as in odds-snapshot.yml: the site's own domain sits behind a Cloudflare challenge that
+      # answers GitHub runners with a 403 page.
+      BIG_PICTURE_SITE: https://dfs-riches.onrender.com
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
