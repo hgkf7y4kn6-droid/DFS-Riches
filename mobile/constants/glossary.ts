@@ -207,6 +207,12 @@ export const GLOSSARY: GlossaryEntry[] = [
       "Each team's style this season, read from games already played. Offense: pass-heavy or run-heavy, and efficient or inefficient (points added per play). Defense: tough or leaky overall, and weaker against the pass or the run. A pairing leans pass or run when it moved pass attempts 1.5+ against what the spread and total imply in at least 3 of every 4 seasons since 2016, whichever teams filled it. Styles update every week and also apply back-tested roster moves (the expected quarterback, receivers who are out or traded away, pass-rush arrivals and departures) when they move a team by a quarter of a standard deviation or more.",
   },
   {
+    id: 'schedule-outlook',
+    term: 'Direction: schedule ahead',
+    definition:
+      "Which way a unit is likely headed, from the opponents behind it and ahead of it (2016-2025 back-test). The next three opponents predict the next three games strongly for defenses (a weak offense ahead means fewer points allowed) and modestly for offenses; a pass offense's schedule ahead did not predict anything, so it is not shown. A recent surge against soft opponents did not carry on, and a team's last three games are no more predictive than the three before them, so this is schedule, not momentum.",
+  },
+  {
     id: 'roster-moves',
     term: 'Recent roster moves',
     definition:

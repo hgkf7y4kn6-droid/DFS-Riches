@@ -317,6 +317,25 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
               <StyleMatchups items={env.style_matchup} />
             </>
           ) : null}
+          {Object.values(env.schedule_outlook ?? {}).some((l) => l.length) ? (
+            <>
+              <Text className="detail-title mt-4">
+                <Term id="schedule-outlook">Direction: schedule ahead</Term>
+              </Text>
+              {Object.entries(env.schedule_outlook ?? {}).map(([team, ls]) => (
+                <View key={team} className="env-matchup">
+                  <Text className="dfs-rank">{team}</Text>
+                  <View className="flex-1">
+                    {ls.map((l) => (
+                      <Text key={l.text} className="dfs-meta">
+                        {l.better ? '▲' : '▼'} {l.text}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              ))}
+            </>
+          ) : null}
           {Object.values(env.roster_moves ?? {}).some((m) => m.length) || Object.keys(env.roster_adjust ?? {}).length ? (
             <>
               <Text className="detail-title mt-4">

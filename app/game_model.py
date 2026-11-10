@@ -511,10 +511,11 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
     raw = await nc.get_games_raw(season)
     priors, lg = m["priors"], m["priors"]["league"]
     est = team_estimates(season_totals(agg, week), priors)
-    from app import roster_adjust, style_matchup, team_changes
+    from app import roster_adjust, schedule_outlook, style_matchup, team_changes
     moves = team_changes.recent_moves(season, week)
     tot = season_totals(agg, week)
     radj = roster_adjust.for_week(season, week)
+    outlook = schedule_outlook.for_week(season, week)
     styles = (style_matchup.classify(tot, {t: radj[nc.to_app_team(t)] for t in tot if nc.to_app_team(t) in radj})
               if week >= style_matchup.MIN_WEEK else {})
     hist = {q: list(v) for q, v in (m.get("qb_prior") or {}).items()}
@@ -586,6 +587,8 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
             # trades, play-caller and coordinator changes of the last few weeks, which those styles can't have seen yet
             "roster_moves": {nc.to_app_team(t): moves.get(nc.to_app_team(t), []) for t in (a, h)},
             # what those moves are worth (back-tested; app.roster_adjust) and the styles they were applied to
+            # which way each side is headed: the schedule ahead against the one behind (app.schedule_outlook)
+            "schedule_outlook": {nc.to_app_team(t): outlook[nc.to_app_team(t)] for t in (a, h) if nc.to_app_team(t) in outlook},
             "roster_adjust": {nc.to_app_team(t): radj[nc.to_app_team(t)] for t in (a, h) if nc.to_app_team(t) in radj},
             "final": None if r.get("home_score") in (None, "") else
             {"total": int(r["home_score"]) + int(r["away_score"]), "home_margin": int(r["home_score"]) - int(r["away_score"])},

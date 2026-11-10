@@ -767,6 +767,13 @@ interface RosterAdjust {
   reasons: string[];
 }
 
+/** One line of a team's direction: its schedule ahead against the one behind (app.schedule_outlook). */
+interface ScheduleOutlookLine {
+  unit: string;
+  better: boolean;
+  text: string;
+}
+
 interface DfsGameEnv {
   /** "JAX@CIN". */
   game: string;
@@ -816,6 +823,8 @@ interface DfsGameEnv {
   roster_moves?: Record<string, RosterMove[]> | null;
   /** {team: effect} for teams whose expected quarterback, receivers or pass rush changed. */
   roster_adjust?: Record<string, RosterAdjust> | null;
+  /** {team: lines}: which way each side is headed given the opponents ahead vs behind. */
+  schedule_outlook?: Record<string, ScheduleOutlookLine[]> | null;
   /** Game model v2: the market line plus a correction fit on 2023-2025. */
   model_v2?: {
     fair_total: number;
