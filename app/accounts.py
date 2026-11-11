@@ -54,6 +54,22 @@ class AuthError(Exception):
 
 
 # ----------------------------------------------------------------- config
+def production_mode() -> bool:
+    return bool(_secret() or _database_url())
+
+
+def config_warnings() -> list[str]:
+    """Settings a production server should have, for the startup log. REQUIRE_LIVE_CLERK=1 turns the
+    development-key warning into a refusal (every sign-in fails until a live publishable key is set)."""
+    out = []
+    if production_mode():
+        if publishable_key().startswith("pk_test_"):
+            out.append("Clerk publishable key is a development (pk_test_) key: set CLERK_PUBLISHABLE_KEY to the live one")
+        if not authorized_parties():
+            out.append("CLERK_AUTHORIZED_PARTIES is unset: sessions from any origin of this Clerk instance are accepted")
+    return out
+
+
 def publishable_key() -> str:
     return os.environ.get("CLERK_PUBLISHABLE_KEY") or DEFAULT_CLERK_PUBLISHABLE_KEY
 
@@ -133,6 +149,8 @@ async def verify_claims(authorization: str | None) -> dict:
         raise
     except Exception as exc:
         raise AuthError(f"invalid session: {exc}") from exc
+    if os.environ.get("REQUIRE_LIVE_CLERK") == "1" and publishable_key().startswith("pk_test_"):
+        raise AuthError("server is using a development Clerk key")
     if claims.get("iss") and frontend_api() not in claims["iss"]:
         raise AuthError("session from another Clerk instance")
     allowed = authorized_parties()

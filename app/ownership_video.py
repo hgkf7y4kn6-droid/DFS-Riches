@@ -58,6 +58,13 @@ GAME_RE = re.compile(r"\b([A-Z]{2,3})\s+(\d{1,2})\s*@\s*([A-Z]{2,3})\s+(\d{1,2})
 POINTS_RE = re.compile(r"^-?\d{1,3}[.,]\d{1,2}$")
 
 
+def looks_like_media(head: bytes) -> bool:
+    """Whether an upload starts like a phone screen recording or screenshot (MP4/MOV, WebM/MKV, PNG, JPEG), so
+    arbitrary files never reach ffmpeg."""
+    return (head[4:8] == b"ftyp" or head[:4] == b"\x1a\x45\xdf\xa3" or head[:8] == b"\x89PNG\r\n\x1a\n"
+            or head[:3] == b"\xff\xd8\xff")
+
+
 def available() -> bool:
     return bool(shutil.which("ffmpeg") and shutil.which("tesseract"))
 
@@ -72,7 +79,7 @@ def _filter(sample: bool) -> str:
 def extract_frames(video: Path, out_dir: Path) -> list[tuple[Path, Path]]:
     """(frame, points column) PNG pairs: sampled, de-duplicated and preprocessed (a screenshot gives one pair)."""
     for sample in (True, False):
-        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", str(video), "-filter_complex", _filter(sample),
+        subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-y", "-protocol_whitelist", "file", "-i", str(video), "-filter_complex", _filter(sample),
                         "-map", "[text]", "-fps_mode", "vfr", "-frames:v", str(MAX_FRAMES), str(out_dir / "f%04d.png"),
                         "-map", "[pts]", "-fps_mode", "vfr", "-frames:v", str(MAX_FRAMES), str(out_dir / "p%04d.png")],
                        check=True, timeout=600)

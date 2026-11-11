@@ -317,7 +317,9 @@ async def snapshot_via_runner(site: str) -> dict:
     """When the site's server can't read DraftKings, fetch it from here (a GitHub Actions runner) and store
     the week's changed quotes in the same database. Returns the capture status (no odds are printed)."""
     async with httpx.AsyncClient(timeout=120) as client:
-        resp = await client.get(f"{site}/api/odds", params={"summary": 1})
+        trigger = os.environ.get("ODDS_TRIGGER_SECRET")
+        resp = await client.get(f"{site}/api/odds", params={"summary": 1},
+                                headers={"X-Odds-Secret": trigger} if trigger else None)
         try:
             info = resp.json()
         except ValueError:

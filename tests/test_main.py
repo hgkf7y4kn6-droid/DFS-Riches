@@ -168,7 +168,7 @@ def test_actual_ownership_from_a_screen_recording(client, monkeypatch, tmp_path)
     monkeypatch.setattr(main.ownership_learning, "relearn", lambda: {"slates_with_actuals": 1})
     monkeypatch.setattr(ownership_store, "OWN_DIR", tmp_path)
     url = "/api/ownership/actual/video?season=2026&week=6&slate_id=classic_sunday&contest=cash"
-    r = client.post(url, content=b"fake video bytes", headers={"Content-Type": "video/mp4"})
+    r = client.post(url, content=b"\x00\x00\x00\x18ftypmp42 fake video bytes", headers={"Content-Type": "video/mp4"})
     assert r.status_code == 200, r.text
     body = r.json()
     assert body["added"] == 1 and body["unmatched"] == ["T. Nobody"] and body["frames"] == 12
@@ -334,3 +334,25 @@ def test_sign_in_failures_do_not_leak_the_reason(client, monkeypatch, caplog):
 
 def test_healthz_reveals_no_configuration(client):
     assert client.get("/healthz").json() == {"status": "ok"}
+
+
+def test_odds_trigger_needs_the_secret_when_one_is_set(client, monkeypatch):
+    monkeypatch.setenv("REQUIRE_SIGN_IN", "1")
+    monkeypatch.setenv("ODDS_TRIGGER_SECRET", "abc")
+    assert client.get("/api/odds?summary=1").status_code == 401
+    assert client.get("/api/odds?summary=1", headers={"x-odds-secret": "nope"}).status_code == 401
+    monkeypatch.delenv("ODDS_TRIGGER_SECRET")
+    assert client.get("/api/odds?summary=1").status_code != 401                  # unset: open, as before
+
+
+def test_video_upload_rejects_non_media(client, monkeypatch):
+    async def master(authorization):
+        return "u"
+    monkeypatch.setattr(main, "_require_master", master)
+    monkeypatch.setattr(main.ownership_video, "available", lambda: True)
+    monkeypatch.setenv("REQUIRE_SIGN_IN", "0")
+    r = client.post("/api/ownership/actual/video?season=2026&week=3", content=b"#!/bin/sh\necho hi\n" * 10)
+    assert r.status_code == 400 and "isn't a video" in r.json()["detail"]
+    assert main.ownership_video.looks_like_media(b"\x00\x00\x00\x18ftypmp42")
+    assert main.ownership_video.looks_like_media(b"\x89PNG\r\n\x1a\n....")
+    assert not main.ownership_video.looks_like_media(b"MZ\x90\x00")

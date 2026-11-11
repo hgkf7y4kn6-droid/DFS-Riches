@@ -212,3 +212,15 @@ def test_founding_accounts_get_pro_once(monkeypatch):
     patched = [(p, b) for m, p, b in calls if m == "PATCH"]
     assert patched == [("/users/u_old/metadata", {"public_metadata": {"plan": "pro"}}),
                        ("/users/u_old2/metadata", {"public_metadata": {"plan": "pro"}})]   # metadata merge keeps the master's role
+
+
+def test_production_config_warnings(monkeypatch):
+    for k in ("CLERK_SECRET_KEY", "DATABASE_URL", "CLERK_PUBLISHABLE_KEY", "CLERK_AUTHORIZED_PARTIES"):
+        monkeypatch.delenv(k, raising=False)
+    assert accounts.config_warnings() == []                         # local development: quiet
+    monkeypatch.setenv("DATABASE_URL", "postgres://x")
+    warnings = accounts.config_warnings()
+    assert any("pk_test_" in w for w in warnings) and any("AUTHORIZED_PARTIES" in w for w in warnings)
+    monkeypatch.setenv("CLERK_PUBLISHABLE_KEY", "pk_live_abc")
+    monkeypatch.setenv("CLERK_AUTHORIZED_PARTIES", "https://x.example")
+    assert accounts.config_warnings() == []

@@ -15,6 +15,7 @@ section.
 from __future__ import annotations
 
 import asyncio
+import hmac
 import json
 import logging
 import os
@@ -61,6 +62,12 @@ def _upstream_failure(what: str, exc: Exception) -> HTTPException:
     log.warning("%s: %r", what, exc, exc_info=exc)
     return HTTPException(status_code=502, detail=f"{what}. Try again shortly.")
 app = FastAPI(title="Riches Analytics", description="DraftKings DFS explorer")
+
+
+@app.on_event("startup")
+async def _config_warnings() -> None:
+    for w in accounts.config_warnings():
+        guard.security_event("config_warning", detail=w)
 
 
 @app.on_event("startup")
@@ -182,7 +189,12 @@ OPEN_API_PATHS = ("/api/odds",)
 
 
 def _open_api(request: Request) -> bool:
-    return request.url.path in OPEN_API_PATHS and request.query_params.get("summary", "").lower() in ("1", "true")
+    """The odds capture trigger. With ODDS_TRIGGER_SECRET set, the caller (the GitHub runner) must send it as
+    X-Odds-Secret, so strangers can't make the server pull odds."""
+    if not (request.url.path in OPEN_API_PATHS and request.query_params.get("summary", "").lower() in ("1", "true")):
+        return False
+    secret = os.environ.get("ODDS_TRIGGER_SECRET")
+    return not secret or hmac.compare_digest(request.headers.get("x-odds-secret", ""), secret)
 
 
 def sign_in_required() -> bool:
@@ -987,6 +999,9 @@ async def api_ownership_actual_video(request: Request, season: int, week: int, s
     with tempfile.NamedTemporaryFile(suffix=".upload") as tmp:
         size = 0
         async for chunk in request.stream():
+            if size == 0 and not ownership_video.looks_like_media(chunk):
+                raise HTTPException(status_code=400, detail="That isn't a video or screenshot file (use an MP4, MOV, "
+                                                            "WebM, PNG or JPEG).")
             size += len(chunk)
             if size > MAX_VIDEO_BYTES:
                 raise HTTPException(status_code=413, detail=f"Recording over {MAX_VIDEO_BYTES // 1_000_000} MB -- trim it")

@@ -43,6 +43,7 @@ jobs:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}      # backup: used only when the site's own pull failed
+      ODDS_TRIGGER_SECRET: ${{ secrets.ODDS_TRIGGER_SECRET }}   # matches the server's; unset = open trigger
       OPENROUTER_MODELS: ${{ vars.OPENROUTER_MODELS }}
       BIG_PICTURE_USE_HF: ${{ vars.BIG_PICTURE_USE_HF }}
       BIG_PICTURE_MODEL: ${{ vars.BIG_PICTURE_MODEL }}
@@ -52,8 +53,8 @@ jobs:
       # answers GitHub runners with a 403 page.
       BIG_PICTURE_SITE: https://dfs-riches.onrender.com
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.11"
           cache: pip
