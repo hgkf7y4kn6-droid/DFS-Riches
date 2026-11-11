@@ -1,0 +1,388 @@
+{
+ "season": 2026,
+ "week": 10,
+ "generated": "2026-11-10",
+ "teams": {
+  "ARI": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "ATL": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": 0.0018,
+   "d_pressure_events": -0.064,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": [
+    "Pass rush -0.06 sacks+hits per game (without Jessie Bates)"
+   ]
+  },
+  "BAL": {
+   "week": 10,
+   "d_epa_db": 0.1028,
+   "d_pass_rate": 0.0176,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": -0.0029,
+   "d_sack_rate": -0.0052,
+   "d_rz_td_pct": 0.0438,
+   "reasons": [
+    "QB Jacoby Brissett (acquired from ARI 11/6 after Jackson and Huntley were hurt; user-stated, start unconfirmed) replaces Joe Fagnano: career EPA/dropback -0.05 vs -0.10 (2747 vs 43 dropbacks)",
+    "Leaving Joe Fagnano's inexperience behind (<300 career dropbacks): fewer interceptions and sacks, more red-zone TDs"
+   ]
+  },
+  "BUF": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0016,
+   "d_pressure_events": 0.058,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": [
+    "Pass rush +0.06 sacks+hits per game (added Amani Hooker (S))"
+   ]
+  },
+  "CAR": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "CHI": {
+   "week": 11,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0085,
+   "d_pressure_events": 0.302,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": [
+    "Pass rush +0.30 sacks+hits per game (added Jeffery Simmons (DT))"
+   ]
+  },
+  "CIN": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "CLE": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "DAL": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0002,
+   "d_pressure_events": 0.007,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "DEN": {
+   "week": 11,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0043,
+   "d_pressure_events": 0.152,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": [
+    "Pass rush +0.15 sacks+hits per game (added Daiyan Henley (LB))"
+   ]
+  },
+  "DET": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0003,
+   "d_pressure_events": 0.011,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "GB": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "HOU": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "IND": {
+   "week": 10,
+   "d_epa_db": -0.0443,
+   "d_pass_rate": -0.0196,
+   "d_def_epa_db": 0.0064,
+   "d_pressure_events": -0.226,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": [
+    "WR/TE out or traded with 43% of recent targets: Keenan Allen 24%, Josh Downs 19%",
+    "Pass rush -0.23 sacks+hits per game (without DeForest Buckner)"
+   ]
+  },
+  "JAX": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0072,
+   "d_pressure_events": 0.256,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": [
+    "Pass rush +0.26 sacks+hits per game (added Jordan Davis (DT), Davon Godchaux (DT), Jessie Bates (S))"
+   ]
+  },
+  "KC": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "LAR": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "LAC": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": 0.0043,
+   "d_pressure_events": -0.152,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": [
+    "Pass rush -0.15 sacks+hits per game (without Daiyan Henley)"
+   ]
+  },
+  "LV": {
+   "week": 10,
+   "d_epa_db": -0.0857,
+   "d_pass_rate": -0.0127,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0029,
+   "d_sack_rate": 0.0052,
+   "d_rz_td_pct": -0.0438,
+   "reasons": [
+    "QB Fernando Mendoza (rookie; Cousins was traded away; user-stated, start unconfirmed) replaces Kirk Cousins: career EPA/dropback +0.05 vs +0.07 (8 vs 5549 dropbacks)",
+    "Fernando Mendoza is inexperienced (<300 career dropbacks): more interceptions and sacks, fewer red-zone TDs"
+   ]
+  },
+  "MIA": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "MIN": {
+   "week": 10,
+   "d_epa_db": 0.0323,
+   "d_pass_rate": 0.0093,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": [
+    "QB Kirk Cousins (acquired from LV 11/10; user-stated, start unconfirmed) replaces Carson Wentz: career EPA/dropback +0.07 vs +0.01 (5549 vs 3821 dropbacks)"
+   ]
+  },
+  "NE": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "NO": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": 0.0009,
+   "d_pressure_events": -0.03,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "NYG": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "NYJ": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": 0.0003,
+   "d_pressure_events": -0.009,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "PHI": {
+   "week": 11,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": 0.0046,
+   "d_pressure_events": -0.162,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": [
+    "Pass rush -0.16 sacks+hits per game (without Jordan Davis)"
+   ]
+  },
+  "PIT": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "SEA": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "SF": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0096,
+   "d_pressure_events": 0.342,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": [
+    "Pass rush +0.34 sacks+hits per game (added DeForest Buckner (DL))"
+   ]
+  },
+  "TB": {
+   "week": 11,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  },
+  "TEN": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": 0.0132,
+   "d_pressure_events": -0.47,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": [
+    "Pass rush -0.47 sacks+hits per game (without Amani Hooker, Jeffery Simmons)"
+   ]
+  },
+  "WAS": {
+   "week": 10,
+   "d_epa_db": 0.0,
+   "d_pass_rate": 0.0,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
+   "d_int_rate": 0.0,
+   "d_sack_rate": 0.0,
+   "d_rz_td_pct": 0.0,
+   "reasons": []
+  }
+ }
+}

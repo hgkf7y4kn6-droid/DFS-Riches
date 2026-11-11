@@ -1,0 +1,31 @@
+{
+ "_about": "Fit by scripts/backtest_roster_moves.py on 2016-2025 (walk-forward tests in data/roster_move_backtest.json). Deltas are changes in a team's own recent baseline.",
+ "inexperienced_below_career_dropbacks": 300,
+ "qb_gap_weight": {
+  "epa_db": 0.514,
+  "neutral_pass_rate": 0.1476
+ },
+ "inexperienced_qb": {
+  "epa_db": -0.0729,
+  "int_rate": 0.0029,
+  "sack_rate": 0.0052,
+  "rz_td_pct": -0.0438,
+  "neutral_pass_rate": -0.009
+ },
+ "lost_wr_te_target_share": {
+  "epa_db": -0.1031,
+  "neutral_pass_rate": -0.0457,
+  "min_share": 0.08
+ },
+ "pass_rush": {
+  "forecast_weight": 0.297,
+  "epa_db_per_unit_pressure_rate": -1.066
+ },
+ "not_adopted": {
+  "lost_rb_target_share": "no effect on EPA, pass rate or interceptions (|t| < 1.5)",
+  "lost_wr_te_on_plays_per_game": "no effect (t -0.7, sign flips by season): receivers leaving does not slow a team down",
+  "lost_wr_te_on_top_target_share": "no effect (t -0.2)",
+  "rookie_qb_target_concentration": "inexperienced QBs do not concentrate targets more (top-target share -0.4 pts, t -1.5)",
+  "lost_run_stuffers_on_rush_epa_allowed": "no held-out gain (+0.03% MSE)"
+ }
+}

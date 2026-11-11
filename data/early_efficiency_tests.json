@@ -1,0 +1,1656 @@
+{
+ "prior_games": 4,
+ "persistence": {
+  "all": {
+   "n": 4494,
+   "off_early_vs_next_early_epa": 0.12,
+   "off_epa_vs_next_early_epa": 0.154,
+   "off_early_vs_next_early_epa_beyond_off_epa": 0.018,
+   "off_epa_vs_next_epa": 0.291,
+   "def_early_vs_next_early_epa_allowed": 0.051
+  },
+  "weeks 4-8": {
+   "n": 1610,
+   "off_early_vs_next_early_epa": 0.106,
+   "off_epa_vs_next_early_epa": 0.133,
+   "off_early_vs_next_early_epa_beyond_off_epa": 0.021,
+   "off_epa_vs_next_epa": 0.253,
+   "def_early_vs_next_early_epa_allowed": 0.075
+  },
+  "weeks 9-13": {
+   "n": 1468,
+   "off_early_vs_next_early_epa": 0.126,
+   "off_epa_vs_next_early_epa": 0.158,
+   "off_early_vs_next_early_epa_beyond_off_epa": 0.026,
+   "off_epa_vs_next_epa": 0.305,
+   "def_early_vs_next_early_epa_allowed": 0.018
+  },
+  "weeks 14+": {
+   "n": 1416,
+   "off_early_vs_next_early_epa": 0.129,
+   "off_epa_vs_next_early_epa": 0.172,
+   "off_early_vs_next_early_epa_beyond_off_epa": 0.006,
+   "off_epa_vs_next_epa": 0.318,
+   "def_early_vs_next_early_epa_allowed": 0.055
+  },
+  "by_season_off_early_vs_next_early_epa": {
+   "2016": 0.07,
+   "2017": 0.134,
+   "2018": 0.078,
+   "2019": 0.083,
+   "2020": 0.103,
+   "2021": 0.085,
+   "2022": 0.135,
+   "2023": 0.206,
+   "2024": 0.074,
+   "2025": 0.184,
+   "2026": 0.162
+  },
+  "by_season_beyond_off_epa": {
+   "2016": -0.013,
+   "2017": 0.045,
+   "2018": -0.066,
+   "2019": -0.013,
+   "2020": 0.02,
+   "2021": -0.015,
+   "2022": -0.002,
+   "2023": 0.065,
+   "2024": 0.011,
+   "2025": 0.067,
+   "2026": 0.063
+  }
+ },
+ "outcomes": {
+  "team_games": 4429,
+  "first3_margin": {
+   "loso_mse_line_only": 53.7656,
+   "+early": {
+    "loso_mse_change_pct": 0.073,
+    "own_early": {
+     "coef": -0.267,
+     "se": 0.851,
+     "t": -0.3
+    },
+    "opp_early": {
+     "coef": 0.248,
+     "se": 0.853,
+     "t": 0.3
+    }
+   },
+   "+first3_pts": {
+    "loso_mse_change_pct": 0.082,
+    "own_first3": {
+     "coef": 0.017,
+     "se": 0.068,
+     "t": 0.2
+    },
+    "opp_first3": {
+     "coef": -0.014,
+     "se": 0.068,
+     "t": -0.2
+    }
+   },
+   "+full_epa": {
+    "loso_mse_change_pct": -0.104,
+    "own_epa": {
+     "coef": -3.547,
+     "se": 1.855,
+     "t": -1.9
+    },
+    "opp_epa": {
+     "coef": 3.734,
+     "se": 1.863,
+     "t": 2.0
+    }
+   },
+   "+early+full_epa": {
+    "loso_mse_change_pct": -0.052,
+    "own_early": {
+     "coef": 0.63,
+     "se": 0.995,
+     "t": 0.6
+    },
+    "opp_early": {
+     "coef": -0.733,
+     "se": 1.0,
+     "t": -0.7
+    },
+    "own_epa": {
+     "coef": -4.274,
+     "se": 2.165,
+     "t": -2.0
+    },
+    "opp_epa": {
+     "coef": 4.588,
+     "se": 2.182,
+     "t": 2.1
+    }
+   },
+   "by_season (beyond line + full-game EPA)": {
+    "2016": {
+     "own_early": -4.056,
+     "opp_early": 2.663,
+     "t_own": -1.0,
+     "t_opp": 0.7
+    },
+    "2017": {
+     "own_early": 0.432,
+     "opp_early": -0.23,
+     "t_own": 0.2,
+     "t_opp": -0.1
+    },
+    "2018": {
+     "own_early": -3.91,
+     "opp_early": 2.902,
+     "t_own": -1.0,
+     "t_opp": 0.7
+    },
+    "2019": {
+     "own_early": -0.357,
+     "opp_early": 0.996,
+     "t_own": -0.1,
+     "t_opp": 0.3
+    },
+    "2020": {
+     "own_early": 0.719,
+     "opp_early": -0.719,
+     "t_own": 0.2,
+     "t_opp": -0.2
+    },
+    "2021": {
+     "own_early": -0.686,
+     "opp_early": 0.686,
+     "t_own": -0.2,
+     "t_opp": 0.2
+    },
+    "2022": {
+     "own_early": -1.026,
+     "opp_early": 1.026,
+     "t_own": -0.3,
+     "t_opp": 0.3
+    },
+    "2023": {
+     "own_early": 2.251,
+     "opp_early": -2.251,
+     "t_own": 0.7,
+     "t_opp": -0.7
+    },
+    "2024": {
+     "own_early": 0.498,
+     "opp_early": -0.498,
+     "t_own": 0.2,
+     "t_opp": -0.2
+    },
+    "2025": {
+     "own_early": 6.794,
+     "opp_early": -6.794,
+     "t_own": 1.9,
+     "t_opp": -1.9
+    },
+    "2026": {
+     "own_early": 3.96,
+     "opp_early": -3.96,
+     "t_own": 0.9,
+     "t_opp": -0.9
+    }
+   },
+   "seasons_own_early_positive": 6,
+   "seasons_opp_early_positive": 5
+  },
+  "margin_q1": {
+   "loso_mse_line_only": 41.8054,
+   "+early": {
+    "loso_mse_change_pct": 0.039,
+    "own_early": {
+     "coef": -0.516,
+     "se": 0.75,
+     "t": -0.7
+    },
+    "opp_early": {
+     "coef": 0.398,
+     "se": 0.752,
+     "t": 0.5
+    }
+   },
+   "+first3_pts": {
+    "loso_mse_change_pct": 0.062,
+    "own_first3": {
+     "coef": -0.023,
+     "se": 0.06,
+     "t": -0.4
+    },
+    "opp_first3": {
+     "coef": 0.012,
+     "se": 0.06,
+     "t": 0.2
+    }
+   },
+   "+full_epa": {
+    "loso_mse_change_pct": -0.03,
+    "own_epa": {
+     "coef": -3.095,
+     "se": 1.635,
+     "t": -1.9
+    },
+    "opp_epa": {
+     "coef": 2.867,
+     "se": 1.643,
+     "t": 1.7
+    }
+   },
+   "+early+full_epa": {
+    "loso_mse_change_pct": 0.049,
+    "own_early": {
+     "coef": 0.19,
+     "se": 0.878,
+     "t": 0.2
+    },
+    "opp_early": {
+     "coef": -0.273,
+     "se": 0.882,
+     "t": -0.3
+    },
+    "own_epa": {
+     "coef": -3.315,
+     "se": 1.909,
+     "t": -1.7
+    },
+    "opp_epa": {
+     "coef": 3.184,
+     "se": 1.925,
+     "t": 1.7
+    }
+   },
+   "by_season (beyond line + full-game EPA)": {
+    "2016": {
+     "own_early": -2.548,
+     "opp_early": 1.49,
+     "t_own": -0.7,
+     "t_opp": 0.4
+    },
+    "2017": {
+     "own_early": -0.942,
+     "opp_early": 1.216,
+     "t_own": -0.4,
+     "t_opp": 0.5
+    },
+    "2018": {
+     "own_early": -3.801,
+     "opp_early": 3.438,
+     "t_own": -1.1,
+     "t_opp": 0.9
+    },
+    "2019": {
+     "own_early": -2.172,
+     "opp_early": 2.59,
+     "t_own": -0.7,
+     "t_opp": 0.8
+    },
+    "2020": {
+     "own_early": -1.546,
+     "opp_early": 1.546,
+     "t_own": -0.5,
+     "t_opp": 0.5
+    },
+    "2021": {
+     "own_early": 1.392,
+     "opp_early": -1.392,
+     "t_own": 0.4,
+     "t_opp": -0.4
+    },
+    "2022": {
+     "own_early": -2.769,
+     "opp_early": 2.769,
+     "t_own": -1.1,
+     "t_opp": 1.1
+    },
+    "2023": {
+     "own_early": 2.723,
+     "opp_early": -2.723,
+     "t_own": 1.0,
+     "t_opp": -1.0
+    },
+    "2024": {
+     "own_early": 2.58,
+     "opp_early": -2.58,
+     "t_own": 1.0,
+     "t_opp": -1.0
+    },
+    "2025": {
+     "own_early": 3.543,
+     "opp_early": -3.543,
+     "t_own": 1.2,
+     "t_opp": -1.2
+    },
+    "2026": {
+     "own_early": 2.712,
+     "opp_early": -2.712,
+     "t_own": 0.6,
+     "t_opp": -0.6
+    }
+   },
+   "seasons_own_early_positive": 5,
+   "seasons_opp_early_positive": 6
+  },
+  "trail7_q1": {
+   "loso_mse_line_only": 0.1624,
+   "+early": {
+    "loso_mse_change_pct": 0.11,
+    "own_early": {
+     "coef": 0.011,
+     "se": 0.047,
+     "t": 0.2
+    },
+    "opp_early": {
+     "coef": -0.02,
+     "se": 0.047,
+     "t": -0.4
+    }
+   },
+   "+first3_pts": {
+    "loso_mse_change_pct": 0.094,
+    "own_first3": {
+     "coef": 0.0,
+     "se": 0.004,
+     "t": 0.0
+    },
+    "opp_first3": {
+     "coef": -0.002,
+     "se": 0.004,
+     "t": -0.4
+    }
+   },
+   "+full_epa": {
+    "loso_mse_change_pct": -0.044,
+    "own_epa": {
+     "coef": 0.044,
+     "se": 0.102,
+     "t": 0.4
+    },
+    "opp_epa": {
+     "coef": -0.259,
+     "se": 0.102,
+     "t": -2.5
+    }
+   },
+   "+early+full_epa": {
+    "loso_mse_change_pct": 0.054,
+    "own_early": {
+     "coef": 0.012,
+     "se": 0.055,
+     "t": 0.2
+    },
+    "opp_early": {
+     "coef": 0.057,
+     "se": 0.055,
+     "t": 1.0
+    },
+    "own_epa": {
+     "coef": 0.032,
+     "se": 0.119,
+     "t": 0.3
+    },
+    "opp_epa": {
+     "coef": -0.323,
+     "se": 0.12,
+     "t": -2.7
+    }
+   },
+   "by_season (beyond line + full-game EPA)": {
+    "2016": {
+     "own_early": 0.501,
+     "opp_early": 0.03,
+     "t_own": 2.5,
+     "t_opp": 0.1
+    },
+    "2017": {
+     "own_early": 0.004,
+     "opp_early": 0.028,
+     "t_own": 0.0,
+     "t_opp": 0.2
+    },
+    "2018": {
+     "own_early": 0.148,
+     "opp_early": -0.085,
+     "t_own": 0.7,
+     "t_opp": -0.4
+    },
+    "2019": {
+     "own_early": 0.138,
+     "opp_early": -0.017,
+     "t_own": 0.8,
+     "t_opp": -0.1
+    },
+    "2020": {
+     "own_early": 0.13,
+     "opp_early": -0.096,
+     "t_own": 0.7,
+     "t_opp": -0.5
+    },
+    "2021": {
+     "own_early": -0.016,
+     "opp_early": 0.223,
+     "t_own": -0.1,
+     "t_opp": 1.2
+    },
+    "2022": {
+     "own_early": 0.106,
+     "opp_early": -0.408,
+     "t_own": 0.6,
+     "t_opp": -2.4
+    },
+    "2023": {
+     "own_early": -0.063,
+     "opp_early": 0.275,
+     "t_own": -0.4,
+     "t_opp": 1.7
+    },
+    "2024": {
+     "own_early": -0.294,
+     "opp_early": 0.046,
+     "t_own": -1.8,
+     "t_opp": 0.3
+    },
+    "2025": {
+     "own_early": -0.27,
+     "opp_early": 0.181,
+     "t_own": -1.4,
+     "t_opp": 0.9
+    },
+    "2026": {
+     "own_early": -0.338,
+     "opp_early": 0.086,
+     "t_own": -1.2,
+     "t_opp": 0.3
+    }
+   },
+   "seasons_own_early_positive": 6,
+   "seasons_opp_early_positive": 7
+  },
+  "pts_vs_implied": {
+   "loso_mse_line_only": 83.0391,
+   "+early": {
+    "loso_mse_change_pct": 0.035,
+    "own_early": {
+     "coef": -1.494,
+     "se": 1.057,
+     "t": -1.4
+    },
+    "opp_early": {
+     "coef": -0.085,
+     "se": 1.059,
+     "t": -0.1
+    }
+   },
+   "+first3_pts": {
+    "loso_mse_change_pct": 0.04,
+    "own_first3": {
+     "coef": -0.119,
+     "se": 0.084,
+     "t": -1.4
+    },
+    "opp_first3": {
+     "coef": -0.035,
+     "se": 0.084,
+     "t": -0.4
+    }
+   },
+   "+full_epa": {
+    "loso_mse_change_pct": -0.038,
+    "own_epa": {
+     "coef": -4.362,
+     "se": 2.304,
+     "t": -1.9
+    },
+    "opp_epa": {
+     "coef": -4.143,
+     "se": 2.315,
+     "t": -1.8
+    }
+   },
+   "+early+full_epa": {
+    "loso_mse_change_pct": 0.001,
+    "own_early": {
+     "coef": -0.413,
+     "se": 1.236,
+     "t": -0.3
+    },
+    "opp_early": {
+     "coef": 1.416,
+     "se": 1.243,
+     "t": 1.1
+    },
+    "own_epa": {
+     "coef": -3.862,
+     "se": 2.689,
+     "t": -1.4
+    },
+    "opp_epa": {
+     "coef": -5.766,
+     "se": 2.711,
+     "t": -2.1
+    }
+   },
+   "by_season (beyond line + full-game EPA)": {
+    "2016": {
+     "own_early": -3.01,
+     "opp_early": 0.475,
+     "t_own": -0.7,
+     "t_opp": 0.1
+    },
+    "2017": {
+     "own_early": -2.703,
+     "opp_early": 2.785,
+     "t_own": -0.7,
+     "t_opp": 0.7
+    },
+    "2018": {
+     "own_early": -5.791,
+     "opp_early": 2.342,
+     "t_own": -1.2,
+     "t_opp": 0.5
+    },
+    "2019": {
+     "own_early": 1.295,
+     "opp_early": 2.314,
+     "t_own": 0.3,
+     "t_opp": 0.6
+    },
+    "2020": {
+     "own_early": -3.051,
+     "opp_early": 2.369,
+     "t_own": -0.7,
+     "t_opp": 0.5
+    },
+    "2021": {
+     "own_early": -4.285,
+     "opp_early": -0.849,
+     "t_own": -1.0,
+     "t_opp": -0.2
+    },
+    "2022": {
+     "own_early": 6.295,
+     "opp_early": 4.873,
+     "t_own": 1.6,
+     "t_opp": 1.2
+    },
+    "2023": {
+     "own_early": 5.123,
+     "opp_early": 0.541,
+     "t_own": 1.3,
+     "t_opp": 0.1
+    },
+    "2024": {
+     "own_early": -2.022,
+     "opp_early": 3.393,
+     "t_own": -0.6,
+     "t_opp": 0.9
+    },
+    "2025": {
+     "own_early": 4.381,
+     "opp_early": 0.151,
+     "t_own": 1.0,
+     "t_opp": 0.0
+    },
+    "2026": {
+     "own_early": 5.386,
+     "opp_early": 4.017,
+     "t_own": 0.9,
+     "t_opp": 0.7
+    }
+   },
+   "seasons_own_early_positive": 5,
+   "seasons_opp_early_positive": 10
+  },
+  "pass_att": {
+   "loso_mse_line_only": 70.5985,
+   "+early": {
+    "loso_mse_change_pct": -0.099,
+    "own_early": {
+     "coef": -2.776,
+     "se": 0.972,
+     "t": -2.9
+    },
+    "opp_early": {
+     "coef": -1.485,
+     "se": 0.974,
+     "t": -1.5
+    }
+   },
+   "+first3_pts": {
+    "loso_mse_change_pct": -0.13,
+    "own_first3": {
+     "coef": -0.264,
+     "se": 0.077,
+     "t": -3.4
+    },
+    "opp_first3": {
+     "coef": -0.101,
+     "se": 0.077,
+     "t": -1.3
+    }
+   },
+   "+full_epa": {
+    "loso_mse_change_pct": -0.716,
+    "own_epa": {
+     "coef": -8.825,
+     "se": 2.114,
+     "t": -4.2
+    },
+    "opp_epa": {
+     "coef": -8.585,
+     "se": 2.124,
+     "t": -4.0
+    }
+   },
+   "+early+full_epa": {
+    "loso_mse_change_pct": -0.566,
+    "own_early": {
+     "coef": -0.549,
+     "se": 1.134,
+     "t": -0.5
+    },
+    "opp_early": {
+     "coef": 1.135,
+     "se": 1.14,
+     "t": 1.0
+    },
+    "own_epa": {
+     "coef": -8.179,
+     "se": 2.467,
+     "t": -3.3
+    },
+    "opp_epa": {
+     "coef": -9.893,
+     "se": 2.487,
+     "t": -4.0
+    }
+   },
+   "by_season (beyond line + full-game EPA)": {
+    "2016": {
+     "own_early": -0.566,
+     "opp_early": -4.591,
+     "t_own": -0.1,
+     "t_opp": -1.1
+    },
+    "2017": {
+     "own_early": -0.088,
+     "opp_early": -1.171,
+     "t_own": -0.0,
+     "t_opp": -0.4
+    },
+    "2018": {
+     "own_early": 0.17,
+     "opp_early": -7.098,
+     "t_own": 0.0,
+     "t_opp": -1.4
+    },
+    "2019": {
+     "own_early": -3.101,
+     "opp_early": 2.221,
+     "t_own": -0.8,
+     "t_opp": 0.6
+    },
+    "2020": {
+     "own_early": 6.148,
+     "opp_early": 1.128,
+     "t_own": 1.5,
+     "t_opp": 0.3
+    },
+    "2021": {
+     "own_early": -3.511,
+     "opp_early": -6.639,
+     "t_own": -0.9,
+     "t_opp": -1.8
+    },
+    "2022": {
+     "own_early": 0.25,
+     "opp_early": 12.664,
+     "t_own": 0.1,
+     "t_opp": 3.4
+    },
+    "2023": {
+     "own_early": -4.514,
+     "opp_early": 2.939,
+     "t_own": -1.4,
+     "t_opp": 0.9
+    },
+    "2024": {
+     "own_early": 4.058,
+     "opp_early": 3.563,
+     "t_own": 1.2,
+     "t_opp": 1.1
+    },
+    "2025": {
+     "own_early": -4.232,
+     "opp_early": 4.342,
+     "t_own": -1.1,
+     "t_opp": 1.1
+    },
+    "2026": {
+     "own_early": 3.288,
+     "opp_early": -2.09,
+     "t_own": 0.5,
+     "t_opp": -0.3
+    }
+   },
+   "seasons_own_early_positive": 5,
+   "seasons_opp_early_positive": 6
+  },
+  "rush_att": {
+   "loso_mse_line_only": 51.1961,
+   "+early": {
+    "loso_mse_change_pct": 0.056,
+    "own_early": {
+     "coef": -0.223,
+     "se": 0.83,
+     "t": -0.3
+    },
+    "opp_early": {
+     "coef": 1.502,
+     "se": 0.831,
+     "t": 1.8
+    }
+   },
+   "+first3_pts": {
+    "loso_mse_change_pct": 0.072,
+    "own_first3": {
+     "coef": -0.04,
+     "se": 0.066,
+     "t": -0.6
+    },
+    "opp_first3": {
+     "coef": 0.1,
+     "se": 0.066,
+     "t": 1.5
+    }
+   },
+   "+full_epa": {
+    "loso_mse_change_pct": -0.099,
+    "own_epa": {
+     "coef": 3.848,
+     "se": 1.807,
+     "t": 2.1
+    },
+    "opp_epa": {
+     "coef": 4.279,
+     "se": 1.816,
+     "t": 2.4
+    }
+   },
+   "+early+full_epa": {
+    "loso_mse_change_pct": -0.021,
+    "own_early": {
+     "coef": -1.706,
+     "se": 0.97,
+     "t": -1.8
+    },
+    "opp_early": {
+     "coef": 0.437,
+     "se": 0.975,
+     "t": 0.4
+    },
+    "own_epa": {
+     "coef": 5.775,
+     "se": 2.109,
+     "t": 2.7
+    },
+    "opp_epa": {
+     "coef": 3.727,
+     "se": 2.126,
+     "t": 1.8
+    }
+   },
+   "by_season (beyond line + full-game EPA)": {
+    "2016": {
+     "own_early": -4.51,
+     "opp_early": 6.289,
+     "t_own": -1.3,
+     "t_opp": 1.9
+    },
+    "2017": {
+     "own_early": 1.149,
+     "opp_early": 1.144,
+     "t_own": 0.4,
+     "t_opp": 0.4
+    },
+    "2018": {
+     "own_early": -2.043,
+     "opp_early": 3.288,
+     "t_own": -0.5,
+     "t_opp": 0.8
+    },
+    "2019": {
+     "own_early": -2.353,
+     "opp_early": 0.758,
+     "t_own": -0.8,
+     "t_opp": 0.3
+    },
+    "2020": {
+     "own_early": -4.949,
+     "opp_early": -4.898,
+     "t_own": -1.5,
+     "t_opp": -1.5
+    },
+    "2021": {
+     "own_early": -2.68,
+     "opp_early": 9.651,
+     "t_own": -0.8,
+     "t_opp": 2.9
+    },
+    "2022": {
+     "own_early": 1.065,
+     "opp_early": -6.036,
+     "t_own": 0.3,
+     "t_opp": -1.8
+    },
+    "2023": {
+     "own_early": 2.552,
+     "opp_early": -2.472,
+     "t_own": 0.9,
+     "t_opp": -0.8
+    },
+    "2024": {
+     "own_early": -3.636,
+     "opp_early": -1.095,
+     "t_own": -1.3,
+     "t_opp": -0.4
+    },
+    "2025": {
+     "own_early": -1.335,
+     "opp_early": 1.53,
+     "t_own": -0.4,
+     "t_opp": 0.4
+    },
+    "2026": {
+     "own_early": -3.93,
+     "opp_early": 1.816,
+     "t_own": -0.8,
+     "t_opp": 0.4
+    }
+   },
+   "seasons_own_early_positive": 3,
+   "seasons_opp_early_positive": 7
+  },
+  "dk_QB": {
+   "loso_mse_line_only": 59.0994,
+   "+early": {
+    "loso_mse_change_pct": 0.14,
+    "own_early": {
+     "coef": -0.238,
+     "se": 0.892,
+     "t": -0.3
+    },
+    "opp_early": {
+     "coef": -1.229,
+     "se": 0.893,
+     "t": -1.4
+    }
+   },
+   "+first3_pts": {
+    "loso_mse_change_pct": 0.073,
+    "own_first3": {
+     "coef": -0.058,
+     "se": 0.071,
+     "t": -0.8
+    },
+    "opp_first3": {
+     "coef": -0.122,
+     "se": 0.071,
+     "t": -1.7
+    }
+   },
+   "+full_epa": {
+    "loso_mse_change_pct": 0.054,
+    "own_epa": {
+     "coef": -0.123,
+     "se": 1.945,
+     "t": -0.1
+    },
+    "opp_epa": {
+     "coef": -2.119,
+     "se": 1.954,
+     "t": -1.1
+    }
+   },
+   "+early+full_epa": {
+    "loso_mse_change_pct": 0.24,
+    "own_early": {
+     "coef": -0.239,
+     "se": 1.044,
+     "t": -0.2
+    },
+    "opp_early": {
+     "coef": -0.992,
+     "se": 1.049,
+     "t": -0.9
+    },
+    "own_epa": {
+     "coef": 0.119,
+     "se": 2.27,
+     "t": 0.1
+    },
+    "opp_epa": {
+     "coef": -0.999,
+     "se": 2.289,
+     "t": -0.4
+    }
+   },
+   "by_season (beyond line + full-game EPA)": {
+    "2016": {
+     "own_early": 5.583,
+     "opp_early": -2.922,
+     "t_own": 1.6,
+     "t_opp": -0.9
+    },
+    "2017": {
+     "own_early": -2.609,
+     "opp_early": -1.173,
+     "t_own": -0.9,
+     "t_opp": -0.4
+    },
+    "2018": {
+     "own_early": -3.068,
+     "opp_early": -4.005,
+     "t_own": -0.7,
+     "t_opp": -0.9
+    },
+    "2019": {
+     "own_early": 1.955,
+     "opp_early": 1.985,
+     "t_own": 0.6,
+     "t_opp": 0.6
+    },
+    "2020": {
+     "own_early": -1.083,
+     "opp_early": -6.972,
+     "t_own": -0.3,
+     "t_opp": -1.8
+    },
+    "2021": {
+     "own_early": -0.382,
+     "opp_early": -11.293,
+     "t_own": -0.1,
+     "t_opp": -3.2
+    },
+    "2022": {
+     "own_early": -0.08,
+     "opp_early": 13.206,
+     "t_own": -0.0,
+     "t_opp": 4.1
+    },
+    "2023": {
+     "own_early": 0.404,
+     "opp_early": -1.202,
+     "t_own": 0.1,
+     "t_opp": -0.4
+    },
+    "2024": {
+     "own_early": -3.933,
+     "opp_early": -1.124,
+     "t_own": -1.2,
+     "t_opp": -0.3
+    },
+    "2025": {
+     "own_early": 2.801,
+     "opp_early": 0.679,
+     "t_own": 0.7,
+     "t_opp": 0.2
+    },
+    "2026": {
+     "own_early": 8.102,
+     "opp_early": 6.442,
+     "t_own": 1.5,
+     "t_opp": 1.2
+    }
+   },
+   "seasons_own_early_positive": 5,
+   "seasons_opp_early_positive": 4
+  },
+  "dk_RB": {
+   "loso_mse_line_only": 106.4864,
+   "+early": {
+    "loso_mse_change_pct": -0.027,
+    "own_early": {
+     "coef": 1.725,
+     "se": 1.196,
+     "t": 1.4
+    },
+    "opp_early": {
+     "coef": 2.622,
+     "se": 1.198,
+     "t": 2.2
+    }
+   },
+   "+first3_pts": {
+    "loso_mse_change_pct": 0.092,
+    "own_first3": {
+     "coef": 0.067,
+     "se": 0.095,
+     "t": 0.7
+    },
+    "opp_first3": {
+     "coef": 0.111,
+     "se": 0.095,
+     "t": 1.2
+    }
+   },
+   "+full_epa": {
+    "loso_mse_change_pct": 0.118,
+    "own_epa": {
+     "coef": 2.016,
+     "se": 2.61,
+     "t": 0.8
+    },
+    "opp_epa": {
+     "coef": 0.944,
+     "se": 2.622,
+     "t": 0.4
+    }
+   },
+   "+early+full_epa": {
+    "loso_mse_change_pct": 0.207,
+    "own_early": {
+     "coef": 1.773,
+     "se": 1.399,
+     "t": 1.3
+    },
+    "opp_early": {
+     "coef": 3.274,
+     "se": 1.407,
+     "t": 2.3
+    },
+    "own_epa": {
+     "coef": 0.109,
+     "se": 3.044,
+     "t": 0.0
+    },
+    "opp_epa": {
+     "coef": -2.722,
+     "se": 3.069,
+     "t": -0.9
+    }
+   },
+   "by_season (beyond line + full-game EPA)": {
+    "2016": {
+     "own_early": -2.915,
+     "opp_early": 10.447,
+     "t_own": -0.6,
+     "t_opp": 2.1
+    },
+    "2017": {
+     "own_early": 13.204,
+     "opp_early": 9.21,
+     "t_own": 3.3,
+     "t_opp": 2.3
+    },
+    "2018": {
+     "own_early": -9.578,
+     "opp_early": -11.888,
+     "t_own": -1.8,
+     "t_opp": -2.1
+    },
+    "2019": {
+     "own_early": 0.237,
+     "opp_early": 5.076,
+     "t_own": 0.1,
+     "t_opp": 1.1
+    },
+    "2020": {
+     "own_early": -9.969,
+     "opp_early": 5.58,
+     "t_own": -2.1,
+     "t_opp": 1.2
+    },
+    "2021": {
+     "own_early": 0.428,
+     "opp_early": 6.726,
+     "t_own": 0.1,
+     "t_opp": 1.4
+    },
+    "2022": {
+     "own_early": 11.448,
+     "opp_early": -3.751,
+     "t_own": 2.4,
+     "t_opp": -0.8
+    },
+    "2023": {
+     "own_early": 10.11,
+     "opp_early": 10.973,
+     "t_own": 2.5,
+     "t_opp": 2.8
+    },
+    "2024": {
+     "own_early": 0.325,
+     "opp_early": 5.515,
+     "t_own": 0.1,
+     "t_opp": 1.4
+    },
+    "2025": {
+     "own_early": 1.862,
+     "opp_early": -3.077,
+     "t_own": 0.4,
+     "t_opp": -0.6
+    },
+    "2026": {
+     "own_early": 6.981,
+     "opp_early": 1.718,
+     "t_own": 1.0,
+     "t_opp": 0.2
+    }
+   },
+   "seasons_own_early_positive": 8,
+   "seasons_opp_early_positive": 8
+  },
+  "dk_WR": {
+   "loso_mse_line_only": 204.6711,
+   "+early": {
+    "loso_mse_change_pct": -0.289,
+    "own_early": {
+     "coef": -6.841,
+     "se": 1.655,
+     "t": -4.1
+    },
+    "opp_early": {
+     "coef": -0.524,
+     "se": 1.658,
+     "t": -0.3
+    }
+   },
+   "+first3_pts": {
+    "loso_mse_change_pct": -0.265,
+    "own_first3": {
+     "coef": -0.534,
+     "se": 0.132,
+     "t": -4.1
+    },
+    "opp_first3": {
+     "coef": 0.088,
+     "se": 0.132,
+     "t": 0.7
+    }
+   },
+   "+full_epa": {
+    "loso_mse_change_pct": -0.251,
+    "own_epa": {
+     "coef": -12.109,
+     "se": 3.609,
+     "t": -3.4
+    },
+    "opp_epa": {
+     "coef": -7.931,
+     "se": 3.626,
+     "t": -2.2
+    }
+   },
+   "+early+full_epa": {
+    "loso_mse_change_pct": -0.317,
+    "own_early": {
+     "coef": -5.014,
+     "se": 1.935,
+     "t": -2.6
+    },
+    "opp_early": {
+     "coef": 2.218,
+     "se": 1.945,
+     "t": 1.1
+    },
+    "own_epa": {
+     "coef": -6.421,
+     "se": 4.209,
+     "t": -1.5
+    },
+    "opp_epa": {
+     "coef": -10.613,
+     "se": 4.244,
+     "t": -2.5
+    }
+   },
+   "by_season (beyond line + full-game EPA)": {
+    "2016": {
+     "own_early": -2.566,
+     "opp_early": -4.771,
+     "t_own": -0.4,
+     "t_opp": -0.7
+    },
+    "2017": {
+     "own_early": -6.657,
+     "opp_early": -0.579,
+     "t_own": -1.2,
+     "t_opp": -0.1
+    },
+    "2018": {
+     "own_early": -2.564,
+     "opp_early": 7.637,
+     "t_own": -0.3,
+     "t_opp": 1.0
+    },
+    "2019": {
+     "own_early": -4.913,
+     "opp_early": 10.886,
+     "t_own": -0.8,
+     "t_opp": 1.7
+    },
+    "2020": {
+     "own_early": 5.375,
+     "opp_early": -6.845,
+     "t_own": 0.8,
+     "t_opp": -1.0
+    },
+    "2021": {
+     "own_early": -10.581,
+     "opp_early": -10.074,
+     "t_own": -1.6,
+     "t_opp": -1.5
+    },
+    "2022": {
+     "own_early": -4.072,
+     "opp_early": 16.526,
+     "t_own": -0.7,
+     "t_opp": 2.7
+    },
+    "2023": {
+     "own_early": -16.993,
+     "opp_early": -5.95,
+     "t_own": -2.8,
+     "t_opp": -1.0
+    },
+    "2024": {
+     "own_early": 1.846,
+     "opp_early": 8.602,
+     "t_own": 0.3,
+     "t_opp": 1.4
+    },
+    "2025": {
+     "own_early": -4.127,
+     "opp_early": 12.962,
+     "t_own": -0.6,
+     "t_opp": 2.0
+    },
+    "2026": {
+     "own_early": -18.186,
+     "opp_early": -11.687,
+     "t_own": -1.9,
+     "t_opp": -1.2
+    }
+   },
+   "seasons_own_early_positive": 2,
+   "seasons_opp_early_positive": 5
+  },
+  "dk_TE": {
+   "loso_mse_line_only": 73.3314,
+   "+early": {
+    "loso_mse_change_pct": 0.057,
+    "own_early": {
+     "coef": 1.53,
+     "se": 0.993,
+     "t": 1.5
+    },
+    "opp_early": {
+     "coef": -1.625,
+     "se": 0.994,
+     "t": -1.6
+    }
+   },
+   "+first3_pts": {
+    "loso_mse_change_pct": 0.039,
+    "own_first3": {
+     "coef": 0.082,
+     "se": 0.079,
+     "t": 1.0
+    },
+    "opp_first3": {
+     "coef": -0.218,
+     "se": 0.079,
+     "t": -2.8
+    }
+   },
+   "+full_epa": {
+    "loso_mse_change_pct": 0.08,
+    "own_epa": {
+     "coef": -0.958,
+     "se": 2.166,
+     "t": -0.4
+    },
+    "opp_epa": {
+     "coef": -2.708,
+     "se": 2.176,
+     "t": -1.2
+    }
+   },
+   "+early+full_epa": {
+    "loso_mse_change_pct": 0.19,
+    "own_early": {
+     "coef": 2.462,
+     "se": 1.161,
+     "t": 2.1
+    },
+    "opp_early": {
+     "coef": -1.217,
+     "se": 1.168,
+     "t": -1.0
+    },
+    "own_epa": {
+     "coef": -3.755,
+     "se": 2.526,
+     "t": -1.5
+    },
+    "opp_epa": {
+     "coef": -1.246,
+     "se": 2.547,
+     "t": -0.5
+    }
+   },
+   "by_season (beyond line + full-game EPA)": {
+    "2016": {
+     "own_early": 3.611,
+     "opp_early": -3.036,
+     "t_own": 0.8,
+     "t_opp": -0.7
+    },
+    "2017": {
+     "own_early": -3.243,
+     "opp_early": -5.053,
+     "t_own": -1.1,
+     "t_opp": -1.7
+    },
+    "2018": {
+     "own_early": -12.521,
+     "opp_early": -8.214,
+     "t_own": -2.7,
+     "t_opp": -1.6
+    },
+    "2019": {
+     "own_early": -2.827,
+     "opp_early": 1.084,
+     "t_own": -0.8,
+     "t_opp": 0.3
+    },
+    "2020": {
+     "own_early": 4.513,
+     "opp_early": 7.089,
+     "t_own": 1.2,
+     "t_opp": 1.9
+    },
+    "2021": {
+     "own_early": -2.737,
+     "opp_early": -2.181,
+     "t_own": -0.7,
+     "t_opp": -0.6
+    },
+    "2022": {
+     "own_early": 7.32,
+     "opp_early": 4.226,
+     "t_own": 1.9,
+     "t_opp": 1.1
+    },
+    "2023": {
+     "own_early": 5.514,
+     "opp_early": 0.888,
+     "t_own": 1.6,
+     "t_opp": 0.3
+    },
+    "2024": {
+     "own_early": 10.149,
+     "opp_early": -4.569,
+     "t_own": 2.9,
+     "t_opp": -1.3
+    },
+    "2025": {
+     "own_early": 4.749,
+     "opp_early": -5.834,
+     "t_own": 1.1,
+     "t_opp": -1.3
+    },
+    "2026": {
+     "own_early": 25.254,
+     "opp_early": 15.489,
+     "t_own": 4.2,
+     "t_opp": 2.6
+    }
+   },
+   "seasons_own_early_positive": 7,
+   "seasons_opp_early_positive": 5
+  },
+  "by_spread_and_early_edge": [
+   {
+    "spread": "dog 4+",
+    "early_edge": "worse",
+    "n": 463.0,
+    "first3_margin": -2.667,
+    "trail7_q1": 0.307,
+    "pts_vs_implied": 0.394,
+    "pass_att": 36.317,
+    "rush_att": 24.603,
+    "dk_QB": 15.264,
+    "dk_RB": 20.755,
+    "dk_WR": 31.335,
+    "dk_TE": 10.86
+   },
+   {
+    "spread": "dog 4+",
+    "early_edge": "even",
+    "n": 462.0,
+    "first3_margin": -2.143,
+    "trail7_q1": 0.268,
+    "pts_vs_implied": 0.107,
+    "pass_att": 37.212,
+    "rush_att": 24.706,
+    "dk_QB": 16.363,
+    "dk_RB": 21.379,
+    "dk_WR": 32.448,
+    "dk_TE": 11.559
+   },
+   {
+    "spread": "dog 4+",
+    "early_edge": "better",
+    "n": 463.0,
+    "first3_margin": -2.343,
+    "trail7_q1": 0.27,
+    "pts_vs_implied": 0.121,
+    "pass_att": 36.711,
+    "rush_att": 24.512,
+    "dk_QB": 16.601,
+    "dk_RB": 21.414,
+    "dk_WR": 31.987,
+    "dk_TE": 11.775
+   },
+   {
+    "spread": "within 3",
+    "early_edge": "worse",
+    "n": 623.0,
+    "first3_margin": 0.12,
+    "trail7_q1": 0.199,
+    "pts_vs_implied": 0.071,
+    "pass_att": 36.737,
+    "rush_att": 26.222,
+    "dk_QB": 17.808,
+    "dk_RB": 23.136,
+    "dk_WR": 35.151,
+    "dk_TE": 12.025
+   },
+   {
+    "spread": "within 3",
+    "early_edge": "even",
+    "n": 623.0,
+    "first3_margin": 0.098,
+    "trail7_q1": 0.213,
+    "pts_vs_implied": -0.035,
+    "pass_att": 36.327,
+    "rush_att": 26.263,
+    "dk_QB": 18.405,
+    "dk_RB": 23.274,
+    "dk_WR": 34.375,
+    "dk_TE": 13.258
+   },
+   {
+    "spread": "within 3",
+    "early_edge": "better",
+    "n": 623.0,
+    "first3_margin": 0.292,
+    "trail7_q1": 0.202,
+    "pts_vs_implied": -0.033,
+    "pass_att": 36.114,
+    "rush_att": 26.326,
+    "dk_QB": 18.12,
+    "dk_RB": 23.588,
+    "dk_WR": 33.611,
+    "dk_TE": 13.11
+   },
+   {
+    "spread": "fav 4+",
+    "early_edge": "worse",
+    "n": 391.0,
+    "first3_margin": 2.76,
+    "trail7_q1": 0.113,
+    "pts_vs_implied": 0.921,
+    "pass_att": 35.309,
+    "rush_att": 27.407,
+    "dk_QB": 20.143,
+    "dk_RB": 26.309,
+    "dk_WR": 36.144,
+    "dk_TE": 14.088
+   },
+   {
+    "spread": "fav 4+",
+    "early_edge": "even",
+    "n": 390.0,
+    "first3_margin": 2.223,
+    "trail7_q1": 0.149,
+    "pts_vs_implied": 0.24,
+    "pass_att": 35.772,
+    "rush_att": 27.695,
+    "dk_QB": 19.886,
+    "dk_RB": 26.056,
+    "dk_WR": 37.25,
+    "dk_TE": 13.563
+   },
+   {
+    "spread": "fav 4+",
+    "early_edge": "better",
+    "n": 391.0,
+    "first3_margin": 2.893,
+    "trail7_q1": 0.151,
+    "pts_vs_implied": 1.24,
+    "pass_att": 35.647,
+    "rush_att": 27.558,
+    "dk_QB": 21.28,
+    "dk_RB": 26.295,
+    "dk_WR": 36.866,
+    "dk_TE": 14.925
+   }
+  ]
+ },
+ "shrinkage_sensitivity_first3_margin_loso_mse_change_pct": {
+  "1": 0.073,
+  "2": 0.073,
+  "8": 0.071
+ },
+ "player_model": {
+  "rows": {
+   "train": 11175,
+   "test": 1752
+  },
+  "subset": "weeks 4+ (rated)",
+  "own+opp": {
+   "current": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.359,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.492,
+     "adj_vs_miss_rho": 0.062
+    },
+    "test_2026": {
+     "n": 1752,
+     "mae_sleeper": 5.365,
+     "mae_corrected": 5.35,
+     "rank_rho_sleeper": 0.473,
+     "rank_rho_corrected": 0.481,
+     "adj_vs_miss_rho": 0.048,
+     "top_third_boom": 0.226,
+     "top_third_bust": 0.202,
+     "bottom_third_boom": 0.207,
+     "bottom_third_bust": 0.259
+    },
+    "loso_subset_mae": 5.373,
+    "test_2026_subset_mae": 5.39
+   },
+   "+own_early_x_pass+own_early_x_rb+opp_early_x_pass+opp_early_x_rb": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.36,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.491,
+     "adj_vs_miss_rho": 0.062
+    },
+    "test_2026": {
+     "n": 1752,
+     "mae_sleeper": 5.365,
+     "mae_corrected": 5.359,
+     "rank_rho_sleeper": 0.473,
+     "rank_rho_corrected": 0.482,
+     "adj_vs_miss_rho": 0.046,
+     "top_third_boom": 0.229,
+     "top_third_bust": 0.187,
+     "bottom_third_boom": 0.197,
+     "bottom_third_bust": 0.264
+    },
+    "loso_subset_mae": 5.374,
+    "test_2026_subset_mae": 5.401
+   }
+  },
+  "own only": {
+   "current": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.359,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.492,
+     "adj_vs_miss_rho": 0.062
+    },
+    "test_2026": {
+     "n": 1752,
+     "mae_sleeper": 5.365,
+     "mae_corrected": 5.35,
+     "rank_rho_sleeper": 0.473,
+     "rank_rho_corrected": 0.481,
+     "adj_vs_miss_rho": 0.048,
+     "top_third_boom": 0.226,
+     "top_third_bust": 0.202,
+     "bottom_third_boom": 0.207,
+     "bottom_third_bust": 0.259
+    },
+    "loso_subset_mae": 5.373,
+    "test_2026_subset_mae": 5.39
+   },
+   "+own_early_x_pass+own_early_x_rb": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.36,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.49,
+     "adj_vs_miss_rho": 0.058
+    },
+    "test_2026": {
+     "n": 1752,
+     "mae_sleeper": 5.365,
+     "mae_corrected": 5.351,
+     "rank_rho_sleeper": 0.473,
+     "rank_rho_corrected": 0.483,
+     "adj_vs_miss_rho": 0.047,
+     "top_third_boom": 0.224,
+     "top_third_bust": 0.195,
+     "bottom_third_boom": 0.199,
+     "bottom_third_bust": 0.26
+    },
+    "loso_subset_mae": 5.373,
+    "test_2026_subset_mae": 5.391
+   }
+  }
+ }
+}

@@ -101,6 +101,70 @@ function Checklist({ items }: { items: ChecklistItem[] }) {
   );
 }
 
+/** Each offense's style vs the opposing defense's, and what that pairing has done against the line since 2016. */
+function StyleMatchups({ items }: { items: StyleMatchup[] }) {
+  return (
+    <View>
+      {items.map((m) => (
+        <View key={m.offense} className="env-matchup">
+          <Text className="dfs-rank">{m.lean === 'pass' ? 'P' : m.lean === 'run' ? 'R' : '–'}</Text>
+          <View className="flex-1">
+            <Text className="dfs-name">
+              {m.offense} offense ({m.off_text ?? m.off_style}) vs {m.defense} defense ({m.def_text ?? m.def_style})
+            </Text>
+            {m.lean_text ? <Text className="dfs-meta">{m.lean_text}</Text> : null}
+            {(m.flips ?? []).map((f) => (
+              <Text key={f} className="dfs-meta">
+                Roster moves: {f}
+              </Text>
+            ))}
+            <Text className="dfs-meta">
+              {m.pass_att == null
+                ? 'No record for this pairing'
+                : `${formatSigned(m.pass_att, 1)} pass / ${formatSigned(m.rush_att ?? 0, 1)} rush attempts vs the line · WR ${formatSigned(
+                    m.dk.WR ?? 0,
+                    1,
+                  )} · RB ${formatSigned(m.dk.RB ?? 0, 1)} DK pts (team), 2016-2026`}
+            </Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** Trades and coaching changes of the last few weeks: the styles above come from games already played, so these are what they can't see yet. */
+function RosterMoves({ moves, adjust }: { moves: Record<string, RosterMove[]>; adjust: Record<string, RosterAdjust> }) {
+  const teams = [...new Set([...Object.keys(moves), ...Object.keys(adjust)])].filter((t) => moves[t]?.length || adjust[t]?.reasons?.length);
+  return (
+    <View>
+      {teams.map((team) => (
+        <View key={team} className="env-matchup">
+          <Text className="dfs-rank">{team}</Text>
+          <View className="flex-1">
+            {(moves[team] ?? []).map((m, i) => (
+              <Text key={`${m.label}-${i}`} className="dfs-meta">
+                Wk {m.effective_week}: {m.label}
+              </Text>
+            ))}
+            {adjust[team] ? (
+              <Text className="dfs-meta">
+                Back-tested effect: {formatSigned(adjust[team].d_epa_db, 2)} offense EPA/dropback, {formatSigned(adjust[team].d_pass_rate * 100, 1)} pt neutral
+                pass rate, {formatSigned(adjust[team].d_pressure_events, 2)} sacks+hits/game by its defense
+              </Text>
+            ) : null}
+            {(adjust[team]?.reasons ?? []).map((r) => (
+              <Text key={r} className="dfs-meta">
+                • {r}
+              </Text>
+            ))}
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function StackCard({ stack, rank }: { stack: DfsStack; rank: number }) {
   const own = stack.players.reduce((s, p) => s + (p.ownership ?? 0), 0);
   const value = stack.salary > 0 ? stack.final / (stack.salary / 1000) : 0;
@@ -145,6 +209,15 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
     env.shootout_leverage?.flag && { id: 'shootout-leverage', text: `Shootout leverage ${env.shootout_leverage.leverage.toFixed(2)}x` },
     env.negative_script && { id: 'negative-script', text: 'Negative script' },
     env.live_dog && { id: 'live-dog', text: `Live dog: ${env.underdog}` },
+    ...(env.style_matchup ?? [])
+      .filter((m) => m.lean)
+      .map((m) => ({ id: 'style-matchup', text: `${m.offense} leans ${m.lean}` })),
+    ...(() => {
+      const teams = [...new Set([...Object.keys(env.roster_moves ?? {}), ...Object.keys(env.roster_adjust ?? {})])].filter(
+        (t) => env.roster_moves?.[t]?.length || env.roster_adjust?.[t]?.reasons?.length,
+      );
+      return teams.length ? [{ id: 'roster-moves', text: `Roster moves: ${teams.join(', ')}` }] : [];
+    })(),
   ].filter(Boolean) as { id: string; text: string }[];
 
   return (
@@ -234,6 +307,41 @@ export default function GameEnvironmentCard({ env, stacks, players, gameId, expa
             <>
               <Text className="detail-title mt-4">Weekly audit checklist</Text>
               <Checklist items={env.checklist} />
+            </>
+          ) : null}
+          {env.style_matchup?.length ? (
+            <>
+              <Text className="detail-title mt-4">
+                <Term id="style-matchup">Style matchup</Term>
+              </Text>
+              <StyleMatchups items={env.style_matchup} />
+            </>
+          ) : null}
+          {Object.values(env.schedule_outlook ?? {}).some((l) => l.length) ? (
+            <>
+              <Text className="detail-title mt-4">
+                <Term id="schedule-outlook">Direction: schedule ahead</Term>
+              </Text>
+              {Object.entries(env.schedule_outlook ?? {}).map(([team, ls]) => (
+                <View key={team} className="env-matchup">
+                  <Text className="dfs-rank">{team}</Text>
+                  <View className="flex-1">
+                    {ls.map((l) => (
+                      <Text key={l.text} className="dfs-meta">
+                        {l.better ? '▲' : '▼'} {l.text}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              ))}
+            </>
+          ) : null}
+          {Object.values(env.roster_moves ?? {}).some((m) => m.length) || Object.keys(env.roster_adjust ?? {}).length ? (
+            <>
+              <Text className="detail-title mt-4">
+                <Term id="roster-moves">Recent roster moves</Term>
+              </Text>
+              <RosterMoves moves={env.roster_moves ?? {}} adjust={env.roster_adjust ?? {}} />
             </>
           ) : null}
           <Text className="detail-title mt-4">Matchups to exploit</Text>

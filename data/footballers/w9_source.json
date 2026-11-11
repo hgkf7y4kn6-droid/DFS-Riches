@@ -1,0 +1,720 @@
+{
+ "_readme": "Transcribed from screenshots of The Fantasy Footballers' Week 9 DraftKings 'Ownership Notes' tables (QB, RB, WR, TE, DST), bullets and Late Swap table, plus Borg/Betz Core Plays, Final Thoughts and bold calls. Projection is the source's own DK projection as shown Projections are used exactly as printed..",
+ "season": 2026,
+ "week": 9,
+ "slate": "classic_sunday",
+ "source": "The Fantasy Footballers",
+ "players": [
+  {
+   "name": "Drew Lock",
+   "pos": "QB",
+   "own": 14.81,
+   "proj": 15
+  },
+  {
+   "name": "Shedeur Sanders",
+   "pos": "QB",
+   "own": 11.32,
+   "proj": 14.8
+  },
+  {
+   "name": "Brock Purdy",
+   "pos": "QB",
+   "own": 9.29,
+   "proj": 27.8
+  },
+  {
+   "name": "Malik Willis",
+   "pos": "QB",
+   "own": 8.87,
+   "proj": 16.9
+  },
+  {
+   "name": "Dak Prescott",
+   "pos": "QB",
+   "own": 7.89,
+   "proj": 25.7
+  },
+  {
+   "name": "Patrick Mahomes",
+   "pos": "QB",
+   "own": 7.65,
+   "proj": 20.4
+  },
+  {
+   "name": "Jared Goff",
+   "pos": "QB",
+   "own": 5.81,
+   "proj": 23.8
+  },
+  {
+   "name": "Joe Milton",
+   "pos": "QB",
+   "own": 4.26,
+   "proj": 9.5
+  },
+  {
+   "name": "Matthew Stafford",
+   "pos": "QB",
+   "own": 3.36,
+   "proj": 19.3
+  },
+  {
+   "name": "Drake Maye",
+   "pos": "QB",
+   "own": 3.14,
+   "proj": 20.4
+  },
+  {
+   "name": "Jordan Love",
+   "pos": "QB",
+   "own": 2.93,
+   "proj": 18.4
+  },
+  {
+   "name": "Jayden Daniels",
+   "pos": "QB",
+   "own": 2.69,
+   "proj": 19.1
+  },
+  {
+   "name": "Tyler Shough",
+   "pos": "QB",
+   "own": 2.64,
+   "proj": 16.7
+  },
+  {
+   "name": "Christian McCaffrey",
+   "pos": "RB",
+   "own": 34.88,
+   "proj": 20
+  },
+  {
+   "name": "Jonah Coleman",
+   "pos": "RB",
+   "own": 27.02,
+   "proj": 14.4
+  },
+  {
+   "name": "Devin Singletary",
+   "pos": "RB",
+   "own": 26.45,
+   "proj": 10.4
+  },
+  {
+   "name": "Jahmyr Gibbs",
+   "pos": "RB",
+   "own": 26.04,
+   "proj": 23.3
+  },
+  {
+   "name": "Rhamondre Stevenson",
+   "pos": "RB",
+   "own": 24.44,
+   "proj": 14.2
+  },
+  {
+   "name": "Kenneth Walker",
+   "pos": "RB",
+   "own": 14.43,
+   "proj": 24.6
+  },
+  {
+   "name": "Woody Marks",
+   "pos": "RB",
+   "own": 14.39,
+   "proj": 12.9
+  },
+  {
+   "name": "Chuba Hubbard",
+   "pos": "RB",
+   "own": 13.27,
+   "proj": 16.8
+  },
+  {
+   "name": "Javonte Williams",
+   "pos": "RB",
+   "own": 10.88,
+   "proj": 16.6
+  },
+  {
+   "name": "Josh Jacobs",
+   "pos": "RB",
+   "own": 5.08,
+   "proj": 13.7
+  },
+  {
+   "name": "Quinshon Judkins",
+   "pos": "RB",
+   "own": 4.75,
+   "proj": 14
+  },
+  {
+   "name": "Kyren Williams",
+   "pos": "RB",
+   "own": 3.99,
+   "proj": 16.4
+  },
+  {
+   "name": "Antonio Williams",
+   "pos": "WR",
+   "own": 28.09,
+   "proj": 11.5
+  },
+  {
+   "name": "Puka Nacua",
+   "pos": "WR",
+   "own": 25.55,
+   "proj": 20.1
+  },
+  {
+   "name": "Jaxon Smith-Njigba",
+   "pos": "WR",
+   "own": 20.08,
+   "proj": 23.9
+  },
+  {
+   "name": "Adonai Mitchell",
+   "pos": "WR",
+   "own": 17.05,
+   "proj": 10.8
+  },
+  {
+   "name": "Amon-Ra St. Brown",
+   "pos": "WR",
+   "own": 16.47,
+   "proj": 17.2
+  },
+  {
+   "name": "CeeDee Lamb",
+   "pos": "WR",
+   "own": 15.12,
+   "proj": 17.6
+  },
+  {
+   "name": "George Pickens",
+   "pos": "WR",
+   "own": 11.32,
+   "proj": 15
+  },
+  {
+   "name": "Efton Chism",
+   "pos": "WR",
+   "own": 11.32,
+   "proj": 9.6
+  },
+  {
+   "name": "KC Concepcion",
+   "pos": "WR",
+   "own": 10.21,
+   "proj": 14.3
+  },
+  {
+   "name": "Chris Olave",
+   "pos": "WR",
+   "own": 9.35,
+   "proj": 16.9
+  },
+  {
+   "name": "Matthew Golden",
+   "pos": "WR",
+   "own": 9.19,
+   "proj": 15.5
+  },
+  {
+   "name": "Caleb Douglas",
+   "pos": "WR",
+   "own": 8.26,
+   "proj": 12.5
+  },
+  {
+   "name": "Malik Nabers",
+   "pos": "WR",
+   "own": 8.17,
+   "proj": 17.1
+  },
+  {
+   "name": "Rashee Rice",
+   "pos": "WR",
+   "own": 7.95,
+   "proj": 15.1
+  },
+  {
+   "name": "Omar Cooper",
+   "pos": "WR",
+   "own": 7.76,
+   "proj": 11.9
+  },
+  {
+   "name": "Jameson Williams",
+   "pos": "WR",
+   "own": 6.48,
+   "proj": 14.4
+  },
+  {
+   "name": "Stefon Diggs",
+   "pos": "WR",
+   "own": 5.65,
+   "proj": 14.6
+  },
+  {
+   "name": "Christian Watson",
+   "pos": "WR",
+   "own": 5.51,
+   "proj": 15.3
+  },
+  {
+   "name": "Keenan Allen",
+   "pos": "WR",
+   "own": 4.32,
+   "proj": 13.5
+  },
+  {
+   "name": "Nico Collins",
+   "pos": "WR",
+   "own": 4.25,
+   "proj": 15.2
+  },
+  {
+   "name": "DeMario Douglas",
+   "pos": "WR",
+   "own": 4.04,
+   "proj": 12.3
+  },
+  {
+   "name": "Kyle Williams",
+   "pos": "WR",
+   "own": 1.28,
+   "proj": 8.3
+  },
+  {
+   "name": "George Kittle",
+   "pos": "TE",
+   "own": 29.24,
+   "proj": 15
+  },
+  {
+   "name": "Greg Dulcich",
+   "pos": "TE",
+   "own": 13.62,
+   "proj": 10
+  },
+  {
+   "name": "Tyler Warren",
+   "pos": "TE",
+   "own": 11.65,
+   "proj": 11.4
+  },
+  {
+   "name": "Travis Kelce",
+   "pos": "TE",
+   "own": 10.6,
+   "proj": 10.4
+  },
+  {
+   "name": "Sam LaPorta",
+   "pos": "TE",
+   "own": 7.4,
+   "proj": 12
+  },
+  {
+   "name": "Brock Bowers",
+   "pos": "TE",
+   "own": 5.87,
+   "proj": 13.6
+  },
+  {
+   "name": "Chig Okonkwo",
+   "pos": "TE",
+   "own": 4.48,
+   "proj": 8.3
+  },
+  {
+   "name": "Harold Fannin",
+   "pos": "TE",
+   "own": 4.4,
+   "proj": 10.6
+  },
+  {
+   "name": "Brevyn Spann-Ford",
+   "pos": "TE",
+   "own": 3.55,
+   "proj": 5.3
+  },
+  {
+   "name": "Eli Raridon",
+   "pos": "TE",
+   "own": 2.37,
+   "proj": 6.5
+  },
+  {
+   "name": "Tyler Higbee",
+   "pos": "TE",
+   "own": 1.99,
+   "proj": 8.3
+  },
+  {
+   "name": "Tucker Kraft",
+   "pos": "TE",
+   "own": 1.73,
+   "proj": 9.8
+  },
+  {
+   "name": "Trey McBride",
+   "pos": "TE",
+   "own": 1.47,
+   "proj": 11.6
+  },
+  {
+   "name": "NYG",
+   "pos": "DST",
+   "own": 15.3,
+   "proj": 8.3
+  },
+  {
+   "name": "NO",
+   "pos": "DST",
+   "own": 15.14,
+   "proj": 8.1
+  },
+  {
+   "name": "PHI",
+   "pos": "DST",
+   "own": 14.01,
+   "proj": 6.4
+  },
+  {
+   "name": "ARI",
+   "pos": "DST",
+   "own": 10.03,
+   "proj": 4.9
+  },
+  {
+   "name": "DEN",
+   "pos": "DST",
+   "own": 5.25,
+   "proj": 8.4
+  },
+  {
+   "name": "GB",
+   "pos": "DST",
+   "own": 5.12,
+   "proj": 7.2
+  },
+  {
+   "name": "HOU",
+   "pos": "DST",
+   "own": 4.73,
+   "proj": 9.1
+  },
+  {
+   "name": "SEA",
+   "pos": "DST",
+   "own": 4.61,
+   "proj": 9.3
+  },
+  {
+   "name": "KC",
+   "pos": "DST",
+   "own": 2.41,
+   "proj": 8.7
+  },
+  {
+   "name": "DET",
+   "pos": "DST",
+   "own": 1.54,
+   "proj": 7.7
+  },
+  {
+   "name": "Rachaad White",
+   "pos": "RB",
+   "own": 2.31,
+   "proj": null
+  },
+  {
+   "name": "Blake Corum",
+   "pos": "RB",
+   "own": 1.48,
+   "proj": null
+  },
+  {
+   "name": "Alvin Kamara",
+   "pos": "RB",
+   "own": 1.11,
+   "proj": null
+  },
+  {
+   "name": "Dylan Sampson",
+   "pos": "RB",
+   "own": 0.21,
+   "proj": null
+  },
+  {
+   "name": "Jadarian Price",
+   "pos": "RB",
+   "own": 3.49,
+   "proj": null
+  },
+  {
+   "name": "Zach Charbonnet",
+   "pos": "RB",
+   "own": 0.79,
+   "proj": null
+  },
+  {
+   "name": "Omarion Hampton",
+   "pos": "RB",
+   "own": 0.37,
+   "proj": null
+  },
+  {
+   "name": "Kirk Cousins",
+   "pos": "QB",
+   "own": 1.82,
+   "proj": null
+  },
+  {
+   "name": "C.J. Stroud",
+   "pos": "QB",
+   "own": 1.32,
+   "proj": null
+  },
+  {
+   "name": "Jerry Jeudy",
+   "pos": "WR",
+   "own": 1.23,
+   "proj": null
+  },
+  {
+   "name": "Makai Lemon",
+   "pos": "WR",
+   "own": 5.2,
+   "proj": null
+  },
+  {
+   "name": "Cooper Kupp",
+   "pos": "WR",
+   "own": 1.28,
+   "proj": null
+  },
+  {
+   "name": "Savion Williams",
+   "pos": "WR",
+   "own": 0.68,
+   "proj": null
+  },
+  {
+   "name": "Michael Wilson",
+   "pos": "WR",
+   "own": 1.39,
+   "proj": null
+  },
+  {
+   "name": "Ladd McConkey",
+   "pos": "WR",
+   "own": 1.87,
+   "proj": null
+  },
+  {
+   "name": "Kenyon Sadiq",
+   "pos": "TE",
+   "own": 0.63,
+   "proj": null
+  },
+  {
+   "name": "NE",
+   "pos": "DST",
+   "own": 1.41,
+   "proj": null
+  },
+  {
+   "name": "SF",
+   "pos": "DST",
+   "own": 1.19,
+   "proj": null
+  },
+  {
+   "name": "LV",
+   "pos": "DST",
+   "own": 0.76,
+   "proj": null
+  }
+ ],
+ "pivots": [
+  [
+   "QB",
+   "Drew Lock",
+   "Jordan Love",
+   "Kirk Cousins"
+  ],
+  [
+   "QB",
+   "Brock Purdy",
+   "Drake Maye",
+   "C.J. Stroud"
+  ],
+  [
+   "RB",
+   "Christian McCaffrey",
+   "Josh Jacobs",
+   "Zach Charbonnet"
+  ],
+  [
+   "RB",
+   "Rhamondre Stevenson",
+   "Jadarian Price",
+   "Omarion Hampton"
+  ],
+  [
+   "WR",
+   "Jaxon Smith-Njigba",
+   "Christian Watson",
+   "Michael Wilson"
+  ],
+  [
+   "WR",
+   "Matthew Golden",
+   "Nico Collins",
+   "Ladd McConkey"
+  ],
+  [
+   "WR",
+   "Efton Chism",
+   "Cooper Kupp",
+   "Savion Williams"
+  ],
+  [
+   "TE",
+   "George Kittle",
+   "Brock Bowers",
+   "Tucker Kraft"
+  ],
+  [
+   "DST",
+   "ARI",
+   "GB",
+   "NE"
+  ],
+  [
+   "DST",
+   "SEA",
+   "SF",
+   "LV"
+  ]
+ ],
+ "claims": [
+  {
+   "id": "walker_over_gibbs",
+   "text": "Kenneth Walker projects 1.3 pts above Jahmyr Gibbs (Borg: leverage, Walker over Gibbs)",
+   "a": "Kenneth Walker",
+   "b": "Jahmyr Gibbs",
+   "pos": "RB"
+  },
+  {
+   "id": "jsn_over_puka",
+   "text": "Jaxon Smith-Njigba projects 3.8 pts above Puka Nacua",
+   "a": "Jaxon Smith-Njigba",
+   "b": "Puka Nacua",
+   "pos": "WR"
+  },
+  {
+   "id": "coleman_over_singletary",
+   "text": "Walker/Coleman beats Gibbs/Singletary by 5.3 projected pts",
+   "a": [
+    "Kenneth Walker",
+    "Jonah Coleman"
+   ],
+   "b": [
+    "Jahmyr Gibbs",
+    "Devin Singletary"
+   ]
+  },
+  {
+   "id": "judkins_over_coleman",
+   "text": "Judkins is 0.4 pts behind Coleman at 4.75% vs 27% own (first look for value RB)",
+   "a": "Quinshon Judkins",
+   "b": "Jonah Coleman",
+   "pos": "RB"
+  },
+  {
+   "id": "nabers_over_lamb",
+   "text": "Nabers saves $1k vs Lamb for 0.5 fewer pts at half the own",
+   "a": "Malik Nabers",
+   "b": "CeeDee Lamb",
+   "pos": "WR"
+  },
+  {
+   "id": "concepcion_over_aw",
+   "text": "KC Concepcion projects 2.8 above Antonio Williams",
+   "a": "KC Concepcion",
+   "b": "Antonio Williams",
+   "pos": "WR"
+  },
+  {
+   "id": "kittle_top_te",
+   "text": "Kittle leads TE projections (15)",
+   "top": "George Kittle",
+   "pos": "TE"
+  },
+  {
+   "id": "laporta_over_kelce",
+   "text": "LaPorta projects 1.6 above Kelce",
+   "a": "Sam LaPorta",
+   "b": "Travis Kelce",
+   "pos": "TE"
+  },
+  {
+   "id": "lock_under_12",
+   "text": "Betz bold call: Drew Lock fails to score 12+ DK points",
+   "player": "Drew Lock",
+   "pos": "QB",
+   "under": 12
+  },
+  {
+   "id": "gb_over_phi",
+   "text": "GB DST projects 0.8 above PHI DST at 5% vs 14% own",
+   "a": "GB",
+   "b": "PHI",
+   "pos": "DST"
+  },
+  {
+   "id": "den_over_no",
+   "text": "DEN DST projects 0.3 above NO DST at a third of the own",
+   "a": "DEN",
+   "b": "NO",
+   "pos": "DST"
+  }
+ ],
+ "plays": {
+  "stacks": [
+   "Goff/Jameson Williams/LaPorta (MIA return optional)",
+   "Daniels/Puka/Kyren or Corum (LAR-WAS; Stafford/Puka/Higbee or Raridon)",
+   "Lock/JSN or Concepcion",
+   "Mahomes/Rice/Kelce/Omar Cooper",
+   "Maye/Chism/Kyle Williams/DeMario Douglas/Raridon",
+   "Love/Golden or Watson/Kraft",
+   "Shough/Olave/Judkins",
+   "Purdy/Kittle/CMC"
+  ],
+  "leverage": [
+   "Walker over Gibbs",
+   "Coleman (cheaper RB pair)",
+   "Kyren Williams with or without Puka",
+   "Concepcion at $4.6k",
+   "Judkins",
+   "Nabers",
+   "Okonkwo/Higbee",
+   "Tyler Shough"
+  ],
+  "darts": [
+   "Kyle Williams",
+   "Torry Horton",
+   "Keenan Allen",
+   "Tucker Kraft"
+  ],
+  "fades": [
+   "Woody Marks (Borg)",
+   "Antonio Williams at 30%+ (Betz)"
+  ]
+ }
+}

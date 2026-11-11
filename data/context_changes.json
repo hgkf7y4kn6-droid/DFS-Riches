@@ -121,6 +121,278 @@
       "type": "trade_out",
       "note": "Ryan Miller (WR) MIA -> NE",
       "source": "auto: roster_weekly"
+    },
+    {
+      "team": "BAL",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_in",
+      "note": "Ryan Neuzil (C) ATL -> BAL | 11-10 trade; ATL gets OL Andrew Vorhees + 2028 R6",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "ATL",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_out",
+      "note": "Ryan Neuzil (C) ATL -> BAL | 11-10 trade; ATL gets OL Andrew Vorhees + 2028 R6",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "ATL",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_in",
+      "note": "Andrew Vorhees (OL) BAL -> ATL | 11-10 trade; for C Ryan Neuzil; + 2028 R6 to ATL",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "BAL",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_out",
+      "note": "Andrew Vorhees (OL) BAL -> ATL | 11-10 trade; for C Ryan Neuzil; + 2028 R6 to ATL",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "KC",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_in",
+      "note": "Josh Downs (WR) IND -> KC | 11-10 trade; KC also gets 2027 R7; IND gets 2027 R4 + R5",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "IND",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_out",
+      "note": "Josh Downs (WR) IND -> KC | 11-10 trade; KC also gets 2027 R7; IND gets 2027 R4 + R5",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "DEN",
+      "season": 2026,
+      "effective_week": 11,
+      "type": "trade_in",
+      "note": "Daiyan Henley (LB) LAC -> DEN | 11-10 trade; LAC gets 2027 R4 + 2028 R5",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "LAC",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_out",
+      "note": "Daiyan Henley (LB) LAC -> DEN | 11-10 trade; LAC gets 2027 R4 + 2028 R5",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "MIN",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_in",
+      "note": "Kirk Cousins (QB) LV -> MIN | 11-10 trade; LV gets 2027 R3",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "LV",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_out",
+      "note": "Kirk Cousins (QB) LV -> MIN | 11-10 trade; LV gets 2027 R3",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "BUF",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_in",
+      "note": "Amani Hooker (S) TEN -> BUF | 11-10 trade; BUF also gets 2027 R5; TEN gets 2027 R2",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "TEN",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_out",
+      "note": "Amani Hooker (S) TEN -> BUF | 11-10 trade; BUF also gets 2027 R5; TEN gets 2027 R2",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "SF",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_in",
+      "note": "Keenan Allen (WR) IND -> SF | 11-10 trade; IND gets 2027 R6",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "IND",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_out",
+      "note": "Keenan Allen (WR) IND -> SF | 11-10 trade; IND gets 2027 R6",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "JAX",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_in",
+      "note": "Jordan Davis (DT) PHI -> JAX | 11-09 trade; PHI gets 2027 R1 + 2029 R2",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "PHI",
+      "season": 2026,
+      "effective_week": 11,
+      "type": "trade_out",
+      "note": "Jordan Davis (DT) PHI -> JAX | 11-09 trade; PHI gets 2027 R1 + 2029 R2",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "JAX",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_in",
+      "note": "Davon Godchaux (DT) NO -> JAX | 11-09 trade; NO gets 2028 conditional R6",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "NO",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_out",
+      "note": "Davon Godchaux (DT) NO -> JAX | 11-09 trade; NO gets 2028 conditional R6",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "DET",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_in",
+      "note": "Andre Cisco (S) NYJ -> DET | 11-09 trade; NYJ gets 2028 R6",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "NYJ",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_out",
+      "note": "Andre Cisco (S) NYJ -> DET | 11-09 trade; NYJ gets 2028 R6",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "JAX",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_in",
+      "note": "Jessie Bates (S) ATL -> JAX | 11-09 trade; ATL gets 2027 R2 + 2028 R5",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "ATL",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_out",
+      "note": "Jessie Bates (S) ATL -> JAX | 11-09 trade; ATL gets 2027 R2 + 2028 R5",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "BAL",
+      "season": 2026,
+      "effective_week": 10,
+      "type": "trade_in",
+      "note": "Jacoby Brissett (QB) ARI -> BAL | 11-06 trade; BAL also gets 2027 R5; ARI gets 2027 R4 + 2028 R7 (Jackson, Huntley hurt)",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "ARI",
+      "season": 2026,
+      "effective_week": 9,
+      "type": "trade_out",
+      "note": "Jacoby Brissett (QB) ARI -> BAL | 11-06 trade; BAL also gets 2027 R5; ARI gets 2027 R4 + 2028 R7 (Jackson, Huntley hurt)",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "CHI",
+      "season": 2026,
+      "effective_week": 8,
+      "type": "trade_in",
+      "note": "Jeffery Simmons (DT) TEN -> CHI | 10-29 trade; CHI also gets 2028 R5; TEN gets 2027 R1 + R4 and 2028 R1",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "TEN",
+      "season": 2026,
+      "effective_week": 8,
+      "type": "trade_out",
+      "note": "Jeffery Simmons (DT) TEN -> CHI | 10-29 trade; CHI also gets 2028 R5; TEN gets 2027 R1 + R4 and 2028 R1",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "SF",
+      "season": 2026,
+      "effective_week": 9,
+      "type": "trade_in",
+      "note": "DeForest Buckner (DL) IND -> SF | 10-27 trade; IND gets 2027 R4",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "IND",
+      "season": 2026,
+      "effective_week": 8,
+      "type": "trade_out",
+      "note": "DeForest Buckner (DL) IND -> SF | 10-27 trade; IND gets 2027 R4",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "SEA",
+      "season": 2026,
+      "effective_week": 8,
+      "type": "trade_in",
+      "note": "Quenton Nelson (G) IND -> SEA | 10-27 trade; IND gets 2027 R3 + 2028 R5",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "IND",
+      "season": 2026,
+      "effective_week": 8,
+      "type": "trade_out",
+      "note": "Quenton Nelson (G) IND -> SEA | 10-27 trade; IND gets 2027 R3 + 2028 R5",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "BAL",
+      "season": 2026,
+      "effective_week": 5,
+      "type": "trade_in",
+      "note": "Cam Jurgens (C) PHI -> BAL | 10-07 trade; BAL also gets 2027 R7; PHI gets 2027 R5 + 2028 R2",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "PHI",
+      "season": 2026,
+      "effective_week": 5,
+      "type": "trade_out",
+      "note": "Cam Jurgens (C) PHI -> BAL | 10-07 trade; BAL also gets 2027 R7; PHI gets 2027 R5 + 2028 R2",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "DAL",
+      "season": 2026,
+      "effective_week": 4,
+      "type": "trade_in",
+      "note": "Joey Porter Jr. (CB) PIT -> DAL | 10-01 trade; PIT gets 2027 R6 + 2028 R2",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
+    },
+    {
+      "team": "PIT",
+      "season": 2026,
+      "effective_week": 5,
+      "type": "trade_out",
+      "note": "Joey Porter Jr. (CB) PIT -> DAL | 10-01 trade; PIT gets 2027 R6 + 2028 R2",
+      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
     }
   ]
 }

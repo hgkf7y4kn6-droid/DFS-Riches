@@ -22,6 +22,8 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}      # backup: used only when the site's own pull failed
+      # Cloudflare challenges GitHub runner IPs on the custom domain; Render's own address has no such wall.
+      BIG_PICTURE_SITE: https://dfs-riches.onrender.com
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

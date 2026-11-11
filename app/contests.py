@@ -68,6 +68,14 @@ MAX_WEIGHT = 10
 # The user's "small field" points apply to tournaments only.
 CASH_BIG_FIELD_POINTS = 8
 
+# Letter grade for GPPs (grade_contests), fitted to DraftKings' own Thursday-night grade sheet (28 Showdown
+# contests, 27 graded the same): each GPP is ranked as a percentile against the other GPPs on its slate on
+# a small field, few max entries and a flat (not top-heavy) payout, then cut at these scores. Rake and share
+# paid carry no weight of their own in the fit (they track the other three), so they aren't in the score.
+# Nothing on that sheet reached an A; its cut is a guess above the best B.
+GRADE_WEIGHTS = {"field": 2.0, "top": 1.0, "entries": 1.0}
+GRADE_CUTS = [("A", 85.0), ("B", 65.5), ("C", 50.0), ("D", 38.5)]  # lowest score for each grade; below is F
+
 # (id, label, lowest, highest max entries per user)
 ENTRY_GROUPS = [
     ("se", "Single entry", 1, 1),
@@ -314,6 +322,28 @@ def _score_family(rows: list[dict], weights: dict[str, float] | None, cash: bool
     return [{**r, "score": round(100 * sum(shares[k] * ranks[k][i] for k in ranks), 1)} for i, r in enumerate(rows)]
 
 
+def grade_contests(rows: list[dict]) -> list[dict]:
+    """Adds "grade" (A-F; None for cash games) and "grade_score" (0-100) to each row, ranking GPPs only against
+    GPPs on the same slate (the grade sheet compares one game's contests)."""
+    by_slate: dict[str, list[dict]] = {}
+    for r in rows:
+        if r.get("kind") not in CASH_KINDS:
+            by_slate.setdefault(r.get("slate") or "", []).append(r)
+    graded: dict[int, tuple[str, float]] = {}
+    total = sum(GRADE_WEIGHTS.values())
+    for group in by_slate.values():
+        ranks = {
+            "field": _pct_ranks([-math.log(max(r["field_size"], 1)) for r in group]),
+            "top": _pct_ranks([-(r["top_prize"] or 0.0) / r["prize_pool"] for r in group]),
+            "entries": _pct_ranks([-r["max_entries"] for r in group]),
+        }
+        for i, r in enumerate(group):
+            score = 100 * sum(w * ranks[k][i] for k, w in GRADE_WEIGHTS.items()) / total
+            graded[id(r)] = (next((g for g, cut in GRADE_CUTS if score >= cut), "F"), round(score, 1))
+    return [{**r, "grade": graded[id(r)][0] if id(r) in graded else None,
+             "grade_score": graded[id(r)][1] if id(r) in graded else None} for r in rows]
+
+
 def select(rows: list[dict], entries: frozenset[str], fees: frozenset[str], exclude: frozenset[str]) -> list[dict]:
     """Contests in the chosen max-entries and fee groups (empty = all), minus excluded kinds."""
     return [r for r in rows
@@ -379,8 +409,9 @@ async def best_contests(entries: frozenset[str] = frozenset(), fees: frozenset[s
     """The TOP_N best contests (score_contests, with the user's weights) across the chosen
     max-entries groups, fee groups and contest kinds, on slates that haven't started. With
     draft_group_id (the slate picked in the app), that slate's contests come first."""
-    rows = collapse_copies(await _with_payouts(select(upcoming((await _lobby())["contests"]), entries, fees, exclude)),
-                           draft_group_id)
+    # Graded before the filters, so a contest's grade doesn't change with the fee / entry / kind boxes ticked.
+    rows = select(grade_contests(collapse_copies(
+        await _with_payouts(upcoming((await _lobby())["contests"])), draft_group_id)), entries, fees, exclude)
     on_slate = sum(1 for r in rows if r["on_selected_slate"])
     return {
         "entry_groups": [{"id": gid, "label": label, "min": lo, "max": hi} for gid, label, lo, hi in ENTRY_GROUPS],

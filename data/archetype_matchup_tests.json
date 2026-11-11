@@ -1,0 +1,3365 @@
+{
+ "team_games": 4429,
+ "lambda": 30.0,
+ "archetype_counts": {
+  "off_style": {
+   "run-first inefficient": 1242,
+   "pass-first efficient": 1188,
+   "run-first efficient": 1035,
+   "pass-first inefficient": 964
+  },
+  "off_timing": {
+   "fast-start": 1536,
+   "second-half": 1474,
+   "even": 1419
+  },
+  "def_style": {
+   "stout pass-funnel": 1169,
+   "porous run-funnel": 1145,
+   "porous pass-funnel": 1121,
+   "stout run-funnel": 994
+  },
+  "def_timing": {
+   "strong-late": 1536,
+   "fades-late": 1474,
+   "even": 1419
+  },
+  "team_arch": {
+   "weak": 1201,
+   "complete": 1124,
+   "offense-led": 1099,
+   "defense-led": 1005
+  },
+  "team_timing": {
+   "front-runner": 1536,
+   "closer": 1474,
+   "even": 1419
+  }
+ },
+ "team_level": {
+  "offense style x defense style": {
+   "margin_vs_spread": {
+    "last_season": 1.002,
+    "all_prior": 0.582,
+    "in_season": 0.588,
+    "cell_effect_corr_next_season": -0.108,
+    "seasons_positive_corr": "4/10"
+   },
+   "pts_vs_implied": {
+    "last_season": 0.645,
+    "all_prior": 0.39,
+    "in_season": 0.378,
+    "cell_effect_corr_next_season": 0.021,
+    "seasons_positive_corr": "5/10"
+   },
+   "margin_1h": {
+    "last_season": 0.979,
+    "all_prior": 0.582,
+    "in_season": 0.59,
+    "cell_effect_corr_next_season": -0.099,
+    "seasons_positive_corr": "4/10"
+   },
+   "margin_2h": {
+    "last_season": 0.858,
+    "all_prior": 0.419,
+    "in_season": 0.669,
+    "cell_effect_corr_next_season": -0.072,
+    "seasons_positive_corr": "4/10"
+   },
+   "pass_att": {
+    "last_season": -0.899,
+    "all_prior": -2.491,
+    "in_season": -1.877,
+    "cell_effect_corr_next_season": 0.407,
+    "seasons_positive_corr": "10/10"
+   },
+   "rush_att": {
+    "last_season": -0.388,
+    "all_prior": -1.815,
+    "in_season": -1.032,
+    "cell_effect_corr_next_season": 0.267,
+    "seasons_positive_corr": "8/10"
+   },
+   "dk_QB": {
+    "last_season": 0.64,
+    "all_prior": 0.37,
+    "in_season": 0.293,
+    "cell_effect_corr_next_season": 0.011,
+    "seasons_positive_corr": "4/10"
+   },
+   "dk_RB": {
+    "last_season": 0.631,
+    "all_prior": 0.019,
+    "in_season": 0.114,
+    "cell_effect_corr_next_season": 0.051,
+    "seasons_positive_corr": "5/10"
+   },
+   "dk_WR": {
+    "last_season": 0.314,
+    "all_prior": -1.038,
+    "in_season": -1.151,
+    "cell_effect_corr_next_season": 0.226,
+    "seasons_positive_corr": "10/10"
+   },
+   "dk_TE": {
+    "last_season": 0.804,
+    "all_prior": 0.679,
+    "in_season": 0.042,
+    "cell_effect_corr_next_season": 0.02,
+    "seasons_positive_corr": "5/10"
+   }
+  },
+  "offense timing x defense timing": {
+   "margin_vs_spread": {
+    "last_season": 0.586,
+    "all_prior": 0.342,
+    "in_season": 0.883,
+    "cell_effect_corr_next_season": 0.006,
+    "seasons_positive_corr": "6/10"
+   },
+   "pts_vs_implied": {
+    "last_season": 0.569,
+    "all_prior": 0.426,
+    "in_season": 0.422,
+    "cell_effect_corr_next_season": 0.155,
+    "seasons_positive_corr": "7/10"
+   },
+   "margin_1h": {
+    "last_season": 1.346,
+    "all_prior": 0.499,
+    "in_season": 0.35,
+    "cell_effect_corr_next_season": -0.11,
+    "seasons_positive_corr": "3/10"
+   },
+   "margin_2h": {
+    "last_season": 0.644,
+    "all_prior": 0.243,
+    "in_season": 1.288,
+    "cell_effect_corr_next_season": -0.043,
+    "seasons_positive_corr": "6/10"
+   },
+   "pass_att": {
+    "last_season": 0.178,
+    "all_prior": 0.469,
+    "in_season": 0.648,
+    "cell_effect_corr_next_season": 0.237,
+    "seasons_positive_corr": "8/10"
+   },
+   "rush_att": {
+    "last_season": 0.311,
+    "all_prior": 0.311,
+    "in_season": 0.756,
+    "cell_effect_corr_next_season": 0.155,
+    "seasons_positive_corr": "6/10"
+   },
+   "dk_QB": {
+    "last_season": 0.821,
+    "all_prior": 0.297,
+    "in_season": 0.691,
+    "cell_effect_corr_next_season": -0.05,
+    "seasons_positive_corr": "4/10"
+   },
+   "dk_RB": {
+    "last_season": 0.585,
+    "all_prior": 0.349,
+    "in_season": 0.178,
+    "cell_effect_corr_next_season": 0.089,
+    "seasons_positive_corr": "6/10"
+   },
+   "dk_WR": {
+    "last_season": 0.992,
+    "all_prior": 0.538,
+    "in_season": 0.418,
+    "cell_effect_corr_next_season": -0.101,
+    "seasons_positive_corr": "5/10"
+   },
+   "dk_TE": {
+    "last_season": 0.723,
+    "all_prior": 0.466,
+    "in_season": 0.702,
+    "cell_effect_corr_next_season": -0.041,
+    "seasons_positive_corr": "4/10"
+   }
+  },
+  "offense timing x opp offense timing": {
+   "margin_vs_spread": {
+    "last_season": 0.563,
+    "all_prior": 0.195,
+    "in_season": 0.292,
+    "cell_effect_corr_next_season": 0.01,
+    "seasons_positive_corr": "5/10"
+   },
+   "pts_vs_implied": {
+    "last_season": 0.544,
+    "all_prior": 0.136,
+    "in_season": 0.329,
+    "cell_effect_corr_next_season": 0.115,
+    "seasons_positive_corr": "7/10"
+   },
+   "margin_1h": {
+    "last_season": 0.976,
+    "all_prior": 0.404,
+    "in_season": -0.116,
+    "cell_effect_corr_next_season": -0.07,
+    "seasons_positive_corr": "3/10"
+   },
+   "margin_2h": {
+    "last_season": 0.903,
+    "all_prior": 0.267,
+    "in_season": 0.815,
+    "cell_effect_corr_next_season": -0.388,
+    "seasons_positive_corr": "0/10"
+   },
+   "pass_att": {
+    "last_season": 0.507,
+    "all_prior": 0.299,
+    "in_season": 0.634,
+    "cell_effect_corr_next_season": 0.071,
+    "seasons_positive_corr": "5/10"
+   },
+   "rush_att": {
+    "last_season": 0.599,
+    "all_prior": 0.094,
+    "in_season": 0.662,
+    "cell_effect_corr_next_season": -0.075,
+    "seasons_positive_corr": "6/10"
+   },
+   "dk_QB": {
+    "last_season": 0.463,
+    "all_prior": 0.3,
+    "in_season": 0.74,
+    "cell_effect_corr_next_season": 0.086,
+    "seasons_positive_corr": "7/10"
+   },
+   "dk_RB": {
+    "last_season": 0.778,
+    "all_prior": 0.372,
+    "in_season": 0.041,
+    "cell_effect_corr_next_season": 0.044,
+    "seasons_positive_corr": "6/10"
+   },
+   "dk_WR": {
+    "last_season": 0.77,
+    "all_prior": 0.25,
+    "in_season": 0.457,
+    "cell_effect_corr_next_season": 0.035,
+    "seasons_positive_corr": "6/10"
+   },
+   "dk_TE": {
+    "last_season": 0.798,
+    "all_prior": 0.465,
+    "in_season": 0.339,
+    "cell_effect_corr_next_season": -0.029,
+    "seasons_positive_corr": "4/10"
+   }
+  },
+  "team x team": {
+   "margin_vs_spread": {
+    "last_season": 1.039,
+    "all_prior": 0.559,
+    "in_season": 0.146,
+    "cell_effect_corr_next_season": -0.077,
+    "seasons_positive_corr": "4/10"
+   },
+   "pts_vs_implied": {
+    "last_season": 0.85,
+    "all_prior": 0.423,
+    "in_season": 0.27,
+    "cell_effect_corr_next_season": 0.021,
+    "seasons_positive_corr": "5/10"
+   },
+   "margin_1h": {
+    "last_season": 0.425,
+    "all_prior": 0.127,
+    "in_season": 0.416,
+    "cell_effect_corr_next_season": 0.056,
+    "seasons_positive_corr": "7/10"
+   },
+   "margin_2h": {
+    "last_season": 0.945,
+    "all_prior": 0.403,
+    "in_season": 0.232,
+    "cell_effect_corr_next_season": -0.055,
+    "seasons_positive_corr": "3/10"
+   },
+   "pass_att": {
+    "last_season": 0.735,
+    "all_prior": 0.157,
+    "in_season": 0.396,
+    "cell_effect_corr_next_season": -0.094,
+    "seasons_positive_corr": "4/10"
+   },
+   "rush_att": {
+    "last_season": 1.124,
+    "all_prior": 0.434,
+    "in_season": 0.339,
+    "cell_effect_corr_next_season": -0.105,
+    "seasons_positive_corr": "4/10"
+   },
+   "dk_QB": {
+    "last_season": 0.763,
+    "all_prior": 0.488,
+    "in_season": 0.308,
+    "cell_effect_corr_next_season": 0.029,
+    "seasons_positive_corr": "6/10"
+   },
+   "dk_RB": {
+    "last_season": 0.669,
+    "all_prior": 0.545,
+    "in_season": 0.593,
+    "cell_effect_corr_next_season": 0.06,
+    "seasons_positive_corr": "5/10"
+   },
+   "dk_WR": {
+    "last_season": 1.049,
+    "all_prior": 0.516,
+    "in_season": 0.521,
+    "cell_effect_corr_next_season": -0.057,
+    "seasons_positive_corr": "3/10"
+   },
+   "dk_TE": {
+    "last_season": 1.491,
+    "all_prior": 0.602,
+    "in_season": 0.42,
+    "cell_effect_corr_next_season": -0.135,
+    "seasons_positive_corr": "4/10"
+   }
+  },
+  "team timing x team timing": {
+   "margin_vs_spread": {
+    "last_season": 0.975,
+    "all_prior": 0.359,
+    "in_season": 0.583,
+    "cell_effect_corr_next_season": -0.322,
+    "seasons_positive_corr": "3/10"
+   },
+   "pts_vs_implied": {
+    "last_season": 0.777,
+    "all_prior": 0.315,
+    "in_season": 0.951,
+    "cell_effect_corr_next_season": -0.072,
+    "seasons_positive_corr": "4/10"
+   },
+   "margin_1h": {
+    "last_season": 0.787,
+    "all_prior": 0.354,
+    "in_season": 0.51,
+    "cell_effect_corr_next_season": -0.154,
+    "seasons_positive_corr": "3/10"
+   },
+   "margin_2h": {
+    "last_season": 0.492,
+    "all_prior": 0.238,
+    "in_season": 0.88,
+    "cell_effect_corr_next_season": 0.099,
+    "seasons_positive_corr": "5/10"
+   },
+   "pass_att": {
+    "last_season": 0.48,
+    "all_prior": 0.511,
+    "in_season": 0.554,
+    "cell_effect_corr_next_season": 0.112,
+    "seasons_positive_corr": "7/10"
+   },
+   "rush_att": {
+    "last_season": 1.016,
+    "all_prior": 0.393,
+    "in_season": 0.23,
+    "cell_effect_corr_next_season": -0.108,
+    "seasons_positive_corr": "4/10"
+   },
+   "dk_QB": {
+    "last_season": 0.821,
+    "all_prior": 0.305,
+    "in_season": 0.815,
+    "cell_effect_corr_next_season": -0.009,
+    "seasons_positive_corr": "3/10"
+   },
+   "dk_RB": {
+    "last_season": 1.461,
+    "all_prior": 0.486,
+    "in_season": 0.503,
+    "cell_effect_corr_next_season": -0.296,
+    "seasons_positive_corr": "3/10"
+   },
+   "dk_WR": {
+    "last_season": 0.956,
+    "all_prior": 0.396,
+    "in_season": 0.748,
+    "cell_effect_corr_next_season": -0.057,
+    "seasons_positive_corr": "3/10"
+   },
+   "dk_TE": {
+    "last_season": 0.738,
+    "all_prior": 0.606,
+    "in_season": 0.358,
+    "cell_effect_corr_next_season": 0.049,
+    "seasons_positive_corr": "6/10"
+   }
+  }
+ },
+ "cells": {
+  "offense style x defense style": {
+   "margin_vs_spread": [
+    {
+     "cell": "pass-first inefficient vs stout pass-funnel",
+     "n": 255,
+     "avg_vs_line": -1.35,
+     "z": -1.72,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "pass-first efficient vs porous run-funnel",
+     "n": 305,
+     "avg_vs_line": 1.04,
+     "z": 1.44,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "pass-first efficient vs porous pass-funnel",
+     "n": 282,
+     "avg_vs_line": -0.96,
+     "z": -1.28,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "run-first efficient vs porous run-funnel",
+     "n": 254,
+     "avg_vs_line": 0.9,
+     "z": 1.14,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "run-first inefficient vs stout run-funnel",
+     "n": 259,
+     "avg_vs_line": 0.75,
+     "z": 0.96,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "pass-first inefficient vs porous run-funnel",
+     "n": 244,
+     "avg_vs_line": -0.73,
+     "z": -0.91,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "pts_vs_implied": [
+    {
+     "cell": "run-first efficient vs stout pass-funnel",
+     "n": 286,
+     "avg_vs_line": 1.34,
+     "z": 2.48,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "run-first efficient vs porous run-funnel",
+     "n": 254,
+     "avg_vs_line": 0.96,
+     "z": 1.68,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "pass-first efficient vs porous pass-funnel",
+     "n": 282,
+     "avg_vs_line": -0.89,
+     "z": -1.64,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "run-first inefficient vs porous pass-funnel",
+     "n": 337,
+     "avg_vs_line": -0.74,
+     "z": -1.48,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "pass-first inefficient vs stout run-funnel",
+     "n": 199,
+     "avg_vs_line": 0.79,
+     "z": 1.22,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "pass-first inefficient vs stout pass-funnel",
+     "n": 255,
+     "avg_vs_line": -0.57,
+     "z": -1.01,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "margin_1h": [
+    {
+     "cell": "pass-first inefficient vs porous run-funnel",
+     "n": 244,
+     "avg_vs_line": -1.35,
+     "z": -2.1,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "pass-first inefficient vs stout pass-funnel",
+     "n": 255,
+     "avg_vs_line": -1.04,
+     "z": -1.66,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "pass-first inefficient vs stout run-funnel",
+     "n": 199,
+     "avg_vs_line": 1.18,
+     "z": 1.66,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "run-first inefficient vs stout run-funnel",
+     "n": 259,
+     "avg_vs_line": 0.64,
+     "z": 1.02,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "run-first efficient vs porous pass-funnel",
+     "n": 233,
+     "avg_vs_line": 0.41,
+     "z": 0.63,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "run-first efficient vs stout run-funnel",
+     "n": 247,
+     "avg_vs_line": 0.37,
+     "z": 0.58,
+     "seasons_same_sign": "9/11"
+    }
+   ],
+   "margin_2h": [
+    {
+     "cell": "pass-first efficient vs porous run-funnel",
+     "n": 305,
+     "avg_vs_line": 0.83,
+     "z": 1.6,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "run-first efficient vs porous run-funnel",
+     "n": 254,
+     "avg_vs_line": 0.86,
+     "z": 1.52,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "pass-first inefficient vs stout run-funnel",
+     "n": 199,
+     "avg_vs_line": -0.79,
+     "z": -1.23,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "pass-first efficient vs porous pass-funnel",
+     "n": 282,
+     "avg_vs_line": -0.64,
+     "z": -1.18,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "run-first inefficient vs stout pass-funnel",
+     "n": 307,
+     "avg_vs_line": -0.57,
+     "z": -1.09,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "pass-first inefficient vs porous run-funnel",
+     "n": 244,
+     "avg_vs_line": 0.62,
+     "z": 1.07,
+     "seasons_same_sign": "8/11"
+    }
+   ],
+   "pass_att": [
+    {
+     "cell": "pass-first efficient vs stout pass-funnel",
+     "n": 305,
+     "avg_vs_line": 2.43,
+     "z": 5.11,
+     "seasons_same_sign": "10/11"
+    },
+    {
+     "cell": "run-first efficient vs porous run-funnel",
+     "n": 254,
+     "avg_vs_line": -2.62,
+     "z": -5.02,
+     "seasons_same_sign": "10/11"
+    },
+    {
+     "cell": "run-first efficient vs porous pass-funnel",
+     "n": 233,
+     "avg_vs_line": -2.47,
+     "z": -4.54,
+     "seasons_same_sign": "11/11"
+    },
+    {
+     "cell": "pass-first inefficient vs porous run-funnel",
+     "n": 244,
+     "avg_vs_line": 2.2,
+     "z": 4.13,
+     "seasons_same_sign": "10/11"
+    },
+    {
+     "cell": "pass-first inefficient vs stout pass-funnel",
+     "n": 255,
+     "avg_vs_line": 1.86,
+     "z": 3.58,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "pass-first inefficient vs stout run-funnel",
+     "n": 199,
+     "avg_vs_line": 1.76,
+     "z": 2.98,
+     "seasons_same_sign": "9/11"
+    }
+   ],
+   "rush_att": [
+    {
+     "cell": "run-first efficient vs porous run-funnel",
+     "n": 254,
+     "avg_vs_line": 2.47,
+     "z": 5.54,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "run-first efficient vs porous pass-funnel",
+     "n": 233,
+     "avg_vs_line": 1.82,
+     "z": 3.9,
+     "seasons_same_sign": "10/11"
+    },
+    {
+     "cell": "pass-first efficient vs stout pass-funnel",
+     "n": 305,
+     "avg_vs_line": -1.51,
+     "z": -3.71,
+     "seasons_same_sign": "10/11"
+    },
+    {
+     "cell": "pass-first inefficient vs stout pass-funnel",
+     "n": 255,
+     "avg_vs_line": -1.54,
+     "z": -3.45,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "run-first efficient vs stout run-funnel",
+     "n": 247,
+     "avg_vs_line": 1.51,
+     "z": 3.32,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "pass-first efficient vs porous pass-funnel",
+     "n": 282,
+     "avg_vs_line": -1.25,
+     "z": -2.95,
+     "seasons_same_sign": "9/11"
+    }
+   ],
+   "dk_QB": [
+    {
+     "cell": "run-first inefficient vs porous run-funnel",
+     "n": 321,
+     "avg_vs_line": -0.89,
+     "z": -2.08,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "pass-first efficient vs stout pass-funnel",
+     "n": 305,
+     "avg_vs_line": 0.87,
+     "z": 1.98,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "run-first inefficient vs porous pass-funnel",
+     "n": 337,
+     "avg_vs_line": -0.75,
+     "z": -1.79,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "pass-first inefficient vs porous run-funnel",
+     "n": 244,
+     "avg_vs_line": 0.77,
+     "z": 1.58,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "pass-first efficient vs porous run-funnel",
+     "n": 305,
+     "avg_vs_line": 0.66,
+     "z": 1.51,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "pass-first efficient vs stout run-funnel",
+     "n": 279,
+     "avg_vs_line": 0.5,
+     "z": 1.1,
+     "seasons_same_sign": "8/11"
+    }
+   ],
+   "dk_RB": [
+    {
+     "cell": "run-first inefficient vs porous run-funnel",
+     "n": 321,
+     "avg_vs_line": 1.61,
+     "z": 2.82,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "run-first efficient vs porous run-funnel",
+     "n": 254,
+     "avg_vs_line": 1.66,
+     "z": 2.57,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "pass-first efficient vs stout pass-funnel",
+     "n": 305,
+     "avg_vs_line": -1.38,
+     "z": -2.35,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "run-first efficient vs porous pass-funnel",
+     "n": 233,
+     "avg_vs_line": 1.46,
+     "z": 2.17,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "pass-first efficient vs stout run-funnel",
+     "n": 279,
+     "avg_vs_line": -1.27,
+     "z": -2.06,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "pass-first efficient vs porous pass-funnel",
+     "n": 282,
+     "avg_vs_line": -0.86,
+     "z": -1.41,
+     "seasons_same_sign": "8/11"
+    }
+   ],
+   "dk_WR": [
+    {
+     "cell": "run-first efficient vs porous pass-funnel",
+     "n": 233,
+     "avg_vs_line": -3.55,
+     "z": -3.82,
+     "seasons_same_sign": "10/11"
+    },
+    {
+     "cell": "pass-first efficient vs stout pass-funnel",
+     "n": 305,
+     "avg_vs_line": 3.06,
+     "z": 3.77,
+     "seasons_same_sign": "10/11"
+    },
+    {
+     "cell": "run-first efficient vs porous run-funnel",
+     "n": 254,
+     "avg_vs_line": -3.3,
+     "z": -3.71,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "run-first inefficient vs porous pass-funnel",
+     "n": 337,
+     "avg_vs_line": -2.5,
+     "z": -3.24,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "pass-first efficient vs stout run-funnel",
+     "n": 279,
+     "avg_vs_line": 2.46,
+     "z": 2.9,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "run-first inefficient vs stout pass-funnel",
+     "n": 307,
+     "avg_vs_line": -2.14,
+     "z": -2.64,
+     "seasons_same_sign": "9/11"
+    }
+   ],
+   "dk_TE": [
+    {
+     "cell": "pass-first efficient vs porous run-funnel",
+     "n": 305,
+     "avg_vs_line": -1.03,
+     "z": -2.11,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "run-first inefficient vs stout run-funnel",
+     "n": 259,
+     "avg_vs_line": -1.02,
+     "z": -1.93,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "pass-first inefficient vs stout run-funnel",
+     "n": 199,
+     "avg_vs_line": 1.15,
+     "z": 1.91,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "run-first inefficient vs porous pass-funnel",
+     "n": 337,
+     "avg_vs_line": 0.74,
+     "z": 1.61,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "pass-first efficient vs porous pass-funnel",
+     "n": 282,
+     "avg_vs_line": -0.79,
+     "z": -1.56,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "run-first efficient vs stout pass-funnel",
+     "n": 286,
+     "avg_vs_line": 0.61,
+     "z": 1.21,
+     "seasons_same_sign": "6/11"
+    }
+   ]
+  },
+  "offense timing x defense timing": {
+   "margin_vs_spread": [
+    {
+     "cell": "second-half vs strong-late",
+     "n": 528,
+     "avg_vs_line": -0.8,
+     "z": -1.47,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "fast-start vs strong-late",
+     "n": 485,
+     "avg_vs_line": 0.73,
+     "z": 1.28,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "second-half vs even",
+     "n": 476,
+     "avg_vs_line": -0.51,
+     "z": -0.88,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs fades-late",
+     "n": 532,
+     "avg_vs_line": -0.31,
+     "z": -0.58,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs strong-late",
+     "n": 500,
+     "avg_vs_line": 0.31,
+     "z": 0.56,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs even",
+     "n": 494,
+     "avg_vs_line": 0.27,
+     "z": 0.47,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "pts_vs_implied": [
+    {
+     "cell": "second-half vs fades-late",
+     "n": 450,
+     "avg_vs_line": -0.73,
+     "z": -1.7,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "second-half vs strong-late",
+     "n": 528,
+     "avg_vs_line": -0.61,
+     "z": -1.54,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs strong-late",
+     "n": 485,
+     "avg_vs_line": 0.46,
+     "z": 1.1,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "even vs strong-late",
+     "n": 500,
+     "avg_vs_line": 0.41,
+     "z": 1.02,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 429,
+     "avg_vs_line": 0.34,
+     "z": 0.77,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs fades-late",
+     "n": 474,
+     "avg_vs_line": 0.29,
+     "z": 0.69,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "margin_1h": [
+    {
+     "cell": "second-half vs strong-late",
+     "n": 528,
+     "avg_vs_line": -0.72,
+     "z": -1.65,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "fast-start vs strong-late",
+     "n": 485,
+     "avg_vs_line": 0.75,
+     "z": 1.64,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs fades-late",
+     "n": 532,
+     "avg_vs_line": -0.53,
+     "z": -1.21,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs strong-late",
+     "n": 500,
+     "avg_vs_line": 0.51,
+     "z": 1.14,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 429,
+     "avg_vs_line": 0.38,
+     "z": 0.78,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs fades-late",
+     "n": 474,
+     "avg_vs_line": -0.16,
+     "z": -0.35,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "margin_2h": [
+    {
+     "cell": "second-half vs even",
+     "n": 476,
+     "avg_vs_line": -0.59,
+     "z": -1.42,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "even vs fades-late",
+     "n": 474,
+     "avg_vs_line": 0.38,
+     "z": 0.91,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "fast-start vs even",
+     "n": 494,
+     "avg_vs_line": 0.35,
+     "z": 0.86,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs fades-late",
+     "n": 532,
+     "avg_vs_line": 0.21,
+     "z": 0.54,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs strong-late",
+     "n": 500,
+     "avg_vs_line": -0.2,
+     "z": -0.49,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 429,
+     "avg_vs_line": -0.2,
+     "z": -0.47,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "pass_att": [
+    {
+     "cell": "even vs strong-late",
+     "n": 500,
+     "avg_vs_line": -0.51,
+     "z": -1.37,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "second-half vs fades-late",
+     "n": 450,
+     "avg_vs_line": 0.28,
+     "z": 0.72,
+     "seasons_same_sign": "4/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 429,
+     "avg_vs_line": -0.27,
+     "z": -0.67,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "second-half vs even",
+     "n": 476,
+     "avg_vs_line": 0.23,
+     "z": 0.61,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs even",
+     "n": 494,
+     "avg_vs_line": 0.12,
+     "z": 0.33,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs fades-late",
+     "n": 474,
+     "avg_vs_line": 0.12,
+     "z": 0.31,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "rush_att": [
+    {
+     "cell": "even vs strong-late",
+     "n": 500,
+     "avg_vs_line": 0.57,
+     "z": 1.79,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "even vs fades-late",
+     "n": 474,
+     "avg_vs_line": -0.32,
+     "z": -0.99,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "fast-start vs even",
+     "n": 494,
+     "avg_vs_line": -0.28,
+     "z": -0.88,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "fast-start vs strong-late",
+     "n": 485,
+     "avg_vs_line": -0.29,
+     "z": -0.88,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 429,
+     "avg_vs_line": 0.28,
+     "z": 0.82,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "second-half vs fades-late",
+     "n": 450,
+     "avg_vs_line": 0.18,
+     "z": 0.54,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "dk_QB": [
+    {
+     "cell": "fast-start vs strong-late",
+     "n": 485,
+     "avg_vs_line": 0.77,
+     "z": 2.23,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs fades-late",
+     "n": 532,
+     "avg_vs_line": -0.55,
+     "z": -1.64,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "second-half vs fades-late",
+     "n": 450,
+     "avg_vs_line": -0.34,
+     "z": -0.93,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs fades-late",
+     "n": 474,
+     "avg_vs_line": 0.29,
+     "z": 0.83,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "second-half vs even",
+     "n": 476,
+     "avg_vs_line": 0.16,
+     "z": 0.46,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "second-half vs strong-late",
+     "n": 528,
+     "avg_vs_line": -0.1,
+     "z": -0.3,
+     "seasons_same_sign": "5/11"
+    }
+   ],
+   "dk_RB": [
+    {
+     "cell": "even vs strong-late",
+     "n": 500,
+     "avg_vs_line": 1.06,
+     "z": 2.31,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "second-half vs fades-late",
+     "n": 450,
+     "avg_vs_line": -1.1,
+     "z": -2.27,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "second-half vs strong-late",
+     "n": 528,
+     "avg_vs_line": -0.68,
+     "z": -1.51,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "fast-start vs strong-late",
+     "n": 485,
+     "avg_vs_line": 0.46,
+     "z": 0.99,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 429,
+     "avg_vs_line": 0.36,
+     "z": 0.73,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "fast-start vs fades-late",
+     "n": 532,
+     "avg_vs_line": -0.33,
+     "z": -0.73,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "dk_WR": [
+    {
+     "cell": "fast-start vs strong-late",
+     "n": 485,
+     "avg_vs_line": 0.6,
+     "z": 0.93,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "second-half vs fades-late",
+     "n": 450,
+     "avg_vs_line": -0.58,
+     "z": -0.87,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs fades-late",
+     "n": 474,
+     "avg_vs_line": 0.44,
+     "z": 0.68,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs strong-late",
+     "n": 500,
+     "avg_vs_line": -0.43,
+     "z": -0.67,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "second-half vs strong-late",
+     "n": 528,
+     "avg_vs_line": -0.37,
+     "z": -0.6,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 429,
+     "avg_vs_line": 0.36,
+     "z": 0.53,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "dk_TE": [
+    {
+     "cell": "second-half vs fades-late",
+     "n": 450,
+     "avg_vs_line": 0.34,
+     "z": 0.85,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "second-half vs strong-late",
+     "n": 528,
+     "avg_vs_line": -0.3,
+     "z": -0.8,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 429,
+     "avg_vs_line": -0.25,
+     "z": -0.6,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs fades-late",
+     "n": 474,
+     "avg_vs_line": 0.18,
+     "z": 0.45,
+     "seasons_same_sign": "5/11"
+    },
+    {
+     "cell": "fast-start vs strong-late",
+     "n": 485,
+     "avg_vs_line": 0.13,
+     "z": 0.33,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs fades-late",
+     "n": 532,
+     "avg_vs_line": -0.07,
+     "z": -0.18,
+     "seasons_same_sign": "5/11"
+    }
+   ]
+  },
+  "offense timing x opp offense timing": {
+   "margin_vs_spread": [
+    {
+     "cell": "fast-start vs second-half",
+     "n": 484,
+     "avg_vs_line": 0.95,
+     "z": 1.67,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "second-half vs fast-start",
+     "n": 484,
+     "avg_vs_line": -0.95,
+     "z": -1.67,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs second-half",
+     "n": 490,
+     "avg_vs_line": 0.39,
+     "z": 0.68,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "second-half vs even",
+     "n": 490,
+     "avg_vs_line": -0.39,
+     "z": -0.68,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs fast-start",
+     "n": 513,
+     "avg_vs_line": 0.28,
+     "z": 0.5,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "fast-start vs even",
+     "n": 513,
+     "avg_vs_line": -0.28,
+     "z": -0.5,
+     "seasons_same_sign": "8/11"
+    }
+   ],
+   "pts_vs_implied": [
+    {
+     "cell": "second-half vs fast-start",
+     "n": 484,
+     "avg_vs_line": -1.19,
+     "z": -2.89,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "fast-start vs fast-start",
+     "n": 514,
+     "avg_vs_line": 0.64,
+     "z": 1.6,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs second-half",
+     "n": 490,
+     "avg_vs_line": 0.6,
+     "z": 1.46,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "second-half vs second-half",
+     "n": 480,
+     "avg_vs_line": -0.59,
+     "z": -1.42,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "even vs fast-start",
+     "n": 513,
+     "avg_vs_line": 0.39,
+     "z": 0.96,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs second-half",
+     "n": 484,
+     "avg_vs_line": -0.24,
+     "z": -0.59,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "margin_1h": [
+    {
+     "cell": "fast-start vs second-half",
+     "n": 484,
+     "avg_vs_line": 0.51,
+     "z": 1.12,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "second-half vs fast-start",
+     "n": 484,
+     "avg_vs_line": -0.51,
+     "z": -1.12,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs fast-start",
+     "n": 513,
+     "avg_vs_line": 0.4,
+     "z": 0.9,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs even",
+     "n": 513,
+     "avg_vs_line": -0.4,
+     "z": -0.9,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs second-half",
+     "n": 490,
+     "avg_vs_line": 0.28,
+     "z": 0.61,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "second-half vs even",
+     "n": 490,
+     "avg_vs_line": -0.28,
+     "z": -0.61,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "margin_2h": [
+    {
+     "cell": "fast-start vs second-half",
+     "n": 484,
+     "avg_vs_line": 0.44,
+     "z": 1.08,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "second-half vs fast-start",
+     "n": 484,
+     "avg_vs_line": -0.44,
+     "z": -1.08,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs fast-start",
+     "n": 513,
+     "avg_vs_line": -0.12,
+     "z": -0.31,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs even",
+     "n": 513,
+     "avg_vs_line": 0.12,
+     "z": 0.31,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs second-half",
+     "n": 490,
+     "avg_vs_line": 0.11,
+     "z": 0.27,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "second-half vs even",
+     "n": 490,
+     "avg_vs_line": -0.11,
+     "z": -0.27,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "pass_att": [
+    {
+     "cell": "second-half vs fast-start",
+     "n": 484,
+     "avg_vs_line": 0.84,
+     "z": 2.22,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "second-half vs even",
+     "n": 490,
+     "avg_vs_line": -0.61,
+     "z": -1.64,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "second-half vs second-half",
+     "n": 480,
+     "avg_vs_line": 0.31,
+     "z": 0.83,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 400,
+     "avg_vs_line": -0.3,
+     "z": -0.71,
+     "seasons_same_sign": "5/11"
+    },
+    {
+     "cell": "even vs fast-start",
+     "n": 513,
+     "avg_vs_line": -0.26,
+     "z": -0.69,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs second-half",
+     "n": 490,
+     "avg_vs_line": -0.14,
+     "z": -0.36,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "rush_att": [
+    {
+     "cell": "fast-start vs even",
+     "n": 513,
+     "avg_vs_line": -0.5,
+     "z": -1.58,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "second-half vs fast-start",
+     "n": 484,
+     "avg_vs_line": -0.48,
+     "z": -1.48,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "second-half vs second-half",
+     "n": 480,
+     "avg_vs_line": 0.42,
+     "z": 1.28,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "even vs fast-start",
+     "n": 513,
+     "avg_vs_line": 0.38,
+     "z": 1.21,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "even vs second-half",
+     "n": 490,
+     "avg_vs_line": 0.27,
+     "z": 0.85,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "second-half vs even",
+     "n": 490,
+     "avg_vs_line": 0.22,
+     "z": 0.69,
+     "seasons_same_sign": "5/11"
+    }
+   ],
+   "dk_QB": [
+    {
+     "cell": "second-half vs fast-start",
+     "n": 484,
+     "avg_vs_line": -0.41,
+     "z": -1.18,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 400,
+     "avg_vs_line": -0.43,
+     "z": -1.11,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "even vs fast-start",
+     "n": 513,
+     "avg_vs_line": 0.35,
+     "z": 1.02,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs fast-start",
+     "n": 514,
+     "avg_vs_line": 0.33,
+     "z": 0.96,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "second-half vs even",
+     "n": 490,
+     "avg_vs_line": 0.33,
+     "z": 0.94,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs second-half",
+     "n": 484,
+     "avg_vs_line": -0.32,
+     "z": -0.91,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "dk_RB": [
+    {
+     "cell": "second-half vs fast-start",
+     "n": 484,
+     "avg_vs_line": -1.12,
+     "z": -2.4,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "even vs second-half",
+     "n": 490,
+     "avg_vs_line": 0.98,
+     "z": 2.1,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "second-half vs second-half",
+     "n": 480,
+     "avg_vs_line": -0.37,
+     "z": -0.78,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "fast-start vs fast-start",
+     "n": 514,
+     "avg_vs_line": 0.28,
+     "z": 0.61,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 400,
+     "avg_vs_line": 0.25,
+     "z": 0.49,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "fast-start vs even",
+     "n": 513,
+     "avg_vs_line": -0.12,
+     "z": -0.27,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "dk_WR": [
+    {
+     "cell": "second-half vs second-half",
+     "n": 480,
+     "avg_vs_line": -1.34,
+     "z": -2.08,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs fast-start",
+     "n": 514,
+     "avg_vs_line": 1.19,
+     "z": 1.9,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 400,
+     "avg_vs_line": -0.71,
+     "z": -1.0,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "even vs second-half",
+     "n": 490,
+     "avg_vs_line": 0.62,
+     "z": 0.98,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "fast-start vs second-half",
+     "n": 484,
+     "avg_vs_line": -0.51,
+     "z": -0.8,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "second-half vs fast-start",
+     "n": 484,
+     "avg_vs_line": 0.37,
+     "z": 0.58,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "dk_TE": [
+    {
+     "cell": "fast-start vs fast-start",
+     "n": 514,
+     "avg_vs_line": -0.43,
+     "z": -1.15,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "fast-start vs second-half",
+     "n": 484,
+     "avg_vs_line": 0.35,
+     "z": 0.92,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "second-half vs second-half",
+     "n": 480,
+     "avg_vs_line": 0.32,
+     "z": 0.83,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 400,
+     "avg_vs_line": -0.26,
+     "z": -0.62,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs fast-start",
+     "n": 513,
+     "avg_vs_line": 0.23,
+     "z": 0.62,
+     "seasons_same_sign": "3/11"
+    },
+    {
+     "cell": "fast-start vs even",
+     "n": 513,
+     "avg_vs_line": 0.21,
+     "z": 0.57,
+     "seasons_same_sign": "5/11"
+    }
+   ]
+  },
+  "team x team": {
+   "margin_vs_spread": [
+    {
+     "cell": "complete vs offense-led",
+     "n": 282,
+     "avg_vs_line": -1.28,
+     "z": -1.71,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "offense-led vs complete",
+     "n": 282,
+     "avg_vs_line": 1.28,
+     "z": 1.71,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "complete vs defense-led",
+     "n": 229,
+     "avg_vs_line": 0.91,
+     "z": 1.09,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "defense-led vs complete",
+     "n": 229,
+     "avg_vs_line": -0.91,
+     "z": -1.09,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "defense-led vs offense-led",
+     "n": 283,
+     "avg_vs_line": -0.64,
+     "z": -0.85,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "offense-led vs defense-led",
+     "n": 283,
+     "avg_vs_line": 0.64,
+     "z": 0.85,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "pts_vs_implied": [
+    {
+     "cell": "weak vs weak",
+     "n": 364,
+     "avg_vs_line": -0.99,
+     "z": -2.07,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "offense-led vs complete",
+     "n": 282,
+     "avg_vs_line": 1.12,
+     "z": 2.06,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "complete vs complete",
+     "n": 320,
+     "avg_vs_line": 0.87,
+     "z": 1.71,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "offense-led vs offense-led",
+     "n": 238,
+     "avg_vs_line": -0.89,
+     "z": -1.5,
+     "seasons_same_sign": "6/10"
+    },
+    {
+     "cell": "weak vs defense-led",
+     "n": 267,
+     "avg_vs_line": 0.61,
+     "z": 1.1,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "defense-led vs offense-led",
+     "n": 283,
+     "avg_vs_line": -0.54,
+     "z": -1.0,
+     "seasons_same_sign": "5/11"
+    }
+   ],
+   "margin_1h": [
+    {
+     "cell": "defense-led vs weak",
+     "n": 267,
+     "avg_vs_line": -1.32,
+     "z": -2.15,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "weak vs defense-led",
+     "n": 267,
+     "avg_vs_line": 1.32,
+     "z": 2.15,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "complete vs offense-led",
+     "n": 282,
+     "avg_vs_line": -1.22,
+     "z": -2.05,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "offense-led vs complete",
+     "n": 282,
+     "avg_vs_line": 1.22,
+     "z": 2.05,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "offense-led vs weak",
+     "n": 277,
+     "avg_vs_line": 0.53,
+     "z": 0.88,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "weak vs offense-led",
+     "n": 277,
+     "avg_vs_line": -0.53,
+     "z": -0.88,
+     "seasons_same_sign": "8/11"
+    }
+   ],
+   "margin_2h": [
+    {
+     "cell": "defense-led vs weak",
+     "n": 267,
+     "avg_vs_line": 1.17,
+     "z": 2.11,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "weak vs defense-led",
+     "n": 267,
+     "avg_vs_line": -1.17,
+     "z": -2.11,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "complete vs defense-led",
+     "n": 229,
+     "avg_vs_line": 0.88,
+     "z": 1.47,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "defense-led vs complete",
+     "n": 229,
+     "avg_vs_line": -0.88,
+     "z": -1.47,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "offense-led vs weak",
+     "n": 277,
+     "avg_vs_line": -0.59,
+     "z": -1.09,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "weak vs offense-led",
+     "n": 277,
+     "avg_vs_line": 0.59,
+     "z": 1.09,
+     "seasons_same_sign": "8/11"
+    }
+   ],
+   "pass_att": [
+    {
+     "cell": "offense-led vs offense-led",
+     "n": 238,
+     "avg_vs_line": -1.27,
+     "z": -2.35,
+     "seasons_same_sign": "8/10"
+    },
+    {
+     "cell": "defense-led vs defense-led",
+     "n": 210,
+     "avg_vs_line": 1.03,
+     "z": 1.8,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "defense-led vs complete",
+     "n": 229,
+     "avg_vs_line": 0.75,
+     "z": 1.37,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "offense-led vs weak",
+     "n": 277,
+     "avg_vs_line": -0.65,
+     "z": -1.29,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "defense-led vs offense-led",
+     "n": 283,
+     "avg_vs_line": 0.63,
+     "z": 1.28,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "complete vs weak",
+     "n": 280,
+     "avg_vs_line": -0.63,
+     "z": -1.27,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "rush_att": [
+    {
+     "cell": "offense-led vs complete",
+     "n": 282,
+     "avg_vs_line": 0.88,
+     "z": 2.09,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "offense-led vs weak",
+     "n": 277,
+     "avg_vs_line": 0.58,
+     "z": 1.34,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "defense-led vs offense-led",
+     "n": 283,
+     "avg_vs_line": -0.51,
+     "z": -1.21,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "defense-led vs complete",
+     "n": 229,
+     "avg_vs_line": -0.56,
+     "z": -1.19,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "offense-led vs offense-led",
+     "n": 238,
+     "avg_vs_line": 0.55,
+     "z": 1.19,
+     "seasons_same_sign": "6/10"
+    },
+    {
+     "cell": "complete vs defense-led",
+     "n": 229,
+     "avg_vs_line": -0.42,
+     "z": -0.9,
+     "seasons_same_sign": "8/11"
+    }
+   ],
+   "dk_QB": [
+    {
+     "cell": "offense-led vs complete",
+     "n": 282,
+     "avg_vs_line": 1.29,
+     "z": 2.84,
+     "seasons_same_sign": "10/11"
+    },
+    {
+     "cell": "weak vs weak",
+     "n": 364,
+     "avg_vs_line": -0.74,
+     "z": -1.83,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "weak vs offense-led",
+     "n": 277,
+     "avg_vs_line": -0.54,
+     "z": -1.18,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "complete vs complete",
+     "n": 320,
+     "avg_vs_line": 0.49,
+     "z": 1.15,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "defense-led vs defense-led",
+     "n": 210,
+     "avg_vs_line": -0.52,
+     "z": -0.99,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "defense-led vs complete",
+     "n": 229,
+     "avg_vs_line": -0.48,
+     "z": -0.95,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "dk_RB": [
+    {
+     "cell": "offense-led vs defense-led",
+     "n": 283,
+     "avg_vs_line": -1.03,
+     "z": -1.69,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "offense-led vs weak",
+     "n": 277,
+     "avg_vs_line": 0.92,
+     "z": 1.49,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "defense-led vs defense-led",
+     "n": 210,
+     "avg_vs_line": 0.68,
+     "z": 0.96,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "complete vs defense-led",
+     "n": 229,
+     "avg_vs_line": -0.63,
+     "z": -0.93,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "complete vs weak",
+     "n": 280,
+     "avg_vs_line": -0.57,
+     "z": -0.93,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "weak vs offense-led",
+     "n": 277,
+     "avg_vs_line": 0.52,
+     "z": 0.85,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "dk_WR": [
+    {
+     "cell": "complete vs complete",
+     "n": 320,
+     "avg_vs_line": 1.8,
+     "z": 2.27,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "offense-led vs defense-led",
+     "n": 283,
+     "avg_vs_line": 1.49,
+     "z": 1.77,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "complete vs offense-led",
+     "n": 282,
+     "avg_vs_line": -1.45,
+     "z": -1.71,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "weak vs weak",
+     "n": 364,
+     "avg_vs_line": -0.9,
+     "z": -1.21,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "complete vs defense-led",
+     "n": 229,
+     "avg_vs_line": 1.07,
+     "z": 1.15,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "offense-led vs offense-led",
+     "n": 238,
+     "avg_vs_line": -1.0,
+     "z": -1.08,
+     "seasons_same_sign": "6/10"
+    }
+   ],
+   "dk_TE": [
+    {
+     "cell": "offense-led vs weak",
+     "n": 277,
+     "avg_vs_line": -1.1,
+     "z": -2.15,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "defense-led vs offense-led",
+     "n": 283,
+     "avg_vs_line": 1.07,
+     "z": 2.12,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "offense-led vs offense-led",
+     "n": 238,
+     "avg_vs_line": -0.82,
+     "z": -1.48,
+     "seasons_same_sign": "7/10"
+    },
+    {
+     "cell": "weak vs defense-led",
+     "n": 267,
+     "avg_vs_line": 0.72,
+     "z": 1.39,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "complete vs complete",
+     "n": 320,
+     "avg_vs_line": -0.52,
+     "z": -1.09,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "weak vs offense-led",
+     "n": 277,
+     "avg_vs_line": -0.35,
+     "z": -0.68,
+     "seasons_same_sign": "6/11"
+    }
+   ]
+  },
+  "team timing x team timing": {
+   "margin_vs_spread": [
+    {
+     "cell": "closer vs front-runner",
+     "n": 475,
+     "avg_vs_line": -0.4,
+     "z": -0.69,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "front-runner vs closer",
+     "n": 475,
+     "avg_vs_line": 0.4,
+     "z": 0.69,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "closer vs even",
+     "n": 498,
+     "avg_vs_line": -0.05,
+     "z": -0.09,
+     "seasons_same_sign": "4/11"
+    },
+    {
+     "cell": "even vs closer",
+     "n": 498,
+     "avg_vs_line": 0.05,
+     "z": 0.09,
+     "seasons_same_sign": "4/11"
+    },
+    {
+     "cell": "even vs front-runner",
+     "n": 516,
+     "avg_vs_line": -0.04,
+     "z": -0.07,
+     "seasons_same_sign": "5/11"
+    },
+    {
+     "cell": "front-runner vs even",
+     "n": 516,
+     "avg_vs_line": 0.04,
+     "z": 0.07,
+     "seasons_same_sign": "5/11"
+    }
+   ],
+   "pts_vs_implied": [
+    {
+     "cell": "front-runner vs front-runner",
+     "n": 526,
+     "avg_vs_line": 0.65,
+     "z": 1.64,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "closer vs front-runner",
+     "n": 475,
+     "avg_vs_line": -0.47,
+     "z": -1.12,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs front-runner",
+     "n": 516,
+     "avg_vs_line": -0.18,
+     "z": -0.46,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "closer vs closer",
+     "n": 476,
+     "avg_vs_line": 0.16,
+     "z": 0.39,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "front-runner vs even",
+     "n": 516,
+     "avg_vs_line": -0.15,
+     "z": -0.36,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "front-runner vs closer",
+     "n": 475,
+     "avg_vs_line": -0.07,
+     "z": -0.17,
+     "seasons_same_sign": "4/11"
+    }
+   ],
+   "margin_1h": [
+    {
+     "cell": "closer vs front-runner",
+     "n": 475,
+     "avg_vs_line": -0.45,
+     "z": -0.98,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "front-runner vs closer",
+     "n": 475,
+     "avg_vs_line": 0.45,
+     "z": 0.98,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "closer vs even",
+     "n": 498,
+     "avg_vs_line": -0.27,
+     "z": -0.6,
+     "seasons_same_sign": "4/11"
+    },
+    {
+     "cell": "even vs closer",
+     "n": 498,
+     "avg_vs_line": 0.27,
+     "z": 0.6,
+     "seasons_same_sign": "4/11"
+    },
+    {
+     "cell": "even vs front-runner",
+     "n": 516,
+     "avg_vs_line": -0.06,
+     "z": -0.13,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "front-runner vs even",
+     "n": 516,
+     "avg_vs_line": 0.06,
+     "z": 0.13,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "margin_2h": [
+    {
+     "cell": "closer vs even",
+     "n": 498,
+     "avg_vs_line": 0.22,
+     "z": 0.54,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs closer",
+     "n": 498,
+     "avg_vs_line": -0.22,
+     "z": -0.54,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "closer vs front-runner",
+     "n": 475,
+     "avg_vs_line": 0.05,
+     "z": 0.13,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "front-runner vs closer",
+     "n": 475,
+     "avg_vs_line": -0.05,
+     "z": -0.13,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs front-runner",
+     "n": 516,
+     "avg_vs_line": 0.02,
+     "z": 0.06,
+     "seasons_same_sign": "5/11"
+    },
+    {
+     "cell": "front-runner vs even",
+     "n": 516,
+     "avg_vs_line": -0.02,
+     "z": -0.06,
+     "seasons_same_sign": "5/11"
+    }
+   ],
+   "pass_att": [
+    {
+     "cell": "front-runner vs even",
+     "n": 516,
+     "avg_vs_line": 0.46,
+     "z": 1.25,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "closer vs even",
+     "n": 498,
+     "avg_vs_line": -0.28,
+     "z": -0.75,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "closer vs closer",
+     "n": 476,
+     "avg_vs_line": -0.17,
+     "z": -0.43,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs closer",
+     "n": 498,
+     "avg_vs_line": -0.13,
+     "z": -0.35,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "closer vs front-runner",
+     "n": 475,
+     "avg_vs_line": 0.13,
+     "z": 0.34,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs front-runner",
+     "n": 516,
+     "avg_vs_line": -0.04,
+     "z": -0.11,
+     "seasons_same_sign": "6/11"
+    }
+   ],
+   "rush_att": [
+    {
+     "cell": "closer vs closer",
+     "n": 476,
+     "avg_vs_line": 0.68,
+     "z": 2.08,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "closer vs front-runner",
+     "n": 475,
+     "avg_vs_line": 0.37,
+     "z": 1.14,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "front-runner vs even",
+     "n": 516,
+     "avg_vs_line": -0.35,
+     "z": -1.13,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "front-runner vs front-runner",
+     "n": 526,
+     "avg_vs_line": -0.3,
+     "z": -0.96,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 388,
+     "avg_vs_line": -0.34,
+     "z": -0.95,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "even vs front-runner",
+     "n": 516,
+     "avg_vs_line": -0.11,
+     "z": -0.35,
+     "seasons_same_sign": "5/11"
+    }
+   ],
+   "dk_QB": [
+    {
+     "cell": "front-runner vs even",
+     "n": 516,
+     "avg_vs_line": 0.59,
+     "z": 1.74,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 388,
+     "avg_vs_line": -0.61,
+     "z": -1.57,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "even vs front-runner",
+     "n": 516,
+     "avg_vs_line": -0.45,
+     "z": -1.34,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "even vs closer",
+     "n": 498,
+     "avg_vs_line": -0.32,
+     "z": -0.93,
+     "seasons_same_sign": "5/11"
+    },
+    {
+     "cell": "front-runner vs front-runner",
+     "n": 526,
+     "avg_vs_line": 0.3,
+     "z": 0.9,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "closer vs closer",
+     "n": 476,
+     "avg_vs_line": 0.28,
+     "z": 0.79,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "dk_RB": [
+    {
+     "cell": "closer vs front-runner",
+     "n": 475,
+     "avg_vs_line": -0.72,
+     "z": -1.53,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs closer",
+     "n": 498,
+     "avg_vs_line": 0.67,
+     "z": 1.45,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "front-runner vs closer",
+     "n": 475,
+     "avg_vs_line": 0.49,
+     "z": 1.04,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "front-runner vs even",
+     "n": 516,
+     "avg_vs_line": -0.31,
+     "z": -0.69,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "closer vs even",
+     "n": 498,
+     "avg_vs_line": -0.31,
+     "z": -0.67,
+     "seasons_same_sign": "5/11"
+    },
+    {
+     "cell": "closer vs closer",
+     "n": 476,
+     "avg_vs_line": 0.22,
+     "z": 0.46,
+     "seasons_same_sign": "4/11"
+    }
+   ],
+   "dk_WR": [
+    {
+     "cell": "front-runner vs front-runner",
+     "n": 526,
+     "avg_vs_line": 1.1,
+     "z": 1.77,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "front-runner vs closer",
+     "n": 475,
+     "avg_vs_line": -1.13,
+     "z": -1.74,
+     "seasons_same_sign": "9/11"
+    },
+    {
+     "cell": "even vs closer",
+     "n": 498,
+     "avg_vs_line": -0.66,
+     "z": -1.03,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 388,
+     "avg_vs_line": -0.63,
+     "z": -0.88,
+     "seasons_same_sign": "8/11"
+    },
+    {
+     "cell": "front-runner vs even",
+     "n": 516,
+     "avg_vs_line": 0.46,
+     "z": 0.73,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "closer vs front-runner",
+     "n": 475,
+     "avg_vs_line": 0.45,
+     "z": 0.7,
+     "seasons_same_sign": "7/11"
+    }
+   ],
+   "dk_TE": [
+    {
+     "cell": "front-runner vs closer",
+     "n": 475,
+     "avg_vs_line": 0.47,
+     "z": 1.21,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "closer vs front-runner",
+     "n": 475,
+     "avg_vs_line": -0.45,
+     "z": -1.17,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "closer vs closer",
+     "n": 476,
+     "avg_vs_line": -0.4,
+     "z": -1.02,
+     "seasons_same_sign": "6/11"
+    },
+    {
+     "cell": "even vs front-runner",
+     "n": 516,
+     "avg_vs_line": -0.29,
+     "z": -0.76,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "front-runner vs even",
+     "n": 516,
+     "avg_vs_line": 0.28,
+     "z": 0.76,
+     "seasons_same_sign": "7/11"
+    },
+    {
+     "cell": "even vs even",
+     "n": 388,
+     "avg_vs_line": 0.24,
+     "z": 0.55,
+     "seasons_same_sign": "7/11"
+    }
+   ]
+  }
+ },
+ "player_misses": {
+  "offense style x defense style": {
+   "QB": {
+    "last_season": 0.691,
+    "all_prior": 0.519,
+    "in_season": 1.001,
+    "cell_effect_corr_next_season": -0.088,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "run-first efficient vs porous run-funnel",
+      "n": 87,
+      "avg_vs_line": 1.5,
+      "z": 1.77,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "pass-first efficient vs porous run-funnel",
+      "n": 86,
+      "avg_vs_line": 1.1,
+      "z": 1.29,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "run-first inefficient vs stout run-funnel",
+      "n": 100,
+      "avg_vs_line": -0.95,
+      "z": -1.2,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "pass-first inefficient vs stout run-funnel",
+      "n": 68,
+      "avg_vs_line": 1.04,
+      "z": 1.09,
+      "seasons_same_sign": "4/4"
+     }
+    ]
+   },
+   "RB": {
+    "last_season": 1.233,
+    "all_prior": 0.999,
+    "in_season": 0.505,
+    "cell_effect_corr_next_season": -0.112,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "run-first efficient vs porous pass-funnel",
+      "n": 129,
+      "avg_vs_line": 1.28,
+      "z": 2.06,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "pass-first efficient vs stout run-funnel",
+      "n": 231,
+      "avg_vs_line": -0.83,
+      "z": -1.79,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "run-first inefficient vs stout run-funnel",
+      "n": 184,
+      "avg_vs_line": 0.89,
+      "z": 1.7,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "run-first efficient vs stout run-funnel",
+      "n": 193,
+      "avg_vs_line": -0.59,
+      "z": -1.16,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "WR": {
+    "last_season": 1.079,
+    "all_prior": 1.014,
+    "in_season": 0.322,
+    "cell_effect_corr_next_season": -0.172,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "pass-first inefficient vs stout run-funnel",
+      "n": 208,
+      "avg_vs_line": 0.57,
+      "z": 1.13,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "run-first inefficient vs stout run-funnel",
+      "n": 288,
+      "avg_vs_line": -0.45,
+      "z": -1.04,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "pass-first efficient vs stout pass-funnel",
+      "n": 302,
+      "avg_vs_line": 0.43,
+      "z": 1.02,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "run-first inefficient vs porous pass-funnel",
+      "n": 330,
+      "avg_vs_line": -0.41,
+      "z": -1.02,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "TE": {
+    "last_season": -0.78,
+    "all_prior": -0.663,
+    "in_season": 0.116,
+    "cell_effect_corr_next_season": 0.414,
+    "seasons_positive_corr": "3/3",
+    "top_cells": [
+     {
+      "cell": "run-first inefficient vs porous pass-funnel",
+      "n": 135,
+      "avg_vs_line": 1.65,
+      "z": 3.1,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "pass-first inefficient vs porous pass-funnel",
+      "n": 116,
+      "avg_vs_line": -1.29,
+      "z": -2.26,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "run-first efficient vs porous run-funnel",
+      "n": 109,
+      "avg_vs_line": 1.27,
+      "z": 2.14,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "run-first efficient vs stout run-funnel",
+      "n": 108,
+      "avg_vs_line": 1.13,
+      "z": 1.91,
+      "seasons_same_sign": "4/4"
+     }
+    ]
+   }
+  },
+  "offense timing x defense timing": {
+   "QB": {
+    "last_season": -0.006,
+    "all_prior": -0.012,
+    "in_season": 1.296,
+    "cell_effect_corr_next_season": 0.306,
+    "seasons_positive_corr": "3/3",
+    "top_cells": [
+     {
+      "cell": "fast-start vs strong-late",
+      "n": 179,
+      "avg_vs_line": 0.88,
+      "z": 1.49,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "fast-start vs even",
+      "n": 161,
+      "avg_vs_line": 0.68,
+      "z": 1.09,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "second-half vs fades-late",
+      "n": 155,
+      "avg_vs_line": -0.64,
+      "z": -1.01,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "second-half vs strong-late",
+      "n": 181,
+      "avg_vs_line": -0.59,
+      "z": -1.0,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "RB": {
+    "last_season": 0.835,
+    "all_prior": 0.741,
+    "in_season": 0.275,
+    "cell_effect_corr_next_season": -0.045,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "second-half vs fades-late",
+      "n": 310,
+      "avg_vs_line": -0.82,
+      "z": -2.03,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "even vs even",
+      "n": 297,
+      "avg_vs_line": 0.51,
+      "z": 1.24,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "even vs strong-late",
+      "n": 314,
+      "avg_vs_line": 0.48,
+      "z": 1.21,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "even vs fades-late",
+      "n": 325,
+      "avg_vs_line": -0.32,
+      "z": -0.81,
+      "seasons_same_sign": "2/4"
+     }
+    ]
+   },
+   "WR": {
+    "last_season": 0.279,
+    "all_prior": 0.131,
+    "in_season": 0.746,
+    "cell_effect_corr_next_season": 0.143,
+    "seasons_positive_corr": "2/3",
+    "top_cells": [
+     {
+      "cell": "even vs even",
+      "n": 461,
+      "avg_vs_line": -0.65,
+      "z": -1.92,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "fast-start vs even",
+      "n": 506,
+      "avg_vs_line": 0.6,
+      "z": 1.85,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "second-half vs even",
+      "n": 535,
+      "avg_vs_line": -0.45,
+      "z": -1.44,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "fast-start vs strong-late",
+      "n": 547,
+      "avg_vs_line": 0.29,
+      "z": 0.92,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "TE": {
+    "last_season": -0.146,
+    "all_prior": -0.057,
+    "in_season": 1.137,
+    "cell_effect_corr_next_season": 0.337,
+    "seasons_positive_corr": "3/3",
+    "top_cells": [
+     {
+      "cell": "second-half vs strong-late",
+      "n": 225,
+      "avg_vs_line": -0.8,
+      "z": -1.94,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "fast-start vs strong-late",
+      "n": 234,
+      "avg_vs_line": 0.55,
+      "z": 1.37,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "even vs strong-late",
+      "n": 200,
+      "avg_vs_line": 0.4,
+      "z": 0.92,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "second-half vs fades-late",
+      "n": 189,
+      "avg_vs_line": -0.4,
+      "z": -0.88,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   }
+  },
+  "offense timing x opp offense timing": {
+   "QB": {
+    "last_season": -0.276,
+    "all_prior": 0.137,
+    "in_season": 1.196,
+    "cell_effect_corr_next_season": 0.387,
+    "seasons_positive_corr": "3/3",
+    "top_cells": [
+     {
+      "cell": "fast-start vs fast-start",
+      "n": 190,
+      "avg_vs_line": 1.05,
+      "z": 1.82,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "second-half vs second-half",
+      "n": 176,
+      "avg_vs_line": -0.85,
+      "z": -1.43,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "even vs fast-start",
+      "n": 170,
+      "avg_vs_line": 0.72,
+      "z": 1.19,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "second-half vs fast-start",
+      "n": 166,
+      "avg_vs_line": -0.45,
+      "z": -0.74,
+      "seasons_same_sign": "4/4"
+     }
+    ]
+   },
+   "RB": {
+    "last_season": 0.989,
+    "all_prior": 0.536,
+    "in_season": 0.184,
+    "cell_effect_corr_next_season": -0.231,
+    "seasons_positive_corr": "0/3",
+    "top_cells": [
+     {
+      "cell": "second-half vs even",
+      "n": 331,
+      "avg_vs_line": -0.53,
+      "z": -1.37,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "even vs fast-start",
+      "n": 328,
+      "avg_vs_line": 0.47,
+      "z": 1.19,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "second-half vs fast-start",
+      "n": 329,
+      "avg_vs_line": -0.42,
+      "z": -1.08,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "fast-start vs fast-start",
+      "n": 368,
+      "avg_vs_line": 0.32,
+      "z": 0.87,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "WR": {
+    "last_season": 0.273,
+    "all_prior": 0.115,
+    "in_season": 0.388,
+    "cell_effect_corr_next_season": 0.262,
+    "seasons_positive_corr": "2/3",
+    "top_cells": [
+     {
+      "cell": "second-half vs fast-start",
+      "n": 493,
+      "avg_vs_line": 0.61,
+      "z": 1.88,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "even vs even",
+      "n": 456,
+      "avg_vs_line": -0.63,
+      "z": -1.86,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "fast-start vs second-half",
+      "n": 523,
+      "avg_vs_line": 0.46,
+      "z": 1.45,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "fast-start vs fast-start",
+      "n": 587,
+      "avg_vs_line": 0.42,
+      "z": 1.4,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "TE": {
+    "last_season": 0.695,
+    "all_prior": 0.323,
+    "in_season": 1.041,
+    "cell_effect_corr_next_season": -0.137,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "second-half vs fast-start",
+      "n": 197,
+      "avg_vs_line": -0.85,
+      "z": -1.93,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "even vs second-half",
+      "n": 204,
+      "avg_vs_line": 0.48,
+      "z": 1.11,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "fast-start vs second-half",
+      "n": 218,
+      "avg_vs_line": 0.37,
+      "z": 0.88,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "second-half vs second-half",
+      "n": 227,
+      "avg_vs_line": -0.23,
+      "z": -0.56,
+      "seasons_same_sign": "2/4"
+     }
+    ]
+   }
+  },
+  "team x team": {
+   "QB": {
+    "last_season": 0.598,
+    "all_prior": 0.698,
+    "in_season": 0.422,
+    "cell_effect_corr_next_season": 0.051,
+    "seasons_positive_corr": "2/3",
+    "top_cells": [
+     {
+      "cell": "offense-led vs complete",
+      "n": 91,
+      "avg_vs_line": 2.12,
+      "z": 2.56,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "weak vs weak",
+      "n": 130,
+      "avg_vs_line": -1.19,
+      "z": -1.71,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "complete vs offense-led",
+      "n": 91,
+      "avg_vs_line": 1.4,
+      "z": 1.69,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "defense-led vs weak",
+      "n": 100,
+      "avg_vs_line": 1.25,
+      "z": 1.58,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "RB": {
+    "last_season": 1.258,
+    "all_prior": 1.007,
+    "in_season": 0.462,
+    "cell_effect_corr_next_season": -0.014,
+    "seasons_positive_corr": "2/3",
+    "top_cells": [
+     {
+      "cell": "complete vs defense-led",
+      "n": 176,
+      "avg_vs_line": -1.16,
+      "z": -2.17,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "weak vs offense-led",
+      "n": 183,
+      "avg_vs_line": 0.71,
+      "z": 1.35,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "complete vs offense-led",
+      "n": 187,
+      "avg_vs_line": 0.58,
+      "z": 1.13,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "defense-led vs offense-led",
+      "n": 156,
+      "avg_vs_line": -0.62,
+      "z": -1.09,
+      "seasons_same_sign": "2/4"
+     }
+    ]
+   },
+   "WR": {
+    "last_season": 1.465,
+    "all_prior": 1.144,
+    "in_season": 0.701,
+    "cell_effect_corr_next_season": -0.288,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "complete vs offense-led",
+      "n": 306,
+      "avg_vs_line": 0.45,
+      "z": 1.07,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "weak vs weak",
+      "n": 384,
+      "avg_vs_line": -0.35,
+      "z": -0.94,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "complete vs defense-led",
+      "n": 278,
+      "avg_vs_line": -0.4,
+      "z": -0.93,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "defense-led vs complete",
+      "n": 280,
+      "avg_vs_line": -0.39,
+      "z": -0.9,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "TE": {
+    "last_season": 0.476,
+    "all_prior": 0.227,
+    "in_season": 1.296,
+    "cell_effect_corr_next_season": 0.09,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "offense-led vs offense-led",
+      "n": 57,
+      "avg_vs_line": 1.54,
+      "z": 1.89,
+      "seasons_same_sign": "3/3"
+     },
+     {
+      "cell": "offense-led vs weak",
+      "n": 121,
+      "avg_vs_line": -1.01,
+      "z": -1.8,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "weak vs offense-led",
+      "n": 121,
+      "avg_vs_line": -0.82,
+      "z": -1.46,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "offense-led vs defense-led",
+      "n": 98,
+      "avg_vs_line": -0.87,
+      "z": -1.4,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   }
+  },
+  "team timing x team timing": {
+   "QB": {
+    "last_season": -0.566,
+    "all_prior": -0.611,
+    "in_season": 1.143,
+    "cell_effect_corr_next_season": 0.408,
+    "seasons_positive_corr": "3/3",
+    "top_cells": [
+     {
+      "cell": "even vs closer",
+      "n": 177,
+      "avg_vs_line": -1.42,
+      "z": -2.39,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "front-runner vs front-runner",
+      "n": 186,
+      "avg_vs_line": 1.35,
+      "z": 2.33,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "even vs even",
+      "n": 127,
+      "avg_vs_line": 0.85,
+      "z": 1.21,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "closer vs even",
+      "n": 177,
+      "avg_vs_line": -0.64,
+      "z": -1.07,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "RB": {
+    "last_season": 0.609,
+    "all_prior": 0.328,
+    "in_season": 0.878,
+    "cell_effect_corr_next_season": -0.397,
+    "seasons_positive_corr": "0/3",
+    "top_cells": [
+     {
+      "cell": "closer vs closer",
+      "n": 336,
+      "avg_vs_line": 0.56,
+      "z": 1.44,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "front-runner vs even",
+      "n": 343,
+      "avg_vs_line": -0.5,
+      "z": -1.3,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "even vs even",
+      "n": 245,
+      "avg_vs_line": -0.39,
+      "z": -0.85,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "closer vs even",
+      "n": 353,
+      "avg_vs_line": -0.28,
+      "z": -0.74,
+      "seasons_same_sign": "2/4"
+     }
+    ]
+   },
+   "WR": {
+    "last_season": 0.355,
+    "all_prior": 0.092,
+    "in_season": 1.003,
+    "cell_effect_corr_next_season": -0.145,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "even vs closer",
+      "n": 533,
+      "avg_vs_line": -0.49,
+      "z": -1.56,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "front-runner vs front-runner",
+      "n": 582,
+      "avg_vs_line": 0.46,
+      "z": 1.54,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "closer vs even",
+      "n": 536,
+      "avg_vs_line": -0.44,
+      "z": -1.39,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "front-runner vs even",
+      "n": 537,
+      "avg_vs_line": 0.38,
+      "z": 1.2,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "TE": {
+    "last_season": -0.049,
+    "all_prior": -0.016,
+    "in_season": 0.559,
+    "cell_effect_corr_next_season": 0.297,
+    "seasons_positive_corr": "2/3",
+    "top_cells": [
+     {
+      "cell": "closer vs front-runner",
+      "n": 190,
+      "avg_vs_line": -1.07,
+      "z": -2.39,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "even vs even",
+      "n": 155,
+      "avg_vs_line": 0.78,
+      "z": 1.56,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "closer vs closer",
+      "n": 215,
+      "avg_vs_line": -0.55,
+      "z": -1.3,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "front-runner vs even",
+      "n": 225,
+      "avg_vs_line": 0.47,
+      "z": 1.15,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   }
+  }
+ }
+}

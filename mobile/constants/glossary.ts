@@ -201,6 +201,24 @@ export const GLOSSARY: GlossaryEntry[] = [
     definition: "An underdog of 3+ points that Vegas still expects to score 21.5 or more: its players can outscore the spread's story.",
   },
   {
+    id: 'style-matchup',
+    term: 'Style matchup',
+    definition:
+      "Each team's style this season, read from games already played. Offense: pass-heavy or run-heavy, and efficient or inefficient (points added per play). Defense: tough or leaky overall, and weaker against the pass or the run. A pairing leans pass or run when it moved pass attempts 1.5+ against what the spread and total imply in at least 3 of every 4 seasons since 2016, whichever teams filled it. Styles update every week and also apply back-tested roster moves (the expected quarterback, receivers who are out or traded away, pass-rush arrivals and departures) when they move a team by a quarter of a standard deviation or more.",
+  },
+  {
+    id: 'schedule-outlook',
+    term: 'Direction: schedule ahead',
+    definition:
+      "Which way a unit is likely headed, from the opponents behind it and ahead of it (2016-2025 back-test). The next three opponents predict the next three games strongly for defenses (a weak offense ahead means fewer points allowed) and modestly for offenses; a pass offense's schedule ahead did not predict anything, so it is not shown. A recent surge against soft opponents did not carry on, and a team's last three games are no more predictive than the three before them, so this is schedule, not momentum.",
+  },
+  {
+    id: 'roster-moves',
+    term: 'Recent roster moves',
+    definition:
+      "Trades and coaching changes that took effect in the last 3 weeks (the week shown is the team's first game with the change). Styles come from games played before the change, so a new quarterback, play-caller or defensive coordinator isn't reflected in them until the games are played. The back-tested effect line shows what the model applies: a quarterback's own career carries about as much weight as the team's recent form, a starter with under 300 career dropbacks costs about 0.07 EPA per dropback and 4 points of red-zone TD rate, and lost receivers and pass rushers matter less.",
+  },
+  {
     id: 'negative-script',
     term: 'Negative script',
     definition: 'A spread of 6.5 or more: the underdog may fall behind and pass a lot, and the favorite may run the clock out.',

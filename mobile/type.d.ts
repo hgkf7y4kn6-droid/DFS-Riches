@@ -351,6 +351,9 @@ interface BestContest {
   top_prize: number | null;
   top_multiple: number | null;
   score: number;
+  /** A-F grade against the other GPPs on its slate (small field, few entries, flat payout); null for cash games. */
+  grade: 'A' | 'B' | 'C' | 'D' | 'F' | null;
+  grade_score: number | null;
   /** The name without its slate when the contest runs on several slates, else the name. */
   title: string;
   /** Copies DraftKings lists of this contest, on this and other slates (this row is the fullest copy). */
@@ -728,6 +731,49 @@ interface PropPrice {
 }
 
 /** One game's environment for DFS, ranked across the slate (1 = best). */
+interface StyleMatchup {
+  offense: string;
+  defense: string;
+  off_style: string;
+  def_style: string;
+  /** Plain-English versions: "pass-heavy and efficient", "leaky, weaker against the run". */
+  off_text?: string;
+  def_text?: string;
+  /** Why the pairing leans (or doesn't), in a sentence. */
+  lean_text?: string;
+  /** Styles that changed because of roster moves ("IND offense now run-heavy ... (was pass-heavy ...)"). */
+  flips?: string[];
+  /** 'pass' / 'run' when the cell moved pass attempts 1.5+ vs the line in 75%+ of seasons. */
+  lean: 'pass' | 'run' | null;
+  pass_att: number | null;
+  rush_att: number | null;
+  dk: Record<string, number | null>;
+  text: string;
+}
+
+/** A trade or coaching change of the last few weeks (data/context_changes.json). */
+interface RosterMove {
+  label: string;
+  type: string;
+  effective_week: number;
+}
+
+/** Back-tested effect of a team's roster moves for the game (app.roster_adjust). */
+interface RosterAdjust {
+  d_epa_db: number;
+  d_pass_rate: number;
+  d_def_epa_db: number;
+  d_pressure_events: number;
+  reasons: string[];
+}
+
+/** One line of a team's direction: its schedule ahead against the one behind (app.schedule_outlook). */
+interface ScheduleOutlookLine {
+  unit: string;
+  better: boolean;
+  text: string;
+}
+
 interface DfsGameEnv {
   /** "JAX@CIN". */
   game: string;
@@ -771,6 +817,14 @@ interface DfsGameEnv {
   shootout_note?: string;
   /** The weekly audit checklist (app.game_model): which items fire and each item's 2023-2025 record. */
   checklist?: ChecklistItem[] | null;
+  /** Each offense's style vs the opposing defense's style, this season (app.style_matchup). */
+  style_matchup?: StyleMatchup[] | null;
+  /** {team: moves} for each side: trades and coaching changes of the last 3 weeks. */
+  roster_moves?: Record<string, RosterMove[]> | null;
+  /** {team: effect} for teams whose expected quarterback, receivers or pass rush changed. */
+  roster_adjust?: Record<string, RosterAdjust> | null;
+  /** {team: lines}: which way each side is headed given the opponents ahead vs behind. */
+  schedule_outlook?: Record<string, ScheduleOutlookLine[]> | null;
   /** Game model v2: the market line plus a correction fit on 2023-2025. */
   model_v2?: {
     fair_total: number;

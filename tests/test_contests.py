@@ -211,3 +211,54 @@ def test_collapsed_contest_opens_the_selected_slates_copy():
                 "draft_group_id": dg}
     [r] = contests.collapse_copies([row(1, 1, 9), row(2, 2, 3)], draft_group_id=2)
     assert r["id"] == 2 and r["on_selected_slate"] and r["copies"] == 2
+
+
+# DraftKings' Thursday-night grade sheet: (grade, fee, max entries, field, rake, cashout, first prize / pool).
+# Showdown $ names dropped; pool is taken as first prize / (% to 1st).
+_SHEET = """B 50 1 681 3000 10.0
+B 3180 4 134 100000 24.9
+B 50 1 340 1500 10.0
+B 200 1 222 10000 25.0
+B 75 5 227 3000 20.0
+B 150 5 296 7500 18.8
+C 100 1 444 10000 25.0
+C 5 1 2378 1000 10.0
+C 100 1 1111 20000 20.0
+C 3 1 3963 1000 10.0
+C 20 5 1176 2000 10.0
+C 444 5 400 50000 31.3
+C 1 1 5945 500 10.0
+C 5 1 9512 4000 10.0
+D 0.25 20 35671 300 4.0
+D 4 5 4458 1500 10.0
+D 1 5 5945 500 10.0
+D 15 1 1568 5000 25.0
+D 333 50 1668 100000 20.0
+D 2 20 5945 1000 10.0
+D 0.1 20 47562 200 5.0
+D 15 1 2745 10000 28.6
+F 1 20 59453 2500 5.0
+F 3 20 99088 25000 10.0
+F 33 105 3533 20000 20.0
+F 0.5 150 237812 10000 10.0
+F 5 150 71343 50000 16.7
+F 20 150 73529 300000 24.0"""
+
+
+def test_grades_match_the_draftkings_sheet():
+    rows, want = [], []
+    for i, line in enumerate(_SHEET.splitlines()):
+        grade, fee, mec, field, first, pct = line.split()
+        rows.append({"id": i, "kind": "Tournament", "slate": "JAX @ BAL", "max_entries": int(mec),
+                     "field_size": int(field), "top_prize": float(first), "prize_pool": float(first) / (float(pct) / 100)})
+        want.append(grade)
+    got = [r["grade"] for r in contests.grade_contests(rows)]
+    assert sum(g == w for g, w in zip(got, want)) >= 27  # fitted to this sheet: one contest (a D) grades as a C
+
+
+def test_cash_games_are_ungraded_and_slates_graded_apart():
+    base = {"max_entries": 1, "field_size": 100, "top_prize": 100.0, "prize_pool": 1000.0}
+    rows = [{**base, "kind": "Double Up", "slate": "Main"}, {**base, "kind": "Tournament", "slate": "Main"},
+            {**base, "kind": "Tournament", "slate": "Early"}]
+    got = contests.grade_contests(rows)
+    assert got[0]["grade"] is None and got[1]["grade"] == got[2]["grade"] is not None
