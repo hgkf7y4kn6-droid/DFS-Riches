@@ -1,3 +1,4 @@
+import logging
 import asyncio
 import json
 
@@ -218,7 +219,7 @@ def test_api_needs_a_signed_in_account(client, monkeypatch):
     assert r.status_code == 401 and "Sign in" in r.json()["detail"]
     assert client.get("/api/nope", headers={"authorization": "Bearer bad"}).status_code == 401
     assert client.get("/api/nope", headers={"authorization": "Bearer good"}).status_code == 404   # through to routing
-    assert client.options("/api/week", headers={"origin": "https://x.example", "access-control-request-method": "GET"}).status_code == 200
+    assert client.options("/api/week", headers={"origin": f"https://{main.CANONICAL_HOST}", "access-control-request-method": "GET"}).status_code == 200   # preflights skip sign-in
     assert client.get("/healthz").status_code == 200                   # pages and health stay open
     assert client.get("/api/odds").status_code == 401                  # lines and prices need an account
     assert client.get("/api/odds?season=2026&week=7").status_code == 401
@@ -298,3 +299,38 @@ def test_responses_carry_basic_security_headers(client):
 def test_upstream_failures_do_not_leak_exception_text():
     err = main._upstream_failure("Could not load week", RuntimeError("https://secret.internal/path?key=abc"))
     assert err.status_code == 502 and "secret" not in err.detail and err.detail.startswith("Could not load week")
+
+
+def test_more_security_headers_and_report_only_csp(client):
+    page = client.get("/", headers={"x-forwarded-proto": "https"})
+    assert page.headers["x-frame-options"] == "DENY"
+    assert page.headers["strict-transport-security"].startswith("max-age=")
+    assert "frame-ancestors 'none'" in page.headers["content-security-policy-report-only"]
+    assert "permissions-policy" in page.headers
+    assert "strict-transport-security" not in client.get("/healthz").headers        # plain http: no HSTS
+    assert "content-security-policy-report-only" not in client.get("/api/nope").headers
+
+
+def test_cors_is_an_allowlist(client):
+    def preflight(origin):
+        return client.options("/api/week", headers={"origin": origin, "access-control-request-method": "GET"})
+    assert preflight(f"https://{main.CANONICAL_HOST}").headers["access-control-allow-origin"] == f"https://{main.CANONICAL_HOST}"
+    assert preflight("https://dfs-riches.onrender.com").headers["access-control-allow-origin"] == "https://dfs-riches.onrender.com"
+    assert "access-control-allow-origin" not in preflight("https://evil.example").headers
+
+
+def test_sign_in_failures_do_not_leak_the_reason(client, monkeypatch, caplog):
+    monkeypatch.setenv("REQUIRE_SIGN_IN", "1")
+    monkeypatch.setattr(logging.getLogger("dfsriches"), "propagate", True)     # app.metrics detaches it from the root logger
+
+    async def verify_claims(authorization):
+        raise main.accounts.AuthError("invalid session: Signature verification failed")
+    monkeypatch.setattr(main.accounts, "verify_claims", verify_claims)
+    with caplog.at_level("WARNING", logger="dfsriches.security"):
+        r = client.get("/api/week", headers={"authorization": "Bearer x"})
+    assert r.status_code == 401 and "Signature" not in r.text
+    assert "auth_failed" in caplog.text and "Signature verification failed" in caplog.text   # kept for the log
+
+
+def test_healthz_reveals_no_configuration(client):
+    assert client.get("/healthz").json() == {"status": "ok"}

@@ -1128,6 +1128,19 @@ What's already wired up for sitting behind Cloudflare:
 
 - **`GET /healthz`** -- a dependency-free liveness check (no outbound calls)
   for the platform's health monitoring or a Cloudflare Tunnel's origin check.
+  It returns only `{"status":"ok"}`; configuration status moved to the
+  master-only `GET /api/health/detail`.
+- **Security hardening settings** (all optional, set in the host's environment):
+  `PROXY_SHARED_SECRET` -- add the same value as an `X-Origin-Secret` request
+  header in a Cloudflare Transform Rule, and the rate limiter only believes
+  `CF-Connecting-IP` / `X-Forwarded-For` on requests that carry it (direct hits on
+  the `*.onrender.com` address are counted by their socket address);
+  `TRUSTED_PROXY_HOPS` -- take the `X-Forwarded-For` entry that many proxies from
+  the end instead of the forgeable first one; `CORS_ORIGINS` -- extra
+  comma-separated browser origins allowed to call the API (the site's own hosts,
+  `*.onrender.com` and localhost are built in). Failed sign-ins, 403s, 429s and
+  oversized bodies are logged as `[SECURITY] {...}` lines for log alerts. The
+  Content-Security-Policy is report-only until its violations have been reviewed.
 - **Trusted proxy headers** -- the container's entrypoint (`python -m
   app.main`, also the Dockerfile's `CMD`) runs Uvicorn with
   `proxy_headers=True, forwarded_allow_ips="*"`, so `X-Forwarded-Proto` /

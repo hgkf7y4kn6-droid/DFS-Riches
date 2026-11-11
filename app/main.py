@@ -198,24 +198,51 @@ async def _require_sign_in(request: Request, call_next):
         request.state.claims = await accounts.verify_claims(request.headers.get("authorization"))
         request.state.user_id = request.state.claims["sub"]
     except accounts.AuthError as exc:
-        return JSONResponse({"detail": f"Sign in to Riches Analytics to use this ({exc})."}, status_code=401,
+        # The reason (bad signature, expired, wrong instance...) goes to the security log, never to the caller.
+        guard.security_event("auth_failed", path=path, reason=str(exc),
+                             client=guard.client_ip({k.lower(): v for k, v in request.headers.items()},
+                                                    request.client.host if request.client else None))
+        return JSONResponse({"detail": "Sign in to Riches Analytics to use this."}, status_code=401,
                             headers={"WWW-Authenticate": "Bearer"})
     return await call_next(request)
+
+
+# Report-only for now: the Expo web build bootstraps with an inline script, so enforcing needs a pass over the
+# violation reports first. Clerk's host is added from the publishable key.
+def _csp() -> str:
+    clerk = f"https://{accounts.frontend_api()}"
+    return "; ".join([
+        "default-src 'self'", f"script-src 'self' 'unsafe-inline' {clerk} https://challenges.cloudflare.com",
+        "style-src 'self' 'unsafe-inline'", "img-src 'self' data: blob: https:", "font-src 'self' data:",
+        f"connect-src 'self' {clerk} https://*.clerk.accounts.dev https://clerk-telemetry.com",
+        f"frame-src {clerk} https://challenges.cloudflare.com", "worker-src 'self' blob:",
+        "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'"])
 
 
 @app.middleware("http")
 async def _security_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers.setdefault("X-Content-Type-Options", "nosniff")
-    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    h = response.headers
+    h.setdefault("X-Content-Type-Options", "nosniff")
+    h.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    h.setdefault("X-Frame-Options", "DENY")
+    h.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()")
+    if request.headers.get("x-forwarded-proto", request.url.scheme) == "https":
+        h.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    if not request.url.path.startswith("/api/"):
+        h.setdefault("Content-Security-Policy-Report-Only", _csp())
     return response
 
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
-# The mobile app (mobile/) reads the JSON API with the user's session token; its
-# web build can run on another origin, so allow cross-origin requests.
-# Account sync adds authenticated PUTs (Bearer token, no cookies).
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "PUT", "POST"], allow_headers=["*"])
+# The mobile app (mobile/) reads the JSON API with the user's session token (Bearer, no cookies). Native apps
+# send no Origin, so CORS only matters for browsers: the site's own hosts, Render's, local development, and
+# anything listed in CORS_ORIGINS (comma-separated).
+CORS_ORIGINS = [f"https://{CANONICAL_HOST}", *(f"https://{h}" for h in sorted(ALIAS_HOSTS)),
+                *(o.strip().rstrip("/") for o in os.environ.get("CORS_ORIGINS", "").split(",") if o.strip())]
+app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS,
+                   allow_origin_regex=r"https://[a-z0-9-]+\.onrender\.com|http://(localhost|127\.0\.0\.1)(:\d+)?",
+                   allow_methods=["GET", "PUT", "POST", "DELETE"], allow_headers=["Authorization", "Content-Type"])
 # Outermost: per-client rate limits and body-size caps on /api/ (app.guard).
 app.add_middleware(guard.GuardMiddleware)
 
@@ -233,15 +260,21 @@ async def api_metrics(authorization: Annotated[str | None, Header()] = None):
 
 
 @app.get("/healthz")
-async def healthz(request: Request):
+async def healthz():
     """Liveness/readiness check for a platform's or Cloudflare's origin
-    health monitoring. Deliberately makes no outbound calls -- it only
-    confirms this process is up and serving requests. "accounts" says which
-    account settings the environment provides -- yes/no only, never values."""
+    health monitoring. Deliberately makes no outbound calls and reveals nothing
+    about the configuration -- see /api/health/detail (master accounts)."""
+    return {"status": "ok"}
+
+
+@app.get("/api/health/detail")
+async def health_detail(request: Request, authorization: Annotated[str | None, Header()] = None):
+    """Master accounts: which account settings the environment provides (yes/no, never values) and the caller's
+    address as the rate limiter sees it."""
+    await _require_master(authorization)
     headers = {k.lower(): v for k, v in request.headers.items()}
-    client = guard.client_ip(headers, request.client.host if request.client else None)
-    # "client": the caller's own address as the rate limiter sees it.
-    return {"status": "ok", "accounts": accounts.config_status(), "client": client}
+    return {"status": "ok", "accounts": accounts.config_status(),
+            "client": guard.client_ip(headers, request.client.host if request.client else None)}
 
 
 @memoize_async(ttl_seconds=1800)
@@ -530,7 +563,8 @@ async def _user(authorization: str | None) -> str:
     try:
         return await accounts.verify(authorization)
     except accounts.AuthError as exc:
-        raise HTTPException(status_code=401, detail=str(exc)) from exc
+        guard.security_event("auth_failed", reason=str(exc))
+        raise HTTPException(status_code=401, detail="Sign in required.") from exc
 
 
 async def _entitled(request: Request, feature: str) -> bool:
@@ -551,6 +585,7 @@ async def _require_master(authorization: str | None) -> str:
     """Shared ownership data (projections, actuals) is written by master accounts only."""
     user_id = await _user(authorization)
     if not await accounts.is_master(user_id):
+        guard.security_event("forbidden", user=user_id, need="master")
         raise HTTPException(status_code=403, detail="Master account required")
     return user_id
 
@@ -962,7 +997,9 @@ async def api_ownership_actual_video(request: Request, season: int, week: int, s
         try:
             read = await asyncio.to_thread(ownership_video.read_video, Path(tmp.name))
         except (subprocess.SubprocessError, ValueError) as exc:
-            raise HTTPException(status_code=400, detail=f"Couldn't read that recording: {exc}") from exc
+            log.warning("recording read failed: %r", exc)    # ffmpeg/tesseract output can hold server paths
+            raise HTTPException(status_code=400, detail="Couldn't read that recording -- use a screen recording "
+                                                        "of the contest's Players tab.") from exc
     season, week, slate_id, players, applied = await _upload_slate(
         season, week, slate_id, lambda: ownership_slate.for_rows(read["rows"], season, week))
     if players and players[0]["slate_type"] == "showdown":

@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -80,3 +82,28 @@ def test_proxy_headers_can_be_distrusted(monkeypatch):
     assert client_ip(headers, "10.0.0.1") == "1.2.3.4"
     monkeypatch.setenv("TRUST_PROXY_HEADERS", "0")
     assert client_ip(headers, "10.0.0.1") == "10.0.0.1"
+
+
+def test_forged_forwarding_headers_are_ignored_without_the_shared_secret(monkeypatch):
+    monkeypatch.setenv("PROXY_SHARED_SECRET", "s3cret")
+    forged = {"cf-connecting-ip": "9.9.9.9", "x-forwarded-for": "1.1.1.1"}
+    assert guard.client_ip(forged, "10.0.0.5") == "10.0.0.5"                       # direct hit: counted by the socket peer
+    assert guard.client_ip({**forged, "x-origin-secret": "wrong"}, "10.0.0.5") == "10.0.0.5"
+    assert guard.client_ip({**forged, "x-origin-secret": "s3cret"}, "10.0.0.5") == "9.9.9.9"
+
+
+def test_trusted_proxy_hops_pick_the_address_the_proxy_appended(monkeypatch):
+    xff = {"x-forwarded-for": "6.6.6.6, 1.2.3.4, 172.16.0.1"}                       # first entry forged by the caller
+    assert guard.client_ip(xff, "10.0.0.5") == "6.6.6.6"                           # default keeps the old behaviour
+    monkeypatch.setenv("TRUSTED_PROXY_HOPS", "2")
+    assert guard.client_ip(xff, "10.0.0.5") == "1.2.3.4"
+
+
+def test_rate_limit_and_oversize_are_logged(client, monkeypatch, caplog):
+    monkeypatch.setenv("RATE_LIMIT_API", "1")
+    monkeypatch.setenv("REQUIRE_SIGN_IN", "0")
+    monkeypatch.setattr(logging.getLogger("dfsriches"), "propagate", True)     # app.metrics detaches it from the root logger
+    with caplog.at_level("WARNING", logger="dfsriches.security"):
+        client.get("/api/nope", headers={"cf-connecting-ip": "7.7.7.7"})
+        r = client.get("/api/nope", headers={"cf-connecting-ip": "7.7.7.7"})
+    assert r.status_code == 429 and "rate_limited" in caplog.text and "7.7.7.7" in caplog.text

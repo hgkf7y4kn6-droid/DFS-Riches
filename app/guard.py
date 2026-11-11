@@ -16,10 +16,20 @@ can't spoof them), else the first X-Forwarded-For hop.
 """
 from __future__ import annotations
 
+import hmac
 import json
+import logging
 import os
 import time
 from collections import deque
+
+_sec = logging.getLogger("dfsriches.security")
+
+
+def security_event(event: str, **fields) -> None:
+    """One structured log line per security-relevant event (failed sign-in, forbidden, rate limited, oversized
+    body), for log search and alerts. Never pass tokens or request bodies."""
+    _sec.warning("[SECURITY] %s", json.dumps({"event": event, **fields}, default=str, separators=(",", ":")))
 
 LIMITS = {"write": 30, "heavy": 60, "api": 300}
 WINDOW_SECONDS = 60
@@ -55,17 +65,34 @@ def body_limit(path: str) -> int:
     return MAX_BODY_BYTES
 
 
-def client_ip(headers: dict[str, str], peer: str | None) -> str:
-    # TRUST_PROXY_HEADERS=0: the origin is reachable without Cloudflare/the host's proxy in front, so these
-    # headers can be forged to dodge the limits -- count by the socket peer instead.
+def _proxy_trusted(headers: dict[str, str]) -> bool:
+    """Whether this request's forwarding headers can be believed. TRUST_PROXY_HEADERS=0: never (the origin is
+    reachable without a proxy in front, so they can be forged to dodge the limits). PROXY_SHARED_SECRET: only
+    when the request carries it in X-Origin-Secret -- set the same value as a request header in a Cloudflare
+    Transform Rule, so requests that reach the origin directly can't claim another address."""
     if os.environ.get("TRUST_PROXY_HEADERS", "1") == "0":
+        return False
+    secret = os.environ.get("PROXY_SHARED_SECRET")
+    return not secret or hmac.compare_digest(headers.get("x-origin-secret", ""), secret)
+
+
+def client_ip(headers: dict[str, str], peer: str | None) -> str:
+    if not _proxy_trusted(headers):
         return peer or "unknown"
     for name in ("cf-connecting-ip", "true-client-ip"):
         if headers.get(name):
             return headers[name].strip()
     xff = headers.get("x-forwarded-for")
     if xff:
-        return xff.split(",")[0].strip()
+        hops = [h.strip() for h in xff.split(",") if h.strip()]
+        # TRUSTED_PROXY_HOPS=n: the address n proxies from the end (each trusted proxy appends the one it saw);
+        # the default 0 keeps the first entry, which a caller can forge when the origin is exposed.
+        try:
+            n = int(os.environ.get("TRUSTED_PROXY_HOPS", "0"))
+        except ValueError:
+            n = 0
+        if hops:
+            return hops[-n] if 0 < n <= len(hops) else hops[0]
     return peer or "unknown"
 
 
@@ -109,6 +136,7 @@ class GuardMiddleware:
         peer = (scope.get("client") or (None,))[0]
         retry = self.limiter.check(client_ip(headers, peer), name)
         if retry:
+            security_event("rate_limited", bucket=name, path=path, client=client_ip(headers, peer))
             return await _reject(send, 429, "Too many requests -- slow down and try again shortly.",
                                  {"retry-after": str(int(retry))})
 
@@ -118,6 +146,7 @@ class GuardMiddleware:
         except ValueError:
             declared = 0
         if declared > cap:
+            security_event("body_too_large", path=path, declared=declared, client=client_ip(headers, peer))
             return await _reject(send, 413, "Request body too large.")
 
         received = 0
@@ -134,6 +163,7 @@ class GuardMiddleware:
         try:
             return await self.app(scope, capped_receive, send)
         except _TooLarge:
+            security_event("body_too_large", path=path, received=received, client=client_ip(headers, peer))
             return await _reject(send, 413, "Request body too large.")
 
 
