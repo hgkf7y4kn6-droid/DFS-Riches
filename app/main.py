@@ -61,7 +61,12 @@ def _upstream_failure(what: str, exc: Exception) -> HTTPException:
     responses) goes to the server log only."""
     log.warning("%s: %r", what, exc, exc_info=exc)
     return HTTPException(status_code=502, detail=f"{what}. Try again shortly.")
-app = FastAPI(title="Riches Analytics", description="DraftKings DFS explorer")
+# /docs, /redoc and /openapi.json sit outside /api/, so the sign-in check never covered them and they listed every route to
+# strangers. Off unless ENABLE_API_DOCS=1 (local development).
+_DOCS_ON = os.environ.get("ENABLE_API_DOCS", "0") == "1"
+app = FastAPI(title="Riches Analytics", description="DraftKings DFS explorer",
+              docs_url="/docs" if _DOCS_ON else None, redoc_url="/redoc" if _DOCS_ON else None,
+              openapi_url="/openapi.json" if _DOCS_ON else None)
 
 
 @app.on_event("startup")
