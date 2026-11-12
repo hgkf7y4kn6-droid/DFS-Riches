@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -227,11 +228,17 @@ def test_parse_team_site_report_and_depth_chart():
     assert rosters.parse_team_depth_chart(DEPTH_HTML)[0] == ["RB", ["Starter Back", "Next Back", "Third Back"]]
 
 
+def _ago(days: int, z: bool = False) -> str:
+    """A timestamp `days` ago. The injury code ignores statuses over 30 days old, so fixed dates expire (they did on Nov 11)."""
+    t = datetime.now(timezone.utc) - timedelta(days=days)
+    return t.strftime("%Y-%m-%dT%H:%M:%SZ") if z else t.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+
+
 def _data(sleeper_status, espn_status, official_html=REPORT_HTML, espn_depth=None):
     k = rosters._key("Starter Back")
     return {
-        "sleeper": {"NE": {k: {"name": "Starter Back", "position": "RB", "status": sleeper_status, "updated": "2026-10-12T10:00+00:00"}}},
-        "espn": {"NE": {k: {"name": "Starter Back", "position": "RB", "status": espn_status, "updated": "2026-10-11T10:00Z"}}},
+        "sleeper": {"NE": {k: {"name": "Starter Back", "position": "RB", "status": sleeper_status, "updated": _ago(2)}}},
+        "espn": {"NE": {k: {"name": "Starter Back", "position": "RB", "status": espn_status, "updated": _ago(3, z=True)}}},
         "team": {"NE": {"report": rosters.parse_team_injury_report(official_html, 6) if official_html else None,
                         "depth": rosters.parse_team_depth_chart(DEPTH_HTML), "report_status": "ok", "depth_status": "ok"}},
         "espn_depth": {"NE": espn_depth or [["RB", ["Starter Back", "Next Back"]]]},

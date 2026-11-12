@@ -1,7 +1,7 @@
 {
  "season": 2026,
  "week": 10,
- "generated": "2026-11-10",
+ "generated": "2026-11-12",
  "teams": {
   "ARI": {
    "week": 10,
@@ -115,14 +115,12 @@
    "week": 11,
    "d_epa_db": 0.0,
    "d_pass_rate": 0.0,
-   "d_def_epa_db": -0.0043,
-   "d_pressure_events": 0.152,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
    "d_int_rate": 0.0,
    "d_sack_rate": 0.0,
    "d_rz_td_pct": 0.0,
-   "reasons": [
-    "Pass rush +0.15 sacks+hits per game (added Daiyan Henley (LB))"
-   ]
+   "reasons": []
   },
   "DET": {
    "week": 10,
@@ -210,14 +208,12 @@
    "week": 10,
    "d_epa_db": 0.0,
    "d_pass_rate": 0.0,
-   "d_def_epa_db": 0.0043,
-   "d_pressure_events": -0.152,
+   "d_def_epa_db": -0.0,
+   "d_pressure_events": 0.0,
    "d_int_rate": 0.0,
    "d_sack_rate": 0.0,
    "d_rz_td_pct": 0.0,
-   "reasons": [
-    "Pass rush -0.15 sacks+hits per game (without Daiyan Henley)"
-   ]
+   "reasons": []
   },
   "LV": {
    "week": 10,
