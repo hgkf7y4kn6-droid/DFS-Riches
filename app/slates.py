@@ -13,7 +13,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime
 
-from app import ceiling, ceiling_model, dk_client, dst_model, game_model, injury_news, matching, news_overrides, player_model, nflverse_client, player_games, projections, roles, sleeper_client, vacated, weather
+from app import ceiling, ceiling_model, dk_client, dst_model, game_model, injury_news, kicker_model, matching, news_overrides, player_model, nflverse_client, player_games, projections, roles, sleeper_client, vacated, weather
 from app import cache
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
@@ -207,6 +207,14 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
         role_feats = None
         from_model = False
         imp, spr = team_lines.get(row["team"], (None, None))
+        if row["position"] == "K" and not (line and line.get("stats")):
+            # Sleeper has no kicker lines: project from his shrunk season average and the game (app.kicker_model).
+            season_avg = nflverse_client.trailing_dk_fppg(season, week, 0, player_index=player_trailing_index,
+                                                          name=row["name"], position="K", team=row["team"])
+            if season_avg is None:
+                season_avg = row["dk_fppg"] or None
+            if (kick := kicker_model.project(season_avg, max(0, week - 1), imp, spr)) is not None:
+                base_proj, proj_notes = kick[0], proj_notes + [kick[1]]
         line_pts = projections.dk_points_from_line(line["stats"], row["position"]) if line and line.get("stats") else 0.0
         tc = team_ctx.get(row["team"]) or {}
         opp_cb_out = int(tc.get("opp_cb_out") or 0) if row["position"] in ("RB", "WR", "TE") else 0

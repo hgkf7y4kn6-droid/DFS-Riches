@@ -94,3 +94,29 @@ def test_playing_clears_a_stale_ir_tag_but_not_out():
     mason, charbonnet = _p("Jordan Mason", injury="IR", position="RB"), _p("Zach Charbonnet", injury="OUT", position="RB")
     news_overrides.apply([mason, charbonnet], asyncio.run(news_overrides.entries(2026, 7)))
     assert mason.injury == "Healthy" and charbonnet.injury == "OUT"
+
+
+def test_playing_clears_a_doubtful_tag_and_takes_back_the_teammates_volume():
+    from app import vacated
+    _add("Cam Skattebo", "PLAYING", team="NYG")
+    lines = {"s": {"rush_att": 16.0, "rec_tgt": 2.2, "rec_rec": 1.6, "rec_yd": 12.0, "rush_yd": 70.0},
+             "d": {"rush_att": 7.0, "rec_tgt": 2.0, "rec_rec": 1.4, "rec_yd": 10.0, "rush_yd": 30.0}}
+
+    def pair(skattebo_injury):
+        a = Player(name="Cam Skattebo", team="NYG", opponent="WAS", position="RB", roster_slot="", salary=9000,
+                   proj_points=12.8, value_per_1k=1.4, game_info="WAS @ NYG", injury=skattebo_injury, sleeper_player_id="s")
+        b = Player(name="Devin Singletary", team="NYG", opponent="WAS", position="RB", roster_slot="", salary=8000,
+                   proj_points=8.5, value_per_1k=1.1, game_info="WAS @ NYG", injury="Healthy", sleeper_player_id="d")
+        return a, b
+    stale, backup_stale = pair("D")                       # an official Doubtful, no override applied
+    vacated.redistribute([stale, backup_stale], lines)
+    assert backup_stale.proj_points > 8.5 + 3.0           # his carries and targets handed to the backup
+
+    fresh, backup_fresh = pair("D")
+    news_overrides.apply([fresh, backup_fresh], asyncio.run(news_overrides.entries(2026, 7)))
+    vacated.redistribute([fresh, backup_fresh], lines)
+    assert fresh.injury == "Healthy" and backup_fresh.proj_points == 8.5
+
+    out, _ = pair("OUT")                                  # an official Out still stands
+    news_overrides.apply([out], asyncio.run(news_overrides.entries(2026, 7)))
+    assert out.injury == "OUT"

@@ -32,7 +32,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ app/
 COPY --from=web /web web/
-COPY data/dk_overrides.json data/name_aliases.json data/optimal_lineups.json data/source_accuracy.json data/weather_effects.json data/game_model.json data/player_model.json data/leverage_model.json data/ceiling_model.json data/dst_model.json data/
+COPY data/dk_overrides.json data/name_aliases.json data/optimal_lineups.json data/source_accuracy.json data/weather_effects.json data/game_model.json data/player_model.json data/leverage_model.json data/ceiling_model.json data/dst_model.json data/kicker_model.json data/
 
 # Build this week's data into the image's disk cache (app/prewarm.py): the first visit after a deploy reads it
 # instead of downloading and parsing play-by-play, stats and projections. Files keep their build-time timestamps,
