@@ -40,6 +40,7 @@ import asyncio
 import csv
 import gzip
 import io
+import logging
 from typing import Any, Iterable
 
 import httpx
@@ -47,6 +48,7 @@ import httpx
 from app import dk_scoring
 from app.cache import cached_fetch
 from app.config import (
+    DEFAULT_SEASON,
     NFLVERSE_GAMES_CSV_URL,
     NFLVERSE_PBP_URL_TMPL,
     NFLVERSE_PLAYER_STATS_URL_TMPL,
@@ -57,6 +59,8 @@ from app.config import (
     TTL_NFLVERSE_TEAM_STATS,
 )
 from app.matching import normalize_name, resolve_alias
+
+log = logging.getLogger("dfsriches.nflverse")
 
 _HEADERS = {"User-Agent": "DFSRiches/1.0 (+https://github.com/)"}
 
@@ -168,8 +172,16 @@ def neutral_stats_from_pbp(rows: Iterable[dict]) -> dict[str, dict]:
     return {"offense": offense, "defense": defense}
 
 
-async def _team_week_neutral(season: int, current_season: int) -> dict[str, dict]:
+async def get_pbp_aggregates(season: int, current_season: int | None = None) -> dict:
+    """One parse of a season's play-by-play feeds every per-play aggregate:
+    {"neutral": neutral_stats_from_pbp(...), "trenches": app.trenches
+    TrenchAccumulator counts (joined to FTN charting when published), "environment": app.advanced_env
+    EnvAccumulator counts, "game": app.game_model GameAccumulator counts (nflverse team codes),
+    "penalty_drives": app.trenches PenaltyDriveAccumulator counts, "recap": app.recap RecapAccumulator counts}."""
+    from app import advanced_env, game_model, recap, trenches
+
     async def fetch() -> dict:
+        ftn = await trenches.get_ftn_index(season)
         async with httpx.AsyncClient(follow_redirects=True) as client:
             resp = await client.get(NFLVERSE_PBP_URL_TMPL.format(season=season), headers=_HEADERS, timeout=120)
             resp.raise_for_status()
@@ -177,16 +189,47 @@ async def _team_week_neutral(season: int, current_season: int) -> dict[str, dict
 
         def parse() -> dict:
             text = io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(raw)), encoding="utf-8")
-            return neutral_stats_from_pbp(csv.DictReader(text))
+            acc = trenches.TrenchAccumulator(ftn)
+            env = advanced_env.EnvAccumulator(ftn)
+            game = game_model.GameAccumulator(ftn={k: v[-1] for k, v in ftn.items()})
+            pen = trenches.PenaltyDriveAccumulator()
+            rec = recap.RecapAccumulator()
+
+            def tap(rows):
+                for r in rows:
+                    acc.add(r)
+                    env.add(r)
+                    game.add(r)
+                    pen.add(r)
+                    rec.add(r)
+                    yield r
+            return {"neutral": neutral_stats_from_pbp(tap(csv.DictReader(text))), "trenches": acc.result(),
+                    "environment": env.result(), "game": game.result(), "penalty_drives": pen.result(),
+                    "recap": rec.result()}
 
         # ~50k plays x ~370 columns for a full season: keep it off the event loop.
         return await asyncio.to_thread(parse)
 
-    ttl = TTL_NFLVERSE_TEAM_STATS if season >= current_season else TTL_NFLVERSE_PBP_PAST
+    current = current_season if current_season is not None else DEFAULT_SEASON
+    ttl = TTL_NFLVERSE_TEAM_STATS if season >= current else TTL_NFLVERSE_PBP_PAST
     try:
-        return await cached_fetch(f"nflverse_pbp_neutral_{season}", ttl, fetch)
+        return await cached_fetch(f"nflverse_pbp_aggregates_v8_{season}", ttl, fetch)
     except Exception:
-        return {"offense": {}, "defense": {}}
+        return {"neutral": {"offense": {}, "defense": {}}, "trenches": {}, "environment": {}, "game": {}, "penalty_drives": {}, "recap": {}}
+
+
+async def _team_week_neutral(season: int, current_season: int) -> dict[str, dict]:
+    return (await get_pbp_aggregates(season, current_season))["neutral"]
+
+
+async def get_games_raw(season: int) -> list[dict]:
+    """nflverse's games file rows for one season, as published (nflverse team codes; starting QB ids, rest
+    days, roof and wind included, upcoming games too)."""
+    async def fetch() -> list[dict]:
+        text = await _fetch_csv_text(NFLVERSE_GAMES_CSV_URL)
+        return [row for row in csv.DictReader(io.StringIO(text)) if row.get("season") == str(season)]
+
+    return await cached_fetch(f"nflverse_games_{season}", TTL_NFLVERSE_GAMES, fetch)
 
 
 async def get_games(season: int) -> dict[tuple[int, str, str], dict[str, Any]]:
@@ -219,6 +262,8 @@ async def get_games(season: int) -> dict[tuple[int, str, str], dict[str, Any]]:
             "away_score": away_score,
             "home_score": home_score,
             "is_final": away_score is not None and home_score is not None,
+            "stadium_id": row.get("stadium_id") or None,
+            "roof": row.get("roof") or None,
         }
     return games
 
@@ -239,9 +284,38 @@ async def _fetch_team_week_rows(season: int) -> list[dict]:
     return await _fetch_csv_rows(url, f"nflverse_team_stats_{season}")
 
 
+# The stats_player_week columns the app reads. The file has ~115 (kicking
+# distance lists, EPA, headshot URLs...); keeping only these cuts the cached
+# rows to a fraction of the memory -- the full rows for two seasons pushed a
+# 512 MB host over its limit.
+PLAYER_COLUMNS = (
+    "player_display_name", "position", "season", "week", "season_type", "game_id", "team", "opponent_team",
+    "completions", "attempts", "passing_yards", "passing_tds", "passing_interceptions", "sacks_suffered",
+    "passing_2pt_conversions", "carries", "rushing_yards", "rushing_tds", "rushing_2pt_conversions",
+    "receptions", "targets", "receiving_yards", "receiving_tds", "receiving_2pt_conversions",
+    "receiving_air_yards", "target_share", "air_yards_share", "fumbles_lost_total", "special_teams_tds",
+    "fumble_recovery_tds", "pat_made", "fg_made_0_19", "fg_made_20_29", "fg_made_30_39", "fg_made_40_49",
+    "fg_made_50_59", "fg_made_60_",
+)
+
+
+def slim_rows(rows: Iterable[dict], columns: tuple[str, ...]) -> list[dict]:
+    """Only the given columns of each row; empty values are dropped (every
+    reader treats a missing column like an empty one)."""
+    return [{c: v for c in columns if (v := r.get(c))} for r in rows]
+
+
 async def _fetch_player_week_rows(season: int) -> list[dict]:
     url = NFLVERSE_PLAYER_STATS_URL_TMPL.format(season=season)
-    return await _fetch_csv_rows(url, f"nflverse_player_stats_{season}")
+
+    async def fetch() -> list[dict]:
+        return slim_rows(csv.DictReader(io.StringIO(await _fetch_csv_text(url))), PLAYER_COLUMNS)
+
+    try:
+        # Disk only: read just to build the cached indexes (trailing, game log, usage, matchups).
+        return await cached_fetch(f"nflverse_player_stats_slim_{season}", TTL_NFLVERSE_TEAM_STATS, fetch, memory=False)
+    except Exception:
+        return []
 
 
 async def get_team_week_plays(season: int) -> dict[tuple[int, str], float]:
@@ -275,15 +349,38 @@ async def _points_allowed_by_week_team(season: int) -> dict[tuple[int, str], flo
     return allowed
 
 
-def _trailing_avg(entries: list[list], season: int, week: int, n: int) -> float | None:
-    """entries: [[season, week, points], ...], any order. Averages the last
-    n entries strictly before (season, week), chronologically -- i.e. the
-    n most recent games, reaching back into a prior season if the current
-    one doesn't yet have n games played."""
-    prior = sorted(e for e in entries if (e[0], e[1]) < (season, week))
-    if not prior:
+def season_entries(entries: list[list], season: int, week: int, *, team: str | None = None) -> list[list]:
+    """The entries ([season, week, value, ..., team?]) a trailing window may
+    use entering (season, week): this season's games before the week only,
+    oldest first -- an "L8" is however many of the 8 have been played, so it
+    grows to its full size as the season goes.
+
+    Carryover: for a player (`team` = his current team, entries ending with
+    the team he played for) with no games yet this season -- Week 1, or a
+    returning player -- last season's games count, but only the ones he
+    played for the team he's on now. A player who changed teams starts
+    fresh. Team-level series (no `team`) never carry over."""
+    current = sorted(e for e in entries if e[0] == season and e[1] < week)
+    if current or not team:
+        return current
+    return sorted(e for e in entries if e[0] == season - 1 and len(e) > 3 and e[-1] == team)
+
+
+def _trailing_avg(entries: list[list], season: int, week: int, n: int, *, team: str | None = None,
+                  full: bool = False) -> float | None:
+    """Average of the last n entries in season_entries (current season only,
+    or a same-team carryover for a player with none). With `full`, only once
+    n games have been played this season -- a displayed L3/L6/L9 trend never
+    averages fewer games than it says or reaches into last season."""
+    if full:
+        played = season_entries(entries, season, week)
+        tail = played[-n:] if n else played          # n=0: the whole season to date
+        if not tail or len(tail) < n:
+            return None
+    else:
+        tail = season_entries(entries, season, week, team=team)[-n:]
+    if not tail:
         return None
-    tail = prior[-n:]
     return round(sum(e[2] for e in tail) / len(tail), 2)
 
 
@@ -298,8 +395,18 @@ def player_key(name: str, position: str) -> str:
     return f"{resolve_alias(normalize_name(name))}|{position.upper()}"
 
 
+def drop_ambiguous_keys(index: dict[str, list[list]]) -> dict[str, list[list]]:
+    """Removes player keys (name|position) that carry two games in the same (season, week): a player plays one game
+    a week, so that is two same-named players sharing a key. Their history would be a blend of both, so they get
+    none (no trend, no history-based ceiling) rather than a wrong one."""
+    clash = {k for k, entries in index.items() if len({(e[0], e[1]) for e in entries}) < len(entries)}
+    if clash:
+        log.warning("nflverse: %d player keys span two same-named players and were dropped: %s", len(clash), sorted(clash)[:10])
+    return {k: v for k, v in index.items() if k not in clash}
+
+
 async def get_player_trailing_index(season: int) -> dict[str, list[list]]:
-    """player_key(name, position) -> [[season, week, dk_points], ...]
+    """player_key(name, position) -> [[season, week, dk_points, team], ...]
     combining this season and the prior one, for computing a trailing
     DK-FPPG at any (season, week) without re-fetching or re-scanning per
     player."""
@@ -318,10 +425,10 @@ async def get_player_trailing_index(season: int) -> dict[str, list[list]]:
                     continue
                 key = player_key(name, position)
                 points = dk_scoring.dk_offense_points(row)
-                index.setdefault(key, []).append([szn, week, points])
-        return index
+                index.setdefault(key, []).append([szn, week, points, to_app_team(row.get("team", ""))])
+        return drop_ambiguous_keys(index)
 
-    return await cached_fetch(f"nflverse_player_trailing_index_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+    return await cached_fetch(f"nflverse_player_trailing_index_v3_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
 
 
 async def get_team_dst_trailing_index(season: int) -> dict[str, list[list]]:
@@ -351,17 +458,19 @@ async def get_team_dst_trailing_index(season: int) -> dict[str, list[list]]:
 _SKILL_POSITIONS = ("QB", "RB", "WR", "TE")
 
 
-def recent_values(entries: list[list], season: int, week: int, n: int, col: int = 2) -> list[float]:
-    """The col-th value of the last n entries strictly before (season, week),
-    oldest first, skipping entries whose value is None."""
-    prior = sorted(e for e in entries if (e[0], e[1]) < (season, week) and e[col] is not None)
+def recent_values(entries: list[list], season: int, week: int, n: int, col: int = 2, *,
+                  team: str | None = None) -> list[float]:
+    """The col-th value of the last n season_entries (this season only, or a
+    same-team carryover for a player with none), oldest first, skipping
+    entries whose value is None."""
+    prior = [e for e in season_entries(entries, season, week, team=team) if e[col] is not None]
     return [e[col] for e in prior[-n:]]
 
 
 async def get_player_game_log_index(season: int) -> dict:
     """Per-game data behind the Ceiling column, for this season and the prior:
 
-    players:    player_key -> [[season, week, dk_points, opportunity_share], ...]
+    players:    player_key -> [[season, week, dk_points, opportunity_share, team], ...]
                 opportunity_share = (targets + carries) / (team pass attempts +
                 team carries); None for QBs.
     def_vs_pos: defense team -> position -> [[season, week, dk_points_allowed], ...]
@@ -393,7 +502,8 @@ async def get_player_game_log_index(season: int) -> dict:
                     if denom:
                         touches = (_to_float(row.get("targets")) or 0.0) + (_to_float(row.get("carries")) or 0.0)
                         share = round(touches / denom, 4)
-                players.setdefault(player_key(name, position), []).append([szn, week, points, share])
+                players.setdefault(player_key(name, position), []).append(
+                    [szn, week, points, share, to_app_team(row.get("team", ""))])
 
                 opp = to_app_team(row.get("opponent_team", ""))
                 if opp:
@@ -401,24 +511,26 @@ async def get_player_game_log_index(season: int) -> dict:
                     games[(szn, week)] = games.get((szn, week), 0.0) + points
 
         return {
-            "players": players,
+            "players": drop_ambiguous_keys(players),
             "def_vs_pos": {
                 team: {pos: [[s, w, round(p, 2)] for (s, w), p in sorted(games.items())] for pos, games in by_pos.items()}
                 for team, by_pos in def_vs_pos.items()
             },
         }
 
-    return await cached_fetch(f"nflverse_player_game_log_index_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
+    return await cached_fetch(f"nflverse_player_game_log_index_v3_{season}", TTL_NFLVERSE_TEAM_STATS, fetch)
 
 
 async def get_week_actuals(season: int, week: int) -> dict:
     """Actual DraftKings points scored in one week, from nflverse box scores:
 
     players: player_key -> points (QB/RB/WR/TE, and K with Showdown kicker scoring)
+    by_team: team -> [[name, position, points], ...] for the same players
     dst:     team -> DST points
     teams:   teams with a box-score row that week, i.e. whose stats are in
     """
     players: dict[str, float] = {}
+    by_team: dict[str, list[list]] = {}
     for row in await _fetch_player_week_rows(season):
         if _to_int(row.get("week")) != week or not row.get("player_display_name"):
             continue
@@ -430,11 +542,12 @@ async def get_week_actuals(season: int, week: int) -> dict:
         else:
             continue
         players[player_key(row["player_display_name"], position)] = points
+        by_team.setdefault(to_app_team(row.get("team", "")), []).append([row["player_display_name"], position, round(points, 2)])
 
     dst = {team: e[2] for team, entries in (await get_team_dst_trailing_index(season)).items()
            for e in entries if e[0] == season and e[1] == week}
     teams = sorted({to_app_team(r.get("team", "")) for r in await _fetch_team_week_rows(season) if _to_int(r.get("week")) == week})
-    return {"players": players, "dst": dst, "teams": teams}
+    return {"players": players, "dst": dst, "teams": teams, "by_team": by_team}
 
 
 def actual_points(actuals: dict, *, name: str, position: str, team: str, roster_slot: str = "") -> float:
@@ -447,13 +560,25 @@ def actual_points(actuals: dict, *, name: str, position: str, team: str, roster_
     return round(points * (1.5 if roster_slot == "CPT" else 1.0), 2)
 
 
-def trailing_dk_fppg(season: int, week: int, n: int, *, player_index: dict, name: str, position: str) -> float | None:
+def missing_actuals(actuals: dict, players: list[dict]) -> list[str]:
+    """Names of non-DST players on a team whose box scores are in but who have no row of their own. actual_points
+    scores them 0, which is right for a player who played without a stat and wrong for one whose name failed to
+    match, so slates scored this way list them for review."""
+    teams = set(actuals["teams"])
+    return sorted({p["name"] for p in players
+                   if p["position"] != "DST" and p["team"] in teams and player_key(p["name"], p["position"]) not in actuals["players"]})
+
+
+def trailing_dk_fppg(season: int, week: int, n: int, *, player_index: dict, name: str, position: str,
+                     team: str | None = None) -> float | None:
+    """DK points per game over his last n games this season; None until he
+    has played n games this season."""
     key = player_key(name, position)
-    return _trailing_avg(player_index.get(key, []), season, week, n)
+    return _trailing_avg(player_index.get(key, []), season, week, n, team=team, full=True)
 
 
 def trailing_dst_points(season: int, week: int, n: int, *, team_index: dict, team: str) -> float | None:
-    return _trailing_avg(team_index.get(team, []), season, week, n)
+    return _trailing_avg(team_index.get(team, []), season, week, n, full=True)
 
 
 async def get_baseline_plays(season: int, week: int, team: str) -> float | None:
@@ -506,6 +631,11 @@ async def _team_week_box_scores(season: int) -> dict[tuple[int, str], dict]:
             + sum(_to_float(row.get(k)) or 0.0 for k in ("sack_fumbles_lost", "rushing_fumbles_lost", "receiving_fumbles_lost")),
         }
     return scores
+
+
+async def team_box_scores(season: int) -> dict[tuple[int, str], dict]:
+    """Public alias of the per-game box scores, for postgame summaries."""
+    return await _team_week_box_scores(season)
 
 
 async def get_team_context_trailing_index(season: int) -> dict[str, dict[str, list[list]]]:
@@ -583,31 +713,29 @@ def team_trend(index: dict, team: str, metric: str, season: int, week: int) -> d
     for one team/metric, built from get_team_context_trailing_index."""
     series = index.get(team, {}).get(metric, [])
     return {
-        "l3": _trailing_avg(series, season, week, 3),
-        "l6": _trailing_avg(series, season, week, 6),
-        "l9": _trailing_avg(series, season, week, 9),
+        "l3": _trailing_avg(series, season, week, 3, full=True),
+        "l6": _trailing_avg(series, season, week, 6, full=True),
+        "l9": _trailing_avg(series, season, week, 9, full=True),
     }
 
 
-# Scheme tendencies change with coordinators every offseason, so once a team
-# has this many games this season, these use season-to-date only (as Sharp
-# Football's pace page does) instead of reaching back into last season.
+# Scheme tendencies change with coordinators every offseason; these use the
+# whole season to date rather than the last n games (as Sharp Football's pace
+# page does). Every team window is this season only either way.
 TENDENCY_METRICS = frozenset({"neutral_secs", "pass_pct", "rush_pct", "opp_pass_pct_allowed", "opp_rush_pct_allowed"})
-MIN_CURRENT_SEASON_GAMES = 2
 
 
 def _window_avg(entries: list[list], metric: str, season: int, week: int, n: int) -> float | None:
     if metric in TENDENCY_METRICS:
-        current = [e[2] for e in entries if e[0] == season and e[1] < week]
-        if len(current) >= MIN_CURRENT_SEASON_GAMES:
-            return round(sum(current) / len(current), 4)
+        current = [e[2] for e in season_entries(entries, season, week)]
+        return round(sum(current) / len(current), 4) if current else None
     return _trailing_avg(entries, season, week, n)
 
 
 def team_trailing(index: dict, team: str, metric: str, season: int, week: int, n: int = 8) -> float | None:
     """One team/metric's value entering (season, week), from
-    get_team_context_trailing_index: the trailing n-game average, or for
-    TENDENCY_METRICS the season-to-date average once there are enough games."""
+    get_team_context_trailing_index: the average of this season's last n
+    games, or for TENDENCY_METRICS the season-to-date average."""
     return _window_avg(index.get(team, {}).get(metric, []), metric, season, week, n)
 
 

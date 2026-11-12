@@ -130,3 +130,33 @@ def test_correlation_scores_stacks_and_penalizes_conflicts():
     assert c["double_stack"] and c["game_stack"]
     assert any("Two C RBs" in n for n in c["negative"])
     assert any("faces your own players" in n for n in c["negative"])
+
+
+def test_stack_credit_follows_the_qb_type():
+    qb = {"name": "Q", "position": "QB", "team": "A", "opponent": "B", "game": "A@B"}
+    wr = {"name": "W", "position": "WR", "team": "A", "opponent": "B", "game": "A@B"}
+    rb = {"name": "R", "position": "RB", "team": "A", "opponent": "B", "game": "A@B", "proj_carries": 16, "proj_targets": 4.5}
+    dst = {"name": "D", "position": "DST", "team": "C", "opponent": "E", "game": "C@E"}
+    pocket = ds.correlation([{**qb, "rush_share": 0.05}, wr, rb, dst])
+    mobile = ds.correlation([{**qb, "rush_share": 0.32}, wr, rb, dst])
+    assert pocket["qb_type"] == "pocket" and mobile["qb_type"] == "mobile"
+    assert pocket["score"] > mobile["score"]                   # receivers and the pass-catching back move less with a mobile QB
+    assert any("pass-catching back" in t for t in pocket["positive"])
+    assert not any("pass-catching back" in t for t in mobile["positive"])
+    grinder = ds.correlation([{**qb, "rush_share": 0.05}, wr, {**rb, "proj_targets": 1.5}, dst])
+    assert grinder["score"] < pocket["score"]
+
+
+def test_dst_conflict_penalty_follows_who_it_faces():
+    qb = {"name": "Q", "position": "QB", "team": "A", "opponent": "B", "game": "A@B", "rush_share": 0.05}
+    dst = {"name": "D", "position": "DST", "team": "C", "opponent": "E", "game": "C@E"}
+    opp_qb = {"name": "OQ", "position": "QB", "team": "E", "opponent": "C", "game": "C@E", "rush_share": 0.05}
+    opp_te = {"name": "OT", "position": "TE", "team": "E", "opponent": "C", "game": "C@E", "proj_targets": 1.0}
+    opp_wr = {"name": "OW", "position": "WR", "team": "E", "opponent": "C", "game": "C@E", "proj_targets": 9.0}
+    wr = {"name": "W", "position": "WR", "team": "A", "opponent": "B", "game": "A@B"}
+    clean = ds.correlation([qb, wr, dst])["score"]
+    assert ds.correlation([qb, wr, opp_te, dst])["score"] == clean        # a blocking TE barely moves with the DST
+    assert not ds.correlation([qb, wr, opp_te, dst])["negative"]
+    vs_wr = ds.correlation([qb, wr, opp_wr, dst])
+    assert abs(clean - vs_wr["score"] - ds.DST_CONFLICT["alpha WR"]) < 0.01 and "faces your own players" in vs_wr["negative"][0]
+    assert ds.dst_conflict_kind(opp_qb) == "pocket QB"

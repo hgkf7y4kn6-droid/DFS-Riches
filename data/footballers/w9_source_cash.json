@@ -1,0 +1,163 @@
+{
+ "_readme": "Cash-game picks from the cash article (plays listed by salary, article updated Fri-Sun) plus the Borg/Betz DraftKings Core Plays tables. The cash pool for the lineups is the union.",
+ "season": 2026,
+ "week": 9,
+ "article_cash_plays": [
+  {
+   "name": "Patrick Mahomes",
+   "pos": "QB",
+   "salary": 6100
+  },
+  {
+   "name": "Drew Lock",
+   "pos": "QB",
+   "salary": 4000
+  },
+  {
+   "name": "Shedeur Sanders",
+   "pos": "QB",
+   "salary": 4000
+  },
+  {
+   "name": "Jahmyr Gibbs",
+   "pos": "RB",
+   "salary": 10000
+  },
+  {
+   "name": "Christian McCaffrey",
+   "pos": "RB",
+   "salary": 8000
+  },
+  {
+   "name": "Rhamondre Stevenson",
+   "pos": "RB",
+   "salary": 6100
+  },
+  {
+   "name": "Jonah Coleman",
+   "pos": "RB",
+   "salary": 5300
+  },
+  {
+   "name": "Devin Singletary",
+   "pos": "RB",
+   "salary": 4600
+  },
+  {
+   "name": "Puka Nacua",
+   "pos": "WR",
+   "salary": 8800
+  },
+  {
+   "name": "CeeDee Lamb",
+   "pos": "WR",
+   "salary": 8300
+  },
+  {
+   "name": "Adonai Mitchell",
+   "pos": "WR",
+   "salary": 4500
+  },
+  {
+   "name": "Antonio Williams",
+   "pos": "WR",
+   "salary": 4100
+  },
+  {
+   "name": "Efton Chism",
+   "pos": "WR",
+   "salary": 3600
+  },
+  {
+   "name": "George Kittle",
+   "pos": "TE",
+   "salary": 6000
+  },
+  {
+   "name": "Greg Dulcich",
+   "pos": "TE",
+   "salary": 3100
+  },
+  {
+   "name": "NO",
+   "pos": "DST",
+   "salary": 2900
+  },
+  {
+   "name": "NYG",
+   "pos": "DST",
+   "salary": 2800
+  },
+  {
+   "name": "PHI",
+   "pos": "DST",
+   "salary": 2500
+  }
+ ],
+ "core_plays": {
+  "QB": [
+   "Drew Lock",
+   "Patrick Mahomes",
+   "Shedeur Sanders",
+   "Brock Purdy",
+   "Jayden Daniels",
+   "Malik Willis"
+  ],
+  "RB": [
+   "Jahmyr Gibbs",
+   "Christian McCaffrey",
+   "Jonah Coleman",
+   "Devin Singletary",
+   "Rhamondre Stevenson",
+   "Kenneth Walker",
+   "Woody Marks",
+   "Javonte Williams"
+  ],
+  "WR": [
+   "Puka Nacua",
+   "Antonio Williams",
+   "CeeDee Lamb",
+   "Malik Nabers",
+   "Rashee Rice",
+   "Adonai Mitchell",
+   "Efton Chism",
+   "Jaxon Smith-Njigba",
+   "Caleb Douglas",
+   "Chris Olave"
+  ],
+  "TE": [
+   "George Kittle",
+   "Greg Dulcich",
+   "Brock Bowers",
+   "Chig Okonkwo",
+   "Travis Kelce",
+   "Tyler Warren"
+  ],
+  "DST": [
+   "NO",
+   "NYG",
+   "PHI",
+   "SEA",
+   "HOU",
+   "DEN"
+  ]
+ },
+ "notes": [
+  "Mahomes: home vs NYJ, KC -9.5, lost two straight; averages 282 yds & 2 TD as a 10+ pt favorite",
+  "Lock $4k vs ARI: right elbow injury, was not the QB2 on the depth chart two games ago; JSN needs to carry him to 12+",
+  "Sanders $4k @ NO: Deshaun Watson in concussion protocol; Fannin will play",
+  "Gibbs: DET @ MIA, MIA last in rush success rate",
+  "CMC: mild hamstring on the injury report; SF implied total 30.8 (slate high); Evans and Deebo out, Kirk new knee",
+  "Stevenson: Henderson and AJ Brown out; 3+ catches in six of eight",
+  "Coleman: 66% of snaps in Week 8, took RB1 from Dobbins with Harvey on IR; CAR 30th vs RBs",
+  "Singletary: Skattebo out, Tracy IR; NYG favored vs Milton",
+  "Puka: targeted on 40%+ of routes without Davante; 13 targets/game since return",
+  "Lamb: IND 27th in yds/target to the slot; Ferguson out; targets 21,5,18,12,11",
+  "Mitchell: Garrett Wilson out (28% target share); JETS 9.5-pt underdogs",
+  "A. Williams: McLaurin on IR, led WAS routes, 24% target share; WAS 66% pass rate",
+  "Chism: AJ Brown out; Henry Q (foot), Hollins Q (calf, IR)",
+  "Kittle: WR1 for SF with Evans/Deebo out; 28% and 26% target shares",
+  "Dulcich: DET allow most pts to TEs (+10.4 over expectation)",
+  "DST: NO vs Sanders; NYG or PHI in a 38.5 total (McCarthy vs Milton), slight lean NYG"
+ ]
+}

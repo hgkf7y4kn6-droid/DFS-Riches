@@ -11,3 +11,12 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     healthCheckPath: /healthz
+    # Accounts (app/accounts.py). Set these in the Render dashboard
+    # (Environment); they're secrets, so they're never committed.
+    envVars:
+      - key: DATABASE_URL          # Neon Postgres connection string
+        sync: false
+      - key: CLERK_SECRET_KEY      # Clerk dashboard -> API keys -> Secret key
+        sync: false
+      - key: MASTER_EMAILS         # your account's email: keeps every week of your data
+        sync: false

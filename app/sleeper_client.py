@@ -6,7 +6,7 @@ Endpoints used:
   - api.sleeper.com/projections/nfl/{season}/{week}   weekly fantasy projections
   - /scores/nfl/{season_type}/{season}/{week}
         per-game data including real kickoff time (epoch ms) and broadcaster,
-        used to build the schedule and detect isolated Wed/Thu/Sun/Mon games.
+        used to build the schedule and detect island (single-game window) games.
 """
 from __future__ import annotations
 
@@ -33,15 +33,22 @@ async def get_nfl_state() -> dict:
         return await _get_json(client, f"{SLEEPER_BASE}/v1/state/nfl")
 
 
+# The player fields the app reads (app.matching.SleeperNameIndex). Sleeper's
+# full dict carries ~40 fields for ~11k players (~90 MB as Python objects);
+# keeping only these keeps a 512 MB host well under its limit.
+PLAYER_FIELDS = ("first_name", "last_name", "position", "team")
+
+
 async def get_players() -> dict[str, dict]:
-    """Full Sleeper player_id -> metadata dict. Large and slow-changing, so
-    cached aggressively."""
+    """Sleeper player_id -> {first_name, last_name, position, team}. Large and
+    slow-changing, so cached aggressively."""
 
     async def fetch() -> dict:
         async with httpx.AsyncClient() as client:
-            return await _get_json(client, f"{SLEEPER_BASE}/v1/players/nfl")
+            full = await _get_json(client, f"{SLEEPER_BASE}/v1/players/nfl")
+        return {pid: {f: p.get(f) for f in PLAYER_FIELDS} for pid, p in full.items()}
 
-    return await cached_fetch("sleeper_players_nfl", TTL_PLAYERS, fetch)
+    return await cached_fetch("sleeper_players_nfl_slim", TTL_PLAYERS, fetch)
 
 
 async def _raw_projections(season: int, week: int, season_type: str = "regular") -> Any:
@@ -52,7 +59,8 @@ async def _raw_projections(season: int, week: int, season_type: str = "regular")
             return await _get_json(client, url)
 
     key = f"sleeper_projections_v2_{season}_{season_type}_{week}"
-    return await cached_fetch(key, TTL_PROJECTIONS, fetch)
+    # Disk only: every week's raw feed (7 MB in memory each) is read to build smaller per-player lines.
+    return await cached_fetch(key, TTL_PROJECTIONS, fetch, memory=False)
 
 
 def _entries(raw: Any):

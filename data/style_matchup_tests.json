@@ -1,0 +1,785 @@
+{
+ "team_level": {
+  "team_games": 4429,
+  "carry_over_mse_change_pct": {
+   "pass_att": {
+    "last_season": -0.462,
+    "all_prior": -2.197,
+    "in_season": -1.981,
+    "cell_effect_corr_next_season": 0.334,
+    "seasons_positive_corr": "10/10"
+   },
+   "rush_att": {
+    "last_season": -0.466,
+    "all_prior": -1.723,
+    "in_season": -1.293,
+    "cell_effect_corr_next_season": 0.293,
+    "seasons_positive_corr": "9/10"
+   },
+   "dk_QB": {
+    "last_season": 0.255,
+    "all_prior": 0.322,
+    "in_season": 0.154,
+    "cell_effect_corr_next_season": 0.098,
+    "seasons_positive_corr": "7/10"
+   },
+   "dk_RB": {
+    "last_season": 0.564,
+    "all_prior": -0.042,
+    "in_season": 0.088,
+    "cell_effect_corr_next_season": 0.085,
+    "seasons_positive_corr": "7/10"
+   },
+   "dk_WR": {
+    "last_season": -0.019,
+    "all_prior": -1.12,
+    "in_season": -1.351,
+    "cell_effect_corr_next_season": 0.28,
+    "seasons_positive_corr": "8/10"
+   },
+   "dk_TE": {
+    "last_season": 0.827,
+    "all_prior": 0.642,
+    "in_season": 0.42,
+    "cell_effect_corr_next_season": -0.031,
+    "seasons_positive_corr": "6/10"
+   },
+   "margin_vs_spread": {
+    "last_season": 1.238,
+    "all_prior": 0.734,
+    "in_season": 0.633,
+    "cell_effect_corr_next_season": -0.149,
+    "seasons_positive_corr": "1/10"
+   },
+   "pts_vs_implied": {
+    "last_season": 0.206,
+    "all_prior": 0.323,
+    "in_season": 0.586,
+    "cell_effect_corr_next_season": 0.101,
+    "seasons_positive_corr": "8/10"
+   }
+  }
+ },
+ "te_model": {
+  "continuous": {
+   "current": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.359,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.492,
+     "adj_vs_miss_rho": 0.062
+    },
+    "test_2026": {
+     "n": 1752,
+     "mae_sleeper": 5.365,
+     "mae_corrected": 5.35,
+     "rank_rho_sleeper": 0.473,
+     "rank_rho_corrected": 0.481,
+     "adj_vs_miss_rho": 0.048,
+     "top_third_boom": 0.226,
+     "top_third_bust": 0.202,
+     "bottom_third_boom": 0.207,
+     "bottom_third_bust": 0.259
+    },
+    "loso_subset_mae": 4.529,
+    "test_2026_subset_mae": 4.895
+   },
+   "+te_run_first+te_off_eff+te_opp_porous+te_opp_pass_funnel": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.361,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.491,
+     "adj_vs_miss_rho": 0.058
+    },
+    "test_2026": {
+     "n": 1752,
+     "mae_sleeper": 5.365,
+     "mae_corrected": 5.349,
+     "rank_rho_sleeper": 0.473,
+     "rank_rho_corrected": 0.482,
+     "adj_vs_miss_rho": 0.052,
+     "top_third_boom": 0.228,
+     "top_third_bust": 0.197,
+     "bottom_third_boom": 0.207,
+     "bottom_third_bust": 0.259
+    },
+    "loso_subset_mae": 4.539,
+    "test_2026_subset_mae": 4.89
+   }
+  },
+  "cells": {
+   "current": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.359,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.492,
+     "adj_vs_miss_rho": 0.062
+    },
+    "test_2026": {
+     "n": 1752,
+     "mae_sleeper": 5.365,
+     "mae_corrected": 5.35,
+     "rank_rho_sleeper": 0.473,
+     "rank_rho_corrected": 0.481,
+     "adj_vs_miss_rho": 0.048,
+     "top_third_boom": 0.226,
+     "top_third_bust": 0.202,
+     "bottom_third_boom": 0.207,
+     "bottom_third_bust": 0.259
+    },
+    "loso_subset_mae": 4.529,
+    "test_2026_subset_mae": 4.895
+   },
+   "+te_cell_0+te_cell_1+te_cell_2+te_cell_3+te_cell_4+te_cell_5+te_cell_6+te_cell_7+te_cell_8+te_cell_9+te_cell_10+te_cell_11+te_cell_12+te_cell_13+te_cell_14+te_cell_15": {
+    "loso": {
+     "n": 11175,
+     "mae_sleeper": 5.383,
+     "mae_corrected": 5.36,
+     "rank_rho_sleeper": 0.486,
+     "rank_rho_corrected": 0.491,
+     "adj_vs_miss_rho": 0.059
+    },
+    "test_2026": {
+     "n": 1752,
+     "mae_sleeper": 5.365,
+     "mae_corrected": 5.349,
+     "rank_rho_sleeper": 0.473,
+     "rank_rho_corrected": 0.485,
+     "adj_vs_miss_rho": 0.047,
+     "top_third_boom": 0.217,
+     "top_third_bust": 0.202,
+     "bottom_third_boom": 0.204,
+     "bottom_third_bust": 0.272
+    },
+    "loso_subset_mae": 4.535,
+    "test_2026_subset_mae": 4.89
+   }
+  }
+ },
+ "archetype_vs_defense": {
+  "archetype x defense style": {
+   "QB": {
+    "last_season": 0.775,
+    "all_prior": 0.951,
+    "in_season": 1.017,
+    "cell_effect_corr_next_season": -0.167,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "mobile QB vs porous run-funnel",
+      "n": 65,
+      "avg_vs_line": 1.45,
+      "z": 1.47,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "mobile QB vs porous pass-funnel",
+      "n": 55,
+      "avg_vs_line": -0.84,
+      "z": -0.78,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "pocket QB vs stout run-funnel",
+      "n": 161,
+      "avg_vs_line": -0.48,
+      "z": -0.77,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "pocket QB vs porous run-funnel",
+      "n": 140,
+      "avg_vs_line": -0.48,
+      "z": -0.72,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "pocket QB vs porous pass-funnel",
+      "n": 151,
+      "avg_vs_line": 0.35,
+      "z": 0.55,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "some legs QB vs porous run-funnel",
+      "n": 157,
+      "avg_vs_line": 0.3,
+      "z": 0.47,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "RB": {
+    "last_season": 1.453,
+    "all_prior": 0.925,
+    "in_season": 0.464,
+    "cell_effect_corr_next_season": -0.197,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "workhorse pass catcher vs porous pass-funnel",
+      "n": 102,
+      "avg_vs_line": -1.08,
+      "z": -1.54,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "workhorse grinder vs porous run-funnel",
+      "n": 190,
+      "avg_vs_line": 0.75,
+      "z": 1.45,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "other RB vs porous run-funnel",
+      "n": 190,
+      "avg_vs_line": -0.63,
+      "z": -1.22,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "receiving back vs porous pass-funnel",
+      "n": 226,
+      "avg_vs_line": 0.47,
+      "z": 0.99,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "receiving back vs stout run-funnel",
+      "n": 233,
+      "avg_vs_line": 0.43,
+      "z": 0.92,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "workhorse grinder vs stout run-funnel",
+      "n": 197,
+      "avg_vs_line": 0.46,
+      "z": 0.91,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "WR": {
+    "last_season": 0.725,
+    "all_prior": 0.515,
+    "in_season": 0.877,
+    "cell_effect_corr_next_season": -0.02,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "short/YAC WR vs porous pass-funnel",
+      "n": 200,
+      "avg_vs_line": 0.76,
+      "z": 1.48,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "deep threat WR vs stout run-funnel",
+      "n": 257,
+      "avg_vs_line": -0.59,
+      "z": -1.31,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "short/YAC WR vs stout run-funnel",
+      "n": 271,
+      "avg_vs_line": -0.56,
+      "z": -1.26,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "alpha WR vs porous run-funnel",
+      "n": 251,
+      "avg_vs_line": -0.47,
+      "z": -1.03,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "intermediate WR vs porous pass-funnel",
+      "n": 408,
+      "avg_vs_line": -0.24,
+      "z": -0.67,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "intermediate WR vs stout run-funnel",
+      "n": 491,
+      "avg_vs_line": 0.21,
+      "z": 0.63,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "TE": {
+    "last_season": 0.243,
+    "all_prior": 0.253,
+    "in_season": 0.676,
+    "cell_effect_corr_next_season": 0.228,
+    "seasons_positive_corr": "3/3",
+    "top_cells": [
+     {
+      "cell": "blocking TE vs porous pass-funnel",
+      "n": 99,
+      "avg_vs_line": -1.35,
+      "z": -2.17,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "secondary TE vs porous run-funnel",
+      "n": 205,
+      "avg_vs_line": 0.59,
+      "z": 1.36,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "blocking TE vs porous run-funnel",
+      "n": 85,
+      "avg_vs_line": -0.83,
+      "z": -1.24,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "secondary TE vs stout run-funnel",
+      "n": 235,
+      "avg_vs_line": -0.48,
+      "z": -1.19,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "receiving TE vs porous run-funnel",
+      "n": 141,
+      "avg_vs_line": -0.58,
+      "z": -1.12,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "receiving TE vs stout run-funnel",
+      "n": 172,
+      "avg_vs_line": 0.49,
+      "z": 1.04,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   }
+  },
+  "archetype x defense quality": {
+   "QB": {
+    "last_season": 0.221,
+    "all_prior": 0.629,
+    "in_season": 1.061,
+    "cell_effect_corr_next_season": -0.088,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "mobile QB vs porous",
+      "n": 120,
+      "avg_vs_line": 0.4,
+      "z": 0.55,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "pocket QB vs stout",
+      "n": 323,
+      "avg_vs_line": -0.2,
+      "z": -0.46,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "some legs QB vs porous",
+      "n": 308,
+      "avg_vs_line": 0.05,
+      "z": 0.12,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "mobile QB vs stout",
+      "n": 138,
+      "avg_vs_line": 0.07,
+      "z": 0.1,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "pocket QB vs porous",
+      "n": 291,
+      "avg_vs_line": -0.05,
+      "z": -0.1,
+      "seasons_same_sign": "1/4"
+     },
+     {
+      "cell": "some legs QB vs stout",
+      "n": 342,
+      "avg_vs_line": 0.02,
+      "z": 0.04,
+      "seasons_same_sign": "2/4"
+     }
+    ]
+   },
+   "RB": {
+    "last_season": 0.662,
+    "all_prior": 0.429,
+    "in_season": 0.419,
+    "cell_effect_corr_next_season": -0.01,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "workhorse grinder vs porous",
+      "n": 368,
+      "avg_vs_line": 0.4,
+      "z": 1.08,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "other RB vs porous",
+      "n": 387,
+      "avg_vs_line": -0.32,
+      "z": -0.89,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "workhorse pass catcher vs stout",
+      "n": 257,
+      "avg_vs_line": -0.3,
+      "z": -0.69,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "other RB vs stout",
+      "n": 432,
+      "avg_vs_line": -0.22,
+      "z": -0.65,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "receiving back vs stout",
+      "n": 481,
+      "avg_vs_line": 0.21,
+      "z": 0.64,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "workhorse pass catcher vs porous",
+      "n": 216,
+      "avg_vs_line": -0.25,
+      "z": -0.53,
+      "seasons_same_sign": "2/4"
+     }
+    ]
+   },
+   "WR": {
+    "last_season": 0.404,
+    "all_prior": 0.33,
+    "in_season": 0.548,
+    "cell_effect_corr_next_season": 0.105,
+    "seasons_positive_corr": "2/3",
+    "top_cells": [
+     {
+      "cell": "short/YAC WR vs porous",
+      "n": 396,
+      "avg_vs_line": 0.54,
+      "z": 1.47,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "deep threat WR vs stout",
+      "n": 513,
+      "avg_vs_line": -0.37,
+      "z": -1.16,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "alpha WR vs porous",
+      "n": 481,
+      "avg_vs_line": -0.24,
+      "z": -0.74,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "short/YAC WR vs stout",
+      "n": 493,
+      "avg_vs_line": -0.19,
+      "z": -0.59,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "intermediate WR vs stout",
+      "n": 944,
+      "avg_vs_line": 0.13,
+      "z": 0.56,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "alpha WR vs stout",
+      "n": 493,
+      "avg_vs_line": 0.1,
+      "z": 0.3,
+      "seasons_same_sign": "2/4"
+     }
+    ]
+   },
+   "TE": {
+    "last_season": 0.004,
+    "all_prior": 0.111,
+    "in_season": 0.448,
+    "cell_effect_corr_next_season": 0.373,
+    "seasons_positive_corr": "2/3",
+    "top_cells": [
+     {
+      "cell": "blocking TE vs porous",
+      "n": 184,
+      "avg_vs_line": -1.11,
+      "z": -2.44,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "secondary TE vs porous",
+      "n": 401,
+      "avg_vs_line": 0.48,
+      "z": 1.55,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "receiving TE vs stout",
+      "n": 331,
+      "avg_vs_line": 0.25,
+      "z": 0.73,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "blocking TE vs stout",
+      "n": 224,
+      "avg_vs_line": -0.17,
+      "z": -0.42,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "secondary TE vs stout",
+      "n": 460,
+      "avg_vs_line": -0.04,
+      "z": -0.13,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "receiving TE vs porous",
+      "n": 288,
+      "avg_vs_line": -0.04,
+      "z": -0.12,
+      "seasons_same_sign": "2/4"
+     }
+    ]
+   }
+  },
+  "archetype x defense funnel": {
+   "QB": {
+    "last_season": 0.937,
+    "all_prior": 0.689,
+    "in_season": 0.851,
+    "cell_effect_corr_next_season": -0.284,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "mobile QB vs run-funnel",
+      "n": 135,
+      "avg_vs_line": 0.76,
+      "z": 1.12,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "pocket QB vs run-funnel",
+      "n": 301,
+      "avg_vs_line": -0.48,
+      "z": -1.05,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "mobile QB vs pass-funnel",
+      "n": 123,
+      "avg_vs_line": -0.37,
+      "z": -0.52,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "pocket QB vs pass-funnel",
+      "n": 313,
+      "avg_vs_line": 0.21,
+      "z": 0.46,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "some legs QB vs run-funnel",
+      "n": 341,
+      "avg_vs_line": 0.19,
+      "z": 0.44,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "some legs QB vs pass-funnel",
+      "n": 309,
+      "avg_vs_line": -0.13,
+      "z": -0.3,
+      "seasons_same_sign": "4/4"
+     }
+    ]
+   },
+   "RB": {
+    "last_season": 0.666,
+    "all_prior": 0.494,
+    "in_season": 0.472,
+    "cell_effect_corr_next_season": -0.071,
+    "seasons_positive_corr": "1/3",
+    "top_cells": [
+     {
+      "cell": "workhorse grinder vs run-funnel",
+      "n": 387,
+      "avg_vs_line": 0.6,
+      "z": 1.66,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "workhorse pass catcher vs pass-funnel",
+      "n": 224,
+      "avg_vs_line": -0.55,
+      "z": -1.16,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "other RB vs run-funnel",
+      "n": 422,
+      "avg_vs_line": -0.37,
+      "z": -1.08,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "receiving back vs pass-funnel",
+      "n": 474,
+      "avg_vs_line": 0.22,
+      "z": 0.69,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "other RB vs pass-funnel",
+      "n": 397,
+      "avg_vs_line": -0.16,
+      "z": -0.44,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "receiving back vs run-funnel",
+      "n": 435,
+      "avg_vs_line": 0.11,
+      "z": 0.31,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "WR": {
+    "last_season": 0.293,
+    "all_prior": 0.097,
+    "in_season": 0.787,
+    "cell_effect_corr_next_season": 0.097,
+    "seasons_positive_corr": "2/3",
+    "top_cells": [
+     {
+      "cell": "short/YAC WR vs pass-funnel",
+      "n": 422,
+      "avg_vs_line": 0.49,
+      "z": 1.39,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "deep threat WR vs run-funnel",
+      "n": 490,
+      "avg_vs_line": -0.36,
+      "z": -1.1,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "alpha WR vs run-funnel",
+      "n": 504,
+      "avg_vs_line": -0.28,
+      "z": -0.85,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "intermediate WR vs run-funnel",
+      "n": 909,
+      "avg_vs_line": 0.19,
+      "z": 0.81,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "short/YAC WR vs run-funnel",
+      "n": 467,
+      "avg_vs_line": -0.19,
+      "z": -0.57,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "alpha WR vs pass-funnel",
+      "n": 470,
+      "avg_vs_line": 0.15,
+      "z": 0.44,
+      "seasons_same_sign": "3/4"
+     }
+    ]
+   },
+   "TE": {
+    "last_season": 0.186,
+    "all_prior": 0.032,
+    "in_season": 0.507,
+    "cell_effect_corr_next_season": 0.182,
+    "seasons_positive_corr": "2/3",
+    "top_cells": [
+     {
+      "cell": "blocking TE vs pass-funnel",
+      "n": 213,
+      "avg_vs_line": -0.78,
+      "z": -1.85,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "secondary TE vs pass-funnel",
+      "n": 421,
+      "avg_vs_line": 0.4,
+      "z": 1.32,
+      "seasons_same_sign": "4/4"
+     },
+     {
+      "cell": "blocking TE vs run-funnel",
+      "n": 195,
+      "avg_vs_line": -0.39,
+      "z": -0.89,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "receiving TE vs pass-funnel",
+      "n": 306,
+      "avg_vs_line": 0.22,
+      "z": 0.62,
+      "seasons_same_sign": "2/4"
+     },
+     {
+      "cell": "secondary TE vs run-funnel",
+      "n": 440,
+      "avg_vs_line": 0.02,
+      "z": 0.06,
+      "seasons_same_sign": "3/4"
+     },
+     {
+      "cell": "receiving TE vs run-funnel",
+      "n": 313,
+      "avg_vs_line": 0.01,
+      "z": 0.02,
+      "seasons_same_sign": "2/4"
+     }
+    ]
+   }
+  }
+ }
+}

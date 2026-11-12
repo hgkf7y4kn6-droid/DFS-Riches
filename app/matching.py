@@ -89,9 +89,7 @@ class SleeperNameIndex:
         if len(pos_matches) == 1:
             return pos_matches[0][0]
 
-        both = [c for c in candidates if c[1] == team.upper() and c[2] == position.upper()]
-        if both:
-            return both[0][0]
-
-        # Ambiguous and unresolved by team/position; refuse to guess.
+        # Still ambiguous (several players share the name, and team and/or position don't single one out,
+        # including duplicate records on the same team and position): refuse to guess, so the player
+        # shows in the unmatched banner instead of inheriting another player's projection.
         return None

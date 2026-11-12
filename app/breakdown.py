@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from app import ceiling, targets
+from app import ceiling, postgame, targets, trenches
 from app.cache import memoize_async
 from app import nflverse_client as nc
 from app import slates as slates_module
@@ -190,6 +190,16 @@ def _efficiency_takeaway(game: Game, away: TeamStatLine, home: TeamStatLine) -> 
     return None
 
 
+def weather_takeaway(game: Game) -> str | None:
+    """One line when outdoor weather is poor enough to matter (app.weather)."""
+    w = game.weather or {}
+    if not w.get("available") or w.get("indoor") or w.get("severity") not in ("poor", "severe"):
+        return None
+    when = "Played in" if w.get("observed") else "Forecast" + (" (long range)" if w.get("long_range") else "")
+    impact = f" Projections adjusted: {w['impact']}." if w.get("impact") else " The fitted effect on projections is small."
+    return f"Weather -- {when}: {w['summary']} at {w.get('venue')}.{'' if w.get('observed') else impact}"
+
+
 def generate_takeaways(
     game: Game,
     away: TeamStatLine,
@@ -198,6 +208,7 @@ def generate_takeaways(
     total_rank: int | None = None,
     away_implied_rank: int | None = None,
     home_implied_rank: int | None = None,
+    trench_week: dict | None = None,
 ) -> list[str]:
     bullets: list[str] = []
     bullets.extend(_vegas_takeaways(game, total_rank, away_implied_rank, home_implied_rank))
@@ -211,6 +222,10 @@ def generate_takeaways(
     efficiency = _efficiency_takeaway(game, away, home)
     if efficiency:
         bullets.append(efficiency)
+
+    bullets.extend(trenches.game_notes(trench_week, game.away, game.home))
+    if wx := weather_takeaway(game):
+        bullets.insert(0, wx)
 
     if not bullets:
         bullets.append("No standout statistical edge for either side yet -- an early-season, projection-neutral matchup.")
@@ -235,6 +250,26 @@ class WeekData:
     dst_rank: dict[str, int]
     league_sacks: float | None
     league_giveaways: float | None
+    trenches: dict | None = None     # app.trenches.week_profiles (None if play-by-play is unavailable)
+    postgame_inputs: dict | None = None  # only once a game this week is final; see _postgame_inputs
+
+
+async def _postgame_inputs(season: int, week: int) -> dict:
+    """What app.postgame.summarize needs beyond the pregame data: this season's
+    per-game play-by-play counts, box scores, actual DK points, line history
+    and the metrics calibration (fit on games before this week)."""
+    agg = await nc.get_pbp_aggregates(season, season)
+    t = agg.get("trenches") or {}
+    try:
+        actuals = await nc.get_week_actuals(season, week)
+    except Exception:
+        actuals = None
+    try:
+        box = await nc.team_box_scores(season)
+    except Exception:
+        box = {}
+    return {"competitive": t.get("off") or {}, "full_game": t.get("game") or {}, "box": box, "actuals": actuals,
+            "hist": await postgame.line_history(season), "calib": await postgame.calibration(season, week)}
 
 
 @memoize_async(60)
@@ -265,6 +300,16 @@ async def load_week(season: int, week: int) -> WeekData:
         players = []
 
     ceiling_ctx = await ceiling.context_for(season, week)
+    try:
+        trench_week = await trenches.week_profiles(season, week)
+    except Exception:
+        trench_week = None
+    post = None
+    if any(g.context is not None and g.context.is_final for g in schedule.games):
+        try:
+            post = await _postgame_inputs(season, week)
+        except Exception:
+            post = None
 
     def league_avg(metric: str) -> float | None:
         vals = [v for t in index if (v := nc.team_trailing(index, t, metric, season, week, _RANK_WINDOW)) is not None]
@@ -284,6 +329,8 @@ async def load_week(season: int, week: int) -> WeekData:
         dst_rank=targets.dst_ceiling_ranks(players, ceiling_ctx),
         league_sacks=league_avg("sacks_taken"),
         league_giveaways=league_avg("giveaways"),
+        trenches=trench_week if trench_week and trench_week.get("teams") else None,
+        postgame_inputs=post,
     )
 
 
@@ -297,6 +344,7 @@ def game_breakdown(wd: WeekData, g: Game) -> GameBreakdown:
         total_rank=wd.total_rank.get(g.game_id),
         away_implied_rank=wd.implied_rank.get(g.away),
         home_implied_rank=wd.implied_rank.get(g.home),
+        trench_week=wd.trenches,
     )
 
     def team_targets(team: str, opp: str, stats: TeamStatLine):
@@ -311,6 +359,11 @@ def game_breakdown(wd: WeekData, g: Game) -> GameBreakdown:
         )
         return picks + ([dst] if dst else [])
 
+    away_targets, home_targets = team_targets(g.away, g.home, away_stats), team_targets(g.home, g.away, home_stats)
+    post = None
+    if wd.postgame_inputs is not None:
+        post = postgame.summarize(g, tw=wd.trenches, players=wd.players, targets={g.away: away_targets, g.home: home_targets},
+                                  **wd.postgame_inputs)
     return GameBreakdown(
         game=g,
         away_stats=away_stats,
@@ -319,8 +372,9 @@ def game_breakdown(wd: WeekData, g: Game) -> GameBreakdown:
         away_implied_rank_this_week=wd.implied_rank.get(g.away),
         home_implied_rank_this_week=wd.implied_rank.get(g.home),
         takeaways=takeaways,
-        away_top_players=team_targets(g.away, g.home, away_stats),
-        home_top_players=team_targets(g.home, g.away, home_stats),
+        away_top_players=away_targets,
+        home_top_players=home_targets,
+        postgame=post,
     )
 
 

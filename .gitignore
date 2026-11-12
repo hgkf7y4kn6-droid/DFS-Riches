@@ -3,6 +3,13 @@ __pycache__/
 .venv/
 venv/
 data/cache/*.json
+data/cache/big_picture/
 !data/cache/.gitkeep
 .env
 data/ownership/
+web/
+.neon
+.env.local
+node_modules/
+data/cache/train/
+data/cache/wiki_raw_*.json.gz

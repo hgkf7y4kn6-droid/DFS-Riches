@@ -12,7 +12,7 @@ DraftKings Classic scoring (offense):
 
 DraftKings Classic scoring (DST, per team per game):
   +1/sack, +2/interception, +2/fumble recovery, +2/safety, +2/blocked kick,
-  +6/defensive or return TD, then points-allowed tiers:
+  +6/defensive or kick/punt return TD, then points-allowed tiers:
   0 -> +10, 1-6 -> +7, 7-13 -> +4, 14-20 -> +1, 21-27 -> 0, 28-34 -> -1, 35+ -> -4
 
 DraftKings Showdown kicker scoring: +1/PAT made, +3/FG 0-39 yds, +4/FG 40-49,
@@ -91,6 +91,7 @@ def dk_dst_points(row: dict, points_allowed: float | None) -> float:
     points += _f(row, "def_safeties") * 2
     points += (_f(row, "def_punt_blocks") + _f(row, "def_pat_blocks") + _f(row, "def_fg_blocks")) * 2
     points += _f(row, "def_tds") * 6
+    points += _f(row, "special_teams_tds") * 6      # kick/punt/FG return TDs score for the DST too
     points += _points_allowed_bonus(points_allowed)
     return round(points, 2)
 

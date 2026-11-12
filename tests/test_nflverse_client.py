@@ -7,11 +7,21 @@ def test_trailing_avg_takes_the_most_recent_n_games_before_the_target_week():
     assert _trailing_avg(entries, season=2026, week=5, n=3) == 30.0  # (20+30+40)/3
 
 
-def test_trailing_avg_reaches_back_into_prior_season_when_needed():
-    entries = [[2025, 17, 10.0], [2025, 18, 20.0], [2026, 1, 30.0]]
-    # Week 2 of 2026 with only one 2026 game played: average the last 3
-    # games regardless of season, i.e. all three of these.
-    assert _trailing_avg(entries, season=2026, week=2, n=3) == 20.0
+def test_trailing_avg_uses_this_season_only_and_grows_to_n():
+    entries = [[2025, 17, 10.0], [2025, 18, 20.0], [2026, 1, 30.0], [2026, 2, 40.0]]
+    assert _trailing_avg(entries, season=2026, week=2, n=3) == 30.0      # 1 game played: L3 = that game
+    assert _trailing_avg(entries, season=2026, week=3, n=3) == 35.0      # 2 games
+    assert _trailing_avg(entries, season=2026, week=1, n=3) is None      # team-level: no carryover
+
+
+def test_player_carryover_only_from_the_same_team():
+    entries = [[2025, 16, 10.0, "BUF"], [2025, 17, 20.0, "BUF"], [2025, 18, 30.0, "MIA"]]
+    # Week 1, nothing this season: last season's games for his current team only.
+    assert _trailing_avg(entries, season=2026, week=1, n=3, team="BUF") == 15.0
+    assert _trailing_avg(entries, season=2026, week=1, n=3, team="NYJ") is None   # changed teams: fresh start
+    # Once he has played this season, last season no longer counts.
+    entries.append([2026, 1, 5.0, "BUF"])
+    assert _trailing_avg(entries, season=2026, week=2, n=3, team="BUF") == 5.0
 
 
 def test_trailing_avg_excludes_games_from_the_target_week_onward():
@@ -62,7 +72,11 @@ def test_trailing_dst_points_looks_up_by_team():
 def test_team_trend_returns_l3_l6_l9_from_one_series():
     index = {"SEA": {"spread": [[2026, w, float(w)] for w in range(1, 6)]}}
     trend = team_trend(index, "SEA", "spread", season=2026, week=6)
-    assert trend == {"l3": 4.0, "l6": 3.0, "l9": 3.0}  # last3=(3+4+5)/3, last5 avail for l6/l9=(1+2+3+4+5)/5
+    assert trend == {"l3": 4.0, "l6": None, "l9": None}   # last3=(3+4+5)/3; L6/L9 hidden until 6 and 9 games
+    index["SEA"]["spread"] += [[2025, 17, 99.0]]                 # last season never fills a team window
+    assert team_trend(index, "SEA", "spread", season=2026, week=6)["l6"] is None
+    index["SEA"]["spread"] += [[2026, 6, 6.0]]
+    assert team_trend(index, "SEA", "spread", season=2026, week=7)["l6"] == 3.5
 
 
 def test_dk_offense_points_applies_yardage_bonuses():
@@ -134,7 +148,7 @@ def test_neutral_stats_skip_non_neutral_plays_and_stopped_clocks():
     assert off["neutral_secs"] == 35.0
 
 
-def test_tendency_metrics_use_season_to_date_once_there_are_two_games():
+def test_team_windows_are_this_season_only():
     from app.nflverse_client import rank_teams, team_trailing
 
     index = {
@@ -143,6 +157,31 @@ def test_tendency_metrics_use_season_to_date_once_there_are_two_games():
         "B": {"neutral_secs": [[2025, w, 36.0] for w in range(10, 18)] + [[2026, 1, 40.0], [2026, 2, 41.0]]},
     }
     assert team_trailing(index, "A", "neutral_secs", 2026, 3) == 35.5          # this season only
-    assert team_trailing(index, "A", "neutral_secs", 2026, 2) == 41.12         # 1 game this season: trailing 8
-    assert team_trailing(index, "A", "plays", 2026, 3) == 67.5                 # not a tendency: trailing 8
+    assert team_trailing(index, "A", "neutral_secs", 2026, 2) == 35.0          # 1 game this season: that game
+    assert team_trailing(index, "A", "neutral_secs", 2026, 1) is None          # Week 1: no current-season data
+    assert team_trailing(index, "A", "plays", 2026, 3) == 60.0                 # trailing 8 = the 2 played
     assert rank_teams(index, "neutral_secs", 2026, 3, descending=False) == {"A": 1, "B": 2}
+
+
+def test_dk_dst_points_counts_kick_and_punt_return_touchdowns():
+    # DraftKings scores a DST +6 for a kick/punt/FG return TD, same as a defensive TD
+    assert dk_dst_points({"special_teams_tds": "1"}, points_allowed=21) == 6
+    assert dk_dst_points({"def_tds": "1", "special_teams_tds": "1"}, points_allowed=21) == 12
+
+
+def test_same_named_players_sharing_a_key_lose_their_blended_history():
+    from app.nflverse_client import drop_ambiguous_keys
+    index = {
+        "mike williams|WR": [[2025, 1, 10.0, "NYJ"], [2025, 1, 4.0, "PIT"], [2025, 2, 8.0, "NYJ"]],   # two people, week 1 twice
+        "davante adams|WR": [[2025, 1, 12.0, "LV"], [2025, 2, 9.0, "LV"], [2026, 1, 11.0, "NYJ"]],
+    }
+    assert list(drop_ambiguous_keys(index)) == ["davante adams|WR"]
+
+
+def test_missing_actuals_are_listed_not_just_zeroed():
+    from app.nflverse_client import missing_actuals
+    actuals = {"players": {"a|QB": 20.0}, "dst": {"SEA": 5.0}, "teams": ["SEA", "BUF"]}
+    rows = [dict(name="A", position="QB", team="BUF"), dict(name="Ghost", position="WR", team="BUF"),
+            dict(name="Late", position="RB", team="DAL"), dict(name="Seahawks", position="DST", team="SEA")]
+    # Ghost's team has box scores in but he has no row; DAL's box scores aren't in at all, so that's not "missing"
+    assert missing_actuals(actuals, rows) == ["Ghost"]

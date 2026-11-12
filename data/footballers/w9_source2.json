@@ -1,0 +1,250 @@
+{
+ "_readme": "Large-field GPP article (second source, personal projections sheet blending Ballers projections): players listed by salary with pOwn, DK projection and ceiling. Transcribed from pasted text.",
+ "source": "GPP article (large-field upside plays)",
+ "season": 2026,
+ "week": 9,
+ "players": [
+  {
+   "name": "Jared Goff",
+   "pos": "QB",
+   "salary": 6600,
+   "proj": 20.06,
+   "own": 5.49,
+   "ceil": 31
+  },
+  {
+   "name": "Jordan Love",
+   "pos": "QB",
+   "salary": 6300,
+   "proj": 18.38,
+   "own": 2.83,
+   "ceil": 28.5
+  },
+  {
+   "name": "Matthew Stafford",
+   "pos": "QB",
+   "salary": 6200,
+   "proj": 18.46,
+   "own": 3.67,
+   "ceil": 29
+  },
+  {
+   "name": "Joe Milton",
+   "pos": "QB",
+   "salary": 4100,
+   "proj": 14.57,
+   "own": 2.93,
+   "ceil": 23
+  },
+  {
+   "name": "Jahmyr Gibbs",
+   "pos": "RB",
+   "salary": 10000,
+   "proj": 28.51,
+   "own": 26.32,
+   "ceil": 46
+  },
+  {
+   "name": "Kenneth Walker",
+   "pos": "RB",
+   "salary": 9000,
+   "proj": 23.17,
+   "own": 13.34,
+   "ceil": 40
+  },
+  {
+   "name": "Kyren Williams",
+   "pos": "RB",
+   "salary": 7600,
+   "proj": 16.99,
+   "own": 4.57,
+   "ceil": 30
+  },
+  {
+   "name": "Josh Jacobs",
+   "pos": "RB",
+   "salary": 6800,
+   "proj": 15.54,
+   "own": 6.93,
+   "ceil": 29
+  },
+  {
+   "name": "Jonah Coleman",
+   "pos": "RB",
+   "salary": 5300,
+   "proj": 16.35,
+   "own": 26.66,
+   "ceil": 26
+  },
+  {
+   "name": "Jaxon Smith-Njigba",
+   "pos": "WR",
+   "salary": 9300,
+   "proj": 22.84,
+   "own": 13.21,
+   "ceil": 38
+  },
+  {
+   "name": "Puka Nacua",
+   "pos": "WR",
+   "salary": 8800,
+   "proj": 25.38,
+   "own": 26.97,
+   "ceil": 41
+  },
+  {
+   "name": "CeeDee Lamb",
+   "pos": "WR",
+   "salary": 8300,
+   "proj": 20.62,
+   "own": 15.8,
+   "ceil": 36
+  },
+  {
+   "name": "Amon-Ra St. Brown",
+   "pos": "WR",
+   "salary": 8100,
+   "proj": 20.33,
+   "own": 15.82,
+   "ceil": 35
+  },
+  {
+   "name": "Christian Watson",
+   "pos": "WR",
+   "salary": 7500,
+   "proj": 15.87,
+   "own": 6.21,
+   "ceil": 29.8
+  },
+  {
+   "name": "Jameson Williams",
+   "pos": "WR",
+   "salary": 6100,
+   "proj": 12.65,
+   "own": 6.42,
+   "ceil": 25.7
+  },
+  {
+   "name": "Efton Chism",
+   "pos": "WR",
+   "salary": 3600,
+   "proj": 10.16,
+   "own": 12.6,
+   "ceil": 19
+  },
+  {
+   "name": "DeMario Douglas",
+   "pos": "WR",
+   "salary": 4800,
+   "proj": 10.79,
+   "own": 5.72,
+   "ceil": 20
+  },
+  {
+   "name": "Antonio Williams",
+   "pos": "WR",
+   "salary": 4100,
+   "proj": 10.67,
+   "own": 11.66,
+   "ceil": 20
+  },
+  {
+   "name": "Brock Bowers",
+   "pos": "TE",
+   "salary": 7900,
+   "proj": 18.86,
+   "own": 7.31,
+   "ceil": 32.7
+  },
+  {
+   "name": "George Kittle",
+   "pos": "TE",
+   "salary": 6000,
+   "proj": 18.59,
+   "own": 31.08,
+   "ceil": 33.8
+  },
+  {
+   "name": "Tucker Kraft",
+   "pos": "TE",
+   "salary": 5500,
+   "proj": 11.56,
+   "own": 2.27,
+   "ceil": 21.4
+  },
+  {
+   "name": "Hunter Henry",
+   "pos": "TE",
+   "salary": 4500,
+   "proj": 11.9,
+   "own": 10.05,
+   "ceil": 22.8
+  },
+  {
+   "name": "Brevyn Spann-Ford",
+   "pos": "TE",
+   "salary": 2900,
+   "proj": 7.41,
+   "own": 6.87,
+   "ceil": 14
+  },
+  {
+   "name": "SEA",
+   "pos": "DST",
+   "salary": 3800,
+   "proj": 9.43,
+   "own": 6.29,
+   "ceil": 17
+  },
+  {
+   "name": "HOU",
+   "pos": "DST",
+   "salary": 3500,
+   "proj": 8.43,
+   "own": 5.62,
+   "ceil": 16
+  },
+  {
+   "name": "GB",
+   "pos": "DST",
+   "salary": 2400,
+   "proj": 6.27,
+   "own": 5.08,
+   "ceil": 13
+  },
+  {
+   "name": "Christian McCaffrey",
+   "pos": "RB",
+   "salary": 8000,
+   "proj": null,
+   "own": 37.18,
+   "ceil": null
+  }
+ ],
+ "notes": {
+  "availability": [
+   "Jared Goff stack needs St. Brown's rib to clear (Jameson is the cheaper piece)",
+   "Christian Watson rib injury: check before playing",
+   "Hunter Henry (foot) conditional",
+   "Jake Ferguson ankle (Wed/Thu DNP): Spann-Ford is the DAL TE if he sits",
+   "Mack Hollins may return from IR: recheck NE WRs (Chism/Douglas/Kyle Williams)",
+   "Drew Lock starts with Darnold out",
+   "Joe Milton starts for PHI",
+   "McLaurin season-ending: Antonio Williams a bigger role",
+   "Stafford elbow, 29 and 25 attempts in his last two"
+  ],
+  "construction": [
+   "Pair popular with lower-rostered leverage; spend nearly the full $50k (last week 99 of top 100 spent >= $49.5k)",
+   "Last week's top 100: 3 RBs 61% vs 36.6% field; double TE 13% vs 25.7%",
+   "Winning lineup carried 106% combined ownership vs a 117% field average; top-100 average 121.5%",
+   "Pick a stack that gives the passing offense both main targets (Burrow/Chase/Higgins went 90 of top 100)"
+  ],
+  "stacks": [
+   "Goff + St. Brown + Jameson (MIA return optional); Goff/Gibbs/pass catcher",
+   "Love + Watson + Kraft, Henry or Raridon as NE return, Chism/Douglas NE return",
+   "Stafford + Puka, Antonio Williams optional $4.1k return",
+   "Milton + Goedert with $8.5k combined leaving room for Gibbs/Puka",
+   "Kyren Williams with Antonio Williams return"
+  ]
+ }
+}

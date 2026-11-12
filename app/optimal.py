@@ -1,10 +1,14 @@
 """Optimal lineups per slate, and the saved record of them.
 
-Before a slate's first kickoff, optimal lineups are computed live from the
-current data and written to data/optimal_lineups.json whenever they change,
-so the file always holds the last optimal lineups shown before lock. Once
-the slate has started, only that saved record is served: live numbers after
-kickoff would already reflect the results.
+Optimal lineups lock player by player, the way a DraftKings contest does:
+until a slate's last game kicks off they're recomputed live from the current
+data (so news all week -- a QB change on Saturday -- still moves the Full
+Week lineups) and written to data/optimal_lineups.json whenever they change.
+A player in a lineup whose game has kicked off is locked in that lineup as
+it was saved before kickoff (his pre-game numbers, never live ones), and
+players from games already underway can't be added -- so in-game results
+never leak into a lineup. Once every game has started, only the saved record
+is served.
 
 Once every game in the slate is final and its box scores are in, the record
 is scored: each saved lineup (and each of its players) gets its actual
@@ -17,16 +21,27 @@ import json
 import os
 from datetime import datetime, timezone
 
+from app import cash_model
 from app import nflverse_client as nc
+from app import salary_log
 from app import slates as slates_module
 from app.config import OPTIMAL_LINEUPS_PATH
 from app.optimizer import CLASSIC_SLOTS, optimize
 
-METRICS = (("proj_points", "Proj"), ("ceiling", "Ceiling"))
+# Classic: the Safe lineup (the most projected points: a high floor that cashes often, not a tournament winner) and
+# the Tournament lineup (the app's tested tournament construction, app.dfs_strategy: QB + two of his pass catchers +
+# an opposing WR, one RB per team, $49,000+ spent, projection with the WR FLEX lean). It replaced the Ceiling lineup:
+# on 2026 Weeks 3-6 the Ceiling lineup never beat its own projection. Showdown keeps Proj and Ceiling.
+CLASSIC_METRICS = (("proj_points", "Safe lineup (high floor)"), ("tournament", "Tournament lineup (stacked)"))
+SHOWDOWN_METRICS = (("proj_points", "Optimal - Proj"), ("ceiling", "Optimal - Ceiling"))
+LABELS = {"proj_points": "Safe lineup (high floor)", "tournament": "Tournament lineup (stacked)",
+          "ceiling": "Ceiling lineup (retired)"}
+METRICS = CLASSIC_METRICS
 _FIELDS = (
     "name", "position", "team", "opponent", "roster_slot", "salary", "proj_points",
     "ceiling", "sleeper_proj", "game_info", "injury", "dk_draftable_id", "dk_fppg",
 )
+STARTER_PROJ = 8.0   # projected at least this many points: expected to have a box-score row
 _HINDSIGHT_FIELDS = ("name", "position", "team", "opponent", "roster_slot", "salary", "game_info", "dk_draftable_id")
 
 
@@ -34,8 +49,13 @@ def _slots(slate_type: str) -> list[str]:
     return ["CPT"] + ["FLEX"] * 5 if slate_type == "showdown" else CLASSIC_SLOTS
 
 
-def slate_started(slate, now: datetime) -> bool:
-    return any(g.kickoff_utc <= now for g in slate.games)
+def slate_locked(slate, now: datetime) -> bool:
+    """Every game has kicked off: nothing left to update."""
+    return bool(slate.games) and all(g.kickoff_utc <= now for g in slate.games)
+
+
+def started_teams(slate, now: datetime) -> set[str]:
+    return {t for g in slate.games if g.kickoff_utc <= now for t in (g.away, g.home)}
 
 
 def slate_complete(slate, actuals: dict) -> bool:
@@ -47,22 +67,91 @@ def slate_complete(slate, actuals: dict) -> bool:
     )
 
 
-def build_lineups(players: list, slate_type: str) -> list[dict]:
-    out = []
-    for metric, label in METRICS:
-        lineup = optimize(players, slate_type, metric)
-        if not lineup:
+def _tournament(players: list, locked: set) -> list | None:
+    """The stacked tournament lineup (app.lineup_builder with the tournament construction rules), loosening the stack
+    when the locks or the pool can't support it."""
+    from app import dfs_strategy, lineup_builder
+    from app.optimizer import ELIGIBLE_STATUSES, MIN_ROLE_PROJ, ROLE_POSITIONS
+
+    pool = []
+    for p in players:
+        d = {f: _get(p, f) for f in _FIELDS}
+        if d["dk_draftable_id"] not in locked and not (
+                (d["proj_points"] or 0) > 0 and d["salary"] > 0 and d["injury"] in ELIGIBLE_STATUSES and (d["dk_fppg"] or 0) > 0
+                and (d["position"] not in ROLE_POSITIONS or (d["proj_points"] or 0) >= MIN_ROLE_PROJ)):
             continue
-        rows = [{"slot": slot, **{f: getattr(p, f) for f in _FIELDS}} for slot, p in zip(_slots(slate_type), lineup)]
+        pool.append({**d, "id": d["dk_draftable_id"], "game": d["game_info"], "_src": p})
+    if not pool:
+        return None
+    values = [(r["proj_points"] or 0) + (dfs_strategy.WR_FLEX_BONUS if r["position"] == "WR" else 0) for r in pool]
+    for min_salary in (dfs_strategy.GPP_MIN_SALARY, 0):
+        base = dict(min_salary=min_salary, one_rb_per_team=True, force=locked or None)
+        for kw in (dict(stack=(2, 1), bring_back_pos=("WR",)), dict(stack=(2, 1)), dict(stack=(1, 1)), dict(stack=(1, 0)), {}):
+            lu = lineup_builder.build(pool, values, **base, **kw)
+            if lu:
+                return [r["_src"] for r in lu]
+    return None
+
+
+def _cash_pool(players: list, cash: dict) -> list[dict]:
+    """Players as dicts carrying `cash_proj`, the cash model's points. Anyone the model does not cover, or the tested
+    stability filters drop, gets none, so the optimizer cannot pick him."""
+    pool = []
+    for p in players:
+        d = {f: _get(p, f) for f in _FIELDS}
+        c = cash.get(d["dk_draftable_id"])
+        d["cash_proj"] = c["proj"] if c and cash_model.eligible(d["position"], d["salary"], c["proj"], c["snap"]) else None
+        pool.append(d)
+    return pool
+
+
+def build_lineups(players: list, slate_type: str, *, saved: list[dict] | None = None,
+                  started: set[str] | None = None, cash: dict | None = None) -> list[dict]:
+    """The optimal lineup per metric. With games underway (`started` teams),
+    each lineup keeps its saved players from those games (locked, with their
+    saved pre-kickoff rows) and fills the rest from games not yet started.
+
+    `cash` (app.cash_model.projections, only with CASH_MODEL=v2) builds the Classic Safe lineup on the cash model's points
+    instead of the app's projection; Showdown and the Tournament lineup are unchanged."""
+    started = started or set()
+    cash_players = _cash_pool([p for p in players if _get(p, "team") not in started], cash) if cash and slate_type != "showdown" else None
+    prev = {lu.get("metric"): lu for lu in (saved or [])}
+    open_players = [p for p in players if _get(p, "team") not in started]
+    out = []
+    for metric, label in (SHOWDOWN_METRICS if slate_type == "showdown" else CLASSIC_METRICS):
+        locked_rows = [r for r in prev[metric]["players"] if r["team"] in started] if metric in prev and started else []
+        locks = {r["dk_draftable_id"] for r in locked_rows}
+        if metric == "tournament":
+            lineup = _tournament(open_players + locked_rows, locks)
+        elif metric == "proj_points" and cash_players is not None:
+            lineup = optimize(cash_players + locked_rows, slate_type, "cash_proj", locked=locks)
+        else:
+            lineup = optimize(open_players + locked_rows, slate_type, metric, locked=locks)
+        if not lineup:
+            if locked_rows:          # can't complete around the locks: keep what was saved
+                out.append(prev[metric])
+            continue
+        lock_ids = {r["dk_draftable_id"] for r in locked_rows}
+        cash_built = metric == "proj_points" and cash_players is not None
+        rows = [{"slot": slot, **{f: _get(p, f) for f in _FIELDS},
+                 **({"cash_proj": p["cash_proj"]} if cash_built and p.get("cash_proj") is not None else {}),
+                 **({"locked": True} if _get(p, "dk_draftable_id") in lock_ids else {})}
+                for slot, p in zip(_slots(slate_type), lineup)]
         out.append({
             "metric": metric,
-            "label": f"Optimal - {label}",
+            "label": label,
             "players": rows,
             "salary": sum(r["salary"] for r in rows),
             "proj_points": round(sum(r["proj_points"] or 0 for r in rows), 2),
             "ceiling": round(sum(r["ceiling"] or 0 for r in rows), 2),
+            **({"cash_proj": round(sum(r.get("cash_proj", r["proj_points"]) or 0 for r in rows), 2),
+                "note": "Cash model v2 (experimental)"} if cash_built else {}),
         })
     return out
+
+
+def _get(p, name: str):
+    return p.get(name) if isinstance(p, dict) else getattr(p, name)
 
 
 def score_results(saved_lineups: list[dict], players: list, slate_type: str, actuals: dict) -> tuple[list[dict], dict | None]:
@@ -88,6 +177,10 @@ def score_results(saved_lineups: list[dict], players: list, slate_type: str, act
             "players": rows,
             "salary": sum(r["salary"] for r in rows),
             "actual": round(sum(r["actual"] for r in rows), 2),
+            # Players projected for a real role with no box-score row: inactive, or a name that didn't match.
+            # Either way they were scored 0, so a human can check the list before trusting the totals.
+            "no_box_score": nc.missing_actuals(
+                actuals, [{f: getattr(p, f) for f in ("name", "position", "team")} for p in players if (p.proj_points or 0) >= STARTER_PROJ]),
         }
     return scored, hindsight
 
@@ -107,10 +200,10 @@ def save(season: int, week: int, slate_id: str, entry: dict) -> None:
     # the event loop can't interleave; os.replace keeps the file whole.
     data = _load_all()
     data["_readme"] = (
-        "Optimal DraftKings lineups per season/week/slate as they stood before that slate's first kickoff "
-        "(app/optimal.py): written automatically while a slate is still open, frozen once it starts, then "
-        "scored with actual points (per player and lineup) plus a hindsight best-possible lineup once "
-        "every game is final."
+        "Optimal DraftKings lineups per season/week/slate (app/optimal.py): written automatically while any "
+        "of the slate's games is still to kick off, each player locked (\"locked\": true) once his game "
+        "starts, frozen when the last game starts, then scored with actual points (per player and lineup) "
+        "plus a hindsight best-possible lineup once every game is final."
     )
     weeks = data.setdefault(str(season), {})
     weeks.setdefault(str(week), {})[slate_id] = entry
@@ -120,13 +213,20 @@ def save(season: int, week: int, slate_id: str, entry: dict) -> None:
     os.replace(tmp, OPTIMAL_LINEUPS_PATH)
 
 
-def _response(status: str, entry: dict | None) -> dict:
+def _relabel(lineups: list[dict], slate_type: str = "classic") -> list[dict]:
+    """Saved Classic lineups under their current names (Proj is the Safe lineup; Ceiling is retired)."""
+    if slate_type == "showdown":
+        return lineups
+    return [{**lu, "label": LABELS.get(lu.get("metric"), lu.get("label"))} for lu in lineups]
+
+
+def _response(status: str, entry: dict | None, slate_type: str = "classic") -> dict:
     entry = entry or {}
     return {
         "status": status,
         "saved_at": entry.get("saved_at"),
         "results_at": entry.get("results_at"),
-        "lineups": entry.get("lineups", []),
+        "lineups": _relabel(entry.get("lineups", []), slate_type),
         "hindsight": entry.get("hindsight"),
     }
 
@@ -139,16 +239,27 @@ async def get_optimal(season: int, week: int, slate_id: str, now: datetime | Non
         raise ValueError(f"Unknown slate_id: {slate_id}")
 
     saved = load_saved(season, week, slate_id)
-    if not slate_started(slate, now):
+    if not slate_locked(slate, now):
+        started = started_teams(slate, now)
         players = (await slates_module.get_slate_players(season, week, slate_id)).players
-        lineups = build_lineups(players, slate.slate_type)
+        salary_log.record(season, week, slate_id, slate.draft_group_id, slate.slate_type, players, now)
+        cash = None
+        if cash_model.enabled() and slate.slate_type != "showdown":
+            try:
+                cash = await cash_model.projections(season, week, players, slate)
+            except Exception:       # the experimental model must never take the lineups down: fall back to the app's projection
+                cash = None
+        lineups = build_lineups(players, slate.slate_type, saved=(saved or {}).get("lineups"), started=started, cash=cash or None)
         if lineups and (saved is None or saved.get("lineups") != lineups):
             saved = {"saved_at": now.isoformat(timespec="seconds"), "draft_group_id": slate.draft_group_id, "lineups": lineups}
             save(season, week, slate_id, saved)
-        return _response("live", saved if lineups else None) | {"lineups": lineups}
+        locked = sum(1 for lu in lineups for r in lu["players"] if r.get("locked"))
+        games = sum(1 for g in slate.games if g.kickoff_utc <= now)
+        return _response("live", saved if lineups else None, slate.slate_type) | {"lineups": lineups, "locked_players": locked,
+                                                                                 "games_started": games}
 
     if saved and saved.get("results_at"):
-        return _response("final", saved)
+        return _response("final", saved, slate.slate_type)
 
     if slate.available:
         actuals = await nc.get_week_actuals(season, week)
@@ -164,6 +275,28 @@ async def get_optimal(season: int, week: int, slate_id: str, now: datetime | Non
                     "results_at": now.isoformat(timespec="seconds"),
                 }
                 save(season, week, slate_id, saved)
-                return _response("final", saved)
+                return _response("final", saved, slate.slate_type)
 
-    return _response("saved" if saved else "none", saved)
+    return _response("saved" if saved else "none", saved, slate.slate_type)
+
+
+def track_record() -> list[dict]:
+    """How the saved optimal lineups did, newest week first: for each finished slate, each lineup's
+    projection and actual score, and the best possible (hindsight) score -- the "How we did" page."""
+    out = []
+    for season, weeks in _load_all().items():
+        if not season.isdigit():
+            continue
+        for week, slates in weeks.items():
+            for slate_id, entry in (slates or {}).items():
+                scored = [lu for lu in entry.get("lineups") or [] if lu.get("actual") is not None]
+                if not scored:
+                    continue
+                out.append({
+                    "season": int(season), "week": int(week), "slate_id": slate_id,
+                    "lineups": [{"label": lu.get("label"), "metric": lu.get("metric"), "proj_points": lu.get("proj_points"),
+                                 "ceiling": lu.get("ceiling"), "actual": lu.get("actual"), "note": lu.get("note")}
+                                for lu in _relabel(scored, "showdown" if slate_id.startswith("showdown") else "classic")],
+                    "best_possible": (entry.get("hindsight") or {}).get("actual"),
+                })
+    return sorted(out, key=lambda r: (-r["season"], -r["week"], r["slate_id"] != "classic_sunday", r["slate_id"]))

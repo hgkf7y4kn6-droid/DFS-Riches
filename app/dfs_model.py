@@ -10,8 +10,15 @@ Order of operations (each step visible in the output):
 2. Final projection = consensus, then only these adjustments:
      sourced   DraftKings injury status: OUT / Doubtful / IR -> 0 and out of
                the pool; Questionable -> kept, uncertainty raised.
+     model     Questionable: x his chance of playing (last practice day,
+               quarterback, established scorer) x what Questionable players
+               score when they play (app.injury_news); x1 for the chance once
+               his game's inactives are out and he isn't on them.
      model     the backtested matchup nudge (app.projections): +-5% max, from
                how the opponent's defense has done vs projections this season.
+     weather   outdoor games: the consensus stat line rescored with
+               weather-scaled stats (app.weather), fit on 2016-2025 games and
+               applied only to the share projections don't already price in.
    Game environment, workload and news are already in the sources' lines; a
    second pass on top double counts (stronger adjustments made the 2025
    backtest worse), so they're shown as context, not multiplied in.
@@ -19,7 +26,9 @@ Order of operations (each step visible in the output):
    percentiles of actual-vs-consensus outcomes by position and projection
    range (scripts/source_accuracy.py, 2025 W4-17 + 2026). Ceiling blends the
    same 85th percentile with the app's matchup Ceiling (app.ceiling).
-4. Value = Final / (salary / $1,000).
+4. Value = Final / (salary / $1,000). Props: each skill player's stat
+   medians and ladder chances (app.prop_pricer), from the consensus stat line
+   moved with Final.
 5. Ownership: the Bayesian ownership engine (app.ownership_report /
    app.ownership_model) -- a Beta posterior per player and contest type from
    a behavioral prior, pasted ownership sources, crowd submissions and news,
@@ -44,8 +53,8 @@ import statistics
 import time
 from datetime import datetime, timezone
 
-from app import breakdown as breakdown_module
-from app import consensus, dfs_strategy, ownership_report, projections, sources, usage
+from app import advanced_env, breakdown as breakdown_module, game_model, injury_news
+from app import consensus, dfs_strategy, ownership_report, projections, prop_pricer, sources, usage, weather
 from app import slates as slates_module
 from app.cache import _cache_path
 from app.sleeper_client import get_nfl_state
@@ -53,7 +62,6 @@ from app.sleeper_client import get_nfl_state
 POSITIONS = ("QB", "RB", "WR", "TE", "DST")
 PLAYABLE = {"Healthy", "Q"}
 MIN_SKILL_PROJ = 3.0
-POP_TIER_SIZE = {"QB": 2, "RB": 3, "WR": 4, "TE": 2, "DST": 2}
 STATUS_LABEL = {"O": "OUT", "D": "Doubtful", "Q": "Questionable", "IR": "on IR"}
 DEFAULT_CALIB = {"q15": 0.4, "q50": 0.85, "q85": 1.6}
 
@@ -104,8 +112,9 @@ def _pct_rank(values: list[float], v: float) -> float:
 
 
 # -------------------------------------------------------------- per player
-def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=None):
+def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=None, team_weather=None):
     game_of = game_of or {}
+    team_weather = team_weather or {}
     rows = []
     for p in players:
         if p.position not in POSITIONS or p.roster_slot == "CPT":
@@ -130,7 +139,33 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
                         f"Matchup: {pos}s vs {p.opponent} have scored {actual / projected - 1:+.0%} vs projections "
                         f"this season ({games} game{'s' if games != 1 else ''}) -> x{m:.2f}")})
                     final = base * m
-            if p.injury == "Q":
+            if dst_adj := getattr(p, "dst_adj", None):
+                adjustments.append({"kind": "model", "source": "DST model", "delta": dst_adj,
+                                    "text": f"DST model: {dst_adj:+.1f} (points-allowed odds from the line, opposing quarterback, "
+                                            f"sack and turnover rates)"})
+                final = max(0.0, final + dst_adj)
+            if role_adj := getattr(p, "role_adj", None):
+                adjustments.append({"kind": "model", "source": "Role & script", "delta": role_adj,
+                                    "text": f"Role & script model: {role_adj:+.1f} (target, carry and snap share trends; team total and spread)"})
+                final = max(0.0, final + role_adj)
+            if vac_adj := getattr(p, "vacated_adj", None):
+                adjustments.append({"kind": "model", "source": "Out teammates", "delta": vac_adj,
+                                    "text": f"Out teammates: {vac_adj:+.1f} (their projected targets and carries, not yet "
+                                            f"moved by Sleeper)"})
+                final = max(0.0, final + vac_adj)
+            wx = team_weather.get(p.team)
+            factor = weather.player_factor(wx, pos, c.line, projections.dk_points_from_line)
+            if abs(factor - 1) >= 0.01:
+                adjustments.append({"kind": "model", "factor": factor, "source": "Weather",
+                                    "text": projections.weather_note(wx, factor)})
+                final *= factor
+            if p.injury == "Q" and (chance := getattr(p, "play_chance", None)) is not None:
+                factor = (injury_news.load().get("if_played") or {}).get("factor", 1.0)
+                adjustments.append({"kind": "model", "factor": chance * factor, "source": "Questionable", "text": (
+                    f"Questionable: plays {chance:.0%}" + (f" (practice {p.practice})" if getattr(p, "practice", None) else "")
+                    + f" x {factor:.2f} if he plays -> x{chance * factor:.2f}")})
+                final *= chance * factor
+            elif p.injury == "Q":
                 adjustments.append({"kind": "sourced", "text": "Questionable (DraftKings): kept, uncertainty raised -- sources may assume he plays"})
             final = round(final, 2)
 
@@ -140,7 +175,11 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
             floor = round(final * cal["q15"], 1)
             median = round(final * cal["q50"], 1)
             proj_ceiling = final * cal["q85"]
-            ceil = round((proj_ceiling + p.ceiling) / 2 if p.ceiling else proj_ceiling, 1)
+            if getattr(p, "ceiling_model", False) and p.ceiling and p.proj_points:
+                # the ceiling model's 85th percentile, moved with the consensus projection
+                ceil = round(p.ceiling * final / p.proj_points, 1)
+            else:
+                ceil = round((proj_ceiling + p.ceiling) / 2 if p.ceiling else proj_ceiling, 1)
             ceil = max(ceil, round(final, 1))
 
         unc_reasons: list[str] = []
@@ -167,8 +206,23 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
             "final": final, "adjustments": adjustments, "floor": floor, "median": median, "ceiling": ceil,
             "app_ceiling": p.ceiling, "value": round(final / (p.salary / 1000), 2) if final and p.salary else None,
             "ownership": None, "uncertainty": unc, "uncertainty_reasons": unc_reasons, "line": c.line,
+            "role": getattr(p, "role", None), "snap_pct": getattr(p, "snap_pct", None),
+            "usage_trend": getattr(p, "usage_trend", None), "team_share": getattr(p, "team_share", None),
+            "props": _props(c.line, pos, final),
+            "opp_cb_out": getattr(p, "opp_cb_out", None),
+            "play_chance": getattr(p, "play_chance", None), "practice": getattr(p, "practice", None),
         })
     return rows
+
+
+def _props(line: dict | None, pos: str, final: float | None) -> dict | None:
+    """Prop medians and ladder chances (app.prop_pricer) from the consensus stat line, moved with the final
+    projection (matchup, role, weather)."""
+    raw = projections.dk_points_from_line(line, pos) if line and pos in projections.SKILL else 0.0
+    if not final or raw <= 0:
+        return None
+    priced = prop_pricer.price(line, pos, ratio=final / raw)
+    return {k: {"median": v["median"], "ladder": v["ladder"]} for k, v in priced.items()} or None
 
 
 def _eligible(r: dict) -> bool:
@@ -203,7 +257,8 @@ def _popularity(pool: list[dict]) -> None:
 
 def _card(r: dict, reason: str) -> dict:
     keys = ("id", "name", "position", "team", "opponent", "salary", "final", "consensus", "floor", "ceiling",
-            "value", "ownership", "popularity", "popularity_source", "uncertainty_label", "injury", "n_sources")
+            "value", "ownership", "popularity", "popularity_source", "uncertainty_label", "injury", "n_sources",
+            "role", "snap_pct", "usage_trend", "team_share")
     return {**{k: r.get(k) for k in keys}, "reason": reason}
 
 
@@ -293,9 +348,9 @@ def news_changes(rows: list[dict], n: int = 5) -> list[dict]:
     for r in rows:
         for adj in r["adjustments"]:
             if adj["kind"] == "model" and r["final"]:
-                delta = r["final"] - (r["consensus"] or 0)
+                delta = adj["delta"] if "delta" in adj else (r["consensus"] or 0) * (adj["factor"] - 1)
                 if abs(delta) >= 0.5:
-                    items.append({"impact": round(abs(delta), 1), "kind": "model", "source": "Model matchup adjustment",
+                    items.append({"impact": round(abs(delta), 1), "kind": "model", "source": adj.get("source", "Model matchup adjustment"),
                                   "text": f"{r['name']} ({r['team']} {r['position']}) {delta:+.1f}: {adj['text']}"})
     items.sort(key=lambda x: -x["impact"])
     return items[:n]
@@ -357,7 +412,7 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
     weights = {pos: consensus.position_weights(accuracy, pos, list(indexes)) for pos in POSITIONS}
 
     game_of = {t: f"{g.away}@{g.home}" for g in slate.games for t in (g.away, g.home)}
-    rows = _player_rows(sp.players, indexes, accuracy, weights, vs_exp, game_of)
+    rows = _player_rows(sp.players, indexes, accuracy, weights, vs_exp, game_of, weather.team_weather(slate))
     ctx = dfs_strategy.team_context(slate)
     for r in rows:
         r["implied"] = (ctx.get(r["team"]) or {}).get("implied")
@@ -370,7 +425,25 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
     _label_uncertainty(pool)
     _popularity(pool)
 
-    strategy = dfs_strategy.run(pool, rows, slate, wd, profiles, True, season, week)
+    try:
+        adv = await advanced_env.for_games(season, week, tuple(
+            (g.away, g.home, g.context.total_line if g.context else None) for g in slate.games))
+        adv_bt = await advanced_env.backtest(season, week)
+    except Exception:
+        adv, adv_bt = {}, None
+    try:
+        v2 = await game_model.week_games(season, week, {
+            f"{g.away}@{g.home}": (g.context.total_line if g.context else None,
+                                   -g.context.home_spread if g.context and g.context.home_spread is not None else None)
+            for g in slate.games})
+    except Exception:
+        v2 = {}
+    for k, v in (adv or {}).items():
+        if v is not None and v2.get(k):
+            v["model_v2"] = {x: v2[k][x] for x in ("fair_total", "total_adj", "fair_home_margin", "margin_adj", "qbs", "ol_out")}
+            v["checklist"] = v2[k]["checklist"]
+            v["style_matchup"] = v2[k].get("style_matchup")
+    strategy = dfs_strategy.run(pool, rows, slate, wd, profiles, True, season, week, adv, adv_bt)
     lineup_ids = {lu["label"]: [p["id"] for p in lu["players"]]
                   for grp in ("cash", "gpp", "contrarian") for lu in strategy["lineups"][grp]}
     tournament_ids = {k: v for k, v in lineup_ids.items() if not k.startswith(("Recommended", "Cash"))}
@@ -409,6 +482,8 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
                       "note": "Bayesian posterior ownership (large-field GPP): behavioral prior + pasted sources + crowd "
                               "+ news. See the Ownership tab for intervals and confidence."},
         "ownership_model": own_report,
+        "trenches": ({k: wd.trenches.get(k) for k in ("window", "sources", "coverage_season", "note", "references")}
+                     if wd is not None and wd.trenches else None),
         "summary": {
             "top_projections": [_card(r, f"Consensus {r['consensus']:.1f} from {r['n_sources']} sources")
                                 for r in sorted(pool, key=lambda r: -r["final"])[:10]],
@@ -425,7 +500,9 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
         "table": [{k: r.get(k) for k in (
             "id", "name", "position", "team", "opponent", "salary", "injury", "consensus", "median_src", "low", "high", "sd",
             "n_sources", "by_source", "missing", "final", "adjustments", "floor", "median", "ceiling", "app_ceiling", "value",
-            "ownership", "popularity", "uncertainty", "uncertainty_label", "uncertainty_reasons")} for r in table],
+            "ownership", "popularity", "uncertainty", "uncertainty_label", "uncertainty_reasons", "role", "snap_pct",
+            "usage_trend", "team_share", "props", "opp_cb_out")}
+            for r in table],
         "no_source_players": no_source,
         "lineups": strategy["lineups"],
         "elapsed_s": round(time.time() - t0, 2),

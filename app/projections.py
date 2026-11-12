@@ -19,14 +19,24 @@ adjusted for how this week's opponent has fared against expectations.
    5.709); stronger versions, or adjusting on a player's own record vs his
    projections, made projections worse (regression to the mean).
 
-Players without a Sleeper line (kickers, deep backups) fall back to
-DraftKings' season FPPG.
+3. Weather (app.weather). Outdoor games only: the projected line rescored
+   with weather-scaled stats (passing/receiving yards and TDs, rushing yards
+   and TDs), using effects fit on 2016-2025 games and applied only to the
+   extent projections don't already price weather in
+   (scripts/weather_effects.py). DSTs use the fitted DST-points effect.
+
+A QB/RB/WR/TE matched to Sleeper whose line this week is empty is projected
+0: Sleeper doesn't expect him to play (a benched starter or backup), so
+his season FPPG -- maybe from earlier starts -- would overstate him. Kickers,
+players Sleeper can't be matched to, and weeks with no Sleeper lines at all
+fall back to DraftKings' season FPPG.
 """
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass
 
-from app import dk_scoring
+from app import dk_scoring, weather
 from app import nflverse_client as nc
 from app import sleeper_client
 from app.cache import cached_fetch, memoize_async
@@ -51,6 +61,7 @@ def dk_points_from_line(stats: dict, position: str) -> float:
     pts += g("rec") + g("rec_yd") * 0.1 + g("rec_td") * 6
     pts -= g("fum_lost")
     pts += 2 * (g("pass_2pt") + g("rush_2pt") + g("rec_2pt"))
+    pts += 6 * (g("st_td") + g("fum_rec_td"))   # return and fumble-recovery TDs
     return round(pts, 2)
 
 
@@ -82,8 +93,10 @@ async def defense_vs_expectation(season: int, week: int) -> dict[str, list]:
             actual[(w, nc.player_key(r["player_display_name"], r["position"]))] = (
                 dk_scoring.dk_offense_points(r), nc.to_app_team(r.get("opponent_team", "")))
         out: dict[str, list] = {}
-        for w in range(1, week):
-            for line in (await sleeper_client.get_projection_lines(season, w)).values():
+        weeks = list(range(1, week))
+        by_week = await asyncio.gather(*(sleeper_client.get_projection_lines(season, w) for w in weeks))
+        for w, lines in zip(weeks, by_week):
+            for line in lines.values():
                 pos = line.get("position")
                 if pos not in SKILL or not line.get("name"):
                     continue
@@ -130,11 +143,18 @@ async def build_context(season: int, week: int) -> ProjectionContext:
     return ProjectionContext(lines=lines, vs_expectation=await defense_vs_expectation(season, week))
 
 
+def weather_note(w: dict, factor: float) -> str:
+    return (f"Weather ({w.get('summary')}): x{factor:.2f}"
+            + (" -- long-range forecast, half strength" if w.get("long_range") else ""))
+
+
 def project(ctx: ProjectionContext, *, sleeper_id: str | None, position: str, opponent: str,
-            fallback: float | None) -> tuple[float, list[str]]:
+            fallback: float | None, game_weather: dict | None = None) -> tuple[float, list[str]]:
     """(DK points, one line of explanation per step) for one player."""
     line = ctx.lines.get(sleeper_id) if sleeper_id else None
     base = dk_points_from_line(line["stats"], position) if line and line.get("stats") else 0.0
+    if base <= 0 and position in SKILL and sleeper_id and ctx.lines:
+        return 0.0, ["Sleeper projects no stats this week (backup or not starting); DK season FPPG ignored"]
     if base <= 0:
         value = round(fallback or 0.0, 2)
         return value, [f"No projected stat line this week; DK season FPPG {value:.1f}"]
@@ -148,6 +168,10 @@ def project(ctx: ProjectionContext, *, sleeper_id: str | None, position: str, op
             notes.append(f"vs {opponent} this season: {position}s have scored {actual / projected - 1:+.0%} vs their "
                          f"projections ({games} game{'s' if games != 1 else ''}) -> x{m:.2f}")
         base *= m
+    factor = weather.player_factor(game_weather, position, line["stats"], dk_points_from_line)
+    if abs(factor - 1) >= 0.01:
+        notes.append(weather_note(game_weather, factor))
+        base *= factor
     return round(base, 2), notes
 
 

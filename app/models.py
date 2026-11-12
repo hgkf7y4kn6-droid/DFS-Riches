@@ -41,6 +41,11 @@ class GameContext(BaseModel):
     home_total_trend: TeamTrend | None = None
     away_implied_total_trend: TeamTrend | None = None  # trailing avg of away team's own implied total
     home_implied_total_trend: TeamTrend | None = None
+    # What actually happened in each team's recent games (not market lines): trailing avg points scored / allowed.
+    away_points_for_trend: TeamTrend | None = None
+    home_points_for_trend: TeamTrend | None = None
+    away_points_against_trend: TeamTrend | None = None
+    home_points_against_trend: TeamTrend | None = None
 
     is_final: bool = False
     away_score: int | None = None
@@ -62,9 +67,10 @@ class Game(BaseModel):
     kickoff_utc: datetime
     kickoff_et: str        # pre-formatted for display, e.g. "Wed 9/9 8:20 PM ET"
     network: str | None = None
-    day_part: str          # WED_NIGHT, THU_NIGHT, SUN_EARLY, SUN_LATE, SUN_NIGHT, MON_NIGHT, ...
-    isolated: bool = False # True => the lone game in an isolated (Wed/Thu/Sun/Mon night) window
+    day_part: str          # SUN_MORNING/EARLY/LATE/NIGHT, or <DAY>_EARLY/LATE/NIGHT (THU_NIGHT, MON_NIGHT, ...)
+    isolated: bool = False # True => an island game: the lone game in a window outside the Sunday main slate
     context: GameContext | None = None  # real spread/total/pace + performance-vs-line, once available
+    weather: dict | None = None         # app.weather: venue, roof, kickoff-window forecast, projection multipliers
 
 
 class WeekSchedule(BaseModel):
@@ -88,7 +94,8 @@ class Player(BaseModel):
     sleeper_proj: float | None = None  # Sleeper's week-specific PPR projection, when Sleeper has one
     trend_l3: float | None = None     # real DK-style FPPG over the player's last 3 games
     trend_l6: float | None = None     # ...last 6 games
-    trend_l9: float | None = None     # ...last 9 games
+    trend_l9: float | None = None     # ...last 9 games (each None until he has played that many this season)
+    trend_season: float | None = None # DK points per game this season: the baseline the trends are colored against
     ceiling: float | None = None      # 85th-percentile DK score estimate (app.ceiling), x1.5 for CPT
     ceiling_notes: list[str] = []     # one line per factor behind the ceiling
     value_per_1k: float
@@ -96,6 +103,17 @@ class Player(BaseModel):
     injury: str | None = None
     sleeper_player_id: str | None = None
     dk_draftable_id: int | None = None
+    role: str | None = None           # starter / rotation / backup / out on his team this week (app.roles)
+    snap_pct: float | None = None     # offensive snap % over his last 3 games, weighted toward the latest
+    usage_trend: dict | None = None   # {"direction": "up" | "down", "text": ...} when his role just shifted
+    team_share: dict | None = None    # RB/WR/TE: share + team rank of skill touches and DK points (app.roles.team_shares)
+    role_adj: float | None = None     # DK points added by the role & script model (app.player_model), already in proj_points
+    dst_adj: float | None = None      # DST: the DST model's change to Sleeper's line (app.dst_model), already in proj_points
+    ceiling_model: bool = False       # the ceiling came from app.ceiling_model (vs app.ceiling's formula)
+    opp_cb_out: int | None = None     # RB/WR/TE: the opponent's starting corners out (app.game_model), when any
+    play_chance: float | None = None  # Questionable: chance he plays (app.injury_news), already in proj_points
+    vacated_adj: float | None = None  # DK points from out teammates' volume Sleeper hasn't moved yet (app.vacated), in proj_points
+    practice: str | None = None       # Questionable: this week's practice log from the team's report, e.g. "Wed DNP · Thu LP · Fri FP"
 
 
 class Slate(BaseModel):
@@ -115,6 +133,7 @@ class SlatePlayers(BaseModel):
     unmatched_dk_names: list[str]
     match_count: int
     total_count: int
+    warnings: list[str] = []    # inputs that were missing or older than their refresh allows: the numbers may be degraded
 
 
 class WeekData(BaseModel):
@@ -179,6 +198,7 @@ class GameBreakdown(BaseModel):
     takeaways: list[str]        # short, original, template-generated from the real numbers above
     away_top_players: list[TopPlayer]
     home_top_players: list[TopPlayer]
+    postgame: dict | None = None  # app.postgame.summarize once the game is final
 
 
 class PositionMatchup(BaseModel):
@@ -195,8 +215,11 @@ class UsageShare(BaseModel):
     name: str
     position: str
     injury: str = "Healthy"
-    share_l3: float                    # share of team targets + carries, last 3 games
-    share_l8: float | None = None
+    share_season: float                # share of team targets + carries, this season
+    share_l3: float | None = None      # last 3 / 6 / 9 games; None until he has played that many this season
+    share_l6: float | None = None
+    share_l9: float | None = None
+    share_l8: float | None = None      # last 8 (the classic page's tick)
 
 
 class LeagueContext(BaseModel):
@@ -221,6 +244,9 @@ class GameDetail(BaseModel):
     away_usage: list[UsageShare]
     home_usage: list[UsageShare]
     insights: dict[str, str]                 # section -> 1-2 sentence game/DFS impact, generated from the numbers
+    trenches: dict | None = None             # unit ranks, scheme rates and matchup edges (app.trenches); None if unavailable
+    units: dict | None = None                # offense/defense yards, DK points, giveaways: ranks + L3/L6/L9 (app.team_units)
+    pace: dict | None = None                 # seconds per drive, explosive pass rate, drive velocity (app.advanced_env pace_card)
 
 
 class WeekBreakdown(BaseModel):

@@ -67,3 +67,16 @@ def test_pick_dst_explains_the_spot():
     tough = pick_dst([_dst("SEA", "WAS", 3800)], "SEA", "WAS", ctx, opp_sacks=1.5, opp_giveaways=0.7,
                      league_sacks=2.4, league_giveaways=1.15, opp_implied_rank=2, n_teams=32, dst_rank=28, n_dst=32)
     assert any(r.startswith("Tough spot: WAS implied for 16.5 (2nd-highest)") for r in tough.reasons)
+
+
+def test_project_zeroes_a_matched_skill_player_sleeper_projects_for_nothing():
+    # A benched QB: Sleeper lists him with an empty line, DK still shows his
+    # FPPG from earlier starts.
+    ctx = pj.ProjectionContext(lines={"5854": {"stats": {}}, "1": {"stats": {"pass_yd": 250.0}}}, vs_expectation={})
+    value, notes = pj.project(ctx, sleeper_id="5854", position="QB", opponent="LAC", fallback=17.1)
+    assert value == 0.0 and notes[0].startswith("Sleeper projects no stats this week")
+    # Unmatched to Sleeper: a data gap, not a benching -- keep the FPPG fallback.
+    assert pj.project(ctx, sleeper_id=None, position="QB", opponent="LAC", fallback=17.1)[0] == 17.1
+    # No Sleeper lines at all this week: fall back too.
+    empty = pj.ProjectionContext(lines={}, vs_expectation={})
+    assert pj.project(empty, sleeper_id="5854", position="QB", opponent="LAC", fallback=17.1)[0] == 17.1

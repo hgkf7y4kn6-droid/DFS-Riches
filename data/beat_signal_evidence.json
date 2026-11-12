@@ -1,0 +1,4 @@
+{
+  "note": "Signal kinds graded good enough to do more than inform, as [type, direction] pairs. Empty: every beat-writer signal is display-only until app.beat_news.grade shows it beating its base rate on enough graded games.",
+  "promoted": []
+}

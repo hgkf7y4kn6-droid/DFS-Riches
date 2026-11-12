@@ -1,0 +1,384 @@
+{
+ "projection": {
+  "QB": {
+   "n": 13,
+   "source_mae": 6.65,
+   "model_mae": 7.21,
+   "source_bias": 0.93,
+   "model_bias": 0.35
+  },
+  "RB": {
+   "n": 12,
+   "source_mae": 6.94,
+   "model_mae": 7.67,
+   "source_bias": 1.58,
+   "model_bias": 3.62
+  },
+  "WR": {
+   "n": 22,
+   "source_mae": 8.38,
+   "model_mae": 8.16,
+   "source_bias": -0.34,
+   "model_bias": -1.21
+  },
+  "TE": {
+   "n": 12,
+   "source_mae": 5.04,
+   "model_mae": 5.11,
+   "source_bias": 0.54,
+   "model_bias": 2.13
+  },
+  "DST": {
+   "n": 10,
+   "source_mae": 2.77,
+   "model_mae": 3.08,
+   "source_bias": -1.09,
+   "model_bias": -1.77
+  },
+  "ALL": {
+   "n": 69,
+   "source_mae": 6.41,
+   "model_mae": 6.63,
+   "source_bias": 0.28,
+   "model_bias": 0.42
+  }
+ },
+ "claims": [
+  {
+   "id": "walker_over_gibbs",
+   "text": "Kenneth Walker projects 1.3 pts above Jahmyr Gibbs (Borg: leverage, Walker over Gibbs)",
+   "a": 39.3,
+   "b": 13.4,
+   "correct": true
+  },
+  {
+   "id": "jsn_over_puka",
+   "text": "Jaxon Smith-Njigba projects 3.8 pts above Puka Nacua",
+   "a": 12.1,
+   "b": 39.0,
+   "correct": false
+  },
+  {
+   "id": "coleman_over_singletary",
+   "text": "Walker/Coleman beats Gibbs/Singletary by 5.3 projected pts",
+   "a": 58.099999999999994,
+   "b": 19.3,
+   "correct": true
+  },
+  {
+   "id": "judkins_over_coleman",
+   "text": "Judkins is 0.4 pts behind Coleman at 4.75% vs 27% own (first look for value RB)",
+   "a": 5.5,
+   "b": 18.8,
+   "correct": false
+  },
+  {
+   "id": "nabers_over_lamb",
+   "text": "Nabers saves $1k vs Lamb for 0.5 fewer pts at half the own",
+   "a": 9.3,
+   "b": 37.5,
+   "correct": false
+  },
+  {
+   "id": "concepcion_over_aw",
+   "text": "KC Concepcion projects 2.8 above Antonio Williams",
+   "a": 18.8,
+   "b": 5.5,
+   "correct": true
+  },
+  {
+   "id": "kittle_top_te",
+   "text": "Kittle leads TE projections (15)",
+   "actual": "top actual TE: Brock Bowers 26.3",
+   "correct": false
+  },
+  {
+   "id": "laporta_over_kelce",
+   "text": "LaPorta projects 1.6 above Kelce",
+   "a": 7.2,
+   "b": 17.3,
+   "correct": false
+  },
+  {
+   "id": "lock_under_12",
+   "text": "Betz bold call: Drew Lock fails to score 12+ DK points",
+   "actual": 12.6,
+   "correct": false
+  },
+  {
+   "id": "gb_over_phi",
+   "text": "GB DST projects 0.8 above PHI DST at 5% vs 14% own",
+   "a": 12.0,
+   "b": 9.0,
+   "correct": true
+  },
+  {
+   "id": "den_over_no",
+   "text": "DEN DST projects 0.3 above NO DST at a third of the own",
+   "a": 7.0,
+   "b": 5.0,
+   "correct": true
+  }
+ ],
+ "pivots": [
+  {
+   "pos": "QB",
+   "popular": [
+    "Drew Lock",
+    12.6
+   ],
+   "pivot": [
+    "Jordan Love",
+    39.18
+   ],
+   "aggressive": [
+    "Kirk Cousins",
+    15.64
+   ],
+   "pivot_beat_popular": true,
+   "aggressive_beat_popular": true
+  },
+  {
+   "pos": "QB",
+   "popular": [
+    "Brock Purdy",
+    26.28
+   ],
+   "pivot": [
+    "Drake Maye",
+    21.26
+   ],
+   "aggressive": [
+    "C.J. Stroud",
+    39.36
+   ],
+   "pivot_beat_popular": false,
+   "aggressive_beat_popular": true
+  },
+  {
+   "pos": "RB",
+   "popular": [
+    "Christian McCaffrey",
+    22.7
+   ],
+   "pivot": [
+    "Josh Jacobs",
+    0.5
+   ],
+   "aggressive": [
+    "Zach Charbonnet",
+    9.6
+   ],
+   "pivot_beat_popular": false,
+   "aggressive_beat_popular": false
+  },
+  {
+   "pos": "RB",
+   "popular": [
+    "Rhamondre Stevenson",
+    15.8
+   ],
+   "pivot": [
+    "Jadarian Price",
+    11.8
+   ],
+   "aggressive": [
+    "Omarion Hampton",
+    6.0
+   ],
+   "pivot_beat_popular": false,
+   "aggressive_beat_popular": false
+  },
+  {
+   "pos": "WR",
+   "popular": [
+    "Jaxon Smith-Njigba",
+    12.1
+   ],
+   "pivot": [
+    "Christian Watson",
+    33.1
+   ],
+   "aggressive": [
+    "Michael Wilson",
+    12.0
+   ],
+   "pivot_beat_popular": true,
+   "aggressive_beat_popular": false
+  },
+  {
+   "pos": "WR",
+   "popular": [
+    "Matthew Golden",
+    35.4
+   ],
+   "pivot": [
+    "Nico Collins",
+    15.5
+   ],
+   "aggressive": [
+    "Ladd McConkey",
+    0.0
+   ],
+   "pivot_beat_popular": false,
+   "aggressive_beat_popular": false
+  },
+  {
+   "pos": "WR",
+   "popular": [
+    "Efton Chism",
+    15.9
+   ],
+   "pivot": [
+    "Cooper Kupp",
+    6.2
+   ],
+   "aggressive": [
+    "Savion Williams",
+    12.8
+   ],
+   "pivot_beat_popular": false,
+   "aggressive_beat_popular": false
+  },
+  {
+   "pos": "TE",
+   "popular": [
+    "George Kittle",
+    9.8
+   ],
+   "pivot": [
+    "Brock Bowers",
+    26.3
+   ],
+   "aggressive": [
+    "Tucker Kraft",
+    1.9
+   ],
+   "pivot_beat_popular": true,
+   "aggressive_beat_popular": false
+  },
+  {
+   "pos": "DST",
+   "popular": [
+    "ARI",
+    1.0
+   ],
+   "pivot": [
+    "GB",
+    12.0
+   ],
+   "aggressive": [
+    "NE",
+    -1.0
+   ],
+   "pivot_beat_popular": true,
+   "aggressive_beat_popular": false
+  },
+  {
+   "pos": "DST",
+   "popular": [
+    "SEA",
+    10.0
+   ],
+   "pivot": [
+    "SF",
+    17.0
+   ],
+   "aggressive": [
+    "LV",
+    -1.0
+   ],
+   "pivot_beat_popular": true,
+   "aggressive_beat_popular": false
+  }
+ ],
+ "lineups": [
+  {
+   "version": "v2",
+   "label": "Goff stack (St. Brown/Jameson, MIA return)",
+   "proj": 138.82,
+   "actual": 133.2
+  },
+  {
+   "version": "v2",
+   "label": "Stafford stack (Puka, WAS return)",
+   "proj": 137.05,
+   "actual": 111.72
+  },
+  {
+   "version": "v2",
+   "label": "Love stack (Watson/Kraft, NE return)",
+   "proj": 127.32,
+   "actual": 173.38
+  },
+  {
+   "version": "v2",
+   "label": "Mahomes stack (Rice/Kelce) + Kittle + Lamb",
+   "proj": 131.72,
+   "actual": 130.68
+  },
+  {
+   "version": "v2",
+   "label": "Daniels stack (WAS, Puka/LAR return)",
+   "proj": 135.05,
+   "actual": 109.92
+  },
+  {
+   "version": "v1",
+   "label": "Goff stack (Jameson/LaPorta, MIA return)",
+   "proj": 138.55,
+   "actual": 121.3
+  },
+  {
+   "version": "v1",
+   "label": "Stafford stack (Puka, WAS return)",
+   "proj": 135.52,
+   "actual": 114.22
+  },
+  {
+   "version": "v1",
+   "label": "Daniels stack (WAS, Puka/LAR return)",
+   "proj": 135.33,
+   "actual": 99.92
+  },
+  {
+   "version": "v1",
+   "label": "Mahomes stack (Rice/Kelce, DET/KC game)",
+   "proj": 133.25,
+   "actual": 141.08
+  },
+  {
+   "version": "v1",
+   "label": "Low-owned QB stack (Maye/Love/Shough)",
+   "proj": 126.22,
+   "actual": 112.2
+  }
+ ],
+ "projection_source2": {
+  "n": 25,
+  "source2_mae": 9.09,
+  "model_mae": 9.6,
+  "source1_mae_same_players": 9.6,
+  "source2_bias": -0.32,
+  "model_bias": -1.24
+ },
+ "cash_lineups": [
+  {
+   "label": "Cash #1",
+   "proj": 144.88,
+   "actual": 156.88
+  },
+  {
+   "label": "Cash #2",
+   "proj": 143.58,
+   "actual": 115.58
+  },
+  {
+   "label": "Cash #3",
+   "proj": 143.96,
+   "actual": 164.28
+  }
+ ],
+ "app_safe_lineup": [],
+ "note_cash": "Cash line (50/50, double-up) is not in any box score: compare 'actual' with the contest's cashing score once it is known."
+}

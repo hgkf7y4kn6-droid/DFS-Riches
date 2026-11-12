@@ -1,0 +1,226 @@
+import asyncio
+import os
+import time
+
+import jwt
+import pytest
+from cryptography.hazmat.primitives.asymmetric import rsa
+
+from app import accounts
+
+KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+ISS = f"https://{accounts.frontend_api()}"
+
+
+def _token(sub="user_abc", exp_in=300, iss=ISS, key=KEY, kid="kid1", azp=None):
+    now = int(time.time())
+    claims = {"sub": sub, "iss": iss, "iat": now, "exp": now + exp_in, **({"azp": azp} if azp else {})}
+    return jwt.encode(claims, key, algorithm="RS256", headers={"kid": kid})
+
+
+@pytest.fixture(autouse=True)
+def _jwks(monkeypatch):
+    async def signing_key(kid):
+        if kid != "kid1":
+            raise accounts.AuthError("unknown signing key")
+        return KEY.public_key()
+    monkeypatch.setattr(accounts, "_signing_key", signing_key)
+    for var in ("DATABASE_URL", "CLERK_SECRET_KEY", "MASTER_USER_IDS", "MASTER_EMAILS", "CLERK_AUTHORIZED_PARTIES"):
+        monkeypatch.delenv(var, raising=False)
+    accounts._USERS.clear()
+
+
+def test_frontend_api_from_publishable_key():
+    assert accounts.frontend_api("pk_test_cmVsYXRlZC1jb3VnYXItMjE5MC5jbGVyay5hY2NvdW50cy5kZXYk") == \
+        "related-cougar-2190.clerk.accounts.dev"
+
+
+def test_verify_accepts_a_valid_session_and_rejects_bad_ones():
+    assert asyncio.run(accounts.verify(f"Bearer {_token()}")) == "user_abc"
+    for bad in (None, "Basic x", f"Bearer {_token(exp_in=-120)}", f"Bearer {_token(iss='https://evil.example')}",
+                f"Bearer {_token(key=rsa.generate_private_key(public_exponent=65537, key_size=2048))}",
+                f"Bearer {_token(kid='other')}"):
+        with pytest.raises(accounts.AuthError):
+            asyncio.run(accounts.verify(bad))
+
+
+def test_regular_accounts_keep_recent_weeks_masters_keep_everything():
+    lineups = {f"2026:{w}:classic": {"savedAt": "x"} for w in range(1, 11)}
+    pruned = accounts.prune("saved_lineups", lineups, master=False)
+    assert set(pruned) == {f"2026:{w}:classic" for w in range(5, 11)}
+    assert accounts.prune("saved_lineups", lineups, master=True) == lineups
+    subs = [{"id": i} for i in range(500)]
+    assert accounts.prune("submissions", subs, master=False) == subs          # entries are never pruned
+
+
+def test_validate_rejects_unknown_keys_and_oversized_values():
+    with pytest.raises(ValueError):
+        accounts.validate("passwords", {}, master=False)
+    big = {"x": "a" * (accounts.MAX_BYTES + 10)}
+    with pytest.raises(ValueError):
+        accounts.validate("settings", big, master=False)
+    accounts.validate("settings", big, master=True)                           # masters get more room
+    accounts.validate("prefs", {"focus": "cash", "spend": "25-100", "lastTab": "/cash"}, master=False)   # the app's preferences doc
+
+
+def test_master_from_env_or_clerk_role(monkeypatch):
+    monkeypatch.setenv("MASTER_USER_IDS", "user_me, user_other")
+    assert asyncio.run(accounts.is_master("user_me"))
+    monkeypatch.delenv("MASTER_USER_IDS")
+
+    async def user(uid):
+        return {"public_metadata": {"role": "master"}} if uid == "user_role" else {}
+    monkeypatch.setattr(accounts, "clerk_user", user)
+    assert asyncio.run(accounts.is_master("user_role"))
+    assert not asyncio.run(accounts.is_master("user_plain"))
+
+
+def test_master_by_verified_email(monkeypatch):
+    monkeypatch.setenv("MASTER_EMAILS", "Owner@Example.com")
+
+    async def user(uid):
+        status = "verified" if uid == "user_owner" else "unverified"
+        return {"email_addresses": [{"email_address": "owner@example.com", "verification": {"status": status}}]}
+    monkeypatch.setattr(accounts, "clerk_user", user)
+    assert asyncio.run(accounts.is_master("user_owner"))
+    assert not asyncio.run(accounts.is_master("user_squatter"))      # same address, not verified
+
+
+def test_no_storage_configured_is_reported():
+    assert accounts.storage_mode() == "none"
+    with pytest.raises(RuntimeError):
+        asyncio.run(accounts.save("user_abc", "settings", {"a": 1}, None))
+
+
+PG_URL = os.environ.get("TEST_DATABASE_URL")
+
+
+@pytest.mark.skipif(not PG_URL, reason="set TEST_DATABASE_URL to run against Postgres")
+def test_neon_store_round_trip_last_write_wins_and_profile(monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", PG_URL)
+    accounts._SCHEMA_READY["done"] = False
+    profiles = []
+
+    async def meta_write(uid, data, profile):
+        profiles.append(profile)
+    monkeypatch.setattr(accounts, "_meta_write", meta_write)
+
+    async def run():
+        conn = await accounts._connect()
+        async with conn:
+            await conn.execute("delete from user_data where user_id like 'test_%'")
+        await accounts.save("test_u1", "submissions", [{"id": "a"}], "2026-10-03T10:00:00Z")
+        newer = await accounts.save("test_u1", "submissions", [{"id": "a"}, {"id": "b"}], "2026-10-03T11:00:00Z")
+        assert len(newer["value"]) == 2
+        stale = await accounts.save("test_u1", "submissions", [], "2026-10-03T09:00:00Z")   # older write loses
+        assert len(stale["value"]) == 2
+        await accounts.save("test_u1", "settings", {"matchup_mode": "adj"}, "2026-10-03T11:00:00Z")
+        data = await accounts.load("test_u1")
+        assert data["storage"] == "neon" and not data["master"]
+        assert data["data"]["settings"]["value"] == {"matchup_mode": "adj"}
+        assert (await accounts.load("test_u2"))["data"] == {}                                 # users are isolated
+    asyncio.run(run())
+    assert profiles[-1]["counts"] == {"submissions": 2, "settings": 1}
+
+
+def test_clerk_metadata_store_compacts_to_fit(monkeypatch):
+    monkeypatch.setenv("CLERK_SECRET_KEY", "sk_test_dummy")
+    store = {}
+
+    async def meta_load(uid):
+        return store.get(uid, {})
+
+    async def meta_write(uid, data, profile):
+        store[uid] = data
+
+    async def master(uid):
+        return False
+    monkeypatch.setattr(accounts, "_meta_load", meta_load)
+    monkeypatch.setattr(accounts, "_meta_write", meta_write)
+    monkeypatch.setattr(accounts, "is_master", master)
+    subs = [{"id": str(i), "contest": "x" * 100} for i in range(200)]
+    asyncio.run(accounts.save("u", "submissions", subs, "2026-10-03T10:00:00Z"))
+    lineups = {f"2026:{w}:classic": {"lineups": [[1, 2, 3]]} for w in (3, 4)}
+    asyncio.run(accounts.save("u", "saved_lineups", lineups, "2026-10-03T10:00:00Z"))
+    import json
+    assert len(json.dumps(store["u"])) <= accounts.METADATA_BUDGET
+    assert list(store["u"]["saved_lineups"]["value"]) == ["2026:4:classic"]          # latest week only
+    assert store["u"]["submissions"]["value"][0]["id"] == "0"                         # newest kept
+
+
+def test_authorized_parties_limit_which_sites_sessions_come_from(monkeypatch):
+    assert asyncio.run(accounts.verify(f"Bearer {_token(azp='https://anywhere.example')}")) == "user_abc"   # unset: open
+    monkeypatch.setenv("CLERK_AUTHORIZED_PARTIES", "https://dfsriches.com, https://www.dfsriches.com/")
+    assert asyncio.run(accounts.verify(f"Bearer {_token(azp='https://www.dfsriches.com')}")) == "user_abc"
+    assert asyncio.run(accounts.verify(f"Bearer {_token()}")) == "user_abc"            # native app: no azp
+    with pytest.raises(accounts.AuthError):
+        asyncio.run(accounts.verify(f"Bearer {_token(azp='https://evil.example')}"))
+
+
+def test_config_status_reports_presence_never_values(monkeypatch):
+    status = accounts.config_status()
+    assert {k: status[k] for k in ("clerk_secret_key", "database_url", "master_emails", "storage")} == \
+        {"clerk_secret_key": False, "database_url": False, "master_emails": False, "storage": "none"}
+    monkeypatch.setenv("CLERK_SECRET_KEY", "sk_test_secret_value")
+    monkeypatch.setenv("DATABASE_URL", "postgresql://user:pw@host/db")
+    status = accounts.config_status()
+    assert status["clerk_secret_key"] and status["database_url"] and status["storage"] == "neon"
+    assert "sk_test_secret_value" not in str(status) and "pw@host" not in str(status)
+
+
+def test_plans_come_from_the_token_then_metadata_and_masters_are_admin(monkeypatch):
+    async def master(user_id):
+        return user_id == "boss"
+
+    async def user(user_id):
+        return {"public_metadata": {"plan": "pro"}} if user_id == "payer" else {}
+    monkeypatch.setattr(accounts, "is_master", master)
+    monkeypatch.setattr(accounts, "clerk_user", user)
+    assert asyncio.run(accounts.plan("boss")) == "admin"
+    assert asyncio.run(accounts.plan("x", {"plan": "pro"})) == "pro"
+    assert asyncio.run(accounts.plan("payer")) == "pro"
+    assert asyncio.run(accounts.plan("someone")) == "free"
+    monkeypatch.delenv("PRO_GATING", raising=False)
+    assert accounts.entitled("free", "ownership")                 # default: optimal lineups and props are locked
+    assert not accounts.entitled("free", "optimal") and accounts.entitled("pro", "optimal") and accounts.entitled("admin", "optimal")
+    assert not accounts.entitled("free", "props") and accounts.entitled("pro", "props")
+    monkeypatch.setenv("PRO_GATING", "optimal,ownership")
+    assert accounts.gated_features() == ("optimal", "ownership")
+    monkeypatch.setenv("PRO_GATING", "0")
+    assert accounts.entitled("free", "optimal")
+    monkeypatch.setenv("PRO_GATING", "1")
+    assert not accounts.entitled("free", "ownership") and accounts.entitled("pro", "ownership")
+    assert accounts.entitled("free", "projections")              # not a Pro feature
+
+
+def test_founding_accounts_get_pro_once(monkeypatch):
+    monkeypatch.setenv("CLERK_SECRET_KEY", "sk_test")
+    monkeypatch.setattr(accounts, "FOUNDING_PRO_BEFORE", "2026-10-21T21:00:00+00:00")
+    before, after = 1761000000000, 1861000000000            # 2025 and 2028, in ms
+    users = [{"id": "u_old", "created_at": before, "public_metadata": {"role": "master"}},
+             {"id": "u_old2", "created_at": before, "public_metadata": {}},
+             {"id": "u_paid", "created_at": before, "public_metadata": {"plan": "pro"}},
+             {"id": "u_new", "created_at": after, "public_metadata": {}}]
+    calls = []
+
+    async def clerk(method, path, body=None):
+        calls.append((method, path, body))
+        return users if method == "GET" else {}
+    monkeypatch.setattr(accounts, "_clerk", clerk)
+    out = asyncio.run(accounts.grant_founding_pro())
+    assert out == {"granted": 2, "already_had_a_plan": 1, "accounts_checked": 4}
+    patched = [(p, b) for m, p, b in calls if m == "PATCH"]
+    assert patched == [("/users/u_old/metadata", {"public_metadata": {"plan": "pro"}}),
+                       ("/users/u_old2/metadata", {"public_metadata": {"plan": "pro"}})]   # metadata merge keeps the master's role
+
+
+def test_production_config_warnings(monkeypatch):
+    for k in ("CLERK_SECRET_KEY", "DATABASE_URL", "CLERK_PUBLISHABLE_KEY", "CLERK_AUTHORIZED_PARTIES"):
+        monkeypatch.delenv(k, raising=False)
+    assert accounts.config_warnings() == []                         # local development: quiet
+    monkeypatch.setenv("DATABASE_URL", "postgres://x")
+    warnings = accounts.config_warnings()
+    assert any("pk_test_" in w for w in warnings) and any("AUTHORIZED_PARTIES" in w for w in warnings)
+    monkeypatch.setenv("CLERK_PUBLISHABLE_KEY", "pk_live_abc")
+    monkeypatch.setenv("CLERK_AUTHORIZED_PARTIES", "https://x.example")
+    assert accounts.config_warnings() == []

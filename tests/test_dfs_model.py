@@ -3,16 +3,6 @@ import pytest
 from app import consensus, dfs_model, lineup_builder, sources
 from app.projections import dk_points_from_line
 
-FP_PAGE = """
-<table id="data" class="table"><thead>
-<tr><td>&nbsp;</td><td colspan="3" style="x"><small><b>RECEIVING</b></small></td><td colspan="3"><b>RUSHING</b></td><td colspan="2"><b>MISC</b></td></tr>
-<tr><th class="player-label">Player</th><th>REC</th><th>YDS</th><th>TDS</th><th>ATT</th><th>YDS</th><th>TDS</th><th>FL</th><th>FPTS</th></tr>
-</thead><tbody>
-<tr class="mpb-player-1 SEAWAS"><td class="player-label"><a href="/x" class="player-name fp-player-link" fp-player-name="Jaxon Smith-Njigba">Jaxon Smith-Njigba</a> SEA</td>
-<td>6.7</td><td>99.9</td><td>0.7</td><td>0.4</td><td>2.2</td><td>0.0</td><td>0.1</td><td>21.0</td></tr>
-</tbody></table>
-"""
-
 CBS_PAGE = """<title>Week 3 Proj Fantasy Football Stats - TE Points - CBS Sports</title>
 <thead><tr><th><a href="?sortcol=player&sortdir=a">Player</a></th><th><a href="?sortcol=gp">gp</a></th>
 <th><a href="?sortcol=receiving_tgt">tgt</a></th><th><a href="?sortcol=receiving_rec">rec</a></th>
@@ -20,12 +10,6 @@ CBS_PAGE = """<title>Week 3 Proj Fantasy Football Stats - TE Points - CBS Sports
 <th><a href="?sortcol=receiving_td">td</a></th><th><a href="?sortcol=misc_fl">fl</a></th><th><a href="?sortcol=misc_fpts">fpts</a></th></tr></thead>
 <tbody><tr class="TableBase-bodyTr"><td class="TableBase-bodyTd "><span class="CellPlayerName--long"><span class=""><a href="/p">Trey McBride</a><span class="CellPlayerName-position"> TE </span><span class="CellPlayerName-team"> ARI </span></span></span></td>
 <td> 1 </td><td> 10.0 </td><td> 7.5 </td><td> 65.4 </td><td> 65.4 </td><td> 0.6 </td><td> 0.0 </td><td> 17.6 </td></tr></tbody>"""
-
-
-def test_fantasypros_parser_maps_grouped_columns():
-    rows = sources.parse_fantasypros(FP_PAGE, "WR")
-    assert rows == [{"name": "Jaxon Smith-Njigba", "team": "SEA", "position": "WR", "stats": {
-        "rec": 6.7, "rec_yd": 99.9, "rec_td": 0.7, "rush_att": 0.4, "rush_yd": 2.2, "rush_td": 0.0, "fum_lost": 0.1}}]
 
 
 def test_cbs_parser_uses_the_total_not_the_per_game_duplicate_and_checks_week():

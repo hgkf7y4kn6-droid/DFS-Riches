@@ -1,0 +1,35 @@
+{
+  "k": 30,
+  "league_mean": 8.629,
+  "intercept": 0.0333,
+  "implied": 0.064,
+  "spread": 0.0587,
+  "implied_center": 22.5,
+  "record": {
+    "seasons": "2019-2026, one held out at a time",
+    "n": 2966,
+    "flat_season_average": {
+      "mae": 3.739,
+      "rmse": 4.688
+    },
+    "shrunk_only": {
+      "mae": 3.554,
+      "rmse": 4.433
+    },
+    "model": {
+      "mae": 3.518,
+      "rmse": 4.394
+    },
+    "rmse_by_k": {
+      "0.5": 4.639,
+      "3": 4.524,
+      "6": 4.476,
+      "12": 4.446,
+      "20": 4.436,
+      "30": 4.433,
+      "40": 4.434,
+      "60": 4.435,
+      "100": 4.438
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+ "n": 1663,
+ "star_avg": 10.0,
+ "with_practice": {
+  "intercept": 0.7956,
+  "coef": {
+   "dnp": -1.0059,
+   "fp": 1.1552,
+   "qb": -1.2595,
+   "star": 0.4668
+  }
+ },
+ "without_practice": {
+  "intercept": 0.792,
+  "coef": {
+   "qb": -1.1052,
+   "star": 0.3574
+  }
+ },
+ "if_played": {
+  "factor": 0.939,
+  "n": 614,
+  "miss_vs_baseline": -0.64,
+  "se": 0.29
+ }
+}

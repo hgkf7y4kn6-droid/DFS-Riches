@@ -1,0 +1,285 @@
+import { Text, View } from 'react-native';
+
+import PostgameSection from '@/components/breakdown/PostgameSection';
+import TrenchSection from '@/components/breakdown/TrenchSection';
+import UnitMatchups from '@/components/breakdown/UnitMatchups';
+import StatusView from '@/components/StatusView';
+import TrendChips from '@/components/TrendChips';
+import { useGameDetail } from '@/lib/game-detail';
+import { formatCurrency, formatPercent, formatSigned, ordinal } from '@/lib/utils';
+import LeverageBadge from '@/components/LeverageBadge';
+
+const rank = (r: number | null) => (r ? ` (#${r})` : '');
+const vsLeague = (value: number | null, league: number | null) =>
+  value != null && league ? `${formatSigned(((value / league) - 1) * 100, 0)}%` : null;
+
+/** "6.12 yards/play (#2 of 32) · +24% vs the league's 4.94" -- the value, its rank and the gap to the league average. */
+function vsLine(value: number | null, rankNo: number | null, league: number | null, unit: string, decimals: number): string | null {
+  const pct = vsLeague(value, league);
+  if (value == null || !pct || league == null) return null;
+  return `${value.toFixed(decimals)} ${unit}${rankNo ? ` (#${rankNo} of 32)` : ''} · ${pct} vs the league's ${league.toFixed(decimals)}`;
+}
+
+function Section({ title, insight, children }: { title: string; insight?: string; children?: React.ReactNode }) {
+  return (
+    <View className="detail-section">
+      <Text className="detail-title">{title}</Text>
+      {children}
+      {insight ? <Text className="detail-insight">{insight}</Text> : null}
+    </View>
+  );
+}
+
+function Tile({ label, value, sub }: { label: string; value: string; sub?: string | null }) {
+  return (
+    <View className="detail-tile">
+      <Text className="detail-tile-label">{label}</Text>
+      <Text className="detail-tile-value">{value}</Text>
+      {sub ? <Text className="detail-tile-sub">{sub}</Text> : null}
+    </View>
+  );
+}
+
+/** One "label  away | home" comparison row. */
+function Row({ label, away, home }: { label: string; away: string; home: string }) {
+  return (
+    <View className="detail-row">
+      <Text className="detail-row-label">{label}</Text>
+      <Text className="detail-row-value">{away}</Text>
+      <Text className="detail-row-value">{home}</Text>
+    </View>
+  );
+}
+
+function Bullets({ items }: { items: string[] }) {
+  return (
+    <View className="mt-1 gap-1">
+      {items.map((t, i) => (
+        <Text key={i} className="detail-bullet">
+          • {t}
+        </Text>
+      ))}
+    </View>
+  );
+}
+
+function Targets({ team, players }: { team: string; players: TopPlayer[] }) {
+  if (!players.length) return null;
+  return (
+    <View className="mt-2">
+      <Text className="detail-subhead">{team}</Text>
+      {players.slice(0, 4).map((p) => (
+        <View key={`${p.name}-${p.position}`} className="detail-target">
+          <View className="flex-row items-center justify-between">
+            <Text className="detail-target-name" numberOfLines={1}>
+              {p.name}
+              <LeverageBadge inline player={{ name: p.name, team }} /> <Text className="detail-target-meta">{p.position} · {p.role}</Text>
+            </Text>
+            <Text className="detail-target-meta">{formatCurrency(p.salary)}</Text>
+          </View>
+          <Text className="detail-target-meta">
+            {p.proj_points != null ? `${p.proj_points.toFixed(1)} proj` : ''}
+            {p.ceiling != null ? ` · ${p.ceiling.toFixed(1)} ceil` : ''}
+            {p.usage_l3 != null ? ` · ${formatPercent(p.usage_l3, 0)} of touches` : ''}
+          </Text>
+          {p.reasons.slice(0, 2).map((r, i) => (
+            <Text key={i} className="detail-bullet">
+              • {r}
+            </Text>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/**
+ * The website's Weekly Breakdown for one game, stacked for a phone: postgame
+ * recap, Vegas outlook, weather, each offense vs the other defense, tempo,
+ * pass/run tendencies, where to attack by position, who gets the ball, and
+ * DFS targets.
+ */
+export default function GameDetailPanel({ gameId }: { gameId: string }) {
+  const { detail, error } = useGameDetail(gameId);
+
+  if (!detail) return <StatusView loading={!error} error={error} />;
+
+  const gb = detail.breakdown;
+  const g = gb.game;
+  const a = gb.away_stats;
+  const h = gb.home_stats;
+  const L = detail.league;
+  const c = g.context;
+  const w = g.weather;
+  const ins = detail.insights;
+  const pa = detail.pace?.teams[g.away];
+  const ph = detail.pace?.teams[g.home];
+
+  return (
+    <View className="detail-panel">
+      {gb.postgame?.headline ? (
+        <Section title="Postgame: how it played out">
+          <PostgameSection pg={gb.postgame} away={g.away} home={g.home} />
+        </Section>
+      ) : null}
+
+      <Section title="Vegas outlook" insight={ins.vegas}>
+        <View className="detail-tiles">
+          {c?.home_spread != null ? (
+            <Tile label="Spread" value={c.home_spread === 0 ? "Pick'em" : `${c.home_spread < 0 ? g.home : g.away} -${Math.abs(c.home_spread)}`} />
+          ) : null}
+          {c?.total_line != null ? (
+            <Tile label="Total" value={c.total_line.toFixed(1)} sub={gb.total_rank_this_week ? `${ordinal(gb.total_rank_this_week)} highest` : null} />
+          ) : null}
+          {c?.away_implied_total != null ? (
+            <Tile label={`${g.away} implied`} value={c.away_implied_total.toFixed(1)} sub={gb.away_implied_rank_this_week ? `${ordinal(gb.away_implied_rank_this_week)} of the week` : null} />
+          ) : null}
+          {c?.home_implied_total != null ? (
+            <Tile label={`${g.home} implied`} value={c.home_implied_total.toFixed(1)} sub={gb.home_implied_rank_this_week ? `${ordinal(gb.home_implied_rank_this_week)} of the week` : null} />
+          ) : null}
+        </View>
+      </Section>
+
+      {w ? (
+        <Section title="Weather" insight={ins.weather}>
+          <Text className="detail-text">
+            {w.roof === 'dome' ? 'Dome' : w.summary || 'Forecast not available'}
+            {w.impact ? ` · Projection impact: ${w.impact}` : ''}
+          </Text>
+        </Section>
+      ) : null}
+
+      <Section title="Team profiles (entering this game)">
+        <Row label="" away={g.away} home={g.home} />
+        <Row label="Points / game" away={`${a.points_for?.toFixed(1) ?? '-'}${rank(a.points_for_rank)}`} home={`${h.points_for?.toFixed(1) ?? '-'}${rank(h.points_for_rank)}`} />
+        <Row label="Points allowed" away={`${a.points_against?.toFixed(1) ?? '-'}${rank(a.points_against_rank)}`} home={`${h.points_against?.toFixed(1) ?? '-'}${rank(h.points_against_rank)}`} />
+        <Row label="Yards / play" away={`${a.yards_per_play?.toFixed(2) ?? '-'}${rank(a.yards_per_play_rank)}`} home={`${h.yards_per_play?.toFixed(2) ?? '-'}${rank(h.yards_per_play_rank)}`} />
+        <Row label="Yds / play allowed" away={`${a.yards_allowed_per_play?.toFixed(2) ?? '-'}${rank(a.yards_allowed_per_play_rank)}`} home={`${h.yards_allowed_per_play?.toFixed(2) ?? '-'}${rank(h.yards_allowed_per_play_rank)}`} />
+        <Row label="Pass rate" away={formatPercent(a.pass_pct, 0)} home={formatPercent(h.pass_pct, 0)} />
+        <Row label="Pass rate faced" away={`${formatPercent(a.opp_pass_pct_allowed, 0)}${rank(a.opp_pass_pct_allowed_rank)}`} home={`${formatPercent(h.opp_pass_pct_allowed, 0)}${rank(h.opp_pass_pct_allowed_rank)}`} />
+      </Section>
+
+      {[
+        [g.away, g.home, a, h, ins.away_offense],
+        [g.home, g.away, h, a, ins.home_offense],
+      ].map(([off, def, o, d, insight]) => {
+        const offense = o as TeamStatLine;
+        const defense = d as TeamStatLine;
+        const lines: [string, string | null][] = [
+          [`${off} offense`, vsLine(offense.yards_per_play, offense.yards_per_play_rank, L.yards_per_play, 'yards/play', 2)],
+          [`${def} defense`, vsLine(defense.yards_allowed_per_play, defense.yards_allowed_per_play_rank, L.yards_per_play, 'yards/play allowed', 2)],
+          [`${off} offense`, vsLine(offense.points_for, offense.points_for_rank, L.points, 'points/game', 1)],
+          [`${def} defense`, vsLine(defense.points_against, defense.points_against_rank, L.points, 'points allowed/game', 1)],
+        ];
+        const items = lines.filter(([, t]) => t).map(([who, t]) => `${who}: ${t}`);
+        return items.length ? (
+          <Section key={off as string} title={`When ${off} has the ball`} insight={insight as string | undefined}>
+            <Bullets items={items} />
+          </Section>
+        ) : null;
+      })}
+
+      {detail.units ? (
+        <Section title="Units: yards, fantasy points and turnovers">
+          <UnitMatchups units={detail.units} away={g.away} home={g.home} />
+        </Section>
+      ) : null}
+
+      {detail.trenches ? (
+        <Section title="Trenches, efficiency and schemes">
+          <TrenchSection t={detail.trenches} away={g.away} home={g.home} />
+        </Section>
+      ) : null}
+
+      <Section title="Pace and drive velocity" insight={ins.tempo}>
+        <Row label="" away={g.away} home={g.home} />
+        <Row label="Tempo (sec / snap)" away={`${a.tempo_secs?.toFixed(1) ?? '-'}${rank(a.tempo_rank)}`} home={`${h.tempo_secs?.toFixed(1) ?? '-'}${rank(h.tempo_rank)}`} />
+        <Row label="Plays / game" away={`${a.plays_per_game?.toFixed(1) ?? '-'}${rank(a.plays_rank)}`} home={`${h.plays_per_game?.toFixed(1) ?? '-'}${rank(h.plays_rank)}`} />
+        {pa && ph ? (
+          <>
+            <Row label="Seconds / drive" away={`${pa.sec_per_drive.toFixed(0)}${rank(pa.sec_per_drive_rank)}`} home={`${ph.sec_per_drive.toFixed(0)}${rank(ph.sec_per_drive_rank)}`} />
+            <Row
+              label="Explosive pass rate"
+              away={`${formatPercent(pa.explosive_pass, 1)}${rank(pa.explosive_pass_rank)}`}
+              home={`${formatPercent(ph.explosive_pass, 1)}${rank(ph.explosive_pass_rank)}`}
+            />
+          </>
+        ) : null}
+        {detail.pace ? <Text className="detail-insight">{detail.pace.note}</Text> : null}
+        <Text className="detail-note">
+          Tempo is neutral-situation seconds from snap to snap; seconds per drive and explosive passes (20+ yards) are season to date. Ranks: 1 = fastest / most
+          explosive.
+        </Text>
+      </Section>
+
+      {ins.tendency ? (
+        <Section title="Tendencies">
+          <Text className="detail-insight">{ins.tendency}</Text>
+        </Section>
+      ) : null}
+
+      <Section title="Where to attack (DK pts allowed this season, up to last 8)" insight={ins.positions}>
+        {[
+          [g.home, g.away, detail.away_def_vs_pos],
+          [g.away, g.home, detail.home_def_vs_pos],
+        ].map(([off, def, rows]) => (
+          <View key={off as string} className="mt-1">
+            <Text className="detail-subhead">
+              {off as string} offense vs {def as string} defense
+            </Text>
+            {(rows as PositionMatchup[])
+              .filter((r) => r.vs_avg != null)
+              .map((r) => (
+                <View key={r.position} className="detail-row">
+                  <Text className="detail-row-label">{r.position}s</Text>
+                  <Text className={`detail-row-value ${(r.vs_avg ?? 0) > 0 ? 'text-positive' : 'text-pending'}`}>
+                    {formatSigned((r.vs_avg ?? 0) * 100, 0)}%
+                  </Text>
+                  <Text className="detail-row-value">{r.allowed ?? '-'} pts{rank(r.rank)}</Text>
+                </View>
+              ))}
+          </View>
+        ))}
+      </Section>
+
+      <Section title="Who gets the ball (share of targets + carries)" insight={ins.usage}>
+        <Text className="detail-note">Season share, with the last 3 / 6 / 9 games against it once played.</Text>
+        {[
+          [g.away, detail.away_usage],
+          [g.home, detail.home_usage],
+        ].map(([team, rows]) => (
+          <View key={team as string} className="mt-1">
+            <Text className="detail-subhead">{team as string}</Text>
+            {(rows as UsageShare[]).slice(0, 5).map((u) => (
+              <View key={u.name} className="detail-target">
+                <View className="flex-row items-center">
+                  <Text className="detail-row-label" numberOfLines={1}>
+                    {u.name}
+                    <LeverageBadge inline player={{ name: u.name, team: team as string }} /> <Text className="detail-target-meta">{u.position}</Text>
+                  </Text>
+                  <Text className="detail-row-value">{formatPercent(u.share_season, 0)} season</Text>
+                </View>
+                <TrendChips
+                  windows={{ l3: u.share_l3, l6: u.share_l6, l9: u.share_l9 }}
+                  baseline={u.share_season}
+                  format={(v) => formatPercent(v, 0)}
+                />
+              </View>
+            ))}
+          </View>
+        ))}
+      </Section>
+
+      <Section title="DFS targets">
+        <Targets team={g.away} players={gb.away_top_players} />
+        <Targets team={g.home} players={gb.home_top_players} />
+      </Section>
+
+      {gb.takeaways.length ? (
+        <Section title="Takeaways">
+          <Bullets items={gb.takeaways} />
+        </Section>
+      ) : null}
+    </View>
+  );
+}

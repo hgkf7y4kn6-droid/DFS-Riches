@@ -1,4 +1,4 @@
-# DFSRiches
+# Riches Analytics
 
 A DraftKings DFS explorer for the NFL, built with Python (FastAPI). It merges
 **real DraftKings salaries** with **real Sleeper schedule/projection data**
@@ -15,7 +15,7 @@ lines. The player table carries the same idea down to individual players:
 alongside DraftKings' season FPPG, an **L3/L6/L9 trailing DK-style FPPG**
 computed from real box-score history.
 
-Inspired by [dk.ff-dashboard.com](https://dk.ff-dashboard.com/).
+
 
 ## How it works
 
@@ -46,7 +46,7 @@ Sleeper (schedule + projections)     DraftKings (draft groups + salaries)
         - Value = proj points / (salary / 1000)
                     |
                     v
-              app/main.py (FastAPI)  -->  templates/index.html + static/app.js
+              app/main.py (FastAPI)  -->  the app's web build (mobile/, served at /)
 ```
 
 ### Data sources (all real, no fabricated data)
@@ -105,8 +105,13 @@ by team abbreviation, not a person's name). A small manual alias map
 name and Sleeper's on-file name genuinely don't normalize to the same
 string (e.g. DraftKings shows "Hollywood Brown" where Sleeper has him on
 file as "Marquise Brown"). Players DraftKings lists that Sleeper has no
-record of at all (backup/practice-squad players, mostly) show up in the
-site's "unmatched" banner rather than being silently guessed at.
+record of at all (backup/practice-squad players, mostly) are listed in the
+"Check these numbers" notice on the Lineups screen (`DataNotice`) rather
+than being silently guessed at. A name that matches several Sleeper players
+with the same team and position is also left unmatched, never picked. The
+same notice lists any input the server couldn't load or refresh (a model
+that failed, Sleeper lines missing, a provider serving its last saved
+copy), so degraded numbers aren't presented as current.
 
 ### Projections
 
@@ -129,6 +134,14 @@ Hover a Proj value to see the line and any adjustment. Players without a
 line (kickers, deep backups) fall back to DraftKings' season FPPG, still
 shown in its own column. Showdown Captain rows show salary and projections
 at DraftKings' 1.5x multiplier.
+
+> **Not independently reproducible yet.** The table below comes from a
+> backtest run outside this repository (no script here regenerates it), and
+> the matchup-adjustment settings below were tuned on the same 2025 weeks
+> used to report their gain, so treat these numbers as in-sample and
+> unverified. Don't quote them as evidence of accuracy. A committed
+> walk-forward backtest with separate tuning and reporting windows is the
+> open item (see `docs/AUDIT_2026-10-28.md`, F-04).
 
 Backtested against actual DK points (mean absolute error; lower is better):
 
@@ -218,12 +231,29 @@ the season a hot starter's "Proj" (DK's season FPPG over just a couple of
 games) can sit slightly above their Ceiling. Lineup cards also total each
 lineup's ceiling.
 
+**Evaluating the ceiling.** `python -m scripts.eval_walkforward` is the gate
+for any ceiling or projection change. Each fold trains on the three prior
+seasons and scores the next (2025, then 2026 through the latest week), and
+reports pinball loss, beat rate (target 15%), ceiling and projection bias by
+position, implied-total tercile, spread bucket, history length and the
+high-target-share pass catcher on a low-total team. A candidate ships only if
+`passes_gate` shows it beating the current model overall and in the low-total
+tercile. It needs nflverse and Sleeper's historical projections, so run it
+where those are reachable; its output goes to `data/eval_walkforward.json`.
+
 ### Optimal lineups
 
 Every slate shows two **optimal lineups** above your own in the lineup
-builder: one maximizing total Proj and one maximizing total Ceiling. They
-come from an exact integer-program solver (`app/optimizer.py`, SciPy/HiGHS)
-under DraftKings' real rules:
+builder. Classic slates get a **Safe lineup** (the most total Proj: a high
+floor that cashes often) and a **Tournament lineup** (stacked: QB + two of
+his pass catchers + an opposing WR, one RB per team, $49,000+ spent;
+`app/dfs_strategy.py`). Showdown slates get **Optimal - Proj** and
+**Optimal - Ceiling**. (Classic used to show an Optimal - Ceiling lineup; it
+is retired because it never beat its own projection on 2026 Weeks 3-6, and
+old saved records keep it labeled "retired".) They come from an exact
+integer-program solver (`app/optimizer.py`, SciPy/HiGHS) under DraftKings'
+real rules. The solver reports "no valid lineup" only when the rules are
+infeasible; any other solver failure is an error, never an empty result:
 
 - **Classic:** QB, 2-3 RB, 3-4 WR, 1-2 TE, DST, $50,000 cap, at least 2
   games.
@@ -282,6 +312,37 @@ teams). Click a lineup card to edit it. Each player row shows how many of
 your lineups include them (e.g. "2/3"). Lineups are saved in your browser's
 local storage per season/week/slate, so they survive a reload but aren't
 shared across devices.
+
+**Expected ownership.** The player table has an **Own%** column (sortable).
+Hover a value for its 80% interval. These are the Bayesian ownership
+model's numbers, the same ones as the DFS Model's Ownership tab:
+
+- **Classic slates** use large-field GPP ownership.
+- **Showdown slates** show Captain ownership on CPT rows and Flex ownership
+  on FLEX rows.
+
+Each lineup card shows every player's Own% plus the lineup's **Total own**
+(cumulative ownership, the sum across the roster) and **Avg own**. The
+sticky bar shows the active lineup's total. Ownership loads after the
+player table, since the first request of a week runs the DFS Model (about
+15-20 seconds cold, instant after that). The column shows "…" until it
+arrives.
+
+The player pool follows the lineup you're editing:
+
+- **Captain/Flex filter (Showdown):** "All slots", "Captain" or "Flex"
+  narrows the pool to that roster slot.
+- **One captain at a time:** once a lineup has a captain, every other
+  Captain row disappears, along with the captain's own Flex row. They come
+  back when you remove the captain, or when you start or switch to a
+  lineup without one.
+- **Only players who fit** (on by default): as you add players, the pool
+  drops anyone who can't go into the lineup. That means players with no
+  open slot for their position, and players whose salary wouldn't leave
+  enough to fill the other open slots with the cheapest eligible players
+  left. Players already in the lineup always stay visible so you can remove
+  them. Next to the checkbox, a count shows how many are hidden; untick it
+  to see everyone. The captain rule applies either way.
 
 ### Lines, implied totals, and pace of play
 
@@ -428,6 +489,187 @@ The charts follow a data-viz method:
 - Each chart has a "View as table" version.
 - The dialog goes full-screen on phones.
 
+### Weather (`app/weather.py`, `scripts/weather_effects.py`)
+
+Every game gets its stadium's weather for the kickoff window: the kickoff
+hour and the next two. That's average temperature and wind, peak gust,
+highest chance of precipitation, rain and snow totals, and conditions.
+
+**Where the weather comes from**
+- **Forecast:** Open-Meteo's free forecast API (no key, CC BY 4.0), up to
+  16 days out. It's one batched request per week, refreshed hourly. If
+  Open-Meteo is down, US games fall back to the National Weather Service's
+  hourly forecast (7 days out).
+- **Finished games:** the weather they were played in, from the same
+  source's historical data.
+- **Venues:** coordinates and roof type for every stadium in nflverse's
+  schedule, international games included.
+- **Roofs:** domes show "Dome" and get no weather. Retractable roofs show
+  the outside forecast but no adjustment, since teams close them in poor
+  weather.
+
+**Where it shows up**
+- **Week Breakdown cards:** a weather badge on every card, plus a
+  takeaway when outdoor weather is poor.
+- **Game view:** a Weather section with temperature, wind, precipitation
+  and projection-impact tiles.
+- **Slates page:** each game chip, and a Weather column in the lines table.
+- **DFS Model Slate tab:** each game's row, plus a Weather card. The card
+  has a "weather watch" of poor-weather games, with each one's projection
+  impact and the players it cuts most, then every game's weather or dome.
+
+**How weather changes projections**
+
+Both projection paths apply it: the Slates page's Proj and the DFS Model's
+Final. Each player's projected stat line is rescored with weather-scaled
+stats:
+- Passing and receiving yards and receptions scale by the passing-yards
+  effect; passing and receiving TDs by the passing-TD effect.
+- Rushing yards and TDs have their own effects.
+- DSTs use the fitted DST-points effect.
+
+Adjustments of 1% or more appear in the projection's breakdown (hover
+Proj) and in the DFS Model's adjustments and news list. A forecast more
+than 7 days out counts at half strength.
+
+**Where the effects come from**
+
+`scripts/weather_effects.py` fits them on every 2016-2025 regular-season
+game: 5,122 team-games, 3,616 of them in open air. Game-time weather comes
+from Open-Meteo's historical data, the same variables used for forecasts.
+The fit is OLS with offense-season and defense-season fixed effects, so a
+bad offense playing in cold weather isn't read as weather. Measured per
+team-game:
+
+| | Passing yds | Passing TDs | Rushing yds | Team points | DST pts |
+|---|---|---|---|---|---|
+| Each mph of wind above 10 | -3.0 | -0.03 | ~0 | -0.33 | ~0 |
+| Rain | -14.2 | -0.20 | ~0 | -1.5 | +0.64 |
+| Snow | -22.3 | ~0 | +18.0 | ~0 | ~0 |
+| Each degree below 40°F | -1.0 | -0.01 | ~0 | -0.12 | +0.05 |
+
+- **Shrinkage:** each effect is shrunk by its standard error, so noisy ones
+  (snow, a rare condition) count for less.
+- **What projections already price in:** on 2,511 player-games from 2025
+  and 2026, actual DK points minus Sleeper's projection moved 0.62 points
+  for every point of predicted weather effect (standard error 0.29). So
+  projections already account for about 40% of weather, and only the
+  remaining 62% is applied. Rerun the script to refresh all of this; it
+  writes `data/weather_effects.json`.
+
+### Postgame summaries (`app/postgame.py`)
+
+Once a game is final, its Week Breakdown card shows a **Postgame** block,
+and the game view (now labeled "Game recap") opens with a full postgame
+section. The pregame sections below it are unchanged, so you can compare
+what was expected with what happened. Every number is real and every
+sentence is generated from those numbers.
+
+- **Result:** final score against the closing spread, total and each
+  team's implied total.
+- **How it played out:** from the game's play-by-play:
+  - Success rate and EPA/play, overall and split into dropbacks and runs.
+  - Explosive plays and sacks taken.
+  - Turnovers and yards/play from the box score.
+  - A sentence on whether the winner won the efficiency battle, the split,
+    or won despite worse efficiency (and on what: turnovers or explosive
+    plays).
+- **Matchups exploited or held:** each pregame trench matchup (protection
+  vs pass rush, run game vs run defense, dropback game vs pass defense) is
+  compared with the game's competitive plays.
+  - The expected rate is the offense's pregame rate plus the defense's
+    pregame rate allowed, minus the league rate.
+  - A side "won" the matchup when the result lands one standard error or
+    more from that expectation. Anything closer is "played to form".
+  - The pregame metrics come from the stats entering the week, so there's
+    no hindsight. The summary says whether each flagged edge played out as
+    called.
+- **How predictable it was:**
+  - **Closing line:** the winner's pregame win probability comes from a
+    logistic fit of home wins on the closing spread over every game since
+    2010 (4,363 games, 2010-2025).
+  - **Line + matchup metrics:** the same line adjusted by the pregame
+    matchup edges. That adjustment is fit only on games played before this
+    week, and the summary says plainly when the metrics didn't improve on
+    the line. As of 2026 Week 3 they haven't; the line alone remains the best pregame
+    estimate.
+  - **Distance from the line:** how far the margin and total landed from
+    it, and the share of historical games that miss by as much.
+  - **Matchup calls:** how many flagged matchups played out as called.
+  - **Verdict:** Expected (65%+), Favorite won, Coin flip, Mild upset or
+    Upset. Margin and total misses rarer than 1 in 10 are tagged as
+    surprises.
+- **DFS results:** the game's top DraftKings scorers and how the pregame
+  targets did (hit ceiling, beat projection, missed). DraftKings removes
+  past slates, so salaries, values and target grades exist only for weeks
+  whose slate is still posted.
+
+nflverse publishes play-by-play within about a day. Until it does, a final
+game shows the score and line results, with a note that the efficiency and
+matchup review is coming.
+
+### Trenches, efficiency and schemes (`app/trenches.py`)
+
+The advanced matchup view has a **Trenches, efficiency and schemes**
+section. It covers the same ground as Sharp Football's OL/DL, coverage and
+tendency tools, but every number is computed here from open data:
+
+| Source | What it gives |
+|---|---|
+| nflverse play-by-play | success rate, EPA/play, sack and sack + QB-hit rates, explosive passes (20+) and runs (10+), run stuffs (0 yards or less) |
+| FTN charting (via nflverse, weekly) | box counts (light 6 or fewer, heavy 8+), blitz rate, pass rushers, play-action, motion, screen, RPO, no-huddle |
+| nflverse participation / NGS | man vs zone, single-high vs two-high shells, most-used coverage, true pressure, time to throw |
+
+- **Which plays count:** competitive plays only (win probability 10-90%), no
+  kneels or spikes.
+- **Window:** this season's games before the week, plus last season's rates
+  weighted as 3 games. So Week 1 shows last season, and the current season
+  takes over as games are played.
+- **Coverage data lags a season.** Participation data is published after
+  the season ends, so in-season coverage and pressure numbers are last
+  season's. They're labeled that way, and the DFS Model lists the gap under
+  missing data.
+- **Unit grades:** pass protection, run blocking, dropback efficiency, pass
+  rush, run defense and pass defense. Each grade is the average league
+  z-score of its parts, ranked 1 = best.
+- **Matchup edge:** the offense unit's z-score minus the defense unit's.
+  Positive favors the offense. An edge only counts when the defense itself
+  points the same way: a bad offense against an average defense is the
+  offense's problem, not the matchup's. A gap of 0.5 or more is a lean; 1.0
+  or more is strong.
+- **Where edges show up:**
+  - Week Breakdown card takeaways (strong edges only) and the game view.
+  - DFS Model pool scores and reasons: QB (pass + protection), RB (run +
+    light boxes), WR (pass), and DST (the opponent's protection and passing
+    game).
+  - Chalk failure modes and the game notes on the Slate tab.
+- **Projections are not changed.** The sources already price in matchups,
+  so edges only re-rank players within the pools.
+- **Late-down monitor (display only).** Early-down (1st/2nd) and late-down
+  (3rd/4th) success rates for each offense and defense, and the gap between
+  a team's late-down success and what its early downs imply (offense minus
+  defense). Teams about 1.3 standard deviations from the league are flagged
+  as running hot or cold, with a note on the game view. In 2022-2025 the gap
+  didn't repeat from one half of a season to the other, and fading it was
+  52.2% against the closing spread, so no model uses it.
+  `python -m scripts.late_down_monitor` rechecks this season against the
+  2023-2025 baseline, along with **penalty-drive luck**: over a team's last
+  4 games, the share of drives with an accepted defensive penalty that ended
+  in points, above the league rate (shrunk by 10 drives). Fading it went
+  53.6% against the spread in 2023-2025 (597 games), short of
+  significance, so it is monitored rather than used.
+  It also tracks a **toxic flag**: an offense whose pass protection is 1+
+  standard deviation below the league, with above-average offensive-line
+  penalties, facing a defense that blitzes 1+ SD more than the league,
+  graded on its points against the implied team total. It fires about 8
+  times a season. In 2023-2025, 20 of 25 went under their team total, but
+  it was one of several flags tested, so it is watched, not used.
+
+**Sharp Football Analysis is referenced, not ingested or weighted.** Its
+Terms of Service prohibit automated access and copying, so the app never
+fetches it. Links to its stats, fantasy and betting tools appear next to the
+section for manual comparison.
+
 ## DFS Model page
 
 The **DFS Model** tab (`/dfs-model`) has its own page. It builds lineups
@@ -448,12 +690,12 @@ scored with DraftKings rules, so every source is on the same scoring:
 | Sleeper | Everyone | the app's existing line source |
 | ESPN | ~400 players incl. DST | ESPN Fantasy's public player feed |
 | CBS Sports | ~400 players incl. DST | current week only |
-| FFToday | ~250 players | no DST lines, no fumbles |
-| FantasyPros | top 10 per position | the rest of the page needs a premium account, which the app doesn't bypass |
 
 Not used: NFL.com (its robots.txt disallows its fantasy API), FantasySharks
 (HTTP 403), NumberFire (shut down), Fantasy Football Analytics (it scrapes
-the sources above rather than publishing its own). A source that doesn't
+the sources above rather than publishing its own), FFToday (HTTP 403 since
+October 2026) and FantasyPros (its projections now load from a private API in
+the browser). A source that doesn't
 list a player is shown as "missing". Nothing is filled in for it.
 
 **Consensus, then final.** The Projections table shows the consensus first:
@@ -596,6 +838,16 @@ out is named in the news list, since its line may predate the news.
 
 ### Bayesian ownership (Ownership tab)
 
+> **What "Bayesian" means here, and what isn't measured.** The posterior is a
+> Beta whose parameters are pooled *pseudo-counts*: each model's estimate
+> times a hand-set or residual-derived effective sample size (alpha = sum of
+> mu x N). That is a conjugate-style approximation, not a likelihood fitted
+> to observed ownership, so the credible intervals have **no measured
+> coverage**. Out-of-sample MAE, calibration by ownership bucket, Captain vs
+> Flex calibration and a comparison with a salary/projection baseline have
+> not been run. Until they are, treat the intervals as indicators of relative
+> uncertainty, not as probabilities, and don't market them as calibrated.
+
 Ownership is an estimate of the *probability distribution* of true field
 ownership for each player and contest type, P(true ownership | everything
 known). It's not a single guess. Code: `app/ownership_model.py` (the
@@ -702,6 +954,23 @@ contrarian lineups follow it.
 restart. Attach a persistent disk mounted at `/app/data/ownership` to keep
 history, crowd submissions and what the model has learned.
 
+### Beat writers (`app/beat_news.py`, `GET /api/beat-news`)
+
+Reads what the reporters who cover each team post about who plays and how much, from free public sources: Bluesky
+author feeds and RSS/Atom feeds. **Context only**: each player gets a lean on whether his playing time, and so the
+field's ownership of him, may move (down, up, mixed, watch), with the writers, the reasons and a link to every post.
+It changes no projection, play chance or ownership estimate. Posts are read with phrase lists, not a model;
+questions and reposts are ignored; only a short excerpt is kept, with the writer's name and a link.
+
+- **Writers** are listed in `data/beat_writers.json` (empty until reviewed). `python -m scripts.discover_beat_writers`
+  proposes candidates into `data/beat_writer_candidates.json`; a person confirms each account before setting
+  `"verified": true`. Signals from unverified writers are shown as such.
+- **Earning a bigger role.** Every signal is stored with its time. `beat_news.grade` compares each kind of signal
+  with what happened and its base rate; a kind is promoted (`data/beat_signal_evidence.json`, empty today) only with
+  40+ graded signals and an interval that excludes the base rate. Grading against results is not wired up yet.
+- **Limits.** Many beat writers post only on X, which isn't read, so coverage is partial and uneven by team. The
+  endpoint reports which feeds failed.
+
 ## Running it
 
 ```bash
@@ -709,17 +978,108 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Then open http://127.0.0.1:8000/. Every page shares one season/week
-selector in the header. It opens on the current NFL week (from Sleeper's
-NFL state; week 1 in the preseason, week 18 after the season) and falls
-back to `app/config.py`'s default if Sleeper is unreachable. Change either
-field and the page reloads on its own. The choice travels with you through
-the nav links (`?season=&week=` in the URL) and stays for the rest of the
-browser session. Any past or future week works the same way.
+The website is the mobile app's web build (`mobile/`): Home, DFS Model,
+Safe Plays, Tournaments and Lineups, with Settings behind the header's gear. The Dockerfile builds it (`npx expo export
+--platform web`) into `web/`, and the server serves it at `/`. Locally,
+build it the same way (`cd mobile && npx expo export --platform web
+--output-dir ../web`); without a build, `/` answers 503. The original
+server-rendered pages (`/classic`) are retired: their old addresses
+redirect to `/`, and their templates and scripts are gone.
+
+### Sign-in required
+
+The app and the API are for signed-in accounts (Clerk). Every `/api/`
+request needs the user's Clerk session token (`Authorization: Bearer ...`),
+which the app attaches to each request (signed out, it goes to `/sign-in`).
+The one open call is `/api/odds?summary=1` (capture status and the week's
+matchups, no lines or prices), which the odds-snapshot workflow uses; the
+Big Picture workflow reads stored lines straight from the database.
+`https://dfs-riches.onrender.com` serves the same server: its pages redirect
+to the site's own domain. Locally, `REQUIRE_SIGN_IN=0` turns the
+check off (Clerk's production sign-in only works on the site's own domain).
+
+### Plans and accounts
+
+Accounts are Free, Pro or Admin (`app/accounts.py`): masters are Admin; otherwise
+the session token's `plan` claim (customize Clerk's session token with
+`{"plan": "{{user.public_metadata.plan}}"}`) or, without it, the account's
+`public_metadata.plan`. Pro features are the projected optimal lineups (and
+"Build for me"), expected ownership, leverage, multiple lineups, the Big Picture
+and alerts. Locked for free accounts now: the optimal lineups (`DEFAULT_GATED`);
+`PRO_GATING=1` locks every Pro feature, `0` none, or a comma list picks them.
+Locked endpoints answer free accounts with 402 and the app shows a faded preview
+with "Unlock with Pro". Accounts created before `FOUNDING_PRO_BEFORE` get Pro at
+server start (`grant_founding_pro`); masters stay Admin. `DELETE /api/me`
+(Settings > Delete account) deletes the account's data and, with
+`CLERK_SECRET_KEY`, the Clerk account. Legal drafts for review are in `docs/legal/`.
+
+### Last week's recap (Home)
+
+`GET /api/recap` (default: the week before the NFL's current one; `app/recap.py`) audits every finished game of a
+week as signal vs noise, from the same nflverse play-by-play pass as the trenches and game model
+(`RecapAccumulator`, cached with the other aggregates). Home shows it as a collapsed card: the teams flagged
+**ascending** (out-played the opponent in the neutral script but lost or lost the bounces) and **fragile**
+(out-played but won, or won with the bounces), each with its opponent and spread this week, and every game's
+audit one tap away.
+
+- **Signal:** early-down success (48%+ is "structurally sound", counted at 10-90% win probability), neutral-script
+  EPA per play and pass rate over expected (20-80% win probability), and the sack-or-QB-hit rate each line gave
+  and took against the league's own rate.
+- **Noise:** turnover margin, fumble recoveries, red-zone touchdown rate (3+ trips), third-and-7+ conversions (4+
+  tries), defensive and special-teams touchdowns, and volume with under 10% win probability.
+- **Not available, and said so in the card:** pass-rush win rate and charted pressure, turnover-worthy plays, route
+  participation / yards per route run, and an expected score. Pressure is a sack or QB hit over dropbacks, not a
+  charted rate.
+- Every threshold is a constant in `app/recap.py`; every sentence is generated from the counts, never from a model.
+
+### Weekly Pro Picks
+
+A weekly competition for Pro accounts (`app/competition.py`, the Home card in the app). Each Pro user can
+rank who they think will be the top DraftKings scorers at each position on the week's Classic Sunday Main:
+5 QBs, 10 RBs, 15 WRs, 3 TEs and 5 DSTs. Entering is optional, and picks can be changed until the Main's
+first kickoff. Once every Main game is final, every entry is scored and ranked, and each user sees only
+their own result: "You finished 25th out of 350 Pro user submitted rankings with an accuracy of 42% of
+players ranked correctly as the top performers." No leaderboard, names or other users' picks are ever sent
+to the app. Accuracy is the share of all 38 spots filled with a player who finished in that top list, so
+ranking fewer players can't raise it. Under the result, each position is shown side by side: the user's pick at each spot
+(his actual DraftKings points, where he finished, and what he earned) next to who actually finished at that
+spot and his DraftKings points.
+
+| For each ranked player | Points |
+|---|---|
+| Finishes in that position's actual top list, anywhere | +10 |
+| ...in exactly the spot you ranked him | +3 more |
+| Each spot he finishes below your ranking | -0.5 |
+| Each spot he finishes above your ranking | -0.25 |
+
+A ranked player who was ruled out (no box-score line and no offensive snaps that week) scores 0 and costs
+nothing else: the picks below him move up a spot for scoring, and his spot leaves the accuracy count. While
+picks are open, the card, the editor and a sign-in prompt flag any ranked player listed Out, IR or Doubtful
+so the user can swap him.
+
+The deductions only break ties: the largest one (14 spots on the WR list) is less than a hit. Players tied
+in actual points share the spots they span. A perfect week scores 494. Pro users who haven't entered get a
+reminder after signing in while picks are open ("Not this week" mutes it until next week). Entries live in
+the Neon database (`pro_picks` table). The API is `GET /api/pro-picks?season=&week=` and `PUT /api/pro-picks`.
+
+"Build for me" builds around the user's own picks: it needs at least two players in the lineup first
+(`BUILD_MIN_PICKS`, enforced by `POST /api/slates/{slate_id}/build`).
+
+### Warm starts and performance logging
+
+- **Prebuilt data.** The Docker build runs `python -m app.prewarm --dfs`, so the image ships with this week's
+  schedule, lines, play-by-play aggregates (the team trends on every game card), nflverse indexes, projections,
+  DraftKings slates and DFS model inputs already in the disk cache. Files keep their build-time timestamps and
+  refresh on their usual schedules (`app/config.py` `TTL_*`). On startup the server re-warms the current week's
+  Classic slates in the background (`WARM_SLATES=0` turns that off).
+- **Metrics** (`app/metrics.py`). Cache hit rates and fetch times per data family, memoized-computation hit
+  rates, and p50/p95/p99 latency per API route since the process started. Requests over 3 s are logged as they
+  happen, a one-line summary is logged every 15 minutes (`METRICS_LOG=0` turns it off), and master accounts can
+  read the full snapshot at `GET /api/metrics`.
 
 ## Deploying behind Cloudflare
 
-DFSRiches is a normal long-running ASGI app (FastAPI on Uvicorn) with a
+Riches Analytics is a normal long-running ASGI app (FastAPI on Uvicorn) with a
 small on-disk cache -- it runs on any regular host or container, with
 Cloudflare sitting in front as a proxy/CDN (orange-clouded DNS) or via a
 Cloudflare Tunnel. **It does not run inside a Cloudflare Worker, and it
@@ -738,14 +1098,10 @@ docker build -t dfsriches .
 docker run -p 8000:8000 dfsriches
 ```
 
-### Cloudflare Pages URL (dfs-riches.pages.dev)
+### Your own domain
 
-Cloudflare Pages only serves static files, so it can't run this app (every
-path returns 404). The app runs on Render at https://dfs-riches.onrender.com.
-To make the Pages URL forward there, set the Pages project's build command
-to empty and its build output directory to `pages-redirect`. That folder
-holds a single `_redirects` rule that sends every path to Render.
-Alternatively, put your own domain on Cloudflare DNS as a proxied CNAME to
+The site is served by the Render server (it builds the Expo web build into
+the same image). Put your domain on Cloudflare DNS as a proxied CNAME to
 `dfs-riches.onrender.com` and add it as a custom domain in Render.
 
 ### Deploying on Render
@@ -772,17 +1128,28 @@ What's already wired up for sitting behind Cloudflare:
 
 - **`GET /healthz`** -- a dependency-free liveness check (no outbound calls)
   for the platform's health monitoring or a Cloudflare Tunnel's origin check.
+  It returns only `{"status":"ok"}`; configuration status moved to the
+  master-only `GET /api/health/detail`.
+- **Security hardening settings** (all optional, set in the host's environment):
+  `PROXY_SHARED_SECRET` -- add the same value as an `X-Origin-Secret` request
+  header in a Cloudflare Transform Rule, and the rate limiter only believes
+  `CF-Connecting-IP` / `X-Forwarded-For` on requests that carry it (direct hits on
+  the `*.onrender.com` address are counted by their socket address);
+  `TRUSTED_PROXY_HOPS` -- take the `X-Forwarded-For` entry that many proxies from
+  the end instead of the forgeable first one; `CORS_ORIGINS` -- extra
+  comma-separated browser origins allowed to call the API (the site's own hosts,
+  `*.onrender.com` and localhost are built in). Failed sign-ins, 403s, 429s and
+  oversized bodies are logged as `[SECURITY] {...}` lines for log alerts. The
+  Content-Security-Policy is report-only until its violations have been reviewed.
 - **Trusted proxy headers** -- the container's entrypoint (`python -m
   app.main`, also the Dockerfile's `CMD`) runs Uvicorn with
   `proxy_headers=True, forwarded_allow_ips="*"`, so `X-Forwarded-Proto` /
   `X-Forwarded-For` from Cloudflare's edge are honored and
   `request.url.scheme` reflects the real client's HTTPS connection rather
   than the plain-HTTP hop from Cloudflare to the origin.
-- **Edge-cacheable static assets** -- `/static/*` (the CSS/JS) is served
-  with `Cache-Control: public, max-age=300`, so Cloudflare can serve it from
-  cache instead of round-tripping to the origin on every request. Kept
-  short (5 minutes) since there's no cache-busting filename hash yet, so a
-  deploy is never more than 5 minutes from being visible everywhere.
+- **Edge-cacheable assets** -- the web build's content-hashed bundles,
+  fonts and images (`/_expo/*`, `/assets/*`) are served as immutable, so
+  Cloudflare can serve them from cache; pages are `no-cache`.
 - **`$PORT`** -- both the Dockerfile and the `python -m app.main`
   entrypoint bind `0.0.0.0` on `$PORT` (default 8000), the convention most
   container platforms (Fly.io, Render, Railway, etc.) use to tell a
@@ -793,6 +1160,36 @@ What's already wired up for sitting behind Cloudflare:
 Sleeper/DraftKings/nflverse on first request and re-populates it, exactly
 as it does locally. Mounting a persistent volume at `/app/data/cache`
 speeds up cold starts across restarts but is optional.
+
+## Roster moves and injuries (team styles)
+
+A team's style (`app/style_matchup.py`) is read from games already played, so trades, a new quarterback or an injured
+receiver show up in it only after games. `app/roster_adjust.py` applies what a 2016-2025 walk-forward back-test
+(`scripts/backtest_roster_moves.py` -> `data/roster_move_backtest.json`, coefficients in `data/roster_adjust_model.json`)
+found held up out of sample, for the coming week's expected lineup (`scripts/update_roster_adjust.py` ->
+`data/roster_adjust.json`; expected starters that differ from the last game's go in `data/roster_adjust_inputs.json`):
+
+| Move | Effect (vs the team's own last 8 games) | Out-of-sample |
+|---|---|---|
+| New starting QB | 0.51 x the gap in career dropback EPA, 0.15 x the gap in neutral pass rate | EPA/dropback weight t = 9.6 (team's own form: t = 7.7); MSE -1.5%, -7.2% for QBs acquired from another team |
+| QB with < 300 career dropbacks | EPA/dropback -0.073, interceptions +0.3 pts, sacks +0.5 pts, red-zone TD rate -4.4 pts, neutral pass rate -0.9 pts | t = -6.7, 3.0, 2.9, -4.5, -1.9; gone by 300 dropbacks |
+| WR/TE with 8%+ of recent targets out or traded | EPA/dropback -0.10 and neutral pass rate -4.6 pts per 100% of targets lost | t = -3.1, -3.3; pass rate negative in 10 of 10 seasons |
+| Pass rushers added or lost | a defender's own sacks+hits per snap carries to his new team (weight 0.30); a point of pressure rate = -1.07 EPA per dropback allowed | t = 4.1; MSE -0.9% |
+
+Not adopted (no effect out of sample): lost running backs, plays per game, target concentration (rookie QBs do not
+concentrate targets), and lost run-stoppers on rush EPA allowed. A label changes only when a move shifts a team by 0.25
+standard deviations or more. Game cards show the effect line and the reasons under "Recent roster moves".
+Regenerate the back-test and the weekly file with the training data in `data/cache/train` (see the script docstrings).
+
+## Schedule and trend back-test (which way a team is headed)
+
+`scripts/backtest_schedule_trends.py` (2016-2025, seasons 2019+ predicted from earlier ones; results in
+`data/schedule_trend_backtest.json`) asks whether opponent-adjusted form, the schedule ahead, and recent moves predict the
+next games. The next opponents matter most for defenses (coefficient 0.72, t 10; error -5%), modestly for offenses (0.30,
+t 3.4), and not for pass offenses or individual receivers; the schedule part of a recent move has no persistence; the last
+3 games are no stickier than the 3 before; one-game target-share spikes keep about 5% of the jump; schedule-adjusted EPA
+ratings do not beat the closing spread or total. `app/schedule_outlook.py` shows the supported part on the game cards
+("Direction: schedule ahead", from `data/schedule_outlook.json`, regenerated by the same script).
 
 ## Tests
 
@@ -828,8 +1225,11 @@ app/
   optimal.py        per-slate optimal lineups, saved pre-kickoff to data/optimal_lineups.json
   breakdown.py      builds the per-game Week Breakdown page (stats, ranks, original takeaways)
   targets.py        per-team DFS targets tailored to the matchup, with reasons
+  weather.py        stadium weather (Open-Meteo / NWS), roofs, kickoff-window summary, projection multipliers
+  postgame.py       postgame summaries: result vs lines, game flow, matchups exploited/held, predictability, DFS results
+  trenches.py       OL/DL strength, success rates, coverage and scheme tendencies (pbp + FTN + participation), matchup edges
   game_detail.py    the advanced matchup view: chart data + "What it means" notes
-  sources.py        projected stat lines from Sleeper, ESPN, CBS, FFToday, FantasyPros
+  sources.py        projected stat lines from Sleeper, ESPN, CBS
   consensus.py      per-player consensus (mean/median/range/SD/count) + accuracy weighting
   dfs_model.py      the DFS Model: final projections, floor/ceiling, value, uncertainty, summary
   dfs_strategy.py   the Cash/GPP lineup-construction framework (slate, pools, chalk, leverage, stacks, lineups, audits)
@@ -848,12 +1248,9 @@ data/
 scripts/record_draft_groups.py   records the current week's live ids into dk_overrides.json
 scripts/save_optimal_lineups.py  records the current week's open slates' optimal lineups
 scripts/source_accuracy.py       grades each projection source vs actual DK points -> data/source_accuracy.json
+scripts/weather_effects.py       fits weather effects on 2016-2025 games -> data/weather_effects.json
+scripts/late_down_monitor.py     checks whether fading late-down over-performance or penalty-drive luck beats the closing spread
   name_aliases.json manual DK-name -> Sleeper-name bridge, empty by default
   cache/            runtime API response cache (gitignored)
-templates/_base.html      shared head, header, nav and season/week selector
-templates/index.html, templates/breakdown.html, templates/dfs_model.html
-static/common.js    shared season/week selector + helpers (esc, money, abortable getJson)
-static/style.css, static/app.js, static/breakdown.js, static/dfs_model.js, static/ownership.js   frontend
-static/lineups.js   DK Classic/Showdown roster rules for the lineup builder
 tests/                                                    pytest suite
 ```

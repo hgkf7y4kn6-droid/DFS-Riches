@@ -1,0 +1,168 @@
+{
+ "baseline": "trailing-8 DK points + closing implied total + expected margin (no Sleeper projection)",
+ "rows": 7561,
+ "active": {
+  "by_position": {
+   "QB": {
+    "n_train": 1292,
+    "slope_own_off": -0.072,
+    "t_own_off": -0.4,
+    "slope_opp_def": -0.151,
+    "t_opp_def": -0.96,
+    "loso_mae_baseline": 6.939,
+    "loso_mae_with_lineup": 6.962,
+    "test_2026": {
+     "n": 123,
+     "mae_baseline": 6.905,
+     "mae_with_lineup": 6.906
+    }
+   },
+   "RB": {
+    "n_train": 1788,
+    "slope_own_off": 0.311,
+    "t_own_off": 2.26,
+    "slope_opp_def": -0.002,
+    "t_opp_def": -0.02,
+    "loso_mae_baseline": 6.213,
+    "loso_mae_with_lineup": 6.208,
+    "test_2026": {
+     "n": 161,
+     "mae_baseline": 6.86,
+     "mae_with_lineup": 6.888
+    }
+   },
+   "WR": {
+    "n_train": 2804,
+    "slope_own_off": 0.071,
+    "t_own_off": 0.61,
+    "slope_opp_def": -0.048,
+    "t_opp_def": -0.48,
+    "loso_mae_baseline": 6.329,
+    "loso_mae_with_lineup": 6.324,
+    "test_2026": {
+     "n": 233,
+     "mae_baseline": 6.219,
+     "mae_with_lineup": 6.216
+    }
+   },
+   "TE": {
+    "n_train": 1041,
+    "slope_own_off": 0.085,
+    "t_own_off": 0.58,
+    "slope_opp_def": 0.062,
+    "t_opp_def": 0.44,
+    "loso_mae_baseline": 5.444,
+    "loso_mae_with_lineup": 5.458,
+    "test_2026": {
+     "n": 119,
+     "mae_baseline": 5.613,
+     "mae_with_lineup": 5.594
+    }
+   }
+  },
+  "leverage": {
+   "adj_ge_1.5": {
+    "players_up": 1740,
+    "mean_resid_up": 0.05,
+    "players_down": 1368,
+    "mean_resid_down": -0.15,
+    "beat_baseline_up_pct": 44.8,
+    "beat_baseline_down_pct": 43.3
+   },
+   "adj_ge_3.0": {
+    "players_up": 467,
+    "mean_resid_up": 0.23,
+    "players_down": 473,
+    "mean_resid_down": -0.09,
+    "beat_baseline_up_pct": 46.9,
+    "beat_baseline_down_pct": 42.9
+   }
+  },
+  "sd_adj_pts": {
+   "own_off": 1.38,
+   "opp_def": 1.52
+  }
+ },
+ "report": {
+  "by_position": {
+   "QB": {
+    "n_train": 1292,
+    "slope_own_off": 0.037,
+    "t_own_off": 0.26,
+    "slope_opp_def": 0.1,
+    "t_opp_def": 0.74,
+    "loso_mae_baseline": 6.939,
+    "loso_mae_with_lineup": 6.941,
+    "test_2026": {
+     "n": 123,
+     "mae_baseline": 6.905,
+     "mae_with_lineup": 6.903
+    }
+   },
+   "RB": {
+    "n_train": 1788,
+    "slope_own_off": 0.274,
+    "t_own_off": 2.54,
+    "slope_opp_def": 0.009,
+    "t_opp_def": 0.08,
+    "loso_mae_baseline": 6.213,
+    "loso_mae_with_lineup": 6.207,
+    "test_2026": {
+     "n": 161,
+     "mae_baseline": 6.86,
+     "mae_with_lineup": 6.89
+    }
+   },
+   "WR": {
+    "n_train": 2804,
+    "slope_own_off": -0.028,
+    "t_own_off": -0.29,
+    "slope_opp_def": -0.017,
+    "t_opp_def": -0.19,
+    "loso_mae_baseline": 6.329,
+    "loso_mae_with_lineup": 6.332,
+    "test_2026": {
+     "n": 233,
+     "mae_baseline": 6.219,
+     "mae_with_lineup": 6.221
+    }
+   },
+   "TE": {
+    "n_train": 1041,
+    "slope_own_off": 0.054,
+    "t_own_off": 0.46,
+    "slope_opp_def": 0.228,
+    "t_opp_def": 1.7,
+    "loso_mae_baseline": 5.444,
+    "loso_mae_with_lineup": 5.461,
+    "test_2026": {
+     "n": 119,
+     "mae_baseline": 5.613,
+     "mae_with_lineup": 5.598
+    }
+   }
+  },
+  "leverage": {
+   "adj_ge_1.5": {
+    "players_up": 2003,
+    "mean_resid_up": 0.16,
+    "players_down": 1580,
+    "mean_resid_down": -0.15,
+    "beat_baseline_up_pct": 45.8,
+    "beat_baseline_down_pct": 42.2
+   },
+   "adj_ge_3.0": {
+    "players_up": 812,
+    "mean_resid_up": 0.19,
+    "players_down": 654,
+    "mean_resid_down": -0.45,
+    "beat_baseline_up_pct": 47.2,
+    "beat_baseline_down_pct": 40.8
+   }
+  },
+  "sd_adj_pts": {
+   "own_off": 1.68,
+   "opp_def": 1.69
+  }
+ }
+}

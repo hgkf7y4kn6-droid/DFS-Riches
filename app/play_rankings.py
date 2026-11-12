@@ -1,0 +1,352 @@
+"""Cash and GPP play rankings plus field ownership, for the app's Cash and GPP tabs.
+
+Strength of play is scored within each position from z-scored components:
+
+  Cash  (top 5 QB, 10 RB, 10 WR, 5 TE)
+    P(median-to-high outcome)  P(points >= 2.5x salary/$1k), the usual cash
+                               target, under each player's two-piece normal
+                               (spread from his floor and ceiling)   x 0.35
+    floor safety               15th-percentile outcome                x 0.25
+    salary                     projected points per $1k               x 0.20
+    game environment           team implied total and the game's
+                               environment score (DST: the reverse,
+                               dst_environment)                       x 0.20
+    minus a Questionable penalty (cash can't absorb a late scratch)
+
+  GPP   (same counts)
+    P(ceiling outcome)         P(points >= the position's tournament-
+                               winning score: QB 28, RB/WR 24, TE 18,
+                               DST 14)                                  x 0.10
+    ownership leverage         fair minus projected large-field
+                               ownership (app.leverage: efficiency-
+                               adjusted ceiling odds)                 x 0.25
+    salary                     ceiling per $1k                         x 0.55
+    game environment                                                   x 0.10
+
+  GPP weights come from 56 DraftKings Sunday main slates (2023 Week 2 -
+  2026 Week 6): a play "hits" at 4x+ its salary per $1k (a top-1% lineup's
+  pace). Ceiling per $1k is what picks hits; ceiling odds and environment
+  add a little and leverage nothing -- but lineups discounted by ownership
+  reach the field's top 1% far more often (app.dfs_strategy), so leverage
+  keeps its 0.25. Top plays that hit: 17.8% on 2023-2025 (16.0% with the
+  old 0.40/0.25/0.15/0.20) and 23.0% on 2026 (19.4%); hits at under 10%
+  field ownership 11.1% (10.2%) and 10.9% (10.3%).
+
+Tags (per player, per contest), among the position's relevant players
+(projected 5+ points, DST 3+):
+  cash  Prioritize  a top cash play at his position (the ranked list;
+                    top 3 DSTs)
+        Fade        expected cash ownership >= 10% on a bottom-half cash
+                    play, or Questionable
+  GPP   Prioritize  a top GPP play whose ceiling odds outrun his
+                    ownership (positive leverage)
+        Fade        12%+ large-field ownership with leverage well below
+                    the position's average (owned like a top play
+                    without the ceiling odds)
+  everything else is Neutral.
+
+GPP also returns two cross-position lists for the tab's horizontal cards:
+  chalk     the 10 highest large-field ownerships among relevant players
+  leverage  the 10 highest leverage scores (fair minus projected large-
+            field ownership, app.leverage) among relevant players -- the
+            pivots off the chalk; leverage_by_position: the top 10 at each
+            position (QB, RB, WR, TE, DST), strongest first
+"""
+from __future__ import annotations
+
+import numpy as np
+
+from app import field_ownership as fo
+from app import leverage as lv
+from app import ownership_store
+
+TOP_N = {"QB": 5, "RB": 10, "WR": 10, "TE": 5}
+GPP_WEIGHTS = {"p_hit": 0.10, "leverage": 0.25, "salary": 0.55, "env": 0.10}
+CASH_TARGET_X = 2.5
+GPP_CEILING_SCORE = {"QB": 28.0, "RB": 24.0, "WR": 24.0, "TE": 18.0, "DST": 14.0}
+TAG_TOP = {**TOP_N, "DST": 3}
+RELEVANT_PROJ = {"QB": 5.0, "RB": 5.0, "WR": 5.0, "TE": 5.0, "DST": 3.0}
+CROSS_N = 10
+LEVERAGE_PER_POSITION = 10
+ROLE_SHIFTS_N = 40
+
+
+def _z(vals: list[float]) -> list[float]:
+    a = np.array(vals, dtype=float)
+    sd = a.std()
+    return list((a - a.mean()) / sd) if sd > 1e-9 else [0.0] * len(vals)
+
+
+# A defense wants the opposite of a skill player's game: a slow, low-scoring
+# game against an offense that takes sacks and gives the ball away.
+DST_ENV_WEIGHTS = {"opp_implied": 0.40, "total": 0.15, "pace": 0.10, "opp_sacks": 0.15, "opp_giveaways": 0.20}
+
+
+def _z_known(vals: list[float | None]) -> list[float]:
+    """z-scores over the known values; unknowns count as average (0)."""
+    known = [v for v in vals if v is not None]
+    if len(known) < 2:
+        return [0.0] * len(vals)
+    zs = iter(_z(known))
+    return [next(zs) if v is not None else 0.0 for v in vals]
+
+
+def dst_environment(games: list[dict], offense: dict[str, dict] | None = None) -> dict[str, float]:
+    """Game-environment score for each team's DST, z-scored across the slate's
+    DSTs (higher = better for the defense):
+
+      opponent implied total, lower better   x 0.40
+      game total, lower better               x 0.15
+      pace, slower better                    x 0.10   (both teams' tempo ranks)
+      opponent sack rate, higher better      x 0.15   (sacks per dropback)
+      opponent giveaways/game, higher better x 0.20
+
+    `offense`: team -> {"sack_rate", "giveaways"} for the offense it faces."""
+    offense = offense or {}
+    teams, feats = [], {k: [] for k in DST_ENV_WEIGHTS}
+    for g in games:
+        tempo = [v for v in (g.get("tempo_ranks") or {}).values() if v is not None]
+        slowness = sum(tempo) / len(tempo) if tempo else None           # rank 1 = fastest
+        for team, opp, opp_implied in ((g["away"], g["home"], g.get("home_implied")), (g["home"], g["away"], g.get("away_implied"))):
+            teams.append(team)
+            o = offense.get(opp) or {}
+            feats["opp_implied"].append(-opp_implied if opp_implied is not None else None)
+            feats["total"].append(-g["total"] if g.get("total") is not None else None)
+            feats["pace"].append(slowness)
+            feats["opp_sacks"].append(o.get("sack_rate"))
+            feats["opp_giveaways"].append(o.get("giveaways"))
+    zs = {k: _z_known(v) for k, v in feats.items()}
+    return {t: round(sum(w * zs[k][i] for k, w in DST_ENV_WEIGHTS.items()), 3) for i, t in enumerate(teams)}
+
+
+def _round(x, n=2):
+    return None if x is None else round(float(x), n)
+
+
+# Field ownership contest -> the contest type actual-ownership uploads are filed under.
+ACTUAL_CONTEST = {"cash": "cash", "small_gpp": "se", "large_gpp": "gpp"}
+MISSES_N = 8
+
+
+def actual_ownership(observations: list[dict]) -> dict[str, dict]:
+    """Latest uploaded actual ownership per contest type: {contest: {"pct": {player_key: pct},
+    "uploaded_at": ts, "entries": n}} from the slate's "actual" observations."""
+    out: dict[str, dict] = {}
+    for o in sorted((o for o in observations if o.get("kind") == "actual"), key=lambda o: o.get("timestamp", "")):
+        c = out.setdefault(o["contest"], {"pct": {}, "uploaded_at": None})
+        c["pct"][o["key"]] = o["pct"]
+        c["uploaded_at"] = o.get("timestamp")
+    return out
+
+
+def build(table: list[dict], games: list[dict], contest: str, season: int, week: int, slate_id: str,
+          efficiency: dict | None = None, actuals: dict | None = None, offense: dict | None = None) -> dict:
+    """contest "cash" -> cash rankings + cash ownership; "gpp" -> GPP rankings + small/large-field ownership.
+    `efficiency` (app.leverage.efficiency_context) drives the leverage score; without it the
+    multiplier is 1 and leverage rests on the plain odds. `actuals` (actual_ownership()) puts
+    uploaded contest ownership next to the projections, and leverage uses it where it exists."""
+    rows = fo.engineer(table, games)
+    env = fo.env_by_team(games)
+    dst_env = dst_environment(games, offense)
+    fo.save_features(season, week, slate_id, rows)
+    own_contests = ["cash"] if contest == "cash" else ["small_gpp", "large_gpp"]
+    owns = {c: fo.contest_ownership(rows, c) for c in own_contests}
+    lead_own = owns["cash" if contest == "cash" else "large_gpp"]["own"]
+
+    for i, r in enumerate(rows):
+        sd_low, sd_high = fo.player_sd(r["final"], r["floor"], r["ceiling"])
+        r["p_cash"] = fo.p_at_least(CASH_TARGET_X * r["salary_k"], r["final"], sd_low, sd_high)
+        r["p_ceiling"] = fo.p_at_least(GPP_CEILING_SCORE[r["position"]], r["final"], sd_low, sd_high)
+        r["env"] = dst_env.get(r["team"], 0.0) if r["position"] == "DST" else env.get(r["team"], 0.0)
+        r["ceiling_value"] = r["ceiling"] / r["salary_k"]
+        for c in own_contests:
+            r[f"own_{c}"] = float(owns[c]["own"][i])
+            r[f"models_{c}"] = {k: round(float(v[i]) * 100, 1) for k, v in owns[c]["components"].items()}
+        r["lead_own"] = float(lead_own[i])
+        key = ownership_store.player_key(r["name"], r["team"], r["position"])
+        for c in own_contests:
+            pct = ((actuals or {}).get(ACTUAL_CONTEST[c]) or {}).get("pct", {}).get(key)
+            r[f"actual_{c}"] = None if pct is None else pct / 100
+        # Leverage uses actual ownership once it's known (late swap), else the projection.
+        r["lev_own"] = r[f"actual_{own_contests[-1]}"] if r[f"actual_{own_contests[-1]}"] is not None else r["lead_own"]
+        # Leverage (app.leverage): efficiency-adjusted projection and odds.
+        m = lv.mem(efficiency or {"off_db": {}, "off_rush": {}, "off_play": {}, "def_db": {}, "def_rush": {}, "def_play": {}, "pos": {}},
+                   r["position"], r["team"], r["opponent"])
+        k = m["mem"]
+        lo, hi = fo.player_sd(r["final"] * k, r["floor"] * k, r["ceiling"] * k)
+        r["mem"] = m
+        r["teap"] = r["final"] * k
+        r["p_eff"] = fo.p_at_least((CASH_TARGET_X * r["salary_k"]) if contest == "cash" else GPP_CEILING_SCORE[r["position"]],
+                                   r["final"] * k, lo, hi)
+
+    lv.fair_ownership(rows, "p_eff", "lev_own")
+    for r in rows:
+        r["leverage"] = (r["fair_own"] - r["lev_own"]) * 100
+
+    out_players, rankings = [], {}
+    for pos in fo.POSITIONS:
+        grp = [r for r in rows if r["position"] == pos]
+        if not grp:
+            continue
+        if pos == "DST":
+            env_z = _z([r["env"] for r in grp])        # already the defense's view (dst_environment)
+        else:
+            env_z = [0.6 * a + 0.4 * b for a, b in zip(_z([r["implied"] for r in grp]), _z([r["env"] for r in grp]))]
+        if contest == "cash":
+            parts = {
+                "p_hit": _z([r["p_cash"] for r in grp]),
+                "floor": _z([r["floor"] for r in grp]),
+                "salary": _z([r["value"] for r in grp]),
+                "env": env_z,
+            }
+            w = {"p_hit": 0.35, "floor": 0.25, "salary": 0.20, "env": 0.20}
+        else:
+            parts = {
+                "p_hit": _z([r["p_ceiling"] for r in grp]),
+                "leverage": _z([r["leverage"] for r in grp]),
+                "salary": _z([r["ceiling_value"] for r in grp]),
+                "env": env_z,
+            }
+            w = GPP_WEIGHTS
+        for j, r in enumerate(grp):
+            score = sum(w[k] * parts[k][j] for k in w)
+            if contest == "cash" and r.get("injury") == "Q":
+                score -= 0.5
+            r["score"] = score
+            r["parts"] = {k: round(float(parts[k][j]), 2) for k in w}
+        ranked = sorted(grp, key=lambda r: -r["score"])
+        relevant = [r for r in ranked if r["final"] >= RELEVANT_PROJ[pos]]
+        score_pct = dict(zip((r["id"] for r in relevant), fo.pct_rank([r["score"] for r in relevant])))
+        for r in grp:
+            rank = next((k for k, x in enumerate(ranked, 1) if x is r), None)
+            r["tag"], r["tag_reason"] = _tag(contest, r, rank <= TAG_TOP[pos], score_pct.get(r["id"]))
+        if pos in TOP_N:
+            rankings[pos] = [_player(r, contest, own_contests, rank) for rank, r in enumerate(ranked[: TOP_N[pos]], 1)]
+        out_players += [_player(r, contest, own_contests) for r in ranked]
+
+    out_players.sort(key=lambda p: -(p["ownership"][own_contests[-1]] or 0))
+    # Players whose roles are genuinely shifting (app.roles), biggest moves first.
+    shifting = [r for r in rows if (r.get("usage_trend") or {}).get("genuine")]
+    shifting.sort(key=lambda r: -abs(r["usage_trend"]["snap_delta"]))
+    extra = {"role_shifts": [_player(r, contest, own_contests) for r in shifting[:ROLE_SHIFTS_N]]}
+    if contest == "gpp":
+        relevant = [r for r in rows if r["final"] >= RELEVANT_PROJ[r["position"]]]
+        chalk = sorted(relevant, key=lambda r: -r["lead_own"])[:CROSS_N]
+        pivots = sorted(relevant, key=lambda r: -r["leverage"])[:CROSS_N]
+        by_pos = {pos: sorted((r for r in relevant if r["position"] == pos), key=lambda r: -r["leverage"])[:LEVERAGE_PER_POSITION]
+                  for pos in fo.POSITIONS}
+        extra |= {"chalk": [_player(r, contest, own_contests, k) for k, r in enumerate(chalk, 1)],
+                 "leverage": [_player(r, contest, own_contests, k) for k, r in enumerate(pivots, 1)],
+                 "leverage_by_position": {pos: [_player(r, contest, own_contests, k) for k, r in enumerate(rs, 1)]
+                                          for pos, rs in by_pos.items() if rs}}
+    actual_summary = {}
+    for c in own_contests:
+        have = [r for r in rows if r[f"actual_{c}"] is not None]
+        if not have:
+            continue
+        misses = sorted(have, key=lambda r: -abs(r[f"actual_{c}"] - r[f"own_{c}"]))[:MISSES_N]
+        actual_summary[c] = {
+            "uploaded_at": ((actuals or {}).get(ACTUAL_CONTEST[c]) or {}).get("uploaded_at"),
+            "players": len(have),
+            "mae": _round(sum(abs(r[f"actual_{c}"] - r[f"own_{c}"]) for r in have) / len(have) * 100, 2),
+            "misses": [{"name": r["name"], "position": r["position"], "team": r["team"],
+                        "actual": _round(r[f"actual_{c}"] * 100, 1), "projected": _round(r[f"own_{c}"] * 100, 1)}
+                       for r in misses],
+        }
+    return {
+        "contest": contest,
+        "season": season,
+        "actual_ownership": actual_summary,
+        "week": week,
+        "slate_id": slate_id,
+        "rankings": rankings,
+        "players": out_players,
+        "ownership_models": {c: {"label": fo.CONTESTS[c]["label"], "weights": owns[c]["weights"],
+                                 "price_per_k": owns[c]["price_per_k"], "training": owns[c]["training"],
+                                 "simulated_lineups": fo.N_SIMS} for c in own_contests},
+        **extra,
+    }
+
+
+def _leverage_ratio(r: dict) -> float:
+    """Ceiling odds per unit of large-field ownership (1.0 = owned in line with the ceiling odds)."""
+    return r["p_ceiling"] / max(r["lead_own"], 0.005)
+
+
+def _tag(contest: str, r: dict, top: bool, score_pct: float | None) -> tuple[str, str]:
+    if score_pct is None:
+        return "neutral", "Too small a projected role to matter"
+    if contest == "cash":
+        if r.get("injury") == "Q":
+            return "fade", "Questionable: a late scratch zeroes a cash lineup"
+        if top:
+            return "prioritize", "A top cash play at his position: floor, hit rate, price and game environment"
+        if r["lead_own"] >= 0.10 and score_pct < 0.5:
+            return "fade", f"{r['lead_own']:.0%} expected cash ownership on a bottom-half cash play"
+        return "neutral", "Playable, but not a standout cash spot"
+    lev = r["parts"]["leverage"]
+    if top and lev > 0:
+        return "prioritize", f"Top GPP play whose ceiling odds outrun his {r['lead_own']:.0%} ownership"
+    if r["lead_own"] >= 0.12 and lev <= -0.5:
+        return "fade", f"Owned like a top play ({r['lead_own']:.0%}) without the ceiling odds to match"
+    return "neutral", "Ownership roughly matches his ceiling odds"
+
+
+def _player(r: dict, contest: str, own_contests: list[str], rank: int | None = None) -> dict:
+    return {
+        "rank": rank,
+        "id": r["id"],
+        "name": r["name"],
+        "position": r["position"],
+        "team": r["team"],
+        "opponent": r["opponent"],
+        "salary": r["salary"],
+        "injury": r.get("injury"),
+        "role": r.get("role"),
+        "snap_pct": r.get("snap_pct"),
+        "usage_trend": r.get("usage_trend"),
+        "team_share": r.get("team_share"),
+        # the opponent's starting corners out (app.game_model): already in his projection (WR) or ceiling (pass-catching RB)
+        "opp_cb_out": r.get("opp_cb_out"),
+        # Questionable: his chance of playing and this week's practice log (app.injury_news), already in "final"
+        "play_chance": r.get("play_chance"),
+        "practice": r.get("practice"),
+        "final": _round(r["final"]),
+        "floor": _round(r["floor"]),
+        "ceiling": _round(r["ceiling"]),
+        "value": _round(r["value"]),
+        "implied": _round(r["implied"], 1),
+        "p_hit": _round(r["p_cash"] if contest == "cash" else r["p_ceiling"], 3),
+        "score": _round(r["score"], 3),
+        "parts": r["parts"],
+        # The projection's weather adjustment (app.weather), when the game's weather moved it.
+        "weather": next(({"factor": _round(a["factor"], 3), "text": a.get("text")} for a in (r.get("adjustments") or [])
+                         if a.get("source") == "Weather" and a.get("factor") is not None), None),
+        "leverage_ratio": _round(_leverage_ratio(r)) if contest == "gpp" else None,
+        # Fair minus projected ownership for this contest's field, percentage points (app.leverage).
+        "leverage": _round(r["leverage"], 1),
+        "leverage_detail": {
+            "fair_own": _round(r["fair_own"] * 100, 1),
+            "own": _round(r["lev_own"] * 100, 1),
+            "own_is_actual": r[f"actual_{own_contests[-1]}"] is not None,
+            "teap": _round(r["teap"]),
+            "p": _round(r["p_eff"], 3),
+            **r["mem"],
+            "verdict": lv.verdict(r["leverage"], r["lev_own"], r["mem"]["mem"], r["p_eff"]),
+        },
+        "ownership": {c: _round(r[f"own_{c}"] * 100, 1) for c in own_contests},
+        # Uploaded actual contest ownership (percent) where known.
+        "actual_ownership": {c: _round(r[f"actual_{c}"] * 100, 1) for c in own_contests if r.get(f"actual_{c}") is not None},
+        # each model's own estimate (percent) before the blend
+        "ownership_models": {c: r[f"models_{c}"] for c in own_contests},
+        "tag": r["tag"],
+        "tag_reason": r["tag_reason"],
+        "features": {
+            "value_ratio": _round(r["value"]),
+            "position_value_rank": int(r["pos_value_rank"]),
+            "salary_delta_vs_average": round(r["salary_delta_k"] * 1000),
+            "team_implied_total": _round(r["implied"], 1),
+            "position_scarcity_index": _round(r["scarcity"], 3),
+            "is_backup_injury_start": bool(r["backup"]),
+        },
+    }

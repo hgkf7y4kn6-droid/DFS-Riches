@@ -55,3 +55,24 @@ def test_monday_night_doubleheader_is_not_isolated():
     ]
     mark_isolated_games(games)
     assert all(not g.isolated for g in games)
+
+
+def test_classify_day_part_splits_holiday_international_and_saturday_windows():
+    assert classify_day_part(et(2026, 10, 11, 9, 30)) == "SUN_MORNING"   # international (London/Germany)
+    assert classify_day_part(et(2026, 11, 26, 12, 30)) == "THU_EARLY"    # Thanksgiving
+    assert classify_day_part(et(2026, 11, 26, 16, 30)) == "THU_LATE"
+    assert classify_day_part(et(2026, 11, 26, 20, 20)) == "THU_NIGHT"
+    assert classify_day_part(et(2026, 11, 27, 15, 0)) == "FRI_LATE"      # Black Friday
+    assert classify_day_part(et(2026, 12, 19, 13, 0)) == "SAT_EARLY"
+
+
+def test_island_games_include_thanksgiving_and_international_but_not_sunday_main():
+    games = [
+        _game("1", "CHI", "DET", "THU_EARLY"),
+        _game("2", "KC", "DAL", "THU_LATE"),
+        _game("3", "NYG", "GB", "THU_NIGHT"),
+        _game("4", "JAX", "LV", "SUN_MORNING"),
+        _game("5", "ATL", "PIT", "SUN_EARLY"),
+    ]
+    mark_isolated_games(games)
+    assert {g.game_id for g in games if g.isolated} == {"1", "2", "3", "4"}

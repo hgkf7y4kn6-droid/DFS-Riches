@@ -24,6 +24,10 @@ plain average:
            newcomer MAE until they have a graded history) and their stated
            confidence; crowd N = sum of reliability, discounted for herding.
 
+What "Bayesian" means here: the Beta's parameters are pooled pseudo-counts (each model's mean times its effective
+sample size), a conjugate-style approximation, not a likelihood fitted to observed ownership. The intervals'
+coverage, and the MAE and bucket calibration of the means, have not been measured out of sample.
+
 Posterior: alpha = sum(mu_m N_m), beta = sum((1 - mu_m) N_m) -- the
 conjugate Beta update. Observations decay with age (half-life 12h early,
 6h mid-slate, 2h in the last 3 hours, ~20 min in the last 30) and nothing
@@ -57,7 +61,6 @@ from app import ownership_store as store
 
 EPS = 0.01
 PLAYABLE = {"Healthy", "Q"}
-OUT_STATUSES = {"O", "OUT", "D", "IR", "PUP", "NFI", "SUSP"}
 CLASSIC_POS = ("QB", "RB", "WR", "TE", "DST")
 BASE_SLOTS = {"QB": 1.0, "RB": 2.0, "WR": 3.0, "TE": 1.0, "DST": 1.0}
 DEFAULT_FLEX = {"RB": 0.40, "WR": 0.50, "TE": 0.10}           # assumption until learned from actuals
@@ -279,7 +282,7 @@ def model_b(contest: str, crowd_obs: list[dict], learning: dict, now: datetime, 
     wsum = nsum = acc = 0.0
     ests = []
     for o in crowd_obs:
-        mae, n_graded = user_mae(learning, o.get("user_id", ""))
+        mae, _ = user_mae(learning, o.get("user_id", ""))
         r = 1 / (mae + EPS)
         conf = 0.5 + 0.1 * (o.get("confidence") or 3)
         age = (now - store.parse_iso(o["timestamp"])).total_seconds() / 3600

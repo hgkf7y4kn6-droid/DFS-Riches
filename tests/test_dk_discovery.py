@@ -50,3 +50,71 @@ async def test_classic_ignores_same_size_groups_that_are_not_classic_salary_cap(
 
     assert result["classic"]["draft_group_id"] == 153768
     assert result["classic"]["source"] == "live"
+
+
+def test_team_pair_from_suffix_handles_neutral_site_vs():
+    from app.dk_client import _team_pair_from_suffix
+    assert _team_pair_from_suffix(" (DET @ CAR)") == ("DET", "CAR")
+    assert _team_pair_from_suffix(" (IND vs WAS)") == ("IND", "WAS")   # international game
+    assert _team_pair_from_suffix(" (IND vs WAS Snake)") is None
+
+
+def _sunday_schedule() -> WeekSchedule:
+    first = datetime(2026, 10, 4, 17, 0, tzinfo=timezone.utc)
+    games = [
+        Game(game_id=f"s{i}", season=2026, week=4, away=f"A{i}", home=f"H{i}",
+             kickoff_utc=first if i < 8 else first + timedelta(hours=3, minutes=25),
+             kickoff_et="", day_part="SUN_EARLY" if i < 8 else "SUN_LATE")
+        for i in range(12)
+    ]
+    return WeekSchedule(season=2026, week=4, games=games, isolated_games=[])
+
+
+def _sunday_group(group_id: int, n_games: int, start: str) -> dict:
+    return {"draftGroupId": group_id, "contestType": {"contestTypeId": 21}, "games": [{}] * n_games,
+            "minStartTime": start, "maxStartTime": "2026-10-04T20:25:00.0000000Z", "startTimeSuffix": ""}
+
+
+RECORDED_MAIN = {"2026": {"4": {"classic_sunday": {
+    "draft_group_id": 154078, "label": "Classic - Sunday Main (12 games)",
+    "first_kickoff": "2026-10-04T17:00:00+00:00", "last_kickoff": "2026-10-04T20:25:00+00:00"}}}}
+
+
+async def test_recorded_sunday_main_beats_a_later_afternoon_group_after_lock(monkeypatch):
+    # After the Main locks, DK's lobby only lists the 4-game Afternoon group.
+    groups = [_sunday_group(154081, 4, "2026-10-04T20:05:00.0000000Z")]
+
+    async def fake_fetch():
+        return groups
+
+    monkeypatch.setattr(dk_client, "_fetch_all_nfl_draft_groups", fake_fetch)
+    monkeypatch.setattr(dk_client, "_load_overrides", lambda: RECORDED_MAIN)
+    result = await dk_client.discover_draft_groups(_sunday_schedule())
+
+    assert result["classic_sunday"]["draft_group_id"] == 154078
+    assert result["classic_sunday"]["source"] == "override"
+
+
+async def test_live_sunday_main_starting_at_the_same_kickoff_still_wins(monkeypatch):
+    groups = [_sunday_group(160000, 12, "2026-10-04T17:00:00.0000000Z")]
+
+    async def fake_fetch():
+        return groups
+
+    monkeypatch.setattr(dk_client, "_fetch_all_nfl_draft_groups", fake_fetch)
+    monkeypatch.setattr(dk_client, "_load_overrides", lambda: RECORDED_MAIN)
+    result = await dk_client.discover_draft_groups(_sunday_schedule())
+
+    assert result["classic_sunday"]["draft_group_id"] == 160000
+    assert result["classic_sunday"]["source"] == "live"
+
+
+def test_every_recorded_2026_week_has_both_classic_slates():
+    # Weeks 1-2 were recovered after the fact; none may lose a Classic slate again.
+    import json
+    from app.config import DK_OVERRIDES_PATH
+    weeks = json.loads(DK_OVERRIDES_PATH.read_text())["2026"]
+    for week in ("1", "2", "3", "4"):
+        assert weeks[week]["classic_sunday"]["draft_group_id"], week
+        assert weeks[week]["classic"]["draft_group_id"], week
+        assert weeks[week]["showdown"], week

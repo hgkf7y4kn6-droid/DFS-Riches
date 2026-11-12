@@ -1,0 +1,432 @@
+{
+ "app_saved_2026": {
+  "lineups": [
+   {
+    "week": 3,
+    "slate": "classic",
+    "metric": "ceiling",
+    "proj": 311.9,
+    "proj_points": 203.2,
+    "actual": 96.4,
+    "best": 266.2,
+    "qb_stacked": 1,
+    "games_used": 6,
+    "players_overlapping_best": 0
+   },
+   {
+    "week": 4,
+    "slate": "classic",
+    "metric": "ceiling",
+    "proj": 314.5,
+    "proj_points": 134.7,
+    "actual": 100.4,
+    "best": 295.8,
+    "qb_stacked": 1,
+    "games_used": 6,
+    "players_overlapping_best": 0
+   },
+   {
+    "week": 5,
+    "slate": "classic",
+    "metric": "ceiling",
+    "proj": 296.6,
+    "proj_points": 131.1,
+    "actual": 106.1,
+    "best": 299.1,
+    "qb_stacked": 0,
+    "games_used": 6,
+    "players_overlapping_best": 0
+   },
+   {
+    "week": 6,
+    "slate": "classic",
+    "metric": "ceiling",
+    "proj": 307.7,
+    "proj_points": 132.9,
+    "actual": 100.9,
+    "best": 242.0,
+    "qb_stacked": 1,
+    "games_used": 5,
+    "players_overlapping_best": 1
+   },
+   {
+    "week": 3,
+    "slate": "classic",
+    "metric": "proj_points",
+    "proj": 220.1,
+    "proj_points": 220.1,
+    "actual": 115.2,
+    "best": 266.2,
+    "qb_stacked": 1,
+    "games_used": 8,
+    "players_overlapping_best": 1
+   },
+   {
+    "week": 4,
+    "slate": "classic",
+    "metric": "proj_points",
+    "proj": 147.4,
+    "proj_points": 147.4,
+    "actual": 122.8,
+    "best": 295.8,
+    "qb_stacked": 0,
+    "games_used": 6,
+    "players_overlapping_best": 0
+   },
+   {
+    "week": 5,
+    "slate": "classic",
+    "metric": "proj_points",
+    "proj": 148.8,
+    "proj_points": 148.8,
+    "actual": 179.0,
+    "best": 299.1,
+    "qb_stacked": 1,
+    "games_used": 6,
+    "players_overlapping_best": 1
+   },
+   {
+    "week": 6,
+    "slate": "classic",
+    "metric": "proj_points",
+    "proj": 147.4,
+    "proj_points": 147.4,
+    "actual": 108.3,
+    "best": 242.0,
+    "qb_stacked": 2,
+    "games_used": 4,
+    "players_overlapping_best": 0
+   },
+   {
+    "week": 3,
+    "slate": "classic_sunday",
+    "metric": "ceiling",
+    "proj": 304.8,
+    "proj_points": 131.3,
+    "actual": 121.0,
+    "best": 256.4,
+    "qb_stacked": 0,
+    "games_used": 7,
+    "players_overlapping_best": 0
+   },
+   {
+    "week": 4,
+    "slate": "classic_sunday",
+    "metric": "ceiling",
+    "proj": 291.8,
+    "proj_points": 124.7,
+    "actual": 81.2,
+    "best": 280.9,
+    "qb_stacked": 0,
+    "games_used": 7,
+    "players_overlapping_best": 0
+   },
+   {
+    "week": 5,
+    "slate": "classic_sunday",
+    "metric": "ceiling",
+    "proj": 271.6,
+    "proj_points": 133.3,
+    "actual": 112.7,
+    "best": 284.8,
+    "qb_stacked": 2,
+    "games_used": 6,
+    "players_overlapping_best": 0
+   },
+   {
+    "week": 6,
+    "slate": "classic_sunday",
+    "metric": "ceiling",
+    "proj": 307.7,
+    "proj_points": 132.9,
+    "actual": 100.9,
+    "best": 230.3,
+    "qb_stacked": 1,
+    "games_used": 5,
+    "players_overlapping_best": 1
+   },
+   {
+    "week": 3,
+    "slate": "classic_sunday",
+    "metric": "proj_points",
+    "proj": 141.2,
+    "proj_points": 141.2,
+    "actual": 129.5,
+    "best": 256.4,
+    "qb_stacked": 0,
+    "games_used": 7,
+    "players_overlapping_best": 2
+   },
+   {
+    "week": 4,
+    "slate": "classic_sunday",
+    "metric": "proj_points",
+    "proj": 142.4,
+    "proj_points": 142.4,
+    "actual": 143.1,
+    "best": 280.9,
+    "qb_stacked": 1,
+    "games_used": 5,
+    "players_overlapping_best": 0
+   },
+   {
+    "week": 5,
+    "slate": "classic_sunday",
+    "metric": "proj_points",
+    "proj": 146.6,
+    "proj_points": 146.6,
+    "actual": 171.9,
+    "best": 284.8,
+    "qb_stacked": 2,
+    "games_used": 5,
+    "players_overlapping_best": 1
+   },
+   {
+    "week": 6,
+    "slate": "classic_sunday",
+    "metric": "proj_points",
+    "proj": 146.9,
+    "proj_points": 146.9,
+    "actual": 112.1,
+    "best": 230.3,
+    "qb_stacked": 0,
+    "games_used": 6,
+    "players_overlapping_best": 1
+   }
+  ],
+  "summary": {
+   "proj_points": {
+    "n": 8,
+    "avg_projected_points": 155.1,
+    "avg_actual": 135.2,
+    "avg_best_possible": 269.4,
+    "avg_share_of_best": 0.5,
+    "beat_projection": 0.375,
+    "avg_players_in_best": 0.75,
+    "avg_qb_pass_catchers": 0.88
+   },
+   "ceiling": {
+    "n": 8,
+    "avg_projected_points": 140.5,
+    "avg_actual": 102.5,
+    "avg_best_possible": 269.4,
+    "avg_share_of_best": 0.384,
+    "beat_projection": 0.0,
+    "avg_players_in_best": 0.25,
+    "avg_qb_pass_catchers": 0.75
+   }
+  }
+ },
+ "backtest_slates": {
+  "slates": 48,
+  "lineup_comparison": {
+   "proj": {
+    "projected optimal": 139.15,
+    "ceiling optimal": 137.74,
+    "actual optimal": 115.56
+   },
+   "ceiling": {
+    "projected optimal": 221.86,
+    "ceiling optimal": 224.22,
+    "actual optimal": 190.25
+   },
+   "actual": {
+    "projected optimal": 148.36,
+    "ceiling optimal": 143.0,
+    "actual optimal": 268.03
+   },
+   "salary": {
+    "projected optimal": 49943.75,
+    "ceiling optimal": 49954.17,
+    "actual optimal": 49485.42
+   },
+   "avg_game_total": {
+    "projected optimal": 45.64,
+    "ceiling optimal": 45.53,
+    "actual optimal": 44.71
+   },
+   "players_in_top3_total_games": {
+    "projected optimal": 3.5,
+    "ceiling optimal": 3.33,
+    "actual optimal": 2.73
+   },
+   "players_in_bottom_third_games": {
+    "projected optimal": 1.88,
+    "ceiling optimal": 1.92,
+    "actual optimal": 2.52
+   },
+   "avg_team_implied": {
+    "projected optimal": 24.21,
+    "ceiling optimal": 23.84,
+    "actual optimal": 22.84
+   },
+   "avg_matchup_epa_allowed": {
+    "projected optimal": 0.03,
+    "ceiling optimal": 0.03,
+    "actual optimal": 0.01
+   },
+   "qb_pass_catchers": {
+    "projected optimal": 0.38,
+    "ceiling optimal": 0.44,
+    "actual optimal": 0.6
+   },
+   "bring_back": {
+    "projected optimal": 0.46,
+    "ceiling optimal": 0.4,
+    "actual optimal": 0.31
+   },
+   "max_players_one_game": {
+    "projected optimal": 2.9,
+    "ceiling optimal": 2.75,
+    "actual optimal": 2.42
+   },
+   "games_used": {
+    "projected optimal": 6.0,
+    "ceiling optimal": 5.9,
+    "actual optimal": 6.4
+   },
+   "value_players_under_4500": {
+    "projected optimal": 1.83,
+    "ceiling optimal": 1.77,
+    "actual optimal": 1.67
+   },
+   "players_7k_plus": {
+    "projected optimal": 2.08,
+    "ceiling optimal": 1.94,
+    "actual optimal": 1.88
+   },
+   "avg_ownership": {
+    "projected optimal": 23.66,
+    "ceiling optimal": 23.91,
+    "actual optimal": 9.9
+   },
+   "dst_pts": {
+    "projected optimal": 9.69,
+    "ceiling optimal": 9.0,
+    "actual optimal": 18.29
+   },
+   "qb_pts": {
+    "projected optimal": 23.57,
+    "ceiling optimal": 19.91,
+    "actual optimal": 33.96
+   },
+   "field_percentile": {
+    "projected optimal": 0.8,
+    "ceiling optimal": 0.73,
+    "actual optimal": 0.0
+   }
+  },
+  "projected_optimal_shortfall": {
+   "avg_projected": 139.1,
+   "avg_actual": 148.4,
+   "beat_projection": 0.625,
+   "avg_share_of_actual_optimal": 0.554,
+   "avg_field_percentile": 0.797
+  },
+  "shortfall_correlations": {
+   "avg_game_total": 0.069,
+   "players_in_top3_total_games": -0.025,
+   "players_in_bottom_third_games": -0.079,
+   "avg_team_implied": 0.025,
+   "avg_matchup_epa_allowed": 0.031,
+   "qb_pass_catchers": 0.054,
+   "bring_back": -0.014,
+   "max_players_one_game": -0.005,
+   "value_players_under_4500": -0.396,
+   "players_7k_plus": -0.211,
+   "avg_ownership": -0.017,
+   "games_used": -0.113
+  },
+  "selection_effect": {
+   "players": 384,
+   "avg_miss_selected": 1.06,
+   "avg_miss_same_projection_not_selected": 0.87,
+   "by_position": {
+    "QB": {
+     "n": 48,
+     "selected": 2.65,
+     "peers": 0.31
+    },
+    "RB": {
+     "n": 121,
+     "selected": 1.49,
+     "peers": 0.14
+    },
+    "WR": {
+     "n": 152,
+     "selected": 0.01,
+     "peers": 1.38
+    },
+    "TE": {
+     "n": 63,
+     "selected": 1.56,
+     "peers": 0.99
+    }
+   },
+   "by_value_tier": {
+    "lowest-value third": {
+     "n": 128,
+     "selected": 1.41,
+     "peers": 1.72
+    },
+    "middle": {
+     "n": 128,
+     "selected": 0.62,
+     "peers": 0.57
+    },
+    "highest-value third": {
+     "n": 128,
+     "selected": 1.16,
+     "peers": 0.31
+    }
+   }
+  },
+  "actual_optimal_players": {
+   "QB": {
+    "n": 48,
+    "median_projected_value_rank": 7.5,
+    "median_projection_rank": 6.0,
+    "in_top3_projected_value": 0.146,
+    "from_top3_total_games": 0.354,
+    "avg_projected_ownership": 6.5,
+    "avg_beat_projection_by": 15.9
+   },
+   "RB": {
+    "n": 112,
+    "median_projected_value_rank": 9.0,
+    "median_projection_rank": 10.0,
+    "in_top3_projected_value": 0.259,
+    "from_top3_total_games": 0.348,
+    "avg_projected_ownership": 14.8,
+    "avg_beat_projection_by": 17.3
+   },
+   "WR": {
+    "n": 165,
+    "median_projected_value_rank": 20.0,
+    "median_projection_rank": 16.0,
+    "in_top3_projected_value": 0.085,
+    "from_top3_total_games": 0.352,
+    "avg_projected_ownership": 9.4,
+    "avg_beat_projection_by": 18.8
+   },
+   "TE": {
+    "n": 58,
+    "median_projected_value_rank": 8.5,
+    "median_projection_rank": 8.0,
+    "in_top3_projected_value": 0.207,
+    "from_top3_total_games": 0.293,
+    "avg_projected_ownership": 7.0,
+    "avg_beat_projection_by": 16.1
+   },
+   "DST": {
+    "n": 48,
+    "median_projected_value_rank": 6.5,
+    "median_projection_rank": 6.0,
+    "in_top3_projected_value": 0.25,
+    "from_top3_total_games": 0.229,
+    "avg_projected_ownership": 7.2,
+    "avg_beat_projection_by": 11.4
+   }
+  }
+ }
+}

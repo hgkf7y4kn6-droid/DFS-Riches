@@ -1,0 +1,8 @@
+{
+  "_about": "Expected starting quarterbacks where they differ from the last game's starter (read by scripts/update_roster_adjust.py). Each entry says who supplied it and whether it is confirmed; remove an entry once the real starter plays.",
+  "expected_starters": {
+    "MIN": {"name": "Kirk Cousins", "note": "acquired from LV 11/10; user-stated, start unconfirmed"},
+    "BAL": {"name": "Jacoby Brissett", "note": "acquired from ARI 11/6 after Jackson and Huntley were hurt; user-stated, start unconfirmed"},
+    "LV": {"name": "Fernando Mendoza", "note": "rookie; Cousins was traded away; user-stated, start unconfirmed"}
+  }
+}

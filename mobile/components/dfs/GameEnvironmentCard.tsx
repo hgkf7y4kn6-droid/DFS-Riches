@@ -1,0 +1,357 @@
+import { Image, Pressable, Text, View } from 'react-native';
+
+import DfsPlayerRow from '@/components/dfs/DfsPlayerRow';
+import StatusView from '@/components/StatusView';
+import { Term } from '@/components/Term';
+import { PLAYABLE_STATUSES } from '@/constants/data';
+import icons from '@/constants/icons';
+import { useThemeColors } from '@/constants/theme';
+import { useGameDetail } from '@/lib/game-detail';
+import { teamLogo } from '@/lib/games';
+import { formatCurrency, formatPercent, formatSigned } from '@/lib/utils';
+
+interface Props {
+  env: DfsGameEnv;
+  /** The model's stacks for this game. */
+  stacks: DfsStack[];
+  /** Every slate player on either team. */
+  players: DfsPlayer[];
+  /** Schedule game id, for the matchup data (/api/breakdown/game/{id}). */
+  gameId: string | null;
+  expanded: boolean;
+  onToggle: () => void;
+}
+
+/** "DET favored by 3" / "Pick'em", for the collapsed card. */
+function favoriteText(env: DfsGameEnv): string {
+  if (env.spread_home == null) return '';
+  if (env.spread_home === 0) return "Pick'em";
+  return `${env.spread_home < 0 ? env.home : env.away} favored by ${Math.abs(env.spread_home)}`;
+}
+
+function spreadText(env: DfsGameEnv): string {
+  if (env.spread_home == null) return '-';
+  if (env.spread_home === 0) return 'PK';
+  return env.spread_home < 0 ? `${env.home} ${env.spread_home}` : `${env.away} -${env.spread_home}`;
+}
+
+/** Positions each defense gives up the most to, ranked across both sides. */
+function Matchups({ env, gameId }: { env: DfsGameEnv; gameId: string | null }) {
+  const { detail, error } = useGameDetail(gameId);
+  if (!gameId) return <Text className="home-empty-state">{"Matchup data isn't available for this game."}</Text>;
+  if (!detail) return <StatusView loading={!error} error={error} />;
+  const rows = [
+    ...detail.away_def_vs_pos.map((r) => ({ ...r, offense: env.home, defense: env.away })),
+    ...detail.home_def_vs_pos.map((r) => ({ ...r, offense: env.away, defense: env.home })),
+  ]
+    .filter((r) => (r.vs_avg ?? 0) > 0)
+    .sort((a, b) => (b.vs_avg ?? 0) - (a.vs_avg ?? 0))
+    .slice(0, 5);
+  const notes = [
+    ...env.trench_notes,
+    ...(env.advanced_notes ?? []).filter((n) => !n.startsWith('Advanced environment leans')),
+    ...(env.weather?.impact ? [`Weather: ${env.weather.impact}`] : []),
+  ];
+  if (!rows.length && !notes.length) return <Text className="home-empty-state">No standout matchups in this game.</Text>;
+  return (
+    <View>
+      {rows.map((r, i) => (
+        <View key={`${r.offense}-${r.position}`} className="env-matchup">
+          <Text className="dfs-rank">{i + 1}</Text>
+          <View className="flex-1">
+            <Text className="dfs-name">
+              {r.offense} {r.position}s vs {r.defense}
+            </Text>
+            <Text className="dfs-meta">
+              {r.defense} allow {r.allowed} DK pts/gm to {r.position}s (league {r.league_avg}){r.rank ? ` · #${r.rank} most` : ''}
+            </Text>
+          </View>
+          <Text className="env-edge text-positive">{formatSigned((r.vs_avg ?? 0) * 100, 0)}%</Text>
+        </View>
+      ))}
+      {notes.map((n, i) => (
+        <Text key={i} className="dfs-reason">
+          • {n}
+        </Text>
+      ))}
+    </View>
+  );
+}
+
+/** The weekly audit: each item, whether it fires for this game, and how often it called the total right in 2023-2025. */
+function Checklist({ items }: { items: ChecklistItem[] }) {
+  return (
+    <View>
+      {items.map((c) => (
+        <View key={c.id} className="env-matchup">
+          <Text className="dfs-rank">{c.flag == null ? '–' : c.flag ? '✓' : '·'}</Text>
+          <View className="flex-1">
+            <Text className="dfs-name">{c.label}</Text>
+            <Text className="dfs-meta">
+              {c.flag == null
+                ? 'No public data (proprietary)'
+                : c.record?.n
+                  ? `When it fires: ${c.call} ${c.record.hit}-${c.record.n - c.record.hit} (${formatPercent(c.record.pct ?? 0, 0)}) vs the closing total, 2023-2025`
+                  : 'No record yet'}
+            </Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** Each offense's style vs the opposing defense's, and what that pairing has done against the line since 2016. */
+function StyleMatchups({ items }: { items: StyleMatchup[] }) {
+  return (
+    <View>
+      {items.map((m) => (
+        <View key={m.offense} className="env-matchup">
+          <Text className="dfs-rank">{m.lean === 'pass' ? 'P' : m.lean === 'run' ? 'R' : '–'}</Text>
+          <View className="flex-1">
+            <Text className="dfs-name">
+              {m.offense} offense ({m.off_text ?? m.off_style}) vs {m.defense} defense ({m.def_text ?? m.def_style})
+            </Text>
+            {m.lean_text ? <Text className="dfs-meta">{m.lean_text}</Text> : null}
+            {(m.flips ?? []).map((f) => (
+              <Text key={f} className="dfs-meta">
+                Roster moves: {f}
+              </Text>
+            ))}
+            <Text className="dfs-meta">
+              {m.pass_att == null
+                ? 'No record for this pairing'
+                : `${formatSigned(m.pass_att, 1)} pass / ${formatSigned(m.rush_att ?? 0, 1)} rush attempts vs the line · WR ${formatSigned(
+                    m.dk.WR ?? 0,
+                    1,
+                  )} · RB ${formatSigned(m.dk.RB ?? 0, 1)} DK pts (team), 2016-2026`}
+            </Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** Trades and coaching changes of the last few weeks: the styles above come from games already played, so these are what they can't see yet. */
+function RosterMoves({ moves, adjust }: { moves: Record<string, RosterMove[]>; adjust: Record<string, RosterAdjust> }) {
+  const teams = [...new Set([...Object.keys(moves), ...Object.keys(adjust)])].filter((t) => moves[t]?.length || adjust[t]?.reasons?.length);
+  return (
+    <View>
+      {teams.map((team) => (
+        <View key={team} className="env-matchup">
+          <Text className="dfs-rank">{team}</Text>
+          <View className="flex-1">
+            {(moves[team] ?? []).map((m, i) => (
+              <Text key={`${m.label}-${i}`} className="dfs-meta">
+                Wk {m.effective_week}: {m.label}
+              </Text>
+            ))}
+            {adjust[team] ? (
+              <Text className="dfs-meta">
+                Back-tested effect: {formatSigned(adjust[team].d_epa_db, 2)} offense EPA/dropback, {formatSigned(adjust[team].d_pass_rate * 100, 1)} pt neutral
+                pass rate, {formatSigned(adjust[team].d_pressure_events, 2)} sacks+hits/game by its defense
+              </Text>
+            ) : null}
+            {(adjust[team]?.reasons ?? []).map((r) => (
+              <Text key={r} className="dfs-meta">
+                • {r}
+              </Text>
+            ))}
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function StackCard({ stack, rank }: { stack: DfsStack; rank: number }) {
+  const own = stack.players.reduce((s, p) => s + (p.ownership ?? 0), 0);
+  const value = stack.salary > 0 ? stack.final / (stack.salary / 1000) : 0;
+  return (
+    <View className="env-stack">
+      <View className="flex-row items-center justify-between">
+        <Text className="dfs-name">
+          {rank}. {stack.team} · {stack.type}
+        </Text>
+        <Text className="dfs-salary">{formatCurrency(stack.salary)}</Text>
+      </View>
+      <Text className="dfs-stats">
+        {stack.final.toFixed(1)} proj · {stack.ceiling.toFixed(1)} ceil · {value.toFixed(2)} pts/$1k · {formatPercent(own / 100, 0)} combined own
+      </Text>
+      <Text className="dfs-meta mt-1">
+        {stack.players.map((p) => `${p.name} (${p.position} ${p.team})`).join(' + ')}
+      </Text>
+      <Text className="dfs-reason">• {stack.reason}</Text>
+      {stack.bring_back_note ? <Text className="dfs-reason">• Bring-back: {stack.bring_back_note}</Text> : null}
+    </View>
+  );
+}
+
+/**
+ * One game environment, ranked best to worst. Collapsed: environment rank,
+ * the Vegas read in plain words, tags and script. Tap to expand: the
+ * numbers (lines, popularity, env score, the advanced models), the 1-5 best stacks (by the
+ * model's stack score: environment, ceiling vs salary, popularity), the
+ * matchups to exploit, and the players to target ranked by ceiling. Tap the
+ * header again to collapse.
+ */
+export default function GameEnvironmentCard({ env, stacks, players, gameId, expanded, onToggle }: Props) {
+  const colors = useThemeColors();
+  const best = [...stacks].sort((a, b) => b.score - a.score).slice(0, 5);
+  const targets = players
+    .filter((p) => PLAYABLE_STATUSES.has(p.injury ?? 'Healthy') && p.final > 0)
+    .sort((a, b) => (b.ceiling ?? 0) - (a.ceiling ?? 0) || b.final - a.final)
+    .slice(0, 8);
+  // Each tag opens its glossary definition.
+  const tags = [
+    env.shootout && { id: 'shootout', text: 'Shootout' },
+    env.shootout_leverage?.flag && { id: 'shootout-leverage', text: `Shootout leverage ${env.shootout_leverage.leverage.toFixed(2)}x` },
+    env.negative_script && { id: 'negative-script', text: 'Negative script' },
+    env.live_dog && { id: 'live-dog', text: `Live dog: ${env.underdog}` },
+    ...(env.style_matchup ?? [])
+      .filter((m) => m.lean)
+      .map((m) => ({ id: 'style-matchup', text: `${m.offense} leans ${m.lean}` })),
+    ...(() => {
+      const teams = [...new Set([...Object.keys(env.roster_moves ?? {}), ...Object.keys(env.roster_adjust ?? {})])].filter(
+        (t) => env.roster_moves?.[t]?.length || env.roster_adjust?.[t]?.reasons?.length,
+      );
+      return teams.length ? [{ id: 'roster-moves', text: `Roster moves: ${teams.join(', ')}` }] : [];
+    })(),
+  ].filter(Boolean) as { id: string; text: string }[];
+
+  return (
+    <View className={`env-card ${expanded ? 'slate-card-active' : ''}`}>
+      <Pressable onPress={onToggle} accessibilityRole="button" aria-expanded={expanded}>
+        <View className="flex-row items-center gap-3">
+          <View className="env-rank">
+            <Text className="env-rank-text">#{env.env_rank}</Text>
+          </View>
+          <View className="upcoming-logos">
+            <Image source={teamLogo(env.away)} className="upcoming-icon" style={{ width: 32, height: 32 }} resizeMode="contain" />
+            <Image source={teamLogo(env.home)} className="upcoming-icon" style={{ width: 32, height: 32, marginLeft: -8 }} resizeMode="contain" />
+          </View>
+          <View className="flex-1">
+            <Text className="slate-card-title">
+              {env.away} @ {env.home}
+            </Text>
+            <Text className="slate-card-meta">{env.kickoff}</Text>
+          </View>
+          <Image
+            source={icons.chevron}
+            style={{ width: 16, height: 16, tintColor: colors.foreground, transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}
+          />
+        </View>
+        {/* Collapsed: the plain-language read. The model's numbers are in the expanded card. */}
+        <Text className="dfs-stats mt-2">
+          {env.total != null ? (
+            <>
+              {env.total} <Term id="total">total points</Term> expected
+            </>
+          ) : (
+            'No Vegas total yet'
+          )}
+          {favoriteText(env) ? ` · ${favoriteText(env)}` : ''}
+        </Text>
+        {tags.length ? (
+          <Text className="slate-card-status mt-1">
+            {tags.map((t, i) => (
+              <Text key={t.id}>
+                {i ? ' · ' : ''}
+                <Term id={t.id}>{t.text}</Term>
+              </Text>
+            ))}
+          </Text>
+        ) : null}
+        <Text className="dfs-reason mt-1">{env.script}</Text>
+        {!expanded ? <Text className="upcoming-expand-hint">Stacks, matchups, targets and the numbers ▼</Text> : null}
+      </Pressable>
+
+      {expanded ? (
+        <View className="slate-card-body">
+          <Text className="detail-title">The numbers</Text>
+          <Text className="dfs-stats mt-0">
+            <Term id="total">O/U</Term> {env.total ?? '-'} · <Term id="spread">{spreadText(env)}</Term> · <Term id="implied">Implied</Term> {env.away}{' '}
+            {env.away_implied ?? '-'} / {env.home} {env.home_implied ?? '-'}
+          </Text>
+          <Text className="dfs-meta">
+            <Term id="popularity">Popularity</Term> #{env.pop_rank} · {formatPercent(env.pop_share, 0)} of the field ·{' '}
+            <Term id="game-environment">env score</Term> {env.env_score.toFixed(2)}
+          </Text>
+          {env.advanced_env ? (
+            <Text className="dfs-meta">
+              Advanced env {env.advanced_env.lean ?? 'Neutral'} lean ({formatSigned(env.advanced_env.adj, 2)}): pace{' '}
+              {formatSigned(env.advanced_env.parts.playcaller_pace, 2)} · drive velocity {env.advanced_env.parts.drive_velocity.toFixed(2)} ·
+              pressure {formatSigned(env.advanced_env.parts.trench_penalty, 2)}
+            </Text>
+          ) : null}
+          {env.shootout_leverage ? (
+            <Text className="dfs-meta">
+              Top-scorer odds {formatPercent(env.shootout_leverage.expected_share, 0)} vs {formatPercent(env.shootout_leverage.own_share, 0)}{' '}
+              of the field · leverage {env.shootout_leverage.leverage.toFixed(2)}x (#{env.shootout_leverage.rank})
+            </Text>
+          ) : null}
+          {env.model_v2 ? (
+            <Text className="dfs-meta">
+              Game model: total {env.model_v2.fair_total.toFixed(1)} ({formatSigned(env.model_v2.total_adj, 1)} vs the line) · {env.home}{' '}
+              {formatSigned(env.model_v2.fair_home_margin, 1)}
+            </Text>
+          ) : null}
+          <Text className="detail-title mt-4">
+            Best <Term id="stack">stacks</Term>
+          </Text>
+          {best.length ? best.map((s, i) => <StackCard key={`${s.team}-${s.type}-${i}`} stack={s} rank={i + 1} />) : (
+            <Text className="home-empty-state">No stacks for this game.</Text>
+          )}
+          {env.checklist ? (
+            <>
+              <Text className="detail-title mt-4">Weekly audit checklist</Text>
+              <Checklist items={env.checklist} />
+            </>
+          ) : null}
+          {env.style_matchup?.length ? (
+            <>
+              <Text className="detail-title mt-4">
+                <Term id="style-matchup">Style matchup</Term>
+              </Text>
+              <StyleMatchups items={env.style_matchup} />
+            </>
+          ) : null}
+          {Object.values(env.schedule_outlook ?? {}).some((l) => l.length) ? (
+            <>
+              <Text className="detail-title mt-4">
+                <Term id="schedule-outlook">Direction: schedule ahead</Term>
+              </Text>
+              {Object.entries(env.schedule_outlook ?? {}).map(([team, ls]) => (
+                <View key={team} className="env-matchup">
+                  <Text className="dfs-rank">{team}</Text>
+                  <View className="flex-1">
+                    {ls.map((l) => (
+                      <Text key={l.text} className="dfs-meta">
+                        {l.better ? '▲' : '▼'} {l.text}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              ))}
+            </>
+          ) : null}
+          {Object.values(env.roster_moves ?? {}).some((m) => m.length) || Object.keys(env.roster_adjust ?? {}).length ? (
+            <>
+              <Text className="detail-title mt-4">
+                <Term id="roster-moves">Recent roster moves</Term>
+              </Text>
+              <RosterMoves moves={env.roster_moves ?? {}} adjust={env.roster_adjust ?? {}} />
+            </>
+          ) : null}
+          <Text className="detail-title mt-4">Matchups to exploit</Text>
+          <Matchups env={env} gameId={gameId} />
+          <Text className="detail-title mt-4">Players to target (by ceiling)</Text>
+          {targets.map((p, i) => (
+            <DfsPlayerRow key={p.id} player={p} rank={i + 1} metric="ceiling" />
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
+}

@@ -18,10 +18,16 @@ import time
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
+from app import metrics
 from app.config import CACHE_DIR
 
+# In-memory layer, least recently used first; capped at MAX_MEMORY_ENTRIES
+# (evicted entries are re-read from disk) so browsing many weeks and slates
+# can't grow a 512 MB host's memory without bound.
 _memory: dict[str, tuple[float, Any]] = {}
+MAX_MEMORY_ENTRIES = 48
 _in_flight: dict[str, asyncio.Task] = {}
+_stale_served: dict[str, float] = {}      # key -> when a failed refresh last made us serve its old disk copy
 
 
 def _cache_path(key: str) -> Path:
@@ -43,6 +49,15 @@ def _read_disk(key: str, ttl_seconds: float | None) -> Any | None:
         return None
 
 
+def _remember(key: str, value: Any, memory: bool) -> None:
+    if not memory:
+        return
+    _memory.pop(key, None)
+    _memory[key] = (time.time(), value)
+    while len(_memory) > MAX_MEMORY_ENTRIES:
+        del _memory[next(iter(_memory))]
+
+
 def _write_disk(key: str, value: Any) -> None:
     try:
         with _cache_path(key).open("w") as f:
@@ -51,44 +66,65 @@ def _write_disk(key: str, value: Any) -> None:
         pass
 
 
-async def _fetch_and_store(key: str, fetch_fn: Callable[[], Awaitable[Any]]) -> Any:
+async def _fetch_and_store(key: str, fetch_fn: Callable[[], Awaitable[Any]], memory: bool = True) -> Any:
+    started = time.perf_counter()
     try:
         value = await fetch_fn()
     except Exception:
         stale = _read_disk(key, ttl_seconds=None)
         if stale is not None:
-            _memory[key] = (time.time(), stale)
+            metrics.cache_event(key, "stale")
+            _stale_served[key] = time.time()
+            _remember(key, stale, memory)
             return stale
+        metrics.cache_event(key, "error")
         raise
+    metrics.cache_event(key, "fetch", time.perf_counter() - started)
     _write_disk(key, value)
-    _memory[key] = (time.time(), value)
+    _remember(key, value, memory)
     return value
+
+
+def recently_stale(prefixes: tuple[str, ...], within: float = 900.0) -> list[str]:
+    """Cache keys starting with one of `prefixes` whose refresh failed in the last `within` seconds, so the
+    data behind them is an older copy than its TTL allows."""
+    cutoff = time.time() - within
+    return sorted(k for k, t in _stale_served.items() if t >= cutoff and k.startswith(prefixes))
 
 
 async def cached_fetch(
     key: str,
     ttl_seconds: float,
     fetch_fn: Callable[[], Awaitable[Any]],
+    *,
+    memory: bool = True,
 ) -> Any:
     """Return fresh-enough cached data (memory, then disk), otherwise call
     fetch_fn, cache the result at both layers, and return it. If fetch_fn
     raises, fall back to stale disk cache (if any) rather than propagating
     the error. Concurrent calls for the same key that isn't already cached
-    share one underlying fetch."""
+    share one underlying fetch.
+
+    memory=False keeps the value on disk only, re-read on each call: for big
+    raw datasets that are only read to build smaller derived indexes (which
+    are cached in memory themselves), so they don't sit in RAM."""
     now = time.time()
 
     hit = _memory.get(key)
     if hit is not None and now - hit[0] < ttl_seconds:
+        _memory[key] = _memory.pop(key)          # most recently used
+        metrics.cache_event(key, "memory")
         return hit[1]
 
     disk = _read_disk(key, ttl_seconds)
     if disk is not None:
-        _memory[key] = (now, disk)
+        metrics.cache_event(key, "disk")
+        _remember(key, disk, memory)
         return disk
 
     task = _in_flight.get(key)
     if task is None:
-        task = asyncio.ensure_future(_fetch_and_store(key, fetch_fn))
+        task = asyncio.ensure_future(_fetch_and_store(key, fetch_fn, memory))
         _in_flight[key] = task
     try:
         return await task
@@ -97,18 +133,22 @@ async def cached_fetch(
             del _in_flight[key]
 
 
-def memoize_async(ttl_seconds: float, max_entries: int = 32):
+def memoize_async(ttl_seconds: float, max_entries: int = 32, stale_seconds: float = 0):
     """In-memory memoization for an async function, keyed by its arguments.
     For deriving a Python object from data that's already cheap to fetch
     (via cached_fetch) but non-trivial to rebuild each call -- e.g. a name
     lookup index, or a whole request's worth of orchestration that multiple
     routes independently repeat. Concurrent calls with the same arguments
     share one underlying computation. Holds at most max_entries results
-    (oldest evicted), so arbitrary request parameters can't grow memory."""
+    (oldest evicted), so arbitrary request parameters can't grow memory.
+    With stale_seconds, a result up to that much past its TTL is returned
+    at once while a fresh one is computed in the background (stale while
+    revalidate), so a slow build is only ever waited on the first time."""
 
     def decorator(fn: Callable[..., Awaitable[Any]]) -> Callable[..., Awaitable[Any]]:
         store: dict[tuple, tuple[float, Any]] = {}
         in_flight: dict[tuple, asyncio.Task] = {}
+        name = f"{fn.__module__.removeprefix('app.')}.{fn.__qualname__}"
 
         @functools.wraps(fn)
         async def wrapper(*args, **kwargs):
@@ -117,13 +157,17 @@ def memoize_async(ttl_seconds: float, max_entries: int = 32):
 
             hit = store.get(key)
             if hit is not None and now - hit[0] < ttl_seconds:
+                metrics.memo_event(name, True)
                 return hit[1]
+            stale = hit is not None and now - hit[0] < ttl_seconds + stale_seconds
 
             task = in_flight.get(key)
             if task is None:
 
                 async def run() -> Any:
+                    started = time.perf_counter()
                     value = await fn(*args, **kwargs)
+                    metrics.memo_event(name, False, time.perf_counter() - started)
                     store.pop(key, None)
                     store[key] = (time.time(), value)
                     while len(store) > max_entries:
@@ -132,12 +176,19 @@ def memoize_async(ttl_seconds: float, max_entries: int = 32):
 
                 task = asyncio.ensure_future(run())
                 in_flight[key] = task
-            try:
-                return await task
-            finally:
-                if in_flight.get(key) is task:
-                    del in_flight[key]
 
+                def done(t: asyncio.Task, key=key) -> None:
+                    if in_flight.get(key) is t:
+                        del in_flight[key]
+                    if not t.cancelled():
+                        t.exception()      # a failed background refresh is retried on the next call
+                task.add_done_callback(done)
+            if stale:
+                metrics.memo_event(name, True)
+                return hit[1]
+            return await task
+
+        wrapper.cache_clear = store.clear     # type: ignore[attr-defined]
         return wrapper
 
     return decorator

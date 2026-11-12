@@ -1,5 +1,5 @@
 {
-  "_readme": "Fallback map of DraftKings draftGroupId values, keyed by season/week/slate. DraftKings' discovery listing (GET https://api.draftkings.com/draftgroups/v1/) only returns contests that are still 'Upcoming', so once a slate's games kick off its draftGroupId disappears from that listing even though /draftgroups/v1/draftgroups/{id}/draftables keeps serving it. The app tries live discovery first (app/dk_client.py:discover_draft_groups) and falls back to this file so already-started/completed slates still render. New weeks are added by 'python -m scripts.record_draft_groups', run weekly after salaries post and before the first kickoff; it only records groups found live that have salaried players. Week 2 of 2026 is missing because its slates had already started before this was set up.",
+  "_readme": "Fallback map of DraftKings draftGroupId values, keyed by season/week/slate. DraftKings' discovery listing (GET https://api.draftkings.com/draftgroups/v1/) only returns contests that are still 'Upcoming', so once a slate's games kick off its draftGroupId disappears from that listing even though /draftgroups/v1/draftgroups/{id}/draftables keeps serving it. The app tries live discovery first (app/dk_client.py:discover_draft_groups) and falls back to this file so already-started/completed slates still render. New weeks are added by 'python -m scripts.record_draft_groups', run weekly after salaries post and before the first kickoff; it only records groups found live that have salaried players. Week 2 of 2026 was recovered afterwards by scanning DraftKings draft group ids.",
   "2026": {
     "1": {
       "classic": {
@@ -22,6 +22,39 @@
         "MON_NIGHT": {
           "draft_group_id": 153086,
           "label": "Showdown - Mon Night (DEN @ KC)"
+        }
+      },
+      "classic_sunday": {
+        "draft_group_id": 153054,
+        "label": "Classic - Sunday Main (12 games)",
+        "first_kickoff": "2026-09-13T17:00:00+00:00",
+        "last_kickoff": "2026-09-13T20:25:00+00:00",
+        "note": "DraftKings no longer serves this Main (153055); rebuilt from the Full Week group, whose players and salaries are identical, filtered to the Sunday games."
+      }
+    },
+    "2": {
+      "classic_sunday": {
+        "draft_group_id": 153428,
+        "label": "Classic - Sunday Main (13 games)",
+        "first_kickoff": "2026-09-20T17:00:00+00:00",
+        "last_kickoff": "2026-09-20T20:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 153427,
+        "label": "Full Week 2 Slate (16 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 153434,
+          "label": "Showdown - Thu Night (DET @ BUF)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 153448,
+          "label": "Showdown - Sun Night (IND @ KC)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 153449,
+          "label": "Showdown - Mon Night (NYG @ LAR)"
         }
       }
     },
@@ -49,6 +82,204 @@
         "label": "Classic - Sunday Main (13 games)",
         "first_kickoff": "2026-09-27T17:00:00+00:00",
         "last_kickoff": "2026-09-27T20:25:00+00:00"
+      }
+    },
+    "4": {
+      "classic_sunday": {
+        "draft_group_id": 154078,
+        "label": "Classic - Sunday Main (12 games)",
+        "first_kickoff": "2026-10-04T17:00:00+00:00",
+        "last_kickoff": "2026-10-04T20:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 154077,
+        "label": "Full Week 4 Slate (16 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 154084,
+          "label": "Showdown - Thu Night (PIT @ CLE)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 154099,
+          "label": "Showdown - Mon Night (ATL @ NO)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 154098,
+          "label": "Showdown - Sun Night (DET @ CAR)"
+        },
+        "SUN_MORNING": {
+          "draft_group_id": 154085,
+          "label": "Showdown - Sun Morning (IND @ WAS)"
+        }
+      }
+    },
+    "5": {
+      "classic_sunday": {
+        "draft_group_id": 154468,
+        "label": "Classic - Sunday Main (11 games)",
+        "first_kickoff": "2026-10-11T17:00:00+00:00",
+        "last_kickoff": "2026-10-11T20:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 154467,
+        "label": "Full Week 5 Slate (15 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 154474,
+          "label": "Showdown - Thu Night (TB @ DAL)"
+        },
+        "SUN_MORNING": {
+          "draft_group_id": 154475,
+          "label": "Showdown - Sun Morning (PHI @ JAX)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 154488,
+          "label": "Showdown - Mon Night (BUF @ LAR)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 154487,
+          "label": "Showdown - Sun Night (BAL @ ATL)"
+        }
+      }
+    },
+    "6": {
+      "classic_sunday": {
+        "draft_group_id": 154941,
+        "label": "Classic - Sunday Main (10 games)",
+        "first_kickoff": "2026-10-18T17:00:00+00:00",
+        "last_kickoff": "2026-10-18T20:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 154940,
+        "label": "Full Week 6 Slate (14 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 154947,
+          "label": "Showdown - Thu Night (SEA @ DEN)"
+        },
+        "SUN_MORNING": {
+          "draft_group_id": 154948,
+          "label": "Showdown - Sun Morning (HOU @ JAX)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 154960,
+          "label": "Showdown - Mon Night (WAS @ SF)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 154959,
+          "label": "Showdown - Sun Night (DAL @ GB)"
+        }
+      }
+    },
+    "7": {
+      "classic_sunday": {
+        "draft_group_id": 155198,
+        "label": "Classic - Sunday Main (10 games)",
+        "first_kickoff": "2026-10-25T17:00:00+00:00",
+        "last_kickoff": "2026-10-25T20:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 155197,
+        "label": "Full Week 7 Slate (14 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 155204,
+          "label": "Showdown - Thu Night (NE @ CHI)"
+        },
+        "SUN_MORNING": {
+          "draft_group_id": 155205,
+          "label": "Showdown - Sun Morning (PIT @ NO)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 155217,
+          "label": "Showdown - Mon Night (DAL @ PHI)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 155216,
+          "label": "Showdown - Sun Night (KC @ SEA)"
+        }
+      }
+    },
+    "8": {
+      "classic_sunday": {
+        "draft_group_id": 153728,
+        "label": "Classic - Sunday Main (11 games)",
+        "first_kickoff": "2026-11-01T18:00:00+00:00",
+        "last_kickoff": "2026-11-01T21:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 155589,
+        "label": "Full Week 8 Slate (14 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 155596,
+          "label": "Showdown - Thu Night (CAR @ GB)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 155609,
+          "label": "Showdown - Mon Night (CHI @ SEA)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 155951,
+          "label": "Showdown - Sun Night (PHI @ WAS)"
+        }
+      }
+    },
+    "9": {
+      "classic_sunday": {
+        "draft_group_id": 155994,
+        "label": "Classic - Sunday Main (11 games)",
+        "first_kickoff": "2026-11-08T18:00:00+00:00",
+        "last_kickoff": "2026-11-08T21:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 155993,
+        "label": "Full Week 9 Slate (15 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 156000,
+          "label": "Showdown - Thu Night (JAX @ BAL)"
+        },
+        "SUN_MORNING": {
+          "draft_group_id": 156001,
+          "label": "Showdown - Sun Morning (CIN @ ATL)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 156014,
+          "label": "Showdown - Mon Night (BUF @ MIN)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 156013,
+          "label": "Showdown - Sun Night (TB @ CHI)"
+        }
+      }
+    },
+    "10": {
+      "classic_sunday": {
+        "draft_group_id": 156416,
+        "label": "Classic - Sunday Main (10 games)",
+        "first_kickoff": "2026-11-15T18:00:00+00:00",
+        "last_kickoff": "2026-11-15T21:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 156415,
+        "label": "Full Week 10 Slate (14 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 156421,
+          "label": "Showdown - Thu Night (WAS @ NYG)"
+        },
+        "SUN_MORNING": {
+          "draft_group_id": 156422,
+          "label": "Showdown - Sun Morning (NE @ DET)"
+        }
       }
     }
   }

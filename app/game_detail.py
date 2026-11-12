@@ -8,6 +8,7 @@ from __future__ import annotations
 import statistics
 
 from app import nflverse_client as nc
+from app import advanced_env, team_units, trenches
 from app.breakdown import WeekData, game_breakdown, load_week
 from app.models import Game, GameDetail, LeagueContext, PositionMatchup, TeamStatLine, UsageShare
 
@@ -76,14 +77,18 @@ def usage_leaders(wd: WeekData, team: str) -> list[UsageShare]:
         if p.team != team or p.position not in ("RB", "WR", "TE") or p.roster_slot == "CPT":
             continue
         entries = wd.ceiling_ctx.players.get(nc.player_key(p.name, p.position), [])
-        s3 = nc.recent_values(entries, wd.season, wd.week, 3, col=3)
-        s8 = nc.recent_values(entries, wd.season, wd.week, 8, col=3)
-        if not s3 or not any(e[0] == wd.season for e in entries):
+        season = [e[3] for e in nc.season_entries(entries, wd.season, wd.week) if e[3] is not None]
+        if not season:
             continue
+
+        def window(n: int) -> float | None:
+            return round(statistics.fmean(season[-n:]), 3) if len(season) >= n else None
+
         rows.append(UsageShare(name=p.name, position=p.position, injury=p.injury,
-                               share_l3=round(statistics.fmean(s3), 3),
-                               share_l8=round(statistics.fmean(s8), 3) if s8 else None))
-    return sorted(rows, key=lambda r: -r.share_l3)[:USAGE_PLAYERS]
+                               share_season=round(statistics.fmean(season), 3),
+                               share_l3=window(3), share_l6=window(6), share_l9=window(9),
+                               share_l8=round(statistics.fmean(season[-8:]), 3)))
+    return sorted(rows, key=lambda r: -(r.share_l3 if r.share_l3 is not None else r.share_season))[:USAGE_PLAYERS]
 
 
 # --- insights -----------------------------------------------------------------
@@ -176,17 +181,62 @@ def usage_insight(game: Game, away_usage: list[UsageShare], home_usage: list[Usa
         if not rows:
             continue
         top = rows[0]
+        recent = top.share_l3 if top.share_l3 is not None else top.share_season
         trend = ""
-        if top.share_l8:
-            if top.share_l3 > top.share_l8 * 1.05:
-                trend = f", up from {top.share_l8:.0%}"
-            elif top.share_l3 < top.share_l8 * 0.95:
-                trend = f", down from {top.share_l8:.0%}"
-        if top.share_l3 >= 0.30:
-            parts.append(f"{top.name} handles {top.share_l3:.0%} of {team}'s targets + carries{trend} — a locked-in workload that holds up in any script.")
+        if top.share_l3 is not None and top.share_season:
+            if top.share_l3 > top.share_season * 1.05:
+                trend = f", up from {top.share_season:.0%} on the season"
+            elif top.share_l3 < top.share_season * 0.95:
+                trend = f", down from {top.share_season:.0%} on the season"
+        if recent >= 0.30:
+            parts.append(f"{top.name} handles {recent:.0%} of {team}'s targets + carries{trend} — a locked-in workload that holds up in any script.")
         else:
-            parts.append(f"{team} spreads the ball around (leader: {top.name}, {top.share_l3:.0%}{trend}), so its skill players are less predictable.")
+            parts.append(f"{team} spreads the ball around (leader: {top.name}, {recent:.0%}{trend}), so its skill players are less predictable.")
     return " ".join(parts) or None
+
+
+def weather_insight(game: Game) -> str | None:
+    w = game.weather or {}
+    if not w:
+        return None
+    if w.get("roof") == "dome":
+        return f"Indoors at {w.get('venue')}: no weather adjustment."
+    if w.get("roof") == "retractable":
+        return f"{w.get('venue')} has a retractable roof -- {w.get('summary')}. No weather adjustment."
+    if not w.get("available"):
+        return f"{w.get('summary')} for {w.get('venue') or 'this venue'}."
+    lead = "Played in" if w.get("observed") else "Kickoff forecast"
+    text = f"{lead} at {w.get('venue')}: {w.get('summary')}."
+    if w.get("observed"):
+        return text
+    if w.get("impact"):
+        text += f" Projections adjusted for it: {w['impact']} (fit on 2016-2025 games)."
+    elif w.get("severity") in ("poor", "severe"):
+        text += " Historically, conditions like these barely move projections."
+    else:
+        text += " No meaningful weather effect."
+    if w.get("long_range"):
+        text += " Long-range forecast: adjustments at half strength until it firms up."
+    return text
+
+
+def trench_section(tw: dict | None, game: Game) -> dict | None:
+    """Both teams' unit ranks and scheme rates, each offense's matchup vs the
+    other defense, and a short DFS read built from the strongest edges."""
+    away, home = trenches.team_card(tw, game.away), trenches.team_card(tw, game.home)
+    if not away or not home:
+        return None
+    away_off, home_off = trenches.matchup(tw, game.away, game.home), trenches.matchup(tw, game.home, game.away)
+    ranked = sorted(((abs(e["edge"]), m["notes_by"][k]) for m in (away_off, home_off) for k, e in m["edges"].items()
+                     if e["strength"] != "neutral" and k in m["notes_by"]), key=lambda x: -x[0])
+    insight = " ".join(n for _e, n in ranked[:2]) or "No meaningful line or efficiency mismatch on either side -- the trenches grade as a wash."
+    return {
+        "away": away, "home": home, "away_offense": away_off, "home_offense": home_off,
+        "league": tw["league"], "coverage_season": tw.get("coverage_season"), "has_ftn": tw.get("has_ftn"),
+        "window": tw.get("window"), "sources": tw.get("sources"), "note": tw.get("note"),
+        "references": tw.get("references"), "insight": insight,
+        "late_down_notes": [n for t in (game.away, game.home) if (n := trenches.late_down_note(t, tw["teams"].get(t)))],
+    }
 
 
 async def build_game_detail(season: int, week: int, game_id: str) -> GameDetail:
@@ -205,10 +255,22 @@ async def build_game_detail(season: int, week: int, game_id: str) -> GameDetail:
         "away_offense": offense_insight(game.away, game.home, gb.away_stats, gb.home_stats, league),
         "home_offense": offense_insight(game.home, game.away, gb.home_stats, gb.away_stats, league),
         "tempo": tempo_insight(game, gb.away_stats, gb.home_stats, league),
+        "weather": weather_insight(game),
         "tendency": tendency_insight(game, gb.away_stats, gb.home_stats, league),
         "positions": positions_insight(game, away_def, home_def),
         "usage": usage_insight(game, away_usage, home_usage),
     }
+    trench = trench_section(wd.trenches, game)
+    try:
+        units = team_units.game_units(await team_units.unit_table(season, week), game.away, game.home)
+    except Exception:
+        units = None
+    try:
+        pace = advanced_env.pace_card(game.away, game.home, *await advanced_env.week_features(season, week))
+    except Exception:
+        pace = None
+    if trench:
+        insights["trenches"] = trench["insight"]
     return GameDetail(
         breakdown=gb,
         league=league,
@@ -217,4 +279,7 @@ async def build_game_detail(season: int, week: int, game_id: str) -> GameDetail:
         away_usage=away_usage,
         home_usage=home_usage,
         insights={k: v for k, v in insights.items() if v},
+        trenches=trench,
+        units=units,
+        pace=pace,
     )

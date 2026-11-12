@@ -171,3 +171,12 @@ def test_relearn_grades_sources_against_actual(monkeypatch, tmp_path):
     assert "AfterLock" not in learning["sources"]           # post-lock numbers are never graded
     assert learning["model"]["by_contest"]["gpp"]["n"] == 40
     assert learning["slates_with_actuals"] == 1
+
+
+def test_summary_by_id_gives_percent_and_interval():
+    from app import ownership_report
+    state = {"players": [{"id": 7, "key": "a"}, {"id": 8, "key": "b"}],
+             "post": {"by_contest": {"gpp": {"a": {"alpha": 2.0, "beta": 8.0}, "b": {"alpha": 1.0, "beta": 99.0, "actual": 0.012}}}}}
+    out = ownership_report.summary_by_id(state, "gpp")
+    assert out[7]["own"] == 20.0 and out[7]["lo"] < 20.0 < out[7]["hi"] and out[7]["contest"] == "gpp"
+    assert out[8]["own"] == 1.0 and out[8]["actual"] == 1.2

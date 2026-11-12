@@ -1,0 +1,540 @@
+{
+ "saved": "pre-lock",
+ "lineups": [
+  {
+   "label": "Goff stack (St. Brown/Jameson, MIA return)",
+   "players": [
+    {
+     "id": 44758299,
+     "name": "Jared Goff",
+     "position": "QB",
+     "team": "DET",
+     "opponent": "MIA",
+     "salary": 6600,
+     "proj": 21.73,
+     "own": 6.2,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758373,
+     "name": "Christian McCaffrey",
+     "position": "RB",
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 8000,
+     "proj": 22.83,
+     "own": 29.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758413,
+     "name": "Jonah Coleman",
+     "position": "RB",
+     "team": "DEN",
+     "opponent": "CAR",
+     "salary": 5300,
+     "proj": 15.49,
+     "own": 20.2,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758637,
+     "name": "Puka Nacua",
+     "position": "WR",
+     "team": "LAR",
+     "opponent": "WAS",
+     "salary": 8800,
+     "proj": 23.12,
+     "own": 25.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758669,
+     "name": "Jameson Williams",
+     "position": "WR",
+     "team": "DET",
+     "opponent": "MIA",
+     "salary": 6100,
+     "proj": 13.85,
+     "own": 7.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758707,
+     "name": "KC Concepcion Jr.",
+     "position": "WR",
+     "team": "CLE",
+     "opponent": "NO",
+     "salary": 4600,
+     "proj": 12.68,
+     "own": 7.2,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759069,
+     "name": "Sam LaPorta",
+     "position": "TE",
+     "team": "DET",
+     "opponent": "MIA",
+     "salary": 5100,
+     "proj": 13.18,
+     "own": 9.4,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759105,
+     "name": "Greg Dulcich",
+     "position": "TE",
+     "team": "MIA",
+     "opponent": "DET",
+     "salary": 3100,
+     "proj": 9.48,
+     "own": 9.9,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759335,
+     "name": "Packers",
+     "position": "DST",
+     "team": "GB",
+     "opponent": "NE",
+     "salary": 2400,
+     "proj": 6.46,
+     "own": 5.9,
+     "inj": "Healthy"
+    }
+   ],
+   "salary": 50000,
+   "proj": 138.82,
+   "own_sum": 122.2
+  },
+  {
+   "label": "Stafford stack (Puka, WAS return)",
+   "players": [
+    {
+     "id": 44758302,
+     "name": "Matthew Stafford",
+     "position": "QB",
+     "team": "LAR",
+     "opponent": "WAS",
+     "salary": 6200,
+     "proj": 19.34,
+     "own": 4.2,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758369,
+     "name": "Jahmyr Gibbs",
+     "position": "RB",
+     "team": "DET",
+     "opponent": "MIA",
+     "salary": 10000,
+     "proj": 27.02,
+     "own": 25.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758403,
+     "name": "Ollie Gordon II",
+     "position": "RB",
+     "team": "MIA",
+     "opponent": "DET",
+     "salary": 5600,
+     "proj": 15.25,
+     "own": 6.1,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758637,
+     "name": "Puka Nacua",
+     "position": "WR",
+     "team": "LAR",
+     "opponent": "WAS",
+     "salary": 8800,
+     "proj": 23.12,
+     "own": 25.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758723,
+     "name": "Caleb Douglas",
+     "position": "WR",
+     "team": "MIA",
+     "opponent": "DET",
+     "salary": 4200,
+     "proj": 11.21,
+     "own": 6.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758727,
+     "name": "Antonio Williams",
+     "position": "WR",
+     "team": "WAS",
+     "opponent": "LAR",
+     "salary": 4100,
+     "proj": 10.85,
+     "own": 15.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759089,
+     "name": "Tyler Higbee",
+     "position": "TE",
+     "team": "LAR",
+     "opponent": "WAS",
+     "salary": 3700,
+     "proj": 9.26,
+     "own": 3.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758449,
+     "name": "Devin Singletary",
+     "position": "RB",
+     "team": "NYG",
+     "opponent": "PHI",
+     "salary": 4600,
+     "proj": 12.79,
+     "own": 16.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759331,
+     "name": "Giants",
+     "position": "DST",
+     "team": "NYG",
+     "opponent": "PHI",
+     "salary": 2800,
+     "proj": 8.21,
+     "own": 12.0,
+     "inj": "Healthy"
+    }
+   ],
+   "salary": 50000,
+   "proj": 137.05,
+   "own_sum": 115.5
+  },
+  {
+   "label": "Love stack (Watson/Kraft, NE return)",
+   "players": [
+    {
+     "id": 44758301,
+     "name": "Jordan Love",
+     "position": "QB",
+     "team": "GB",
+     "opponent": "NE",
+     "salary": 6300,
+     "proj": 17.19,
+     "own": 2.4,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758373,
+     "name": "Christian McCaffrey",
+     "position": "RB",
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 8000,
+     "proj": 22.83,
+     "own": 29.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758427,
+     "name": "Alvin Kamara",
+     "position": "RB",
+     "team": "NO",
+     "opponent": "CLE",
+     "salary": 5000,
+     "proj": 13.24,
+     "own": 3.2,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758643,
+     "name": "Christian Watson",
+     "position": "WR",
+     "team": "GB",
+     "opponent": "NE",
+     "salary": 7500,
+     "proj": 15.62,
+     "own": 5.6,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758651,
+     "name": "Matthew Golden",
+     "position": "WR",
+     "team": "GB",
+     "opponent": "NE",
+     "salary": 7000,
+     "proj": 15.32,
+     "own": 8.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758749,
+     "name": "Efton Chism III",
+     "position": "WR",
+     "team": "NE",
+     "opponent": "GB",
+     "salary": 3600,
+     "proj": 8.88,
+     "own": 9.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759065,
+     "name": "George Kittle",
+     "position": "TE",
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 6000,
+     "proj": 16.59,
+     "own": 26.1,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759077,
+     "name": "Tyler Warren",
+     "position": "TE",
+     "team": "IND",
+     "opponent": "DAL",
+     "salary": 4600,
+     "proj": 12.59,
+     "own": 11.5,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759342,
+     "name": "Cardinals",
+     "position": "DST",
+     "team": "ARI",
+     "opponent": "SEA",
+     "salary": 2000,
+     "proj": 5.06,
+     "own": 7.7,
+     "inj": "Healthy"
+    }
+   ],
+   "salary": 50000,
+   "proj": 127.32,
+   "own_sum": 103.3
+  },
+  {
+   "label": "Mahomes stack (Rice/Kelce) + Kittle + Lamb",
+   "players": [
+    {
+     "id": 44758303,
+     "name": "Patrick Mahomes",
+     "position": "QB",
+     "team": "KC",
+     "opponent": "NYJ",
+     "salary": 6100,
+     "proj": 21.11,
+     "own": 7.7,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758403,
+     "name": "Ollie Gordon II",
+     "position": "RB",
+     "team": "MIA",
+     "opponent": "DET",
+     "salary": 5600,
+     "proj": 15.25,
+     "own": 6.1,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758411,
+     "name": "Quinshon Judkins",
+     "position": "RB",
+     "team": "CLE",
+     "opponent": "NO",
+     "salary": 5400,
+     "proj": 13.46,
+     "own": 4.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758639,
+     "name": "CeeDee Lamb",
+     "position": "WR",
+     "team": "DAL",
+     "opponent": "IND",
+     "salary": 8300,
+     "proj": 19.7,
+     "own": 16.6,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758663,
+     "name": "Rashee Rice",
+     "position": "WR",
+     "team": "KC",
+     "opponent": "NYJ",
+     "salary": 6400,
+     "proj": 15.27,
+     "own": 7.5,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758693,
+     "name": "Omar Cooper Jr.",
+     "position": "WR",
+     "team": "NYJ",
+     "opponent": "KC",
+     "salary": 4900,
+     "proj": 12.25,
+     "own": 5.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759065,
+     "name": "George Kittle",
+     "position": "TE",
+     "team": "SF",
+     "opponent": "LV",
+     "salary": 6000,
+     "proj": 16.59,
+     "own": 26.1,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759073,
+     "name": "Travis Kelce",
+     "position": "TE",
+     "team": "KC",
+     "opponent": "NYJ",
+     "salary": 4900,
+     "proj": 11.63,
+     "own": 8.3,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759335,
+     "name": "Packers",
+     "position": "DST",
+     "team": "GB",
+     "opponent": "NE",
+     "salary": 2400,
+     "proj": 6.46,
+     "own": 5.9,
+     "inj": "Healthy"
+    }
+   ],
+   "salary": 50000,
+   "proj": 131.72,
+   "own_sum": 88.8
+  },
+  {
+   "label": "Daniels stack (WAS, Puka/LAR return)",
+   "players": [
+    {
+     "id": 44758304,
+     "name": "Jayden Daniels",
+     "position": "QB",
+     "team": "WAS",
+     "opponent": "LAR",
+     "salary": 6000,
+     "proj": 18.76,
+     "own": 3.4,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758369,
+     "name": "Jahmyr Gibbs",
+     "position": "RB",
+     "team": "DET",
+     "opponent": "MIA",
+     "salary": 10000,
+     "proj": 27.02,
+     "own": 25.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758371,
+     "name": "Kenneth Walker III",
+     "position": "RB",
+     "team": "KC",
+     "opponent": "NYJ",
+     "salary": 9000,
+     "proj": 23.78,
+     "own": 13.8,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758675,
+     "name": "Stefon Diggs",
+     "position": "WR",
+     "team": "WAS",
+     "opponent": "LAR",
+     "salary": 5600,
+     "proj": 13.88,
+     "own": 5.7,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758727,
+     "name": "Antonio Williams",
+     "position": "WR",
+     "team": "WAS",
+     "opponent": "LAR",
+     "salary": 4100,
+     "proj": 10.85,
+     "own": 15.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758779,
+     "name": "Chris Bell",
+     "position": "WR",
+     "team": "MIA",
+     "opponent": "DET",
+     "salary": 3300,
+     "proj": 8.68,
+     "own": 4.7,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759089,
+     "name": "Tyler Higbee",
+     "position": "TE",
+     "team": "LAR",
+     "opponent": "WAS",
+     "salary": 3700,
+     "proj": 9.26,
+     "own": 3.0,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44758413,
+     "name": "Jonah Coleman",
+     "position": "RB",
+     "team": "DEN",
+     "opponent": "CAR",
+     "salary": 5300,
+     "proj": 15.49,
+     "own": 20.2,
+     "inj": "Healthy"
+    },
+    {
+     "id": 44759329,
+     "name": "Broncos",
+     "position": "DST",
+     "team": "DEN",
+     "opponent": "CAR",
+     "salary": 3000,
+     "proj": 7.33,
+     "own": 5.7,
+     "inj": "Healthy"
+    }
+   ],
+   "salary": 50000,
+   "proj": 135.05,
+   "own_sum": 97.3
+  }
+ ]
+}

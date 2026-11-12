@@ -1,0 +1,518 @@
+{
+ "seasons": [
+  2023,
+  2024,
+  2025,
+  2026
+ ],
+ "receiver_weeks": 8080,
+ "edge_threshold": 0.12,
+ "accuracy": {
+  "2025": {
+   "sleeper": {
+    "mae": 21.76,
+    "bias": 1.62,
+    "rank_rho": 0.425
+   },
+   "l3": {
+    "mae": 24.24,
+    "bias": 0.87,
+    "rank_rho": 0.33
+   },
+   "proposed": {
+    "mae": 23.97,
+    "bias": 0.72,
+    "rank_rho": 0.336
+   },
+   "current": {
+    "mae": 21.64,
+    "bias": 1.68,
+    "rank_rho": 0.436
+   }
+  },
+  "2026": {
+   "sleeper": {
+    "mae": 22.9,
+    "bias": -0.57,
+    "rank_rho": 0.362
+   },
+   "l3": {
+    "mae": 25.66,
+    "bias": -1.62,
+    "rank_rho": 0.286
+   },
+   "proposed": {
+    "mae": 25.57,
+    "bias": -2.27,
+    "rank_rho": 0.337
+   },
+   "current": {
+    "mae": 22.85,
+    "bias": -0.28,
+    "rank_rho": 0.376
+   }
+  },
+  "2023-2024": {
+   "sleeper": {
+    "mae": 22.51,
+    "bias": -2.13,
+    "rank_rho": 0.37
+   },
+   "l3": {
+    "mae": 25.44,
+    "bias": -0.14,
+    "rank_rho": 0.275
+   },
+   "proposed": {
+    "mae": 25.33,
+    "bias": 0.45,
+    "rank_rho": 0.29
+   },
+   "current": {
+    "mae": 22.39,
+    "bias": -2.01,
+    "rank_rho": 0.369
+   }
+  }
+ },
+ "props": {
+  "sleeper_yd": {
+   "2023-2026": {
+    "proposed": {
+     "edge_5": {
+      "overs": 3539,
+      "over_hit": 0.439,
+      "unders": 3700,
+      "under_hit": 0.576,
+      "picks": 7239,
+      "hit": 0.509,
+      "z_vs_52_4": -2.55
+     },
+     "edge_12": {
+      "overs": 2997,
+      "over_hit": 0.443,
+      "unders": 3112,
+      "under_hit": 0.575,
+      "picks": 6109,
+      "hit": 0.51,
+      "z_vs_52_4": -2.18
+     }
+    },
+    "current": {
+     "edge_5": {
+      "overs": 1666,
+      "over_hit": 0.484,
+      "unders": 1710,
+      "under_hit": 0.62,
+      "picks": 3376,
+      "hit": 0.553,
+      "z_vs_52_4": 3.41
+     },
+     "edge_12": {
+      "overs": 351,
+      "over_hit": 0.524,
+      "unders": 679,
+      "under_hit": 0.638,
+      "picks": 1030,
+      "hit": 0.599,
+      "z_vs_52_4": 4.82
+     }
+    },
+    "l3": {
+     "edge_5": {
+      "overs": 3590,
+      "over_hit": 0.437,
+      "unders": 3730,
+      "under_hit": 0.573,
+      "picks": 7320,
+      "hit": 0.506,
+      "z_vs_52_4": -3.06
+     },
+     "edge_12": {
+      "overs": 3067,
+      "over_hit": 0.44,
+      "unders": 3217,
+      "under_hit": 0.575,
+      "picks": 6284,
+      "hit": 0.509,
+      "z_vs_52_4": -2.34
+     }
+    }
+   },
+   "2026": {
+    "proposed": {
+     "edge_5": {
+      "overs": 245,
+      "over_hit": 0.441,
+      "unders": 393,
+      "under_hit": 0.573,
+      "picks": 638,
+      "hit": 0.522,
+      "z_vs_52_4": -0.1
+     },
+     "edge_12": {
+      "overs": 206,
+      "over_hit": 0.437,
+      "unders": 329,
+      "under_hit": 0.565,
+      "picks": 535,
+      "hit": 0.516,
+      "z_vs_52_4": -0.38
+     }
+    },
+    "current": {
+     "edge_5": {
+      "overs": 148,
+      "over_hit": 0.459,
+      "unders": 135,
+      "under_hit": 0.659,
+      "picks": 283,
+      "hit": 0.555,
+      "z_vs_52_4": 1.04
+     },
+     "edge_12": {
+      "overs": 28,
+      "over_hit": 0.607,
+      "unders": 44,
+      "under_hit": 0.568,
+      "picks": 72,
+      "hit": 0.583,
+      "z_vs_52_4": 1.01
+     }
+    },
+    "l3": {
+     "edge_5": {
+      "overs": 274,
+      "over_hit": 0.412,
+      "unders": 366,
+      "under_hit": 0.56,
+      "picks": 640,
+      "hit": 0.497,
+      "z_vs_52_4": -1.37
+     },
+     "edge_12": {
+      "overs": 233,
+      "over_hit": 0.438,
+      "unders": 307,
+      "under_hit": 0.544,
+      "picks": 540,
+      "hit": 0.498,
+      "z_vs_52_4": -1.2
+     }
+    }
+   }
+  },
+  "l3_yd": {
+   "2023-2026": {
+    "proposed": {
+     "edge_5": {
+      "overs": 3073,
+      "over_hit": 0.518,
+      "unders": 3621,
+      "under_hit": 0.603,
+      "picks": 6694,
+      "hit": 0.564,
+      "z_vs_52_4": 6.57
+     },
+     "edge_12": {
+      "overs": 2342,
+      "over_hit": 0.531,
+      "unders": 2518,
+      "under_hit": 0.601,
+      "picks": 4860,
+      "hit": 0.567,
+      "z_vs_52_4": 6.04
+     }
+    },
+    "current": {
+     "edge_5": {
+      "overs": 3703,
+      "over_hit": 0.609,
+      "unders": 3517,
+      "under_hit": 0.722,
+      "picks": 7220,
+      "hit": 0.664,
+      "z_vs_52_4": 23.77
+     },
+     "edge_12": {
+      "overs": 3225,
+      "over_hit": 0.631,
+      "unders": 2947,
+      "under_hit": 0.741,
+      "picks": 6172,
+      "hit": 0.684,
+      "z_vs_52_4": 25.1
+     }
+    },
+    "sleeper": {
+     "edge_5": {
+      "overs": 3686,
+      "over_hit": 0.604,
+      "unders": 3562,
+      "under_hit": 0.715,
+      "picks": 7248,
+      "hit": 0.659,
+      "z_vs_52_4": 22.98
+     },
+     "edge_12": {
+      "overs": 3243,
+      "over_hit": 0.623,
+      "unders": 2939,
+      "under_hit": 0.735,
+      "picks": 6182,
+      "hit": 0.676,
+      "z_vs_52_4": 23.95
+     }
+    }
+   },
+   "2026": {
+    "proposed": {
+     "edge_5": {
+      "overs": 243,
+      "over_hit": 0.523,
+      "unders": 335,
+      "under_hit": 0.585,
+      "picks": 578,
+      "hit": 0.559,
+      "z_vs_52_4": 1.68
+     },
+     "edge_12": {
+      "overs": 182,
+      "over_hit": 0.527,
+      "unders": 246,
+      "under_hit": 0.602,
+      "picks": 428,
+      "hit": 0.57,
+      "z_vs_52_4": 1.91
+     }
+    },
+    "current": {
+     "edge_5": {
+      "overs": 361,
+      "over_hit": 0.626,
+      "unders": 264,
+      "under_hit": 0.746,
+      "picks": 625,
+      "hit": 0.677,
+      "z_vs_52_4": 7.65
+     },
+     "edge_12": {
+      "overs": 307,
+      "over_hit": 0.658,
+      "unders": 218,
+      "under_hit": 0.757,
+      "picks": 525,
+      "hit": 0.699,
+      "z_vs_52_4": 8.03
+     }
+    },
+    "sleeper": {
+     "edge_5": {
+      "overs": 361,
+      "over_hit": 0.609,
+      "unders": 272,
+      "under_hit": 0.746,
+      "picks": 633,
+      "hit": 0.668,
+      "z_vs_52_4": 7.27
+     },
+     "edge_12": {
+      "overs": 306,
+      "over_hit": 0.647,
+      "unders": 223,
+      "under_hit": 0.74,
+      "picks": 529,
+      "hit": 0.686,
+      "z_vs_52_4": 7.47
+     }
+    }
+   }
+  }
+ },
+ "racr_signal": {
+  "sleeper_yd": {
+   "n": 222,
+   "over_hit": 0.383
+  },
+  "l3_yd": {
+   "n": 222,
+   "over_hit": 0.5
+  }
+ },
+ "racr_signal_quartiles": {
+  "wopr_cut": 0.492,
+  "racr_cut": 0.635,
+  "sleeper_yd": {
+   "n": 571,
+   "over_hit": 0.433
+  },
+  "l3_yd": {
+   "n": 571,
+   "over_hit": 0.503
+  }
+ },
+ "ladders": {
+  "25": {
+   "base_rate": 0.572,
+   "proposed_center": {
+    "lognormal": {
+     "brier": 0.2165,
+     "logloss": 0.6249
+    },
+    "two_piece_normal": {
+     "brier": 0.2186,
+     "logloss": 0.6485
+    }
+   },
+   "current_center": {
+    "lognormal": {
+     "brier": 0.2008,
+     "logloss": 0.5859
+    },
+    "two_piece_normal": {
+     "brier": 0.2085,
+     "logloss": 0.6268
+    }
+   }
+  },
+  "50": {
+   "base_rate": 0.287,
+   "proposed_center": {
+    "lognormal": {
+     "brier": 0.1893,
+     "logloss": 0.5636
+    },
+    "two_piece_normal": {
+     "brier": 0.1952,
+     "logloss": 0.5959
+    }
+   },
+   "current_center": {
+    "lognormal": {
+     "brier": 0.1734,
+     "logloss": 0.523
+    },
+    "two_piece_normal": {
+     "brier": 0.1807,
+     "logloss": 0.5457
+    }
+   }
+  },
+  "75": {
+   "base_rate": 0.14,
+   "proposed_center": {
+    "lognormal": {
+     "brier": 0.1192,
+     "logloss": 0.3892
+    },
+    "two_piece_normal": {
+     "brier": 0.1174,
+     "logloss": 0.3872
+    }
+   },
+   "current_center": {
+    "lognormal": {
+     "brier": 0.1086,
+     "logloss": 0.3598
+    },
+    "two_piece_normal": {
+     "brier": 0.103,
+     "logloss": 0.3406
+    }
+   }
+  },
+  "100": {
+   "base_rate": 0.058,
+   "proposed_center": {
+    "lognormal": {
+     "brier": 0.0665,
+     "logloss": 0.2464
+    },
+    "two_piece_normal": {
+     "brier": 0.0574,
+     "logloss": 0.2122
+    }
+   },
+   "current_center": {
+    "lognormal": {
+     "brier": 0.0583,
+     "logloss": 0.2234
+    },
+    "two_piece_normal": {
+     "brier": 0.0485,
+     "logloss": 0.1815
+    }
+   }
+  }
+ },
+ "dfs_2026": {
+  "WR": {
+   "proposed_score": {
+    "picks": 60,
+    "hit_4x": 0.133,
+    "pts_per_k": 2.06,
+    "rank_rho_pts_per_k": 0.12
+   },
+   "current_score": {
+    "picks": 60,
+    "hit_4x": 0.117,
+    "pts_per_k": 2.02,
+    "rank_rho_pts_per_k": 0.21
+   },
+   "value_score": {
+    "picks": 60,
+    "hit_4x": 0.183,
+    "pts_per_k": 2.36,
+    "rank_rho_pts_per_k": 0.263
+   },
+   "pool_hit_4x": 0.12
+  },
+  "TE": {
+   "proposed_score": {
+    "picks": 25,
+    "hit_4x": 0.16,
+    "pts_per_k": 2.18,
+    "rank_rho_pts_per_k": 0.003
+   },
+   "current_score": {
+    "picks": 25,
+    "hit_4x": 0.28,
+    "pts_per_k": 2.98,
+    "rank_rho_pts_per_k": 0.139
+   },
+   "value_score": {
+    "picks": 25,
+    "hit_4x": 0.28,
+    "pts_per_k": 3.0,
+    "rank_rho_pts_per_k": 0.188
+   },
+   "pool_hit_4x": 0.148
+  },
+  "RB": {
+   "proposed_score": {
+    "picks": 24,
+    "hit_4x": 0.125,
+    "pts_per_k": 2.3,
+    "rank_rho_pts_per_k": 0.221
+   },
+   "current_score": {
+    "picks": 24,
+    "hit_4x": 0.125,
+    "pts_per_k": 2.17,
+    "rank_rho_pts_per_k": 0.137
+   },
+   "value_score": {
+    "picks": 24,
+    "hit_4x": 0.125,
+    "pts_per_k": 2.25,
+    "rank_rho_pts_per_k": 0.13
+   },
+   "pool_hit_4x": 0.074
+  },
+  "proposed_flags": {
+   "n": 51,
+   "hit_4x": 0.157,
+   "over_hit_vs_sleeper": 0.412
+  }
+ }
+}

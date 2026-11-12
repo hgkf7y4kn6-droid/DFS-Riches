@@ -1,0 +1,1858 @@
+{
+ "_readme": "Actual DraftKings ownership, salary and fantasy points per player, read by OCR from a screen recording of the contest's Players tab sorted by ownership (high to low). INCOMPLETE: the recording starts mid-list, so the most-owned players (about 10.5%+ in the $5 Double Up, about 14.5%+ in the Pylon) are missing and the visible ownership sums to far less than 900%. OCR names can be garbled (ocr_name); app_name is set only when the name and salary matched the app's Week 9 slate snapshot exactly. Do not feed this to the ownership learner as if it were a full slate.",
+ "season": 2026,
+ "week": 9,
+ "contest": "NFL Single Entry $5 Double Up",
+ "source": "screen recording, 2026-11-09",
+ "complete": false,
+ "players": [
+  {
+   "ocr_name": "M. Nabers",
+   "app_name": "Malik Nabers",
+   "team": "NYG",
+   "pos": "WR",
+   "ownership_pct": 10.53,
+   "salary": 7300,
+   "fpts": 9.3
+  },
+  {
+   "ocr_name": "Cardinals",
+   "app_name": "Cardinals",
+   "team": "ARI",
+   "pos": "DST",
+   "ownership_pct": 10.47,
+   "salary": 2000,
+   "fpts": 1.0
+  },
+  {
+   "ocr_name": "B. Ha",
+   "app_name": null,
+   "team": null,
+   "pos": "RB",
+   "ownership_pct": 10.32,
+   "salary": 6000,
+   "fpts": 11.7
+  },
+  {
+   "ocr_name": "J. Mitche",
+   "app_name": null,
+   "team": null,
+   "pos": "TE",
+   "ownership_pct": 10.09,
+   "salary": 2500,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "J. Metchie Im",
+   "app_name": null,
+   "team": null,
+   "pos": "WR",
+   "ownership_pct": 10.09,
+   "salary": 3200,
+   "fpts": 6.0
+  },
+  {
+   "ocr_name": "Packers",
+   "app_name": "Packers",
+   "team": "GB",
+   "pos": "DST",
+   "ownership_pct": 9.43,
+   "salary": 2400,
+   "fpts": 12.0
+  },
+  {
+   "ocr_name": "C. Hubbard",
+   "app_name": "Chuba Hubbard",
+   "team": "CAR",
+   "pos": "RB",
+   "ownership_pct": 8.06,
+   "salary": 6500,
+   "fpts": 13.6
+  },
+  {
+   "ocr_name": "C. Douglas",
+   "app_name": "Caleb Douglas",
+   "team": "MIA",
+   "pos": "WR",
+   "ownership_pct": 7.45,
+   "salary": 4200,
+   "fpts": 13.0
+  },
+  {
+   "ocr_name": "M. Washington",
+   "app_name": "Malik Washington",
+   "team": "MIA",
+   "pos": "WR",
+   "ownership_pct": 6.84,
+   "salary": 4700,
+   "fpts": 4.1
+  },
+  {
+   "ocr_name": "M. Golden",
+   "app_name": "Matthew Golden",
+   "team": "GB",
+   "pos": "WR",
+   "ownership_pct": 6.32,
+   "salary": 7000,
+   "fpts": 35.4
+  },
+  {
+   "ocr_name": "R. Rice L",
+   "app_name": "Rashee Rice",
+   "team": "KC",
+   "pos": "WR",
+   "ownership_pct": 5.95,
+   "salary": null,
+   "fpts": null
+  },
+  {
+   "ocr_name": "R. Rice",
+   "app_name": "Rashee Rice",
+   "team": "KC",
+   "pos": "WR",
+   "ownership_pct": 5.95,
+   "salary": 6400,
+   "fpts": 9.9
+  },
+  {
+   "ocr_name": "D. Douglas",
+   "app_name": "DeMario Douglas",
+   "team": "NE",
+   "pos": "WR",
+   "ownership_pct": 5.6,
+   "salary": 4800,
+   "fpts": 18.2
+  },
+  {
+   "ocr_name": "B. Purdy",
+   "app_name": "Brock Purdy",
+   "team": "SF",
+   "pos": "QB",
+   "ownership_pct": 5.57,
+   "salary": 6800,
+   "fpts": 26.28
+  },
+  {
+   "ocr_name": "K. Allen",
+   "app_name": "Keenan Allen",
+   "team": "IND",
+   "pos": "WR",
+   "ownership_pct": 5.28,
+   "salary": 4900,
+   "fpts": 6.6
+  },
+  {
+   "ocr_name": "T. Warren",
+   "app_name": "Tyler Warren",
+   "team": "IND",
+   "pos": "TE",
+   "ownership_pct": 5.28,
+   "salary": 4600,
+   "fpts": 8.4
+  },
+  {
+   "ocr_name": "K. Walker lll i",
+   "app_name": null,
+   "team": null,
+   "pos": "RB",
+   "ownership_pct": 5.13,
+   "salary": null,
+   "fpts": null
+  },
+  {
+   "ocr_name": "K. Walker Ill i",
+   "app_name": null,
+   "team": null,
+   "pos": "RB",
+   "ownership_pct": 5.13,
+   "salary": 9000,
+   "fpts": 39.3
+  },
+  {
+   "ocr_name": "H. Fannin Jr.",
+   "app_name": "Harold Fannin Jr.",
+   "team": "CLE",
+   "pos": "TE",
+   "ownership_pct": 5.13,
+   "salary": 4700,
+   "fpts": 12.2
+  },
+  {
+   "ocr_name": "K. Walker",
+   "app_name": "Kenneth Walker III",
+   "team": "KC",
+   "pos": "RB",
+   "ownership_pct": 5.13,
+   "salary": 9000,
+   "fpts": 39.3
+  },
+  {
+   "ocr_name": "Q. Judkins",
+   "app_name": "Quinshon Judkins",
+   "team": "CLE",
+   "pos": "RB",
+   "ownership_pct": 4.81,
+   "salary": 5400,
+   "fpts": 5.5
+  },
+  {
+   "ocr_name": "Broncos",
+   "app_name": "Broncos",
+   "team": "DEN",
+   "pos": "DST",
+   "ownership_pct": 4.41,
+   "salary": 3000,
+   "fpts": 7.0
+  },
+  {
+   "ocr_name": "W. Marks",
+   "app_name": "Woody Marks",
+   "team": "HOU",
+   "pos": "RB",
+   "ownership_pct": 4.35,
+   "salary": 5700,
+   "fpts": 8.4
+  },
+  {
+   "ocr_name": "J. Williams",
+   "app_name": "Jameson Williams",
+   "team": "DET",
+   "pos": "WR",
+   "ownership_pct": 4.32,
+   "salary": 6100,
+   "fpts": 5.0
+  },
+  {
+   "ocr_name": "O. Cooper Jr.",
+   "app_name": "Omar Cooper Jr.",
+   "team": "NYJ",
+   "pos": "WR",
+   "ownership_pct": 4.29,
+   "salary": 4900,
+   "fpts": 13.8
+  },
+  {
+   "ocr_name": "J. Williams",
+   "app_name": "Javonte Williams",
+   "team": "DAL",
+   "pos": "RB",
+   "ownership_pct": 4.23,
+   "salary": 7300,
+   "fpts": 25.4
+  },
+  {
+   "ocr_name": "Texans",
+   "app_name": "Texans",
+   "team": "HOU",
+   "pos": "DST",
+   "ownership_pct": 3.71,
+   "salary": 3500,
+   "fpts": 12.0
+  },
+  {
+   "ocr_name": "Seahawks",
+   "app_name": "Seahawks",
+   "team": "SEA",
+   "pos": "DST",
+   "ownership_pct": 3.48,
+   "salary": 3800,
+   "fpts": 10.0
+  },
+  {
+   "ocr_name": "D. Schultz",
+   "app_name": "Dalton Schultz",
+   "team": "HOU",
+   "pos": "TE",
+   "ownership_pct": 3.42,
+   "salary": 3200,
+   "fpts": 6.2
+  },
+  {
+   "ocr_name": "S. LaPorta",
+   "app_name": "Sam LaPorta",
+   "team": "DET",
+   "pos": "TE",
+   "ownership_pct": 3.13,
+   "salary": 5100,
+   "fpts": 7.2
+  },
+  {
+   "ocr_name": "S. Sanders",
+   "app_name": "Shedeur Sanders",
+   "team": "CLE",
+   "pos": "QB",
+   "ownership_pct": 3.05,
+   "salary": 4000,
+   "fpts": 22.68
+  },
+  {
+   "ocr_name": "D. Prescott",
+   "app_name": "Dak Prescott",
+   "team": "DAL",
+   "pos": "QB",
+   "ownership_pct": 2.99,
+   "salary": 6500,
+   "fpts": 23.5
+  },
+  {
+   "ocr_name": "J. Taylor",
+   "app_name": "Jonathan Taylor",
+   "team": "IND",
+   "pos": "RB",
+   "ownership_pct": 2.99,
+   "salary": 7500,
+   "fpts": 10.4
+  },
+  {
+   "ocr_name": "J. Goff",
+   "app_name": "Jared Goff",
+   "team": "DET",
+   "pos": "QB",
+   "ownership_pct": 2.96,
+   "salary": 6600,
+   "fpts": 6.3
+  },
+  {
+   "ocr_name": "D. Robinson",
+   "app_name": "Demarcus Robinson",
+   "team": "SF",
+   "pos": "WR",
+   "ownership_pct": 2.93,
+   "salary": 4300,
+   "fpts": 5.2
+  },
+  {
+   "ocr_name": "O. Gordon I",
+   "app_name": "Ollie Gordon II",
+   "team": "MIA",
+   "pos": "RB",
+   "ownership_pct": 2.76,
+   "salary": 5600,
+   "fpts": 7.4
+  },
+  {
+   "ocr_name": "K. Concepcion Jr.",
+   "app_name": "KC Concepcion Jr.",
+   "team": "CLE",
+   "pos": "WR",
+   "ownership_pct": 2.55,
+   "salary": 4600,
+   "fpts": 18.8
+  },
+  {
+   "ocr_name": "E. Chism m",
+   "app_name": null,
+   "team": null,
+   "pos": "WR",
+   "ownership_pct": 2.49,
+   "salary": 3600,
+   "fpts": 15.9
+  },
+  {
+   "ocr_name": "E. Chism Il",
+   "app_name": "Efton Chism III",
+   "team": "NE",
+   "pos": "WR",
+   "ownership_pct": 2.49,
+   "salary": 3600,
+   "fpts": 15.9
+  },
+  {
+   "ocr_name": "E. Chism II",
+   "app_name": "Efton Chism III",
+   "team": "NE",
+   "pos": "WR",
+   "ownership_pct": 2.49,
+   "salary": 3600,
+   "fpts": 15.9
+  },
+  {
+   "ocr_name": "E. Chism l",
+   "app_name": "Efton Chism III",
+   "team": "NE",
+   "pos": "WR",
+   "ownership_pct": 2.49,
+   "salary": 3600,
+   "fpts": 15.9
+  },
+  {
+   "ocr_name": "T. Allgeier",
+   "app_name": "Tyler Allgeier",
+   "team": "ARI",
+   "pos": "RB",
+   "ownership_pct": 2.38,
+   "salary": 5400,
+   "fpts": 6.6
+  },
+  {
+   "ocr_name": "C. Olave",
+   "app_name": "Chris Olave",
+   "team": "NO",
+   "pos": "WR",
+   "ownership_pct": 2.2,
+   "salary": 7400,
+   "fpts": 16.8
+  },
+  {
+   "ocr_name": "J. Daniels",
+   "app_name": "Jayden Daniels",
+   "team": "WAS",
+   "pos": "QB",
+   "ownership_pct": 2.12,
+   "salary": 6000,
+   "fpts": 15.56
+  },
+  {
+   "ocr_name": "S. Diggs",
+   "app_name": "Stefon Diggs",
+   "team": "WAS",
+   "pos": "WR",
+   "ownership_pct": 2.06,
+   "salary": 5600,
+   "fpts": 8.1
+  },
+  {
+   "ocr_name": "B. Bowers",
+   "app_name": "Brock Bowers",
+   "team": "LV",
+   "pos": "TE",
+   "ownership_pct": 2.0,
+   "salary": 7900,
+   "fpts": 26.3
+  },
+  {
+   "ocr_name": "A. St. Brown",
+   "app_name": "Amon-Ra St. Brown",
+   "team": "DET",
+   "pos": "WR",
+   "ownership_pct": 1.91,
+   "salary": 8100,
+   "fpts": 16.6
+  },
+  {
+   "ocr_name": "Browns",
+   "app_name": "Browns",
+   "team": "CLE",
+   "pos": "DST",
+   "ownership_pct": 1.86,
+   "salary": 2700,
+   "fpts": 9.0
+  },
+  {
+   "ocr_name": "M. Lemon",
+   "app_name": "Makai Lemon",
+   "team": "PHI",
+   "pos": "WR",
+   "ownership_pct": 1.86,
+   "salary": 4700,
+   "fpts": 12.1
+  },
+  {
+   "ocr_name": "C. Watson",
+   "app_name": "Christian Watson",
+   "team": "GB",
+   "pos": "WR",
+   "ownership_pct": 1.8,
+   "salary": 7500,
+   "fpts": 33.1
+  },
+  {
+   "ocr_name": "C. Watson i",
+   "app_name": "Christian Watson",
+   "team": "GB",
+   "pos": "WR",
+   "ownership_pct": 1.8,
+   "salary": 7500,
+   "fpts": 33.1
+  },
+  {
+   "ocr_name": "A. Kamara",
+   "app_name": "Alvin Kamara",
+   "team": "NO",
+   "pos": "RB",
+   "ownership_pct": 1.77,
+   "salary": 5000,
+   "fpts": 7.9
+  },
+  {
+   "ocr_name": "Commanders",
+   "app_name": "Commanders",
+   "team": "WAS",
+   "pos": "DST",
+   "ownership_pct": 1.74,
+   "salary": 2300,
+   "fpts": 6.0
+  },
+  {
+   "ocr_name": "M.Staffordn",
+   "app_name": null,
+   "team": null,
+   "pos": null,
+   "ownership_pct": 1.74,
+   "salary": 6200,
+   "fpts": null
+  },
+  {
+   "ocr_name": "M. Stafford",
+   "app_name": "Matthew Stafford",
+   "team": "LAR",
+   "pos": "QB",
+   "ownership_pct": 1.74,
+   "salary": 6200,
+   "fpts": 12.22
+  },
+  {
+   "ocr_name": "1. Likely",
+   "app_name": null,
+   "team": null,
+   "pos": "TE",
+   "ownership_pct": 1.71,
+   "salary": 5000,
+   "fpts": 16.3
+  },
+  {
+   "ocr_name": "J. Waddle",
+   "app_name": "Jaylen Waddle",
+   "team": "DEN",
+   "pos": "WR",
+   "ownership_pct": 1.71,
+   "salary": 5700,
+   "fpts": 3.2
+  },
+  {
+   "ocr_name": "I. Likely",
+   "app_name": "Isaiah Likely",
+   "team": "NYG",
+   "pos": "TE",
+   "ownership_pct": 1.71,
+   "salary": 5000,
+   "fpts": 16.3
+  },
+  {
+   "ocr_name": "T. Tucker",
+   "app_name": "Tre Tucker",
+   "team": "LV",
+   "pos": "WR",
+   "ownership_pct": 1.6,
+   "salary": 5400,
+   "fpts": 9.5
+  },
+  {
+   "ocr_name": "T. Tucker i",
+   "app_name": "Tre Tucker",
+   "team": "LV",
+   "pos": "WR",
+   "ownership_pct": 1.6,
+   "salary": 5400,
+   "fpts": 9.5
+  },
+  {
+   "ocr_name": "T. Kelce",
+   "app_name": "Travis Kelce",
+   "team": "KC",
+   "pos": "TE",
+   "ownership_pct": 1.57,
+   "salary": 4900,
+   "fpts": 17.3
+  },
+  {
+   "ocr_name": "A. Jeanty",
+   "app_name": "Ashton Jeanty",
+   "team": "LV",
+   "pos": "RB",
+   "ownership_pct": 1.51,
+   "salary": 5900,
+   "fpts": 7.0
+  },
+  {
+   "ocr_name": "D. Boston",
+   "app_name": "Denzel Boston",
+   "team": "CLE",
+   "pos": "WR",
+   "ownership_pct": 1.45,
+   "salary": 5000,
+   "fpts": 15.8
+  },
+  {
+   "ocr_name": "J. Watkins",
+   "app_name": "Jordan Watkins",
+   "team": "SF",
+   "pos": "WR",
+   "ownership_pct": 1.42,
+   "salary": 3300,
+   "fpts": 18.6
+  },
+  {
+   "ocr_name": "J. Downs",
+   "app_name": "Josh Downs",
+   "team": "IND",
+   "pos": "WR",
+   "ownership_pct": 1.36,
+   "salary": 5100,
+   "fpts": 5.4
+  },
+  {
+   "ocr_name": "T. Higbee",
+   "app_name": "Tyler Higbee",
+   "team": "LAR",
+   "pos": "TE",
+   "ownership_pct": 1.31,
+   "salary": 3700,
+   "fpts": 2.3
+  },
+  {
+   "ocr_name": "M. Fields",
+   "app_name": "Malachi Fields",
+   "team": "NYG",
+   "pos": "WR",
+   "ownership_pct": 1.31,
+   "salary": 3700,
+   "fpts": 7.0
+  },
+  {
+   "ocr_name": "K. Cousins",
+   "app_name": "Kirk Cousins",
+   "team": "LV",
+   "pos": "QB",
+   "ownership_pct": 1.28,
+   "salary": 5300,
+   "fpts": 15.64
+  },
+  {
+   "ocr_name": "J. Love",
+   "app_name": "Jordan Love",
+   "team": "GB",
+   "pos": "QB",
+   "ownership_pct": 1.28,
+   "salary": 6300,
+   "fpts": 39.18
+  },
+  {
+   "ocr_name": "D. Vele",
+   "app_name": "Devaughn Vele",
+   "team": "NO",
+   "pos": "WR",
+   "ownership_pct": 1.25,
+   "salary": 5100,
+   "fpts": 3.7
+  },
+  {
+   "ocr_name": "Chargers",
+   "app_name": "Chargers",
+   "team": "LAC",
+   "pos": "DST",
+   "ownership_pct": 1.22,
+   "salary": 2400,
+   "fpts": -1.0
+  },
+  {
+   "ocr_name": "J. Jacobs",
+   "app_name": "Josh Jacobs",
+   "team": "GB",
+   "pos": "RB",
+   "ownership_pct": 1.22,
+   "salary": 6800,
+   "fpts": 0.5
+  },
+  {
+   "ocr_name": "J. Milton Ill i",
+   "app_name": null,
+   "team": null,
+   "pos": "QB",
+   "ownership_pct": 1.22,
+   "salary": 4100,
+   "fpts": 14.16
+  },
+  {
+   "ocr_name": "M. Mayer",
+   "app_name": "Michael Mayer",
+   "team": "LV",
+   "pos": "TE",
+   "ownership_pct": 1.22,
+   "salary": 3400,
+   "fpts": 5.7
+  },
+  {
+   "ocr_name": "J. Milton Il",
+   "app_name": "Joe Milton III",
+   "team": "PHI",
+   "pos": "QB",
+   "ownership_pct": 1.22,
+   "salary": 4100,
+   "fpts": 14.16
+  },
+  {
+   "ocr_name": "N. Collins",
+   "app_name": "Nico Collins",
+   "team": "HOU",
+   "pos": "WR",
+   "ownership_pct": 1.1,
+   "salary": 7200,
+   "fpts": 15.5
+  },
+  {
+   "ocr_name": "B. Spann-Ford",
+   "app_name": "Brevyn Spann-Ford",
+   "team": "DAL",
+   "pos": "TE",
+   "ownership_pct": 1.1,
+   "salary": 2900,
+   "fpts": 4.0
+  },
+  {
+   "ocr_name": "J. Coker",
+   "app_name": "Jalen Coker",
+   "team": "CAR",
+   "pos": "WR",
+   "ownership_pct": 1.1,
+   "salary": 6200,
+   "fpts": 6.6
+  },
+  {
+   "ocr_name": "Jets",
+   "app_name": "Jets",
+   "team": "NYJ",
+   "pos": "DST",
+   "ownership_pct": 1.07,
+   "salary": 2100,
+   "fpts": 2.0
+  },
+  {
+   "ocr_name": "Lions",
+   "app_name": "Lions",
+   "team": "DET",
+   "pos": "DST",
+   "ownership_pct": 1.02,
+   "salary": 3400,
+   "fpts": 9.0
+  },
+  {
+   "ocr_name": "T. Kraft",
+   "app_name": "Tucker Kraft",
+   "team": "GB",
+   "pos": "TE",
+   "ownership_pct": 1.02,
+   "salary": 5500,
+   "fpts": 1.9
+  },
+  {
+   "ocr_name": "M. Hollins",
+   "app_name": "Mack Hollins",
+   "team": "NE",
+   "pos": "WR",
+   "ownership_pct": 0.99,
+   "salary": 3800,
+   "fpts": 12.6
+  },
+  {
+   "ocr_name": "D. Maye",
+   "app_name": "Drake Maye",
+   "team": "NE",
+   "pos": "QB",
+   "ownership_pct": 0.99,
+   "salary": 7000,
+   "fpts": 21.26
+  },
+  {
+   "ocr_name": "M. Harrison Jr.",
+   "app_name": "Marvin Harrison Jr.",
+   "team": "HOU",
+   "pos": "WR",
+   "ownership_pct": 0.99,
+   "salary": 4500,
+   "fpts": 4.0
+  },
+  {
+   "ocr_name": "C. Okonkwo",
+   "app_name": "Chig Okonkwo",
+   "team": "WAS",
+   "pos": "TE",
+   "ownership_pct": 0.96,
+   "salary": 3600,
+   "fpts": 11.7
+  },
+  {
+   "ocr_name": "J. McCarthy",
+   "app_name": "J.J. McCarthy",
+   "team": "NYG",
+   "pos": "QB",
+   "ownership_pct": 0.93,
+   "salary": 4800,
+   "fpts": 7.28
+  },
+  {
+   "ocr_name": "B. Corum",
+   "app_name": "Blake Corum",
+   "team": "LAR",
+   "pos": "RB",
+   "ownership_pct": 0.87,
+   "salary": 5100,
+   "fpts": 11.8
+  },
+  {
+   "ocr_name": "M. Taylor",
+   "app_name": "Mason Taylor",
+   "team": "NYJ",
+   "pos": "TE",
+   "ownership_pct": 0.84,
+   "salary": 3100,
+   "fpts": 2.1
+  },
+  {
+   "ocr_name": "Cowboys",
+   "app_name": "Cowboys",
+   "team": "DAL",
+   "pos": "DST",
+   "ownership_pct": 0.81,
+   "salary": 3200,
+   "fpts": 6.0
+  },
+  {
+   "ocr_name": "E. Raridon",
+   "app_name": "Eli Raridon",
+   "team": "NE",
+   "pos": "TE",
+   "ownership_pct": 0.81,
+   "salary": 3500,
+   "fpts": 8.2
+  },
+  {
+   "ocr_name": "D. Goedert",
+   "app_name": "Dallas Goedert",
+   "team": "PHI",
+   "pos": "TE",
+   "ownership_pct": 0.75,
+   "salary": 4400,
+   "fpts": 10.0
+  },
+  {
+   "ocr_name": "S. Barkley",
+   "app_name": "Saquon Barkley",
+   "team": "PHI",
+   "pos": "RB",
+   "ownership_pct": 0.75,
+   "salary": 6200,
+   "fpts": 8.2
+  },
+  {
+   "ocr_name": "Z. Charbonnet",
+   "app_name": "Zach Charbonnet",
+   "team": "SEA",
+   "pos": "RB",
+   "ownership_pct": 0.75,
+   "salary": 5800,
+   "fpts": 9.6
+  },
+  {
+   "ocr_name": "B. Nix",
+   "app_name": "Bo Nix",
+   "team": "DEN",
+   "pos": "QB",
+   "ownership_pct": 0.67,
+   "salary": 5400,
+   "fpts": 16.68
+  },
+  {
+   "ocr_name": "C. Stroud",
+   "app_name": "C.J. Stroud",
+   "team": "HOU",
+   "pos": "QB",
+   "ownership_pct": 0.64,
+   "salary": 5900,
+   "fpts": 39.36
+  },
+  {
+   "ocr_name": "Rams",
+   "app_name": "Rams",
+   "team": "LAR",
+   "pos": "DST",
+   "ownership_pct": 0.61,
+   "salary": 3300,
+   "fpts": 12.0
+  },
+  {
+   "ocr_name": "C. Kupp",
+   "app_name": "Cooper Kupp",
+   "team": "SEA",
+   "pos": "WR",
+   "ownership_pct": 0.61,
+   "salary": 3800,
+   "fpts": 6.2
+  },
+  {
+   "ocr_name": "Panthers",
+   "app_name": "Panthers",
+   "team": "CAR",
+   "pos": "DST",
+   "ownership_pct": 0.58,
+   "salary": 2600,
+   "fpts": 3.0
+  },
+  {
+   "ocr_name": "D. Waller",
+   "app_name": "Darren Waller",
+   "team": "CAR",
+   "pos": "TE",
+   "ownership_pct": 0.55,
+   "salary": 3300,
+   "fpts": 23.0
+  },
+  {
+   "ocr_name": "T. Shough",
+   "app_name": "Tyler Shough",
+   "team": "NO",
+   "pos": "QB",
+   "ownership_pct": 0.55,
+   "salary": 5700,
+   "fpts": 19.7
+  },
+  {
+   "ocr_name": "X. Worthy",
+   "app_name": "Xavier Worthy",
+   "team": "KC",
+   "pos": "WR",
+   "ownership_pct": 0.55,
+   "salary": 4400,
+   "fpts": 10.8
+  },
+  {
+   "ocr_name": "K. Sadig",
+   "app_name": null,
+   "team": null,
+   "pos": "TE",
+   "ownership_pct": 0.55,
+   "salary": 2800,
+   "fpts": 8.9
+  },
+  {
+   "ocr_name": "K. Sadiq",
+   "app_name": "Kenyon Sadiq",
+   "team": "NYJ",
+   "pos": "TE",
+   "ownership_pct": 0.55,
+   "salary": 2800,
+   "fpts": 8.9
+  },
+  {
+   "ocr_name": "M. Wilson",
+   "app_name": "Michael Wilson",
+   "team": "ARI",
+   "pos": "WR",
+   "ownership_pct": 0.52,
+   "salary": 6700,
+   "fpts": 12.0
+  },
+  {
+   "ocr_name": "R. White",
+   "app_name": "Rachaad White",
+   "team": "WAS",
+   "pos": "RB",
+   "ownership_pct": 0.52,
+   "salary": 5100,
+   "fpts": 7.9
+  },
+  {
+   "ocr_name": "Raiders",
+   "app_name": "Raiders",
+   "team": "LV",
+   "pos": "DST",
+   "ownership_pct": 0.49,
+   "salary": 2200,
+   "fpts": 2.0
+  },
+  {
+   "ocr_name": "C. Sutton",
+   "app_name": "Courtland Sutton",
+   "team": "DEN",
+   "pos": "WR",
+   "ownership_pct": 0.46,
+   "salary": 4400,
+   "fpts": 15.5
+  },
+  {
+   "ocr_name": "A. Barner",
+   "app_name": "AJ Barner",
+   "team": "SEA",
+   "pos": "TE",
+   "ownership_pct": 0.46,
+   "salary": 3800,
+   "fpts": 15.0
+  },
+  {
+   "ocr_name": "Chiefs",
+   "app_name": "Chiefs",
+   "team": "KC",
+   "pos": "DST",
+   "ownership_pct": 0.44,
+   "salary": 3700,
+   "fpts": 11.0
+  },
+  {
+   "ocr_name": "Patriots",
+   "app_name": "Patriots",
+   "team": "NE",
+   "pos": "DST",
+   "ownership_pct": 0.44,
+   "salary": 3100,
+   "fpts": -1.0
+  },
+  {
+   "ocr_name": "T. McMillan",
+   "app_name": "Tetairoa McMillan",
+   "team": "CAR",
+   "pos": "WR",
+   "ownership_pct": 0.44,
+   "salary": 6900,
+   "fpts": 15.6
+  },
+  {
+   "ocr_name": "K. Williams",
+   "app_name": "Kyren Williams",
+   "team": "LAR",
+   "pos": "RB",
+   "ownership_pct": 0.41,
+   "salary": 7600,
+   "fpts": 9.1
+  },
+  {
+   "ocr_name": "C. Bel",
+   "app_name": null,
+   "team": null,
+   "pos": "WR",
+   "ownership_pct": 0.41,
+   "salary": 3300,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "D. Cooper",
+   "app_name": "Darius Cooper",
+   "team": "PHI",
+   "pos": "WR",
+   "ownership_pct": 0.35,
+   "salary": 4200,
+   "fpts": 4.5
+  },
+  {
+   "ocr_name": "B. Hal",
+   "app_name": null,
+   "team": null,
+   "pos": "RB",
+   "ownership_pct": 0.32,
+   "salary": 6000,
+   "fpts": 11.7
+  },
+  {
+   "ocr_name": "Dolphins",
+   "app_name": "Dolphins",
+   "team": "MIA",
+   "pos": "DST",
+   "ownership_pct": 0.29,
+   "salary": 2200,
+   "fpts": 6.0
+  },
+  {
+   "ocr_name": "49ers",
+   "app_name": null,
+   "team": null,
+   "pos": "DST",
+   "ownership_pct": 0.29,
+   "salary": 3600,
+   "fpts": 17.0
+  },
+  {
+   "ocr_name": "J. Jeudy",
+   "app_name": "Jerry Jeudy",
+   "team": "CLE",
+   "pos": "WR",
+   "ownership_pct": 0.29,
+   "salary": 3000,
+   "fpts": 5.7
+  },
+  {
+   "ocr_name": "J. Nailor",
+   "app_name": "Jalen Nailor",
+   "team": "LV",
+   "pos": "WR",
+   "ownership_pct": 0.29,
+   "salary": 3400,
+   "fpts": 2.9
+  },
+  {
+   "ocr_name": "K. Black",
+   "app_name": "Kaelon Black",
+   "team": "SF",
+   "pos": "RB",
+   "ownership_pct": 0.29,
+   "salary": 5500,
+   "fpts": 7.0
+  },
+  {
+   "ocr_name": "D. Sampson",
+   "app_name": "Dylan Sampson",
+   "team": "CLE",
+   "pos": "RB",
+   "ownership_pct": 0.29,
+   "salary": 4900,
+   "fpts": 7.8
+  },
+  {
+   "ocr_name": "H. Henry",
+   "app_name": "Hunter Henry",
+   "team": "NE",
+   "pos": "TE",
+   "ownership_pct": 0.26,
+   "salary": 4500,
+   "fpts": 6.5
+  },
+  {
+   "ocr_name": "G. Minshew I",
+   "app_name": "Gardner Minshew II",
+   "team": "ARI",
+   "pos": "QB",
+   "ownership_pct": 0.26,
+   "salary": 4500,
+   "fpts": 7.04
+  },
+  {
+   "ocr_name": "D. Jones",
+   "app_name": "Daniel Jones",
+   "team": "IND",
+   "pos": "QB",
+   "ownership_pct": 0.26,
+   "salary": 4700,
+   "fpts": 11.3
+  },
+  {
+   "ocr_name": "T. McBride",
+   "app_name": "Trey McBride",
+   "team": "ARI",
+   "pos": "TE",
+   "ownership_pct": 0.26,
+   "salary": 7700,
+   "fpts": 12.4
+  },
+  {
+   "ocr_name": "T. Del",
+   "app_name": null,
+   "team": null,
+   "pos": "WR",
+   "ownership_pct": 0.26,
+   "salary": 3500,
+   "fpts": 23.5
+  },
+  {
+   "ocr_name": "T. Tremble",
+   "app_name": "Tommy Tremble",
+   "team": "CAR",
+   "pos": "TE",
+   "ownership_pct": 0.26,
+   "salary": 2600,
+   "fpts": 12.4
+  },
+  {
+   "ocr_name": "T. Horton",
+   "app_name": "Tory Horton",
+   "team": "SEA",
+   "pos": "WR",
+   "ownership_pct": 0.26,
+   "salary": 3300,
+   "fpts": 4.2
+  },
+  {
+   "ocr_name": "E. Johnson",
+   "app_name": "Emmett Johnson",
+   "team": "KC",
+   "pos": "RB",
+   "ownership_pct": 0.26,
+   "salary": 4900,
+   "fpts": 9.4
+  },
+  {
+   "ocr_name": "S. Williams",
+   "app_name": "Savion Williams",
+   "team": "GB",
+   "pos": "WR",
+   "ownership_pct": 0.23,
+   "salary": 3500,
+   "fpts": 12.8
+  },
+  {
+   "ocr_name": "K. Williams",
+   "app_name": "Kyle Williams",
+   "team": "NE",
+   "pos": "WR",
+   "ownership_pct": 0.23,
+   "salary": 3500,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "J. Price",
+   "app_name": "Jadarian Price",
+   "team": "SEA",
+   "pos": "RB",
+   "ownership_pct": 0.23,
+   "salary": 5300,
+   "fpts": 11.8
+  },
+  {
+   "ocr_name": "B. Cooks",
+   "app_name": "Brandin Cooks",
+   "team": "SF",
+   "pos": "WR",
+   "ownership_pct": 0.2,
+   "salary": 3900,
+   "fpts": 4.5
+  },
+  {
+   "ocr_name": "J. Johnson i",
+   "app_name": "Juwan Johnson",
+   "team": "NO",
+   "pos": "TE",
+   "ownership_pct": 0.2,
+   "salary": 4200,
+   "fpts": 11.4
+  },
+  {
+   "ocr_name": "J. Herbert",
+   "app_name": "Justin Herbert",
+   "team": "LAC",
+   "pos": "QB",
+   "ownership_pct": 0.2,
+   "salary": 5000,
+   "fpts": 11.42
+  },
+  {
+   "ocr_name": "B. Co0ks",
+   "app_name": null,
+   "team": null,
+   "pos": "WR",
+   "ownership_pct": 0.2,
+   "salary": 3900,
+   "fpts": 4.5
+  },
+  {
+   "ocr_name": "J. Johnson",
+   "app_name": "Juwan Johnson",
+   "team": "NO",
+   "pos": "TE",
+   "ownership_pct": 0.2,
+   "salary": 4200,
+   "fpts": 11.4
+  },
+  {
+   "ocr_name": "Q. Johnston",
+   "app_name": "Quentin Johnston",
+   "team": "LAC",
+   "pos": "WR",
+   "ownership_pct": 0.2,
+   "salary": 4300,
+   "fpts": 13.3
+  },
+  {
+   "ocr_name": "B. Allen",
+   "app_name": "Braelon Allen",
+   "team": "NYJ",
+   "pos": "RB",
+   "ownership_pct": 0.2,
+   "salary": 6300,
+   "fpts": 6.4
+  },
+  {
+   "ocr_name": "N. Gray",
+   "app_name": "Noah Gray",
+   "team": "KC",
+   "pos": "TE",
+   "ownership_pct": 0.17,
+   "salary": 2900,
+   "fpts": 2.1
+  },
+  {
+   "ocr_name": "T. Atwel",
+   "app_name": null,
+   "team": null,
+   "pos": "WR",
+   "ownership_pct": 0.17,
+   "salary": 3100,
+   "fpts": 3.6
+  },
+  {
+   "ocr_name": "O. Hampton",
+   "app_name": "Omarion Hampton",
+   "team": "LAC",
+   "pos": "RB",
+   "ownership_pct": 0.17,
+   "salary": 4800,
+   "fpts": 6.0
+  },
+  {
+   "ocr_name": "C. Parkinson",
+   "app_name": "Colby Parkinson",
+   "team": "LAR",
+   "pos": "TE",
+   "ownership_pct": 0.15,
+   "salary": 3000,
+   "fpts": 5.3
+  },
+  {
+   "ocr_name": "D. Allen",
+   "app_name": "Davis Allen",
+   "team": "LAR",
+   "pos": "TE",
+   "ownership_pct": 0.15,
+   "salary": 2700,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "M. Washington Jr.",
+   "app_name": "Mike Washington Jr.",
+   "team": "LV",
+   "pos": "RB",
+   "ownership_pct": 0.15,
+   "salary": 5200,
+   "fpts": -0.3
+  },
+  {
+   "ocr_name": "K. Coleman Jr.",
+   "app_name": "Kevin Coleman Jr.",
+   "team": "MIA",
+   "pos": "WR",
+   "ownership_pct": 0.15,
+   "salary": 3100,
+   "fpts": 1.6
+  },
+  {
+   "ocr_name": "I. TeSlaa",
+   "app_name": "Isaac TeSlaa",
+   "team": "DET",
+   "pos": "WR",
+   "ownership_pct": 0.15,
+   "salary": 3100,
+   "fpts": 1.9
+  },
+  {
+   "ocr_name": "T. Harris",
+   "app_name": "Tre' Harris",
+   "team": "LAC",
+   "pos": "WR",
+   "ownership_pct": 0.12,
+   "salary": 4000,
+   "fpts": 3.6
+  },
+  {
+   "ocr_name": "A. Estime",
+   "app_name": "Audric Estime",
+   "team": "NO",
+   "pos": "RB",
+   "ownership_pct": 0.12,
+   "salary": 4000,
+   "fpts": 14.7
+  },
+  {
+   "ocr_name": "O. Gadsden I",
+   "app_name": "Oronde Gadsden II",
+   "team": "LAC",
+   "pos": "TE",
+   "ownership_pct": 0.12,
+   "salary": 3300,
+   "fpts": 3.7
+  },
+  {
+   "ocr_name": "O. Gadsden",
+   "app_name": "Oronde Gadsden II",
+   "team": "LAC",
+   "pos": "TE",
+   "ownership_pct": 0.12,
+   "salary": 3300,
+   "fpts": 3.7
+  },
+  {
+   "ocr_name": "Colts",
+   "app_name": "Colts",
+   "team": "IND",
+   "pos": "DST",
+   "ownership_pct": 0.09,
+   "salary": 2300,
+   "fpts": 7.0
+  },
+  {
+   "ocr_name": "E. Engram",
+   "app_name": "Evan Engram",
+   "team": "DEN",
+   "pos": "TE",
+   "ownership_pct": 0.09,
+   "salary": 2800,
+   "fpts": 7.3
+  },
+  {
+   "ocr_name": "J. Dobbins",
+   "app_name": "J.K. Dobbins",
+   "team": "DEN",
+   "pos": "RB",
+   "ownership_pct": 0.09,
+   "salary": 4800,
+   "fpts": 3.2
+  },
+  {
+   "ocr_name": "C. Kolar",
+   "app_name": "Charlie Kolar",
+   "team": "LAC",
+   "pos": "TE",
+   "ownership_pct": 0.09,
+   "salary": 2500,
+   "fpts": 6.4
+  },
+  {
+   "ocr_name": "J. Ferguson",
+   "app_name": "Jake Ferguson",
+   "team": "DAL",
+   "pos": "TE",
+   "ownership_pct": 0.09,
+   "salary": 3900,
+   "fpts": 10.1
+  },
+  {
+   "ocr_name": "J. Mitchel",
+   "app_name": null,
+   "team": null,
+   "pos": "TE",
+   "ownership_pct": 0.09,
+   "salary": 2500,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "J. Metchie Il",
+   "app_name": "John Metchie III",
+   "team": "CAR",
+   "pos": "WR",
+   "ownership_pct": 0.09,
+   "salary": 3200,
+   "fpts": 6.0
+  },
+  {
+   "ocr_name": "I. Williams",
+   "app_name": "Isaiah Williams",
+   "team": "NYJ",
+   "pos": "WR",
+   "ownership_pct": 0.09,
+   "salary": 3000,
+   "fpts": 0.4
+  },
+  {
+   "ocr_name": "J. Mitchell i",
+   "app_name": "James Mitchell",
+   "team": "DAL",
+   "pos": "TE",
+   "ownership_pct": 0.09,
+   "salary": 2500,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "J. Metchie Ill i",
+   "app_name": null,
+   "team": null,
+   "pos": "WR",
+   "ownership_pct": 0.09,
+   "salary": 3200,
+   "fpts": 6.0
+  },
+  {
+   "ocr_name": "X. Hutchinson",
+   "app_name": "Xavier Hutchinson",
+   "team": "HOU",
+   "pos": "WR",
+   "ownership_pct": 0.09,
+   "salary": 4000,
+   "fpts": 11.9
+  },
+  {
+   "ocr_name": "J. Tyson",
+   "app_name": "Jordyn Tyson",
+   "team": "NO",
+   "pos": "WR",
+   "ownership_pct": 0.09,
+   "salary": 5200,
+   "fpts": 6.0
+  },
+  {
+   "ocr_name": "G. Smith",
+   "app_name": "Geno Smith",
+   "team": "NYJ",
+   "pos": "QB",
+   "ownership_pct": 0.06,
+   "salary": 4900,
+   "fpts": 7.4
+  },
+  {
+   "ocr_name": "F. Moreau",
+   "app_name": "Foster Moreau",
+   "team": "HOU",
+   "pos": "TE",
+   "ownership_pct": 0.06,
+   "salary": 2500,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "D. Mo0ney",
+   "app_name": null,
+   "team": null,
+   "pos": "WR",
+   "ownership_pct": 0.06,
+   "salary": null,
+   "fpts": 210.0
+  },
+  {
+   "ocr_name": "D. Mooney",
+   "app_name": "Darnell Mooney",
+   "team": "NYG",
+   "pos": "WR",
+   "ownership_pct": 0.06,
+   "salary": 3500,
+   "fpts": 8.0
+  },
+  {
+   "ocr_name": "N. Fant",
+   "app_name": "Noah Fant",
+   "team": "NO",
+   "pos": "TE",
+   "ownership_pct": 0.06,
+   "salary": 2700,
+   "fpts": 2.2
+  },
+  {
+   "ocr_name": "H. Brown",
+   "app_name": "Hollywood Brown",
+   "team": "PHI",
+   "pos": "WR",
+   "ownership_pct": 0.06,
+   "salary": 3400,
+   "fpts": 2.6
+  },
+  {
+   "ocr_name": "H. Brown i",
+   "app_name": "Hollywood Brown",
+   "team": "PHI",
+   "pos": "WR",
+   "ownership_pct": 0.06,
+   "salary": null,
+   "fpts": null
+  },
+  {
+   "ocr_name": "K. Boutte",
+   "app_name": "Kayshon Boutte",
+   "team": "HOU",
+   "pos": "WR",
+   "ownership_pct": 0.06,
+   "salary": 3400,
+   "fpts": 31.5
+  },
+  {
+   "ocr_name": "S. McGowan",
+   "app_name": "Seth McGowan",
+   "team": "IND",
+   "pos": "RB",
+   "ownership_pct": 0.06,
+   "salary": 5000,
+   "fpts": 11.2
+  },
+  {
+   "ocr_name": "C. Kiner",
+   "app_name": "Corey Kiner",
+   "team": "NE",
+   "pos": "RB",
+   "ownership_pct": 0.06,
+   "salary": 4100,
+   "fpts": 11.5
+  },
+  {
+   "ocr_name": "K. B0utte",
+   "app_name": null,
+   "team": null,
+   "pos": "WR",
+   "ownership_pct": 0.06,
+   "salary": 3400,
+   "fpts": 31.5
+  },
+  {
+   "ocr_name": "E. Stowers",
+   "app_name": "Eli Stowers",
+   "team": "PHI",
+   "pos": "TE",
+   "ownership_pct": 0.06,
+   "salary": 2500,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "K. Mumpfield",
+   "app_name": "Konata Mumpfield",
+   "team": "LAR",
+   "pos": "WR",
+   "ownership_pct": 0.06,
+   "salary": 3300,
+   "fpts": 4.0
+  },
+  {
+   "ocr_name": "P. Bryant",
+   "app_name": "Pat Bryant",
+   "team": "DEN",
+   "pos": "WR",
+   "ownership_pct": 0.06,
+   "salary": 3700,
+   "fpts": 15.6
+  },
+  {
+   "ocr_name": "C. Allen",
+   "app_name": "Cyrus Allen",
+   "team": "KC",
+   "pos": "WR",
+   "ownership_pct": 0.06,
+   "salary": 3100,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "K. Juszczyk",
+   "app_name": "Kyle Juszczyk",
+   "team": "SF",
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": 4000,
+   "fpts": 0.4
+  },
+  {
+   "ocr_name": "M. Alie-Cox",
+   "app_name": "Mo Alie-Cox",
+   "team": "IND",
+   "pos": "TE",
+   "ownership_pct": 0.03,
+   "salary": 2500,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "Ekeler",
+   "app_name": null,
+   "team": null,
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": null,
+   "fpts": null
+  },
+  {
+   "ocr_name": "A. Ekeler",
+   "app_name": "Austin Ekeler",
+   "team": "WAS",
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": 4400,
+   "fpts": 5.4
+  },
+  {
+   "ocr_name": "V. Jefferson",
+   "app_name": "Van Jefferson",
+   "team": "WAS",
+   "pos": "WR",
+   "ownership_pct": 0.03,
+   "salary": 3000,
+   "fpts": 16.8
+  },
+  {
+   "ocr_name": "A. Ekeler i",
+   "app_name": "Austin Ekeler",
+   "team": "WAS",
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": 4400,
+   "fpts": 5.4
+  },
+  {
+   "ocr_name": "L. Farrel",
+   "app_name": null,
+   "team": null,
+   "pos": "TE",
+   "ownership_pct": 0.03,
+   "salary": 2500,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "E. Mitchel",
+   "app_name": null,
+   "team": null,
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": 4500,
+   "fpts": 5.6
+  },
+  {
+   "ocr_name": "C. White",
+   "app_name": "Cody White",
+   "team": "LV",
+   "pos": "WR",
+   "ownership_pct": 0.03,
+   "salary": 3000,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "S. Bowman",
+   "app_name": "Shawn Bowman",
+   "team": "ARI",
+   "pos": "TE",
+   "ownership_pct": 0.03,
+   "salary": 2500,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "B. Tremayne",
+   "app_name": "Brycen Tremayne",
+   "team": "CAR",
+   "pos": "WR",
+   "ownership_pct": 0.03,
+   "salary": 3000,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "T. Quitoriano",
+   "app_name": "Teagan Quitoriano",
+   "team": "ARI",
+   "pos": "TE",
+   "ownership_pct": 0.03,
+   "salary": 2500,
+   "fpts": 1.8
+  },
+  {
+   "ocr_name": "E. Higgins",
+   "app_name": "Elijah Higgins",
+   "team": "ARI",
+   "pos": "TE",
+   "ownership_pct": 0.03,
+   "salary": 2500,
+   "fpts": 3.1
+  },
+  {
+   "ocr_name": "L. McCaffrey",
+   "app_name": "Luke McCaffrey",
+   "team": "WAS",
+   "pos": "WR",
+   "ownership_pct": 0.03,
+   "salary": 3000,
+   "fpts": 1.6
+  },
+  {
+   "ocr_name": "J. Mingo",
+   "app_name": "Jonathan Mingo",
+   "team": "DAL",
+   "pos": "WR",
+   "ownership_pct": 0.03,
+   "salary": 3000,
+   "fpts": 3.3
+  },
+  {
+   "ocr_name": "G. Holani",
+   "app_name": "George Holani",
+   "team": "SEA",
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": 4300,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "J. Cowing",
+   "app_name": "Jacob Cowing",
+   "team": "SF",
+   "pos": "WR",
+   "ownership_pct": 0.03,
+   "salary": 3600,
+   "fpts": 1.5
+  },
+  {
+   "ocr_name": "B. Young",
+   "app_name": "Bryce Young",
+   "team": "CAR",
+   "pos": "QB",
+   "ownership_pct": 0.03,
+   "salary": 5500,
+   "fpts": 22.34
+  },
+  {
+   "ocr_name": "K. Vida",
+   "app_name": null,
+   "team": null,
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": 4700,
+   "fpts": 4.6
+  },
+  {
+   "ocr_name": "K. Mitchel",
+   "app_name": null,
+   "team": null,
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": 4200,
+   "fpts": 8.7
+  },
+  {
+   "ocr_name": "G. Desrosiers",
+   "app_name": "Gregory Desrosiers",
+   "team": "NYG",
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": 4000,
+   "fpts": 2.0
+  },
+  {
+   "ocr_name": "A. Tvus I",
+   "app_name": null,
+   "team": null,
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": null,
+   "fpts": null
+  },
+  {
+   "ocr_name": "A. Tyus II",
+   "app_name": "Anthony Tyus III",
+   "team": "CAR",
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": 4000,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "B. Lance",
+   "app_name": "Bryce Lance",
+   "team": "NO",
+   "pos": "WR",
+   "ownership_pct": 0.03,
+   "salary": 3200,
+   "fpts": 0.0
+  },
+  {
+   "ocr_name": "S. Vaki",
+   "app_name": "Sione Vaki",
+   "team": "DET",
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": 4500,
+   "fpts": 4.1
+  },
+  {
+   "ocr_name": "R. Virgi",
+   "app_name": null,
+   "team": null,
+   "pos": "WR",
+   "ownership_pct": 0.03,
+   "salary": 3700,
+   "fpts": 3.5
+  },
+  {
+   "ocr_name": "T. Etienne",
+   "app_name": "Trevor Etienne",
+   "team": "CAR",
+   "pos": "RB",
+   "ownership_pct": 0.03,
+   "salary": 4200,
+   "fpts": 0.7
+  }
+ ],
+ "matched": 178,
+ "total": 205,
+ "ownership_sum_pct": 307.6
+}

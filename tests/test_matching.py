@@ -53,3 +53,32 @@ def test_defense_matched_by_team_abbreviation():
 def test_unknown_player_returns_none():
     index = SleeperNameIndex(SAMPLE_PLAYERS)
     assert index.find("Nobody Fake", "ZZZ", "WR") is None
+
+
+def test_same_team_and_position_duplicates_are_not_guessed():
+    players = {
+        "2001": {"first_name": "Mike", "last_name": "Williams", "team": "NYJ", "position": "WR"},
+        "2002": {"first_name": "Mike", "last_name": "Williams", "team": "NYJ", "position": "WR"},
+    }
+    assert SleeperNameIndex(players).find("Mike Williams", "NYJ", "WR") is None
+
+
+def test_collision_resolved_by_position_when_team_is_ambiguous():
+    players = {
+        "3001": {"first_name": "Michael", "last_name": "Carter", "team": "NYJ", "position": "RB"},
+        "3002": {"first_name": "Michael", "last_name": "Carter II", "team": "NYJ", "position": "CB"},
+    }
+    index = SleeperNameIndex(players)      # suffix stripping makes both normalize to "michael carter"
+    assert index.find("Michael Carter", "NYJ", "RB") == "3001"
+
+
+def test_player_who_changed_teams_matches_when_name_is_unique():
+    players = {"4001": {"first_name": "Davante", "last_name": "Adams", "team": "LV", "position": "WR"}}
+    assert SleeperNameIndex(players).find("Davante Adams", "NYJ", "WR") == "4001"
+
+
+def test_defense_matches_by_team_and_unknown_player_is_unmatched():
+    index = SleeperNameIndex(SAMPLE_PLAYERS)
+    assert index.find("Seahawks", "SEA", "DST") == "SEA"
+    assert index.find("Seahawks", "XXX", "DST") is None
+    assert index.find("Nobody Real", "BUF", "QB") is None

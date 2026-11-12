@@ -96,6 +96,10 @@ async def _build_context(game: Game, line_row: dict | None, team_trends: dict) -
         home_total_trend=TeamTrend(**team_trends["home"]["total"]),
         away_implied_total_trend=TeamTrend(**team_trends["away"]["implied_total"]),
         home_implied_total_trend=TeamTrend(**team_trends["home"]["implied_total"]),
+        away_points_for_trend=TeamTrend(**team_trends["away"].get("points_for", {})),
+        home_points_for_trend=TeamTrend(**team_trends["home"].get("points_for", {})),
+        away_points_against_trend=TeamTrend(**team_trends["away"].get("points_against", {})),
+        home_points_against_trend=TeamTrend(**team_trends["home"].get("points_against", {})),
         is_final=is_final,
         away_score=away_score,
         home_score=home_score,
@@ -112,7 +116,7 @@ async def _actual_plays(season: int, week: int, team: str) -> float | None:
 
 
 def _team_trends_for_game(index: dict, game: Game) -> dict:
-    metrics = ("spread", "total", "implied_total", "plays")
+    metrics = ("spread", "total", "implied_total", "plays", "points_for", "points_against")
     return {
         side: {
             metric: nflverse_client.team_trend(index, team, metric, game.season, game.week)
@@ -127,15 +131,11 @@ async def attach_game_context(schedule: WeekSchedule) -> None:
     which shares the same Game objects) in place, adding real context.
     Failures degrade to no context for that game rather than breaking the
     schedule -- this is enrichment, not a hard dependency."""
-    try:
-        lines = await nflverse_client.get_games(schedule.season)
-    except Exception:
-        lines = {}
-
-    try:
-        trend_index = await nflverse_client.get_team_context_trailing_index(schedule.season)
-    except Exception:
-        trend_index = {}
+    lines, trend_index = await asyncio.gather(nflverse_client.get_games(schedule.season),
+                                              nflverse_client.get_team_context_trailing_index(schedule.season),
+                                              return_exceptions=True)
+    lines = {} if isinstance(lines, BaseException) else lines
+    trend_index = {} if isinstance(trend_index, BaseException) else trend_index
 
     async def enrich(game: Game) -> None:
         line_row = lines.get((game.week, game.away, game.home))
