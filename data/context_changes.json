@@ -171,22 +171,6 @@
       "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
     },
     {
-      "team": "DEN",
-      "season": 2026,
-      "effective_week": 11,
-      "type": "trade_in",
-      "note": "Daiyan Henley (LB) LAC -> DEN | 11-10 trade; LAC gets 2027 R4 + 2028 R5",
-      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
-    },
-    {
-      "team": "LAC",
-      "season": 2026,
-      "effective_week": 10,
-      "type": "trade_out",
-      "note": "Daiyan Henley (LB) LAC -> DEN | 11-10 trade; LAC gets 2027 R4 + 2028 R5",
-      "source": "user-provided (NFL.com 2026 trade tracker); effective week = team's next game after the trade date, from games.csv"
-    },
-    {
       "team": "MIN",
       "season": 2026,
       "effective_week": 10,
