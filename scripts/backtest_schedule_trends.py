@@ -186,6 +186,19 @@ def test_c(p: pd.DataFrame, R: Ratings) -> dict:
             out[f"{y}_on_{x}"] = {"slope": round(float(beta[1]), 3), "t": round(float(t[1]), 2),
                                   "top_quintile_hit_pct": round(float(100 * (np.sign(hi[y]) == np.sign(hi[x])).mean()), 1), "n_top_quintile": int(len(hi)),
                                   "by_season_slope": {int(s): round(float(np.polyfit(d[x], d[y], 1)[0]), 2) for s, d in m.groupby("season")}}
+    # the game model's own test: fit on the other seasons, score on the held-out one, against the closing line itself
+    for y, xs in (("y_m", ["x_m_raw", "x_m_adj"]), ("y_t", ["x_t_raw", "x_t_adj"])):
+        for label, cols in (("raw", xs[:1]), ("adjusted", xs[1:]), ("both", xs)):
+            se_m = se_b = n = 0.0
+            for season in sorted(m.season.unique()):
+                tr, te = m[m.season != season], m[m.season == season]
+                beta = b.wols(tr[cols].values, tr[y].values, np.ones(len(tr)))
+                p = b.pred(beta, te[cols].values)
+                se_m += float(((te[y].values - p) ** 2).sum())
+                se_b += float((te[y].values ** 2).sum())
+                n += len(te)
+            out[f"leave_one_season_out_{y}_{label}"] = {"rmse_model": round(float(np.sqrt(se_m / n)), 3), "rmse_line": round(float(np.sqrt(se_b / n)), 3),
+                                                        "change_pct": round(100 * (np.sqrt(se_m / n) / np.sqrt(se_b / n) - 1), 2)}
     return out
 
 
