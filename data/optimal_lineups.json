@@ -15669,7 +15669,7 @@
     },
     "10": {
       "classic_sunday": {
-        "saved_at": "2026-11-15T19:43:18+00:00",
+        "saved_at": "2026-11-15T20:03:21+00:00",
         "draft_group_id": 156416,
         "lineups": [
           {
@@ -15895,9 +15895,9 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 9300,
-                "proj_points": 24.23,
-                "ceiling": 36.9,
-                "sleeper_proj": 22.85,
+                "proj_points": 24.31,
+                "ceiling": 37.1,
+                "sleeper_proj": 22.93,
                 "game_info": "SEA @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44851092,
@@ -15990,8 +15990,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 145.7,
-            "ceiling": 232.3
+            "proj_points": 145.78,
+            "ceiling": 232.5
           }
         ]
       },
@@ -17067,7 +17067,7 @@
         ]
       },
       "showdown_mon_night": {
-        "saved_at": "2026-11-15T16:38:56+00:00",
+        "saved_at": "2026-11-15T20:03:33+00:00",
         "draft_group_id": 156434,
         "lineups": [
           {
@@ -17130,9 +17130,9 @@
                 "opponent": "BAL",
                 "roster_slot": "FLEX",
                 "salary": 9000,
-                "proj_points": 13.5,
-                "ceiling": 21.8,
-                "sleeper_proj": 13.98,
+                "proj_points": 13.66,
+                "ceiling": 22.0,
+                "sleeper_proj": 14.41,
                 "game_info": "LAC @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44904746,
@@ -17162,9 +17162,9 @@
                 "opponent": "BAL",
                 "roster_slot": "FLEX",
                 "salary": 2400,
-                "proj_points": 3.61,
-                "ceiling": 9.3,
-                "sleeper_proj": 4.92,
+                "proj_points": 3.64,
+                "ceiling": 9.4,
+                "sleeper_proj": 4.98,
                 "game_info": "LAC @ BAL",
                 "injury": "Q",
                 "dk_draftable_id": 44904773,
@@ -17172,8 +17172,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 80.16,
-            "ceiling": 124.9
+            "proj_points": 80.35,
+            "ceiling": 125.2
           },
           {
             "metric": "ceiling",
@@ -17235,9 +17235,9 @@
                 "opponent": "BAL",
                 "roster_slot": "FLEX",
                 "salary": 9000,
-                "proj_points": 13.5,
-                "ceiling": 21.8,
-                "sleeper_proj": 13.98,
+                "proj_points": 13.66,
+                "ceiling": 22.0,
+                "sleeper_proj": 14.41,
                 "game_info": "LAC @ BAL",
                 "injury": "Healthy",
                 "dk_draftable_id": 44904746,
@@ -17267,9 +17267,9 @@
                 "opponent": "BAL",
                 "roster_slot": "FLEX",
                 "salary": 2400,
-                "proj_points": 3.61,
-                "ceiling": 9.3,
-                "sleeper_proj": 4.92,
+                "proj_points": 3.64,
+                "ceiling": 9.4,
+                "sleeper_proj": 4.98,
                 "game_info": "LAC @ BAL",
                 "injury": "Q",
                 "dk_draftable_id": 44904773,
@@ -17277,13 +17277,13 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 76.43,
-            "ceiling": 129.7
+            "proj_points": 76.62,
+            "ceiling": 130.0
           }
         ]
       },
       "classic_afternoon": {
-        "saved_at": "2026-11-15T19:43:26+00:00",
+        "saved_at": "2026-11-15T20:03:30+00:00",
         "draft_group_id": 156419,
         "lineups": [
           {
@@ -17330,9 +17330,9 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 5600,
-                "proj_points": 13.04,
-                "ceiling": 21.6,
-                "sleeper_proj": 12.46,
+                "proj_points": 13.12,
+                "ceiling": 21.7,
+                "sleeper_proj": 12.54,
                 "game_info": "SEA @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44886097,
@@ -17346,9 +17346,9 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 9300,
-                "proj_points": 24.23,
-                "ceiling": 36.9,
-                "sleeper_proj": 22.85,
+                "proj_points": 24.31,
+                "ceiling": 37.1,
+                "sleeper_proj": 22.93,
                 "game_info": "SEA @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44886167,
@@ -17378,9 +17378,9 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 3600,
-                "proj_points": 7.27,
-                "ceiling": 13.2,
-                "sleeper_proj": 6.8,
+                "proj_points": 7.3,
+                "ceiling": 13.3,
+                "sleeper_proj": 6.83,
                 "game_info": "SEA @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44886197,
@@ -17394,8 +17394,8 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 4200,
-                "proj_points": 10.2,
-                "ceiling": 16.3,
+                "proj_points": 9.91,
+                "ceiling": 15.8,
                 "sleeper_proj": 8.54,
                 "game_info": "LAR @ ARI",
                 "injury": "Healthy",
@@ -17410,9 +17410,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 3000,
-                "proj_points": 8.66,
-                "ceiling": 15.0,
-                "sleeper_proj": 7.36,
+                "proj_points": 9.37,
+                "ceiling": 16.2,
+                "sleeper_proj": 7.34,
                 "game_info": "LAR @ ARI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44886303,
@@ -17436,8 +17436,8 @@
               }
             ],
             "salary": 50000,
-            "proj_points": 131.78,
-            "ceiling": 204.5
+            "proj_points": 132.39,
+            "ceiling": 205.6
           },
           {
             "metric": "tournament",
@@ -17451,9 +17451,9 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 5000,
-                "proj_points": 17.02,
-                "ceiling": 25.0,
-                "sleeper_proj": 16.41,
+                "proj_points": 17.08,
+                "ceiling": 25.1,
+                "sleeper_proj": 16.56,
                 "game_info": "SEA @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44886075,
@@ -17483,9 +17483,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 7100,
-                "proj_points": 16.77,
+                "proj_points": 16.82,
                 "ceiling": 27.5,
-                "sleeper_proj": 17.1,
+                "sleeper_proj": 17.16,
                 "game_info": "LAR @ ARI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44886095,
@@ -17499,9 +17499,9 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 9300,
-                "proj_points": 24.23,
-                "ceiling": 36.9,
-                "sleeper_proj": 22.85,
+                "proj_points": 24.31,
+                "ceiling": 37.1,
+                "sleeper_proj": 22.93,
                 "game_info": "SEA @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44886167,
@@ -17515,9 +17515,9 @@
                 "opponent": "LV",
                 "roster_slot": "",
                 "salary": 3600,
-                "proj_points": 7.27,
-                "ceiling": 13.2,
-                "sleeper_proj": 6.8,
+                "proj_points": 7.3,
+                "ceiling": 13.3,
+                "sleeper_proj": 6.83,
                 "game_info": "SEA @ LV",
                 "injury": "Healthy",
                 "dk_draftable_id": 44886197,
@@ -17525,19 +17525,19 @@
               },
               {
                 "slot": "WR",
-                "name": "Jalen Nailor",
+                "name": "Jack Bech",
                 "position": "WR",
                 "team": "LV",
                 "opponent": "SEA",
                 "roster_slot": "",
-                "salary": 3100,
-                "proj_points": 3.49,
-                "ceiling": 8.5,
-                "sleeper_proj": 3.72,
+                "salary": 3000,
+                "proj_points": 3.5,
+                "ceiling": 8.0,
+                "sleeper_proj": 3.85,
                 "game_info": "SEA @ LV",
                 "injury": "Healthy",
-                "dk_draftable_id": 44886209,
-                "dk_fppg": 4.0
+                "dk_draftable_id": 44886245,
+                "dk_fppg": 3.5
               },
               {
                 "slot": "TE",
@@ -17563,9 +17563,9 @@
                 "opponent": "ARI",
                 "roster_slot": "",
                 "salary": 3000,
-                "proj_points": 8.66,
-                "ceiling": 15.0,
-                "sleeper_proj": 7.36,
+                "proj_points": 9.37,
+                "ceiling": 16.2,
+                "sleeper_proj": 7.34,
                 "game_info": "LAR @ ARI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44886303,
@@ -17581,16 +17581,16 @@
                 "salary": 3800,
                 "proj_points": 9.52,
                 "ceiling": 13.5,
-                "sleeper_proj": 7.97,
+                "sleeper_proj": 7.98,
                 "game_info": "LAR @ ARI",
                 "injury": "Healthy",
                 "dk_draftable_id": 44886353,
                 "dk_fppg": 5.4
               }
             ],
-            "salary": 49900,
-            "proj_points": 127.28,
-            "ceiling": 203.5
+            "salary": 49800,
+            "proj_points": 128.22,
+            "ceiling": 204.6
           }
         ]
       }
