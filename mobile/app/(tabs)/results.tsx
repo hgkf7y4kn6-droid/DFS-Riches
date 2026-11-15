@@ -12,7 +12,7 @@ import { createFetchCache, useCachedFetch } from '@/lib/cached-fetch';
 
 const cache = createFetchCache<{ slates: TrackRecordSlate[] }>();
 
-const SLATE_NAME: Record<string, string> = { classic_sunday: 'Sunday Main', classic: 'Full Week' };
+const SLATE_NAME: Record<string, string> = { classic_sunday: 'Sunday Main', classic_afternoon: 'Sunday Afternoon', classic: 'Full Week' };
 const slateName = (id: string) =>
   SLATE_NAME[id] ?? id.replace(/^showdown_/, 'Showdown · ').replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 

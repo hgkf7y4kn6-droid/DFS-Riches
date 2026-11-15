@@ -20,7 +20,7 @@ import logging
 import time
 
 log = logging.getLogger("dfsriches.prewarm")
-SLATES = ("classic_sunday", "classic")
+SLATES = ("classic_sunday", "classic_afternoon", "classic")
 
 
 async def warm(dfs: bool = False) -> dict:
@@ -33,6 +33,9 @@ async def warm(dfs: bool = False) -> dict:
     for slate_id in SLATES:
         t = time.perf_counter()
         try:
+            _sched, listed = await slates.list_slates(season, week)
+            if not any(x.slate_id == slate_id and x.available for x in listed):
+                continue                         # e.g. a week with no separate afternoon slate
             await slates.get_slate_players(season, week, slate_id)
             done[slate_id] = round(time.perf_counter() - t, 1)
         except Exception as exc:
