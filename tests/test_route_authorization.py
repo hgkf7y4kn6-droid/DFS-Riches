@@ -10,7 +10,7 @@ from app import guard, main
 
 FORGED_NONE = "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJhZG1pbiJ9."          # {"alg":"none"} . {"sub":"admin"} .
 # The only routes outside /api/ that exist on purpose; a new one must be added here after a review.
-PUBLIC_NON_API = {"/healthz", "/", "/classic", "/breakdown", "/classic/{rest:path}", "/{path:path}"}
+PUBLIC_NON_API = {"/healthz", "/csp-report", "/", "/classic", "/breakdown", "/classic/{rest:path}", "/{path:path}"}
 
 
 @pytest.fixture
@@ -65,3 +65,17 @@ def test_web_files_cannot_escape_the_web_directory(monkeypatch):
     for p in ("../secret.txt", "a/../../secret.txt", "..%2fsecret.txt", "/etc/passwd", "....//secret.txt", "\x00", "a\x00.js"):
         f = main._web_file(p)
         assert f.name == "index.html" and f.resolve().is_relative_to(web.resolve()), p
+
+
+def test_unauthenticated_api_answers_are_not_cacheable(anon):
+    r = anon.get("/api/slates")
+    assert r.status_code == 401 and r.headers["cache-control"] == "no-store"
+
+
+def test_csp_report_endpoint_logs_only_and_is_capped(anon):
+    main._csp_window.clear()
+    codes = [anon.post("/csp-report", content=b"{" + b"x" * 10000).status_code for _ in range(35)]
+    assert set(codes) == {204}
+    assert len(main._csp_window) == 30                          # 5 reports beyond the cap were dropped
+    assert "report-uri /csp-report" in main._csp()
+    main._csp_window.clear()

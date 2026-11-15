@@ -3,7 +3,7 @@ DraftKings draft groups (app.dk_client) + real Sleeper projections
 (app.sleeper_client), merged by name (app.matching) into the table the
 frontend renders.
 
-A Classic Sunday Main slate covers the Sunday 1:00 + afternoon games; a Full
+A Classic Sunday Main slate covers the Sunday 1:00 + afternoon games; Sunday Afternoon Only covers just the 4:05/4:25 games; a Full
 Week slate covers every game (Thu-Mon). One Showdown slate is built for each
 island game: the lone game in a window outside the Sunday main slate
 (weeknight/Sunday night, Sunday-morning international, holiday, Saturday).
@@ -83,6 +83,28 @@ async def list_slates(season: int, week: int) -> tuple[WeekSchedule, list[Slate]
             source=sunday["source"],
         )
     )
+
+    afternoon = discovery.get("classic_afternoon")
+    if afternoon:
+        a_first, a_last = afternoon.get("first_kickoff"), afternoon.get("last_kickoff")
+        afternoon_games = [
+            g for g in schedule.games
+            if g.day_part == dk_client.AFTERNOON_DAY_PART
+            and (a_first is None or g.kickoff_utc >= datetime.fromisoformat(a_first))
+            and (a_last is None or g.kickoff_utc <= datetime.fromisoformat(a_last))
+        ]
+        slates.append(
+            Slate(
+                slate_id="classic_afternoon",
+                label=afternoon["label"],
+                slate_type="classic",
+                day_part=None,
+                draft_group_id=afternoon["draft_group_id"],
+                games=afternoon_games,
+                available=afternoon["draft_group_id"] is not None,
+                source=afternoon["source"],
+            )
+        )
 
     classic = discovery["classic"]
     slates.append(

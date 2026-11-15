@@ -20,7 +20,7 @@ export function slateMeta(slate: Slate): string {
 
 export function slateTitle(slate: Slate): string {
   if (slate.slate_type === 'showdown' && slate.games[0]) return `${slate.games[0].away} @ ${slate.games[0].home}`;
-  return slate.slate_id === 'classic_sunday' ? 'Sunday Main' : slate.slate_id === 'classic' ? 'Full Week' : slate.label;
+  return slate.slate_id === 'classic_sunday' ? 'Sunday Main' : slate.slate_id === 'classic_afternoon' ? 'Sunday Afternoon' : slate.slate_id === 'classic' ? 'Full Week' : slate.label;
 }
 
 /**
