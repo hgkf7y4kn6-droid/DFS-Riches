@@ -66,7 +66,8 @@ def local_llama():
     from langchain_core.runnables import RunnableLambda
     from llama_cpp import Llama
 
-    path = hf_hub_download(os.environ.get("LOCAL_GGUF_REPO") or LOCAL_REPO, os.environ.get("LOCAL_GGUF_FILE") or LOCAL_FILE)
+    path = hf_hub_download(os.environ.get("LOCAL_GGUF_REPO") or LOCAL_REPO, os.environ.get("LOCAL_GGUF_FILE") or LOCAL_FILE,
+                           revision=os.environ.get("LOCAL_GGUF_REVISION") or None)      # nosec B615: set LOCAL_GGUF_REVISION to a commit to pin
     llm = Llama(model_path=path, n_ctx=int(os.environ.get("LOCAL_CTX", "16384")), n_threads=os.cpu_count() or 4, verbose=False)
     roles = {"system": "system", "ai": "assistant", "human": "user"}
 

@@ -1290,9 +1290,12 @@ def _web_file(path: str):
     for candidate in (clean, f"{clean}.html", f"{clean}/index.html" if clean else "index.html"):
         if not candidate:
             continue
-        f = (root / candidate).resolve()
-        if f.is_file() and f.is_relative_to(root):
-            return f
+        try:
+            f = (root / candidate).resolve()
+            if f.is_file() and f.is_relative_to(root):
+                return f
+        except (ValueError, OSError):        # e.g. a NUL byte in the path: not a file, serve the app shell
+            continue
     return root / "index.html"
 
 
