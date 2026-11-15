@@ -13,7 +13,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime
 
-from app import ceiling, ceiling_model, dk_client, dst_model, game_model, injury_news, kicker_model, matching, news_overrides, player_model, nflverse_client, player_games, projections, roles, sleeper_client, vacated, weather
+from app import team_changes, ceiling, ceiling_model, dk_client, dst_model, game_model, injury_news, kicker_model, matching, news_overrides, player_model, nflverse_client, player_games, projections, roles, sleeper_client, vacated, weather
 from app import cache
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
@@ -330,6 +330,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
     injury_news.zero_out(players)
     injury_news.apply_play_chance(players, reports, {t: g.kickoff_utc for g in slate.games for t in (g.away, g.home)})
     vacated.redistribute(players, {sid: ln.get("stats") or {} for sid, ln in projection_ctx.lines.items()})
+    vacated.top_up(players, (role_ctx or {}).get("hist"), week, team_changes.traded_away(season, week))
     for rows, starter in injury_news.replacement_qbs(players):
         base = round((starter.trend_season or starter.dk_fppg) * injury_news.REPLACEMENT_SHARE, 2)
         for p in rows:

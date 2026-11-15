@@ -1,4 +1,4 @@
-"""Teammates' share of a ruled-out player's volume, until Sleeper catches up.
+"""Teammates' share of a ruled-out player's volume, until Sleeper catches up -- and a small top-up for regulars after it has.
 
 When Sleeper processes a player being out it zeroes his line and raises his teammates' (2026 Week 7: Mike Evans
 and Deebo Samuel out, George Kittle 14.8 -> 16.6, Brandin Cooks 5.3 -> 7.4). Before it does -- news fresher than its
@@ -17,6 +17,14 @@ their previous three):
 at his own projected points per target (per carry), or the position's 2023-2025 average without a projected line.
 A Questionable player counts by his chance of sitting (app.injury_news). Once Sleeper has zeroed the out player
 this stops: its own redistribution takes over (and the held-out tests found nothing to add on top of it).
+
+Once Sleeper has processed the news (zeroed the out player), top_up() adds what scripts/test_vacated_recipients.py found it
+still leaves on the table, 2023-2026, for the one group with a gap: teammates who are themselves regulars (12%+ of targets or
+25%+ of carries over their last three games). Actual minus Sleeper's final projection, per 100% of the team's target share
+vacated by out WR/TE regulars: +4.65 DK points for WR/TE regulars (t 2.5); per 100% of carries vacated by out RBs: +5.69 for
+RB regulars (t 2.3). A player traded away counts as out: he is absent from his old team's next game the same way. Backups and
+other non-regulars get nothing -- Sleeper does not under-project them (+0.4 per 100% vacated, t 0.4), so a backup stepping in
+is already in its number. The WR/TE sign flipped in 2026 (-3.3), so the top-up is half the measured slope and capped.
 """
 from __future__ import annotations
 
@@ -35,6 +43,14 @@ TARGETS = {"WR": {"same": (0.20, 0.20, 0.20, 0.17), "other": 0.036},
 CARRIES = {"RB": (0.42, 0.21, 0.04)}
 PER_TARGET = {"WR": 1.72, "TE": 1.75, "RB": 1.55}     # DK receiving points per target, 2023-2025
 PER_CARRY = {"WR": 0.79, "TE": 0.73, "RB": 0.61}       # DK rushing points per carry
+
+
+# top_up(): DK points per 100% of the vacated share (scripts/test_vacated_recipients.py), halved, capped
+TOP_UP_WRTE, TOP_UP_RB_CARRIES = 4.65, 5.69
+TOP_UP_SHRINK = 0.5
+MIN_VAC_TS, MIN_VAC_CS = 0.15, 0.25
+MAX_TOP_UP = {"WR": 1.5, "TE": 1.5, "RB": 2.0}
+MIN_PROJ = 3.0                      # the test's sample: recipients Sleeper projects at 3+ points
 
 
 def _f(x) -> float:
@@ -132,5 +148,55 @@ def redistribute(players, lines: dict[str, dict]) -> None:
                 p.proj_notes = p.proj_notes + [
                     f"{', '.join(sorted(src))}, still in Sleeper's projections: {vol} -> +{pts * mult:.1f} "
                     f"({before:.1f} to {p.proj_points:.1f})"]
+                if p.ceiling and before > 0:
+                    p.ceiling = round(p.ceiling * p.proj_points / before, 1)
+
+
+def _is_out(p) -> bool:
+    return p.injury in NOT_PLAYING or p.injury in ("O", "OUT", "IR")
+
+
+def top_up(players, hist: dict | None, week: int, traded: dict[str, list[tuple[str, str]]] | None = None) -> None:
+    """Raises each regular RB/WR/TE's projection (and ceiling in proportion) when his team's regulars are out or traded away
+    and Sleeper has already moved their volume (the redistribute() path above did not apply). hist: app.player_model's
+    weekly role history; traded: app.team_changes.traded_away. Regulars only; see the module docstring for why."""
+    if not hist:
+        return
+    from app import player_model as pm
+    regs = pm.fresh_regulars(hist, week)
+    rows: dict[tuple[str, str], list] = {}
+    for p in players:
+        if p.position in SKILL:
+            rows.setdefault((p.team, pm.key(p.name, p.position)), []).append(p)
+    for team, reg in regs.items():
+        gone = {pm.key(n, pos) for n, pos in (traded or {}).get(team, [])}
+        gone |= {k for (t, k), rs in rows.items() if t == team and _is_out(rs[0])}
+        v = pm.vacated(reg, lambda k: k in gone)
+        vac_wrte = v["ts_by_pos"].get("WR", 0.0) + v["ts_by_pos"].get("TE", 0.0)
+        vac_rb = v["cs_by_pos"].get("RB", 0.0)
+        names = sorted(k.split("|")[0].title() for k in v["out"])
+        for k, pos, _ts, _cs in reg:
+            if k in gone or (team, k) not in rows:
+                continue
+            first = rows[(team, k)][0]
+            if _is_out(first) or first.vacated_adj or (first.proj_points or 0) < MIN_PROJ:
+                continue
+            if pos in ("WR", "TE") and vac_wrte >= MIN_VAC_TS:
+                pts, vac, what = TOP_UP_SHRINK * TOP_UP_WRTE * vac_wrte, vac_wrte, "of the targets"
+            elif pos == "RB" and vac_rb >= MIN_VAC_CS:
+                pts, vac, what = TOP_UP_SHRINK * TOP_UP_RB_CARRIES * vac_rb, vac_rb, "of the carries"
+            else:
+                continue
+            pts = min(pts, MAX_TOP_UP[pos])
+            if pts < MIN_ADJ:
+                continue
+            for p in rows[(team, k)]:
+                mult = 1.5 if p.roster_slot == "CPT" else 1.0
+                before = p.proj_points
+                p.proj_points = round(p.proj_points + pts * mult, 2)
+                p.value_per_1k = round(p.proj_points / (p.salary / 1000.0), 2) if p.salary > 0 else 0.0
+                p.proj_notes = p.proj_notes + [
+                    f"{', '.join(names)} out or traded away: {vac:.0%} {what} vacated; Sleeper's final projection missed "
+                    f"regular teammates by about this much in 2023-2026 -> +{pts * mult:.1f} ({before:.1f} to {p.proj_points:.1f})"]
                 if p.ceiling and before > 0:
                     p.ceiling = round(p.ceiling * p.proj_points / before, 1)

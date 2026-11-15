@@ -1199,6 +1199,24 @@ Where it is used:
 | Schedule-driven surges don't carry on; the team's own move does | Styles and cards use season-long rates, not the last game's; the card text says "schedule, not momentum" |
 | Opponent-adjusting past games (error -0.1% to -0.5%) | **Not adopted** for totals/spreads: held out against the closing line, adjusted ratings were +0.09% (spread) and -0.32% (total) vs raw ratings' +0.09% and -0.35%, i.e. no edge over the line |
 
+## Injured and traded-away teammates (vacated volume)
+
+Two layers (`app/vacated.py`). Before Sleeper has processed an Out, the out player's projected targets and carries go to his
+teammates by the shares in the table at the top of that file. After Sleeper has moved them, `top_up()` adds what
+`scripts/test_vacated_recipients.py` (actual minus Sleeper's final projection, 2023-2026, every RB/WR/TE projected at 3+) found it
+still leaves on the table -- and only for regulars (12%+ of targets or 25%+ of carries over the last three games):
+
+| Recipient | Vacated by | Sleeper's miss per 100% vacated | Applied |
+|---|---|---|---|
+| WR/TE regular | out WR/TE regulars (15%+ of targets) | +4.65 DK pts (t 2.5) | half, capped at 1.5 |
+| RB regular | out RB regulars (25%+ of carries) | +5.69 (t 2.3) | half, capped at 2.0 |
+| WR/TE, RB **non-regulars** (backups stepping in) | anyone | +0.4 (t 0.4), +0.3 (t 0.2) | **nothing**: Sleeper already prices them |
+
+A player traded away counts as out for his old team's next game (`app.team_changes.traded_away`, from the trade log). Held out one
+season at a time the gain is tiny (-0.09% RMSE WR/TE, -0.23% RB), the WR/TE sign was negative in 2026, hence the half and the caps.
+The app's own role/script correction does not hurt rows with a vacancy (Sleeper MAE 5.292 -> 5.264 on 2023-2025, 5.193 -> 5.143 in
+2026), so nothing downstream needs undoing.
+
 ## Tests
 
 ```bash

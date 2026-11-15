@@ -106,3 +106,18 @@ def recent_moves(season: int, week: int, changes: list[dict] | None = None, look
     for rows in out.values():
         rows.sort(key=lambda r: -r["effective_week"])
     return out
+
+
+def traded_away(season: int, week: int, changes: list[dict] | None = None) -> dict[str, list[tuple[str, str]]]:
+    """{team: [(name, position)]}: RB/WR/TE traded away who are gone from that team's lineup by `week` (the team's next game is
+    on or before it). A player traded away is absent from his old team's next game exactly like one ruled out."""
+    if changes is None:
+        changes = json.loads(CONTEXT_FILE.read_text()).get("changes", []) if CONTEXT_FILE.exists() else []
+    out: dict[str, list[tuple[str, str]]] = {}
+    for c in changes:
+        if c.get("type") != "trade_out" or int(c.get("season", 0)) != season or c.get("effective_week") is None or int(c["effective_week"]) > week:
+            continue
+        m = _MOVE.match(str(c.get("note") or ""))
+        if m and m["pos"] in ("RB", "WR", "TE"):
+            out.setdefault(c["team"], []).append((m["name"], m["pos"]))
+    return out
