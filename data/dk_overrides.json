@@ -288,6 +288,12 @@
           "draft_group_id": 156433,
           "label": "Showdown - Sun Night (PIT @ CIN)"
         }
+      },
+      "classic_afternoon": {
+        "draft_group_id": 156419,
+        "label": "Classic - Sunday Afternoon Only (3 games)",
+        "first_kickoff": "2026-11-15T21:05:00+00:00",
+        "last_kickoff": "2026-11-15T21:25:00+00:00"
       }
     }
   }
