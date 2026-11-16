@@ -266,7 +266,12 @@ async def grant_founding_pro() -> dict:
     if not _secret():
         return {"skipped": "no CLERK_SECRET_KEY"}
     cutoff_ms = datetime.fromisoformat(FOUNDING_PRO_BEFORE).timestamp() * 1000
-    users = await _clerk("GET", "/users?limit=100&order_by=created_at") or []
+    users: list[dict] = []
+    while True:                                   # oldest first, a page at a time, so accounts past the first 100 are not missed
+        page = await _clerk("GET", f"/users?limit=100&offset={len(users)}&order_by=created_at") or []
+        users += page
+        if len(page) < 100:
+            break
     granted, already = [], 0
     for u in users:
         if (u.get("created_at") or 0) >= cutoff_ms:
