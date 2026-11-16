@@ -46,6 +46,7 @@ _HEADERS = {"User-Agent": "DFSRiches/1.0 (+https://github.com/)"}
 DK_SHOWDOWN_CONTEST_TYPE_ID = DK_SHOWDOWN_GAME_TYPE_ID
 
 SUNDAY_DAY_PARTS = {"SUN_EARLY", "SUN_LATE"}
+AFTERNOON_DAY_PART = "SUN_LATE"          # the 4:05 / 4:25 ET kickoffs: DraftKings' "Afternoon Only" slate
 
 
 def full_week_label(week: int, n_games: int) -> str:
@@ -54,6 +55,10 @@ def full_week_label(week: int, n_games: int) -> str:
 
 def sunday_label(n_games: int) -> str:
     return f"Classic - Sunday Main ({n_games} games)"
+
+
+def afternoon_label(n_games: int) -> str:
+    return f"Classic - Sunday Afternoon Only ({n_games} games)"
 
 
 async def _get_json(url: str) -> Any:
@@ -122,7 +127,7 @@ async def discover_draft_groups(schedule: WeekSchedule) -> dict[str, Any]:
     is the full-week (Thu-Mon) group; "classic_sunday" is DraftKings' Sunday
     Main group, whose leaf also carries its first/last kickoff (ISO UTC).
     """
-    result: dict[str, Any] = {"classic": None, "classic_sunday": None, "showdown": {}}
+    result: dict[str, Any] = {"classic": None, "classic_sunday": None, "classic_afternoon": None, "showdown": {}}
 
     try:
         nfl_groups = await _fetch_all_nfl_draft_groups()
@@ -188,6 +193,31 @@ async def discover_draft_groups(schedule: WeekSchedule) -> dict[str, Any]:
                 "last_kickoff": end.isoformat(),
             }
 
+    # --- Classic Sunday Afternoon Only: the largest Classic group whose games all kick off in the
+    # Sunday late window (4:05/4:25 ET). It needs at least two such games and has to differ from the
+    # Main slate (a Sunday with no early games has no separate afternoon slate).
+    late_games = [g for g in schedule.games if g.day_part == AFTERNOON_DAY_PART]
+    if len(late_games) > 1 and len(late_games) < len(sunday_games):
+        late_first = min(g.kickoff_utc for g in late_games)
+        late_last = max(g.kickoff_utc for g in late_games)
+        afternoon_candidates = []
+        for g in nfl_groups:
+            if (g.get("contestType") or {}).get("contestTypeId") != DK_CLASSIC_CONTEST_TYPE_ID:
+                continue
+            start = _parse_dk_timestamp(g.get("minStartTime", ""))
+            end = _parse_dk_timestamp(g.get("maxStartTime", ""))
+            if start and end and late_first <= start and end <= late_last and len(g.get("games") or []) > 1:
+                afternoon_candidates.append((g, start, end))
+        if afternoon_candidates:
+            best, start, end = max(afternoon_candidates, key=lambda c: len(c[0].get("games") or []))
+            result["classic_afternoon"] = {
+                "draft_group_id": best["draftGroupId"],
+                "label": afternoon_label(len(best.get("games") or [])),
+                "source": "live",
+                "first_kickoff": start.isoformat(),
+                "last_kickoff": end.isoformat(),
+            }
+
     # --- Showdown: one live "Upcoming" Showdown Captain Mode group per
     # isolated game, matched by team pair.
     showdown_by_pair: dict[tuple[str, str], dict] = {}
@@ -238,6 +268,9 @@ async def discover_draft_groups(schedule: WeekSchedule) -> dict[str, Any]:
         if live is None or (ov_first and live_first and live_first > ov_first):
             result["classic_sunday"] = {**ov, "source": "override"}
 
+    if result["classic_afternoon"] is None and "classic_afternoon" in season_overrides and len(late_games) > 1:
+        result["classic_afternoon"] = {**season_overrides["classic_afternoon"], "source": "override"}
+
     for game in schedule.isolated_games:
         if game.day_part in result["showdown"]:
             continue
@@ -262,6 +295,8 @@ async def discover_draft_groups(schedule: WeekSchedule) -> dict[str, Any]:
             "source": "unavailable",
         }
 
+    if result["classic_afternoon"] is not None:
+        result["classic_afternoon"].setdefault("label", afternoon_label(len(late_games)))
     if result["classic_sunday"] is None:
         n_sunday = sum(1 for g in schedule.games if g.day_part in SUNDAY_DAY_PARTS)
         result["classic_sunday"] = {"draft_group_id": None, "label": sunday_label(n_sunday), "source": "unavailable"}

@@ -159,7 +159,7 @@ def parse_feed(xml_text: str) -> list[dict]:
     if "<!doctype" in head or "<!entity" in xml_text.lower() or len(xml_text) > MAX_FEED_BYTES:
         return []
     try:
-        root = ET.fromstring(xml_text)
+        root = ET.fromstring(xml_text)      # nosec B314: DOCTYPE/ENTITY and oversized feeds are rejected above
     except ET.ParseError:
         return []
     strip = lambda s: re.sub(r"<[^>]+>", " ", s or "")  # noqa: E731
@@ -216,7 +216,7 @@ async def _fetch_writer(client: httpx.AsyncClient, w: dict) -> list[dict]:
         r.raise_for_status()
         return r.text
 
-    return parse_feed(await cached_fetch("beat_rss_" + hashlib.sha1(w["rss"].encode()).hexdigest()[:16], FEED_TTL, get_rss))
+    return parse_feed(await cached_fetch("beat_rss_" + hashlib.sha1(w["rss"].encode(), usedforsecurity=False).hexdigest()[:16], FEED_TTL, get_rss))
 
 
 async def collect(writers: list[dict], roster: list[tuple[str, str, str]], season: int, week: int,
@@ -240,7 +240,7 @@ async def collect(writers: list[dict], roster: list[tuple[str, str, str]], seaso
                 if now - post["posted_at"] > MAX_AGE or post["posted_at"] > now + timedelta(hours=1):
                     continue
                 for s in read_post(post["text"], roster, w.get("team")):
-                    sid = hashlib.sha1(f"{post['id']}|{s['player']}|{s['type']}|{s['direction']}".encode()).hexdigest()[:16]
+                    sid = hashlib.sha1(f"{post['id']}|{s['player']}|{s['type']}|{s['direction']}".encode(), usedforsecurity=False).hexdigest()[:16]
                     signals.append({"id": sid, "season": season, "week": week, **s, "writer": w.get("name"),
                                     "outlet": w.get("outlet"), "verified": bool(w.get("verified")),
                                     "text": post["text"][:MAX_EXCERPT], "url": post["url"],

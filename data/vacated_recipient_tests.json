@@ -1,0 +1,276 @@
+{
+ "seasons": [
+  2023,
+  2024,
+  2025,
+  2026
+ ],
+ "rows": 28470,
+ "min_projection": 3.0,
+ "classes": {
+  "WR/TE recipients, targets vacated by out WR/TE | regulars": {
+   "n": 4295,
+   "n_vacated_15pct": 381,
+   "miss_when_nothing_vacated": 0.42,
+   "miss_when_15pct_vacated": 1.38,
+   "slope_per_100pct_vacated": 4.65,
+   "t": 2.5,
+   "intercept": 0.44,
+   "slope_by_season": {
+    "2023": 9.35,
+    "2024": 5.29,
+    "2025": 3.52,
+    "2026": -3.28
+   },
+   "loso_rmse_sleeper": 7.839,
+   "loso_rmse_with_correction": 7.832,
+   "loso_change_pct": -0.09
+  },
+  "WR/TE recipients, targets vacated by out WR/TE | non-regulars": {
+   "n": 2168,
+   "n_vacated_15pct": 352,
+   "miss_when_nothing_vacated": -0.19,
+   "miss_when_15pct_vacated": -0.3,
+   "slope_per_100pct_vacated": 0.43,
+   "t": 0.4,
+   "intercept": -0.2,
+   "slope_by_season": {
+    "2023": -1.41,
+    "2024": 1.25,
+    "2025": -0.45,
+    "2026": 5.23
+   },
+   "loso_rmse_sleeper": 5.249,
+   "loso_rmse_with_correction": 5.248,
+   "loso_change_pct": -0.01
+  },
+  "WR/TE recipients, targets vacated by out WR/TE | all": {
+   "n": 6463,
+   "n_vacated_15pct": 733,
+   "miss_when_nothing_vacated": 0.23,
+   "miss_when_15pct_vacated": 0.57,
+   "slope_per_100pct_vacated": 1.85,
+   "t": 1.8,
+   "intercept": 0.24,
+   "slope_by_season": {
+    "2023": 3.28,
+    "2024": 2.06,
+    "2025": 1.25,
+    "2026": 0.6
+   },
+   "loso_rmse_sleeper": 7.077,
+   "loso_rmse_with_correction": 7.078,
+   "loso_change_pct": 0.01
+  },
+  "RB recipients, carries vacated by out RB | regulars": {
+   "n": 2033,
+   "n_vacated_15pct": 61,
+   "miss_when_nothing_vacated": 0.53,
+   "miss_when_15pct_vacated": 2.99,
+   "slope_per_100pct_vacated": 5.69,
+   "t": 2.3,
+   "intercept": 0.56,
+   "slope_by_season": {
+    "2023": 5.44,
+    "2024": 1.33
+   },
+   "loso_rmse_sleeper": 7.877,
+   "loso_rmse_with_correction": 7.859,
+   "loso_change_pct": -0.23
+  },
+  "RB recipients, carries vacated by out RB | non-regulars": {
+   "n": 810,
+   "n_vacated_15pct": 94,
+   "miss_when_nothing_vacated": 0.06,
+   "miss_when_15pct_vacated": 0.0,
+   "slope_per_100pct_vacated": 0.31,
+   "t": 0.2,
+   "intercept": 0.03,
+   "slope_by_season": {
+    "2023": 0.14,
+    "2024": 3.19,
+    "2025": -0.68
+   },
+   "loso_rmse_sleeper": 5.099,
+   "loso_rmse_with_correction": 5.132,
+   "loso_change_pct": 0.63
+  },
+  "RB recipients, carries vacated by out RB | all": {
+   "n": 2843,
+   "n_vacated_15pct": 155,
+   "miss_when_nothing_vacated": 0.41,
+   "miss_when_15pct_vacated": 1.18,
+   "slope_per_100pct_vacated": 1.38,
+   "t": 1.1,
+   "intercept": 0.43,
+   "slope_by_season": {
+    "2023": 1.12,
+    "2024": 2.29,
+    "2025": 1.08,
+    "2026": -0.78
+   },
+   "loso_rmse_sleeper": 7.196,
+   "loso_rmse_with_correction": 7.192,
+   "loso_change_pct": -0.05
+  },
+  "RB recipients, targets vacated by out RB | regulars": {
+   "n": 2033,
+   "n_vacated_15pct": 3,
+   "miss_when_nothing_vacated": 0.53,
+   "miss_when_15pct_vacated": -1.1,
+   "slope_per_100pct_vacated": 35.19,
+   "t": 2.9,
+   "intercept": 0.54,
+   "slope_by_season": {
+    "2023": 36.87,
+    "2024": 12.63
+   },
+   "loso_rmse_sleeper": 7.877,
+   "loso_rmse_with_correction": 7.855,
+   "loso_change_pct": -0.28
+  },
+  "RB recipients, targets vacated by out RB | non-regulars": {
+   "n": 810,
+   "n_vacated_15pct": 13,
+   "miss_when_nothing_vacated": 0.07,
+   "miss_when_15pct_vacated": -0.33,
+   "slope_per_100pct_vacated": 1.97,
+   "t": 0.3,
+   "intercept": 0.03,
+   "slope_by_season": {
+    "2023": 1.57,
+    "2024": 10.23,
+    "2025": -0.37
+   },
+   "loso_rmse_sleeper": 5.099,
+   "loso_rmse_with_correction": 5.122,
+   "loso_change_pct": 0.43
+  },
+  "RB recipients, targets vacated by out RB | all": {
+   "n": 2843,
+   "n_vacated_15pct": 16,
+   "miss_when_nothing_vacated": 0.41,
+   "miss_when_15pct_vacated": -0.48,
+   "slope_per_100pct_vacated": 12.25,
+   "t": 1.9,
+   "intercept": 0.4,
+   "slope_by_season": {
+    "2023": 13.63,
+    "2024": 9.9,
+    "2025": 4.13,
+    "2026": 35.41
+   },
+   "loso_rmse_sleeper": 7.196,
+   "loso_rmse_with_correction": 7.189,
+   "loso_change_pct": -0.1
+  },
+  "WR/TE recipients, targets vacated by out RB | regulars": {
+   "n": 4295,
+   "n_vacated_15pct": 30,
+   "miss_when_nothing_vacated": 0.54,
+   "miss_when_15pct_vacated": 1.86,
+   "slope_per_100pct_vacated": 2.98,
+   "t": 0.7,
+   "intercept": 0.53,
+   "slope_by_season": {
+    "2023": 0.65,
+    "2024": 15.8,
+    "2025": -2.9,
+    "2026": -25.83
+   },
+   "loso_rmse_sleeper": 7.839,
+   "loso_rmse_with_correction": 7.842,
+   "loso_change_pct": 0.03
+  },
+  "WR/TE recipients, targets vacated by out RB | non-regulars": {
+   "n": 2168,
+   "n_vacated_15pct": 22,
+   "miss_when_nothing_vacated": -0.18,
+   "miss_when_15pct_vacated": -1.72,
+   "slope_per_100pct_vacated": -1.47,
+   "t": -0.4,
+   "intercept": -0.17,
+   "slope_by_season": {
+    "2023": -1.11,
+    "2024": 0.92,
+    "2025": -2.6,
+    "2026": -4.12
+   },
+   "loso_rmse_sleeper": 5.249,
+   "loso_rmse_with_correction": 5.247,
+   "loso_change_pct": -0.04
+  },
+  "WR/TE recipients, targets vacated by out RB | all": {
+   "n": 6463,
+   "n_vacated_15pct": 52,
+   "miss_when_nothing_vacated": 0.3,
+   "miss_when_15pct_vacated": 0.34,
+   "slope_per_100pct_vacated": 1.17,
+   "t": 0.4,
+   "intercept": 0.29,
+   "slope_by_season": {
+    "2023": -0.47,
+    "2024": 11.53,
+    "2025": -2.86,
+    "2026": -18.87
+   },
+   "loso_rmse_sleeper": 7.077,
+   "loso_rmse_with_correction": 7.082,
+   "loso_change_pct": 0.07
+  },
+  "RB recipients, targets vacated by out WR/TE | regulars": {
+   "n": 2033,
+   "n_vacated_15pct": 229,
+   "miss_when_nothing_vacated": 0.53,
+   "miss_when_15pct_vacated": 1.12,
+   "slope_per_100pct_vacated": 1.42,
+   "t": 0.6,
+   "intercept": 0.58,
+   "slope_by_season": {
+    "2023": 1.72,
+    "2024": 1.1,
+    "2025": -0.91,
+    "2026": 10.6
+   },
+   "loso_rmse_sleeper": 7.877,
+   "loso_rmse_with_correction": 7.868,
+   "loso_change_pct": -0.11
+  },
+  "RB recipients, targets vacated by out WR/TE | non-regulars": {
+   "n": 810,
+   "n_vacated_15pct": 112,
+   "miss_when_nothing_vacated": 0.1,
+   "miss_when_15pct_vacated": 0.02,
+   "slope_per_100pct_vacated": -0.51,
+   "t": -0.2,
+   "intercept": 0.07,
+   "slope_by_season": {
+    "2023": -4.74,
+    "2024": -1.87,
+    "2025": 1.26,
+    "2026": 2.66
+   },
+   "loso_rmse_sleeper": 5.099,
+   "loso_rmse_with_correction": 5.115,
+   "loso_change_pct": 0.31
+  },
+  "RB recipients, targets vacated by out WR/TE | all": {
+   "n": 2843,
+   "n_vacated_15pct": 341,
+   "miss_when_nothing_vacated": 0.41,
+   "miss_when_15pct_vacated": 0.76,
+   "slope_per_100pct_vacated": 0.57,
+   "t": 0.4,
+   "intercept": 0.44,
+   "slope_by_season": {
+    "2023": 0.04,
+    "2024": -0.04,
+    "2025": -0.17,
+    "2026": 7.84
+   },
+   "loso_rmse_sleeper": 7.196,
+   "loso_rmse_with_correction": 7.195,
+   "loso_change_pct": -0.01
+  }
+ }
+}

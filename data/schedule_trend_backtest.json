@@ -549,6 +549,36 @@
     "2024": -0.16,
     "2025": 0.03
    }
+  },
+  "leave_one_season_out_y_m_raw": {
+   "rmse_model": 12.667,
+   "rmse_line": 12.655,
+   "change_pct": 0.09
+  },
+  "leave_one_season_out_y_m_adjusted": {
+   "rmse_model": 12.666,
+   "rmse_line": 12.655,
+   "change_pct": 0.09
+  },
+  "leave_one_season_out_y_m_both": {
+   "rmse_model": 12.669,
+   "rmse_line": 12.655,
+   "change_pct": 0.11
+  },
+  "leave_one_season_out_y_t_raw": {
+   "rmse_model": 13.141,
+   "rmse_line": 13.188,
+   "change_pct": -0.35
+  },
+  "leave_one_season_out_y_t_adjusted": {
+   "rmse_model": 13.146,
+   "rmse_line": 13.188,
+   "change_pct": -0.32
+  },
+  "leave_one_season_out_y_t_both": {
+   "rmse_model": 13.148,
+   "rmse_line": 13.188,
+   "change_pct": -0.3
   }
  },
  "D_players": {

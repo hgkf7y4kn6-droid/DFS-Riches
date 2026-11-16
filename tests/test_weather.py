@@ -107,6 +107,7 @@ def test_nws_fills_in_for_us_venues_when_open_meteo_fails(monkeypatch, tmp_path)
 
     from app import cache
     monkeypatch.setattr(cache, "CACHE_DIR", tmp_path)
+    monkeypatch.setattr(cache, "_memory", {})      # other tests leave NWS entries for these coordinates in the process cache
     now = KICK - timedelta(days=2)
 
     async def down(*a, **k):

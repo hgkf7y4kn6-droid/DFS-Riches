@@ -3,7 +3,7 @@ DraftKings draft groups (app.dk_client) + real Sleeper projections
 (app.sleeper_client), merged by name (app.matching) into the table the
 frontend renders.
 
-A Classic Sunday Main slate covers the Sunday 1:00 + afternoon games; a Full
+A Classic Sunday Main slate covers the Sunday 1:00 + afternoon games; Sunday Afternoon Only covers just the 4:05/4:25 games; a Full
 Week slate covers every game (Thu-Mon). One Showdown slate is built for each
 island game: the lone game in a window outside the Sunday main slate
 (weeknight/Sunday night, Sunday-morning international, holiday, Saturday).
@@ -13,7 +13,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime
 
-from app import ceiling, ceiling_model, dk_client, dst_model, game_model, injury_news, kicker_model, matching, news_overrides, player_model, nflverse_client, player_games, projections, roles, sleeper_client, vacated, weather
+from app import team_changes, ceiling, ceiling_model, dk_client, dst_model, game_model, injury_news, kicker_model, matching, news_overrides, player_model, nflverse_client, player_games, projections, roles, sleeper_client, vacated, weather
 from app import cache
 from app.cache import memoize_async
 from app.config import TTL_PLAYERS
@@ -83,6 +83,28 @@ async def list_slates(season: int, week: int) -> tuple[WeekSchedule, list[Slate]
             source=sunday["source"],
         )
     )
+
+    afternoon = discovery.get("classic_afternoon")
+    if afternoon:
+        a_first, a_last = afternoon.get("first_kickoff"), afternoon.get("last_kickoff")
+        afternoon_games = [
+            g for g in schedule.games
+            if g.day_part == dk_client.AFTERNOON_DAY_PART
+            and (a_first is None or g.kickoff_utc >= datetime.fromisoformat(a_first))
+            and (a_last is None or g.kickoff_utc <= datetime.fromisoformat(a_last))
+        ]
+        slates.append(
+            Slate(
+                slate_id="classic_afternoon",
+                label=afternoon["label"],
+                slate_type="classic",
+                day_part=None,
+                draft_group_id=afternoon["draft_group_id"],
+                games=afternoon_games,
+                available=afternoon["draft_group_id"] is not None,
+                source=afternoon["source"],
+            )
+        )
 
     classic = discovery["classic"]
     slates.append(
@@ -330,6 +352,7 @@ async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlaye
     injury_news.zero_out(players)
     injury_news.apply_play_chance(players, reports, {t: g.kickoff_utc for g in slate.games for t in (g.away, g.home)})
     vacated.redistribute(players, {sid: ln.get("stats") or {} for sid, ln in projection_ctx.lines.items()})
+    vacated.top_up(players, (role_ctx or {}).get("hist"), week, team_changes.traded_away(season, week))
     for rows, starter in injury_news.replacement_qbs(players):
         base = round((starter.trend_season or starter.dk_fppg) * injury_news.REPLACEMENT_SHARE, 2)
         for p in rows:

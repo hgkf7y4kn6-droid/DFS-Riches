@@ -299,4 +299,4 @@ def track_record() -> list[dict]:
                                 for lu in _relabel(scored, "showdown" if slate_id.startswith("showdown") else "classic")],
                     "best_possible": (entry.get("hindsight") or {}).get("actual"),
                 })
-    return sorted(out, key=lambda r: (-r["season"], -r["week"], r["slate_id"] != "classic_sunday", r["slate_id"]))
+    return sorted(out, key=lambda r: (-r["season"], -r["week"], ("classic_sunday", "classic_afternoon", "classic").index(r["slate_id"]) if r["slate_id"] in ("classic_sunday", "classic_afternoon", "classic") else 3, r["slate_id"]))

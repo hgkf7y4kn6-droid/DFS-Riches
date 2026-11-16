@@ -47,7 +47,9 @@ def merge_discovery(overrides: dict, season: int, week: int, discovery: dict, ha
         else:
             report.append(f"{name}: recorded {new['draft_group_id']}" + (f" (was {existing['draft_group_id']})" if existing else ""))
 
-    for key in ("classic_sunday", "classic"):
+    for key in ("classic_sunday", "classic_afternoon", "classic"):
+        if key == "classic_afternoon" and not discovery.get(key) and not week_entry.get(key):
+            continue                                  # most weeks have no separate afternoon slate
         consider(key, "classic", discovery.get(key), week_entry.get(key),
                  lambda v, k=key: week_entry.__setitem__(k, v))
     for day_part, found in sorted(discovery.get("showdown", {}).items()):
@@ -73,7 +75,7 @@ async def record(season: int, week: int) -> list[str]:
     discovery = await dk_client.discover_draft_groups(schedule)
 
     salaried: dict[int, bool] = {}
-    leaves = [("classic", discovery["classic"]), ("classic", discovery["classic_sunday"])]
+    leaves = [("classic", discovery["classic"]), ("classic", discovery["classic_sunday"]), ("classic", discovery.get("classic_afternoon"))]
     leaves += [("showdown", leaf) for leaf in discovery["showdown"].values()]
     for slate_type, leaf in leaves:
         if leaf and leaf["source"] == "live":

@@ -515,7 +515,9 @@ async def week_games(season: int, week: int, lines: dict[str, tuple[float | None
     moves = team_changes.recent_moves(season, week)
     tot = season_totals(agg, week)
     radj = roster_adjust.for_week(season, week)
-    outlook = schedule_outlook.for_week(season, week)
+    prev_agg = (await nc.get_pbp_aggregates(season - 1)).get("game") or {}
+    outlook = schedule_outlook.live(season, week, {season: agg, season - 1: prev_agg},
+                                    {season: raw, season - 1: await nc.get_games_raw(season - 1)}, nc.to_app_team)
     styles = (style_matchup.classify(tot, {t: radj[nc.to_app_team(t)] for t in tot if nc.to_app_team(t) in radj})
               if week >= style_matchup.MIN_WEEK else {})
     hist = {q: list(v) for q, v in (m.get("qb_prior") or {}).items()}

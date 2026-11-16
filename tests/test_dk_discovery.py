@@ -118,3 +118,30 @@ def test_every_recorded_2026_week_has_both_classic_slates():
         assert weeks[week]["classic_sunday"]["draft_group_id"], week
         assert weeks[week]["classic"]["draft_group_id"], week
         assert weeks[week]["showdown"], week
+
+
+async def test_afternoon_only_slate_is_the_largest_group_inside_the_late_window(monkeypatch):
+    sched = _sunday_schedule()                       # 8 early games, 4 late (4:25 ET)
+    late = datetime(2026, 10, 4, 20, 25, tzinfo=timezone.utc)
+    early = datetime(2026, 10, 4, 17, 0, tzinfo=timezone.utc)
+
+    def grp(gid, n, start, end):
+        g = _group(gid, 21, n)
+        g["minStartTime"], g["maxStartTime"] = (t.strftime("%Y-%m-%dT%H:%M:%S.0000000Z") for t in (start, end))
+        return g
+    groups = [grp(1, 12, early, late), grp(2, 4, late, late), grp(3, 2, late, late)]
+
+    async def fake_fetch():
+        return groups
+    monkeypatch.setattr(dk_client, "_fetch_all_nfl_draft_groups", fake_fetch)
+    monkeypatch.setattr(dk_client, "_load_overrides", lambda: {})
+    result = await dk_client.discover_draft_groups(sched)
+    assert result["classic_sunday"]["draft_group_id"] == 1
+    assert result["classic_afternoon"]["draft_group_id"] == 2
+    assert result["classic_afternoon"]["label"] == "Classic - Sunday Afternoon Only (4 games)"
+
+    # no separate afternoon slate when every Sunday game is in the late window
+    for g in sched.games:
+        g.day_part, g.kickoff_utc = "SUN_LATE", late
+    result = await dk_client.discover_draft_groups(sched)
+    assert result["classic_afternoon"] is None

@@ -61,7 +61,12 @@ def _upstream_failure(what: str, exc: Exception) -> HTTPException:
     responses) goes to the server log only."""
     log.warning("%s: %r", what, exc, exc_info=exc)
     return HTTPException(status_code=502, detail=f"{what}. Try again shortly.")
-app = FastAPI(title="Riches Analytics", description="DraftKings DFS explorer")
+# /docs, /redoc and /openapi.json sit outside /api/, so the sign-in check never covered them and they listed every route to
+# strangers. Off unless ENABLE_API_DOCS=1 (local development).
+_DOCS_ON = os.environ.get("ENABLE_API_DOCS", "0") == "1"
+app = FastAPI(title="Riches Analytics", description="DraftKings DFS explorer",
+              docs_url="/docs" if _DOCS_ON else None, redoc_url="/redoc" if _DOCS_ON else None,
+              openapi_url="/openapi.json" if _DOCS_ON else None)
 
 
 @app.on_event("startup")
@@ -215,7 +220,7 @@ async def _require_sign_in(request: Request, call_next):
                              client=guard.client_ip({k.lower(): v for k, v in request.headers.items()},
                                                     request.client.host if request.client else None))
         return JSONResponse({"detail": "Sign in to Riches Analytics to use this."}, status_code=401,
-                            headers={"WWW-Authenticate": "Bearer"})
+                            headers={"WWW-Authenticate": "Bearer", "Cache-Control": "no-store"})
     return await call_next(request)
 
 
@@ -228,7 +233,23 @@ def _csp() -> str:
         "style-src 'self' 'unsafe-inline'", "img-src 'self' data: blob: https:", "font-src 'self' data:",
         f"connect-src 'self' {clerk} https://*.clerk.accounts.dev https://clerk-telemetry.com",
         f"frame-src {clerk} https://challenges.cloudflare.com", "worker-src 'self' blob:",
-        "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'"])
+        "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'", "report-uri /csp-report"])
+
+
+_csp_window: list[float] = []
+
+
+@app.post("/csp-report", status_code=204, include_in_schema=False)
+async def csp_report(request: Request):
+    """Where browsers send Content-Security-Policy violations. Public by necessity (browsers send no credentials),
+    so it only logs: a capped body, at most 30 reports a minute across all callers, nothing echoed back."""
+    now = time.time()
+    _csp_window[:] = [t for t in _csp_window if now - t < 60]
+    if len(_csp_window) < 30:
+        _csp_window.append(now)
+        body = (await request.body())[:4096].decode("utf-8", "replace")
+        guard.security_event("csp_violation", report=body[:1500])
+    return Response(status_code=204)
 
 
 @app.middleware("http")
@@ -1285,9 +1306,12 @@ def _web_file(path: str):
     for candidate in (clean, f"{clean}.html", f"{clean}/index.html" if clean else "index.html"):
         if not candidate:
             continue
-        f = (root / candidate).resolve()
-        if f.is_file() and f.is_relative_to(root):
-            return f
+        try:
+            f = (root / candidate).resolve()
+            if f.is_file() and f.is_relative_to(root):
+                return f
+        except (ValueError, OSError):        # e.g. a NUL byte in the path: not a file, serve the app shell
+            continue
     return root / "index.html"
 
 
@@ -1322,4 +1346,5 @@ if __name__ == "__main__":
         port=int(os.environ.get("PORT", 8000)),
         proxy_headers=True,
         forwarded_allow_ips="*",
+        server_header=False,
     )
