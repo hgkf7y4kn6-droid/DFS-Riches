@@ -295,6 +295,24 @@
         "first_kickoff": "2026-11-15T21:05:00+00:00",
         "last_kickoff": "2026-11-15T21:25:00+00:00"
       }
+    },
+    "11": {
+      "classic_sunday": {
+        "draft_group_id": 156561,
+        "label": "Classic - Sunday Main (10 games)",
+        "first_kickoff": "2026-11-22T18:00:00+00:00",
+        "last_kickoff": "2026-11-22T21:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 156774,
+        "label": "Full Week 11 Slate (13 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 156781,
+          "label": "Showdown - Thu Night (IND @ HOU)"
+        }
+      }
     }
   }
 }
