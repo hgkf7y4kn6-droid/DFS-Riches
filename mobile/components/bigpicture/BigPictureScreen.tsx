@@ -61,6 +61,46 @@ function Dashboard({ rows }: { rows: BigPictureRow[] }) {
   );
 }
 
+function asOf(iso: string | null) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const opts = { weekday: 'short', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' } as const;
+  return `${d.toLocaleString('en-US', opts)} ET`;
+}
+
+function Lookahead({ data }: { data: NonNullable<BigPictureResponse['lookahead']> }) {
+  const latest = data.games.reduce<string | null>((m, g) => (g.captured_at && (!m || g.captured_at > m) ? g.captured_at : m), null);
+  return (
+    <View className="mt-4">
+      <Text className="bp-row-title">Week {data.week} early look-ahead lines</Text>
+      {data.games.length ? (
+        <>
+          <Text className="bp-row-meta">
+            DraftKings&apos; first posted numbers for next week{latest ? `, last captured ${asOf(latest)}` : ''}. Not rated by the model yet.
+          </Text>
+          {data.games.map((g) => (
+            <View key={g.game} className="bp-row">
+              <Text className="bp-row-title">{g.game}</Text>
+              <Text className="bp-row-meta">
+                {[
+                  g.spread ? `Spread ${g.spread}${g.spread_open ? ` (opened ${g.spread_open})` : ''}` : null,
+                  g.total ? `Total ${g.total}${g.total_open ? ` (opened ${g.total_open})` : ''}` : null,
+                  g.moneyline ? `ML ${g.moneyline}` : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </Text>
+            </View>
+          ))}
+        </>
+      ) : (
+        <Text className="bp-row-meta">DraftKings hasn&apos;t posted Week {data.week} lines yet.</Text>
+      )}
+    </View>
+  );
+}
+
 function ChangeLog({ rows }: { rows: BigPictureChange[] }) {
   if (!rows.length) return null;
   return (
@@ -77,7 +117,19 @@ function ChangeLog({ rows }: { rows: BigPictureChange[] }) {
   );
 }
 
-function Section({ s, report, open, onToggle }: { s: BigPictureSection; report: BigPictureReport; open: boolean; onToggle: () => void }) {
+function Section({
+  s,
+  report,
+  lookahead,
+  open,
+  onToggle,
+}: {
+  s: BigPictureSection;
+  report: BigPictureReport;
+  lookahead?: BigPictureResponse['lookahead'];
+  open: boolean;
+  onToggle: () => void;
+}) {
   return (
     <View className="bp-section">
       <Pressable onPress={onToggle} accessibilityRole="button" aria-expanded={open} className="flex-row items-center">
@@ -89,6 +141,7 @@ function Section({ s, report, open, onToggle }: { s: BigPictureSection; report: 
         <View className="mt-2">
           <Markdown text={s.markdown} />
           {s.n === 2 ? <Dashboard rows={report.tables.dashboard} /> : null}
+          {s.n === 2 && lookahead ? <Lookahead data={lookahead} /> : null}
           {s.n === 11 ? <ChangeLog rows={report.tables.changelog} /> : null}
           {s.unverified?.length ? (
             <Text className="bp-warn">Fact check: {s.unverified.join(', ')} not found in the desk&apos;s data -- treat as unverified.</Text>
@@ -206,7 +259,14 @@ function ReportView({ data, onSelectVersion }: { data: BigPictureResponse; onSel
       ) : null}
 
       {r.sections.map((s) => (
-        <Section key={s.n} s={s} report={r} open={!!open[s.n]} onToggle={() => setOpen((o) => ({ ...o, [s.n]: !o[s.n] }))} />
+        <Section
+          key={s.n}
+          s={s}
+          report={r}
+          lookahead={data.lookahead}
+          open={!!open[s.n]}
+          onToggle={() => setOpen((o) => ({ ...o, [s.n]: !o[s.n] }))}
+        />
       ))}
 
       <TrackRecord data={rep.dossier} />

@@ -1378,6 +1378,19 @@ interface BigPictureResponse {
   versions: BigPictureVersion[];
   can_run: boolean;
   run: { status: string | null; conclusion?: string | null; started_at?: string | null } | null;
+  /** The following week's early DraftKings lines (read live from the stored odds snapshots). */
+  lookahead?: { season: number; week: number; games: BigPictureLookahead[] } | null;
+}
+
+/** One game's early look-ahead lines for the week after the report's (app.big_picture.writer.lookahead). */
+interface BigPictureLookahead {
+  game: string;
+  spread: string | null;
+  spread_open: string | null;
+  total: string | null;
+  total_open: string | null;
+  moneyline: string | null;
+  captured_at: string | null;
 }
 
 /** One team's side of a recap game (app.recap): its tag, the repeatable play (signal) and the situational swings (noise). */

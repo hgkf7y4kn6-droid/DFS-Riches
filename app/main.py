@@ -1158,7 +1158,24 @@ async def api_big_picture(id: int | None = None, authorization: Annotated[str | 
     except Exception as exc:
         raise _upstream_failure("Could not load the Big Picture", exc) from exc
     return {"report": report, "versions": versions, "can_run": bool(os.environ.get("GITHUB_DISPATCH_TOKEN")),
-            "run": await _workflow_status()}
+            "run": await _workflow_status(), "lookahead": await _big_picture_lookahead(report)}
+
+
+async def _big_picture_lookahead(report: dict | None) -> dict | None:
+    """The following week's early DraftKings lines (the odds snapshots store them as soon as DraftKings posts
+    them), read live from the stored quotes so they're current whichever report version is shown."""
+    if not report or not report.get("season") or not report.get("week") or report["week"] >= 18:
+        return None
+    from app.big_picture import odds as odds_module
+    from app.big_picture import store as bp_store
+    from app.big_picture import writer as bp_writer
+    season, week = report["season"], report["week"] + 1
+    try:
+        history = await asyncio.to_thread(bp_store.odds_history, season, week)
+    except Exception as exc:
+        log.warning("look-ahead lines unavailable (%s)", type(exc).__name__)
+        return None
+    return {"season": season, "week": week, "games": bp_writer.lookahead(odds_module.summarize(history))}
 
 
 @app.get("/api/news-overrides")
