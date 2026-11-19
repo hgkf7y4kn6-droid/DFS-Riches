@@ -312,6 +312,12 @@
           "draft_group_id": 156781,
           "label": "Showdown - Thu Night (IND @ HOU)"
         }
+      },
+      "classic_afternoon": {
+        "draft_group_id": 156777,
+        "label": "Classic - Sunday Afternoon Only (3 games)",
+        "first_kickoff": "2026-11-22T21:05:00+00:00",
+        "last_kickoff": "2026-11-22T21:25:00+00:00"
       }
     }
   }
