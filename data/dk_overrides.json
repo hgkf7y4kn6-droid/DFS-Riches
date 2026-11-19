@@ -311,6 +311,14 @@
         "THU_NIGHT": {
           "draft_group_id": 156781,
           "label": "Showdown - Thu Night (IND @ HOU)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 156793,
+          "label": "Showdown - Mon Night (CIN @ WAS)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 156792,
+          "label": "Showdown - Sun Night (MIN @ SF)"
         }
       },
       "classic_afternoon": {
