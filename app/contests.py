@@ -344,10 +344,16 @@ def grade_contests(rows: list[dict]) -> list[dict]:
              "grade_score": graded[id(r)][1] if id(r) in graded else None} for r in rows]
 
 
-def select(rows: list[dict], entries: frozenset[str], fees: frozenset[str], exclude: frozenset[str]) -> list[dict]:
-    """Contests in the chosen max-entries and fee groups (empty = all), minus excluded kinds."""
+GUARANTEED_CHOICES = ("any", "yes", "no")     # prize pool: any contest, only guaranteed ones, only the ones that are not
+
+
+def select(rows: list[dict], entries: frozenset[str], fees: frozenset[str], exclude: frozenset[str],
+           guaranteed: str = "any") -> list[dict]:
+    """Contests in the chosen max-entries and fee groups (empty = all), minus excluded kinds, and (guaranteed = "yes" / "no")
+    only the contests whose prize pool is / is not guaranteed."""
     return [r for r in rows
             if r["kind"] not in exclude
+            and (guaranteed == "any" or bool(r["guaranteed"]) == (guaranteed == "yes"))
             and (eg := entry_group(r["max_entries"])) and (not entries or eg in entries)
             and (fg := fee_group(r["entry_fee"])) and (not fees or fg in fees)]
 
@@ -405,13 +411,13 @@ def prioritize(scored: list[dict]) -> list[dict]:
 
 async def best_contests(entries: frozenset[str] = frozenset(), fees: frozenset[str] = frozenset(),
                         exclude: frozenset[str] = frozenset(), weights: dict[str, float] | None = None,
-                        draft_group_id: int | None = None) -> dict[str, Any]:
+                        draft_group_id: int | None = None, guaranteed: str = "any") -> dict[str, Any]:
     """The TOP_N best contests (score_contests, with the user's weights) across the chosen
     max-entries groups, fee groups and contest kinds, on slates that haven't started. With
     draft_group_id (the slate picked in the app), that slate's contests come first."""
     # Graded before the filters, so a contest's grade doesn't change with the fee / entry / kind boxes ticked.
     rows = select(grade_contests(collapse_copies(
-        await _with_payouts(upcoming((await _lobby())["contests"])), draft_group_id)), entries, fees, exclude)
+        await _with_payouts(upcoming((await _lobby())["contests"])), draft_group_id)), entries, fees, exclude, guaranteed)
     on_slate = sum(1 for r in rows if r["on_selected_slate"])
     return {
         "entry_groups": [{"id": gid, "label": label, "min": lo, "max": hi} for gid, label, lo, hi in ENTRY_GROUPS],
@@ -420,7 +426,7 @@ async def best_contests(entries: frozenset[str] = frozenset(), fees: frozenset[s
         "default_weights": WEIGHTS,
         "max_weight": MAX_WEIGHT,
         "weights": normalize_weights(weights),
-        "selected": {"entries": sorted(entries), "fees": sorted(fees), "excluded": sorted(exclude)},
+        "selected": {"entries": sorted(entries), "fees": sorted(fees), "excluded": sorted(exclude), "guaranteed": guaranteed},
         "matching": len(rows),
         "selected_slate": {"draft_group_id": draft_group_id, "matching": on_slate} if draft_group_id is not None else None,
         "contests": prioritize(score_contests(rows, weights))[:TOP_N],

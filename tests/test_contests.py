@@ -262,3 +262,18 @@ def test_cash_games_are_ungraded_and_slates_graded_apart():
             {**base, "kind": "Tournament", "slate": "Early"}]
     got = contests.grade_contests(rows)
     assert got[0]["grade"] is None and got[1]["grade"] == got[2]["grade"] is not None
+
+
+async def test_guaranteed_status_filter(lobby):
+    lobby["lobby"] = {"Contests": [
+        _contest(1, 3, 100, 270, attr={"IsGuaranteed": "true"}),
+        _contest(2, 3, 100, 255, attr={"IsGuaranteed": "false"}),
+        _contest(3, 3, 100, 240, attr={"IsFeatured": "true"}),
+    ], "DraftGroups": []}
+    lobby["payouts"] = {1: (20, 100.0), 2: (20, 100.0), 3: (20, 100.0)}
+    ids = lambda r: sorted(c["id"] for c in r["contests"])          # noqa: E731
+    assert ids(await contests.best_contests()) == [1, 2, 3]
+    yes = await contests.best_contests(guaranteed="yes")
+    assert ids(yes) == [1] and yes["selected"]["guaranteed"] == "yes" and yes["matching"] == 1
+    no = await contests.best_contests(guaranteed="no")
+    assert ids(no) == [2, 3] and all(not c["guaranteed"] for c in no["contests"])

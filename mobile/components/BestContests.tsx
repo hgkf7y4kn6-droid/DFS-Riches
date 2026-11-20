@@ -51,6 +51,13 @@ const FACTORS: { id: ContestFactor; label: string; hint: string }[] = [
 const DEFAULT_WEIGHTS: Record<ContestFactor, number> = { rake: 4, paid: 3, payout: 3, field: 0 };
 const MAX_WEIGHT = 10;
 
+type Guaranteed = 'any' | 'yes' | 'no';
+const GUARANTEED: Option<Guaranteed>[] = [
+  { id: 'any', label: 'Any prize pool' },
+  { id: 'yes', label: 'Guaranteed' },
+  { id: 'no', label: 'Not guaranteed' },
+];
+
 const STORAGE_KEY = 'dfsriches:best-contests-filters';
 const OLD_HIDDEN_KEY = 'dfsriches:best-contests-hidden';
 
@@ -60,6 +67,8 @@ interface Filters {
   entries: string[];
   fees: string[];
   hidden: ContestKind[];
+  /** Guaranteed prize pools only, the ones that are not, or both. */
+  guaranteed: Guaranteed;
   /** Points (0-MAX_WEIGHT) per score factor. */
   weights: Record<ContestFactor, number>;
 }
@@ -80,7 +89,7 @@ const only = <T extends string>(ids: unknown, options: Option<T>[]): T[] =>
 /** The card's filters, remembered on this device; until they're set, the fees fit the user's weekly budget and the kinds
  *  what they play: tournament players start without cash games, cash players with only them. */
 function useFilters() {
-  const [filters, setFilters] = useState<Filters>({ kindsVersion: KINDS_VERSION, entries: [], fees: [], hidden: [], weights: DEFAULT_WEIGHTS });
+  const [filters, setFilters] = useState<Filters>({ kindsVersion: KINDS_VERSION, entries: [], fees: [], hidden: [], guaranteed: 'any', weights: DEFAULT_WEIGHTS });
   const [loaded, setLoaded] = useState(false);
   const { prefs, loaded: prefsLoaded } = usePrefs();
   const budgetFees = prefs.spend ? FEES_FOR_SPEND[prefs.spend] : [];
@@ -99,6 +108,7 @@ function useFilters() {
           entries: only(saved.entries, ENTRY_GROUPS),
           fees: only(saved.fees, FEE_GROUPS),
           hidden,
+          guaranteed: GUARANTEED.some((g) => g.id === saved.guaranteed) ? saved.guaranteed : 'any',
           weights: savedWeights(saved.weights),
         });
       })
@@ -387,11 +397,11 @@ export default function BestContests({ slate }: { slate?: Slate | null }) {
   const { filters, loaded, update } = useFilters();
   // Nothing until the saved filters load; then the filters once they stop changing.
   const settled = useSettled(loaded ? filters : null, 400);
-  const { entries, fees, hidden, weights } = settled ?? filters;
+  const { entries, fees, hidden, weights, guaranteed } = settled ?? filters;
   const exclude = [...hidden].sort();
   const dg = slate?.draft_group_id ?? null;
-  const key = settled ? JSON.stringify([entries, fees, exclude, weights, dg]) : '';
-  const { data, error, loading } = useCachedFetch(cache, key, () => getBestContests({ entries, fees, exclude, weights, slate: dg }));
+  const key = settled ? JSON.stringify([entries, fees, exclude, weights, dg, guaranteed]) : '';
+  const { data, error, loading } = useCachedFetch(cache, key, () => getBestContests({ entries, fees, exclude, weights, slate: dg, guaranteed }));
   const onSlate = data?.selected_slate?.matching ?? 0;
   const slateNote =
     data?.selected_slate && slate
@@ -409,6 +419,21 @@ export default function BestContests({ slate }: { slate?: Slate | null }) {
     <View>
       <MultiSelect label="Entries" allLabel="All entry limits" options={ENTRY_GROUPS} value={filters.entries} onChange={(v) => update({ entries: v })} />
       <MultiSelect label="Fee" allLabel="All entry fees" options={FEE_GROUPS} value={filters.fees} onChange={(v) => update({ fees: v })} />
+      <View className="mb-2 flex-row items-center gap-2">
+        <Text className="matchup-toggle-label w-14">Prize</Text>
+        <View className="flex-1 flex-row flex-wrap gap-2">
+          {GUARANTEED.map((g) => (
+            <Pressable
+              key={g.id}
+              className={`filter-chip ${filters.guaranteed === g.id ? 'filter-chip-active' : ''}`}
+              onPress={() => update({ guaranteed: g.id })}
+              accessibilityRole="radio"
+              aria-checked={filters.guaranteed === g.id}>
+              <Text className={`filter-chip-text ${filters.guaranteed === g.id ? 'filter-chip-text-active' : ''}`}>{g.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
       <WeightsPanel weights={filters.weights} onChange={(v) => update({ weights: v })} />
       <KindChips hidden={filters.hidden} onChange={(v) => update({ hidden: v })} />
       {!data ? (

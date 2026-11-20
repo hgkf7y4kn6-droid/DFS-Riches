@@ -186,6 +186,8 @@ export function getBestContests(sel: {
   weights: Record<ContestFactor, number> | null;
   /** The selected slate's DraftKings draft group id: its contests are listed first. */
   slate?: number | null;
+  /** Prize pool: only guaranteed contests ('yes'), only the ones that are not ('no'), or both (default). */
+  guaranteed?: 'any' | 'yes' | 'no';
 }) {
   const lists = { ...sel, weights: sel.weights ? Object.entries(sel.weights).map(([k, v]) => `${k}:${v}`) : [] };
   const query = [
@@ -193,6 +195,7 @@ export function getBestContests(sel: {
       .filter((k) => lists[k].length)
       .map((k) => `${k}=${encodeURIComponent(lists[k].join(','))}`),
     ...(sel.slate ? [`slate=${sel.slate}`] : []),
+    ...(sel.guaranteed && sel.guaranteed !== 'any' ? [`guaranteed=${sel.guaranteed}`] : []),
   ].join('&');
   return getJson<BestContestsResponse>(`/api/contests/best${query ? `?${query}` : ''}`);
 }

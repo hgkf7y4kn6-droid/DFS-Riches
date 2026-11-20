@@ -393,7 +393,7 @@ interface BestContestsResponse {
   /** Points per factor when the user sets none, and the most a factor can have. */
   default_weights: Record<ContestFactor, number>;
   max_weight: number;
-  selected: { entries: string[]; fees: string[]; excluded: ContestKind[] };
+  selected: { entries: string[]; fees: string[]; excluded: ContestKind[]; guaranteed: 'any' | 'yes' | 'no' };
   /** Contests matching the selection (copies collapsed), of which up to 15 are listed. */
   matching: number;
   /** The slate selected in the app and how many matching contests run on it (listed first); null when none is. */
