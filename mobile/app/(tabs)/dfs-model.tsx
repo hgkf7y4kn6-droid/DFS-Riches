@@ -27,12 +27,29 @@ export default function DfsModelScreen() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
   const { model, loading, refresh } = useDfsModel();
-  const { weekData } = useWeek();
+  const { weekData, selectedSlate, players: slatePlayers } = useWeek();
   const [open, setOpen] = useState<string | null>(null);
   const onScroll = useScrollDepth('dfs_model');
 
   const ready = model?.available ? model : null;
-  const envs = useMemo(() => [...(ready?.strategy.games ?? [])].sort((a, b) => a.env_rank - b.env_rank), [ready]);
+  // A Showdown slate has its own salaries (flex prices differ from the Classic ones the model is built on), so a game on a
+  // Showdown slate shows that slate's flex salaries, and only that slate's game.
+  const showdown = selectedSlate?.slate_type === 'showdown' && slatePlayers.data?.slate.slate_id === selectedSlate.slate_id ? selectedSlate : null;
+  const flexSalary = useMemo(() => {
+    const m = new Map<string, number>();
+    if (showdown) for (const p of slatePlayers.data?.players ?? []) if (p.roster_slot === 'FLEX') m.set(`${p.name}|${p.team}`, p.salary);
+    return m;
+  }, [showdown, slatePlayers.data]);
+  const priced = <T extends { name: string; team: string; salary: number }>(p: T): T => {
+    const v = flexSalary.get(`${p.name}|${p.team}`);
+    return v === undefined ? p : { ...p, salary: v };
+  };
+  const envs = useMemo(() => {
+    const all = [...(ready?.strategy.games ?? [])].sort((a, b) => a.env_rank - b.env_rank);
+    if (!showdown) return all;
+    const ids = new Set(showdown.games.map((g) => `${g.away}@${g.home}`));
+    return all.filter((e) => ids.has(e.game));
+  }, [ready, showdown]);
   const gameIdFor = (env: DfsGameEnv) =>
     weekData.data?.schedule.games.find((g) => g.away === env.away && g.home === env.home)?.game_id ?? null;
 
@@ -73,8 +90,10 @@ export default function DfsModelScreen() {
                 <GameEnvironmentCard
                   key={env.game}
                   env={env}
-                  stacks={ready.strategy.stacks.filter((s) => s.game === env.game)}
-                  players={ready.table.filter((p) => teams.includes(p.team))}
+                  stacks={ready.strategy.stacks
+                    .filter((s) => s.game === env.game)
+                    .map((s) => (showdown ? { ...s, players: s.players.map(priced), salary: s.players.reduce((t, p) => t + priced(p).salary, 0) } : s))}
+                  players={ready.table.filter((p) => teams.includes(p.team)).map((p) => (showdown ? priced(p) : p))}
                   gameId={gameIdFor(env)}
                   expanded={open === env.game}
                   onToggle={() => setOpen((cur) => (cur === env.game ? null : env.game))}
