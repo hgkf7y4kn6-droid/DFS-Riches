@@ -226,12 +226,15 @@ async def _require_sign_in(request: Request, call_next):
 
 # Report-only for now: the Expo web build bootstraps with an inline script, so enforcing needs a pass over the
 # violation reports first. Clerk's host is added from the publishable key.
+POSTHOG_HOSTS = "https://us.i.posthog.com https://us-assets.i.posthog.com"      # analytics (mobile/lib/analytics.tsx) must not be blocked
+
+
 def _csp() -> str:
     clerk = f"https://{accounts.frontend_api()}"
     return "; ".join([
         "default-src 'self'", f"script-src 'self' 'unsafe-inline' {clerk} https://challenges.cloudflare.com",
         "style-src 'self' 'unsafe-inline'", "img-src 'self' data: blob: https:", "font-src 'self' data:",
-        f"connect-src 'self' {clerk} https://*.clerk.accounts.dev https://clerk-telemetry.com",
+        f"connect-src 'self' {clerk} https://*.clerk.accounts.dev https://clerk-telemetry.com {POSTHOG_HOSTS}",
         f"frame-src {clerk} https://challenges.cloudflare.com", "worker-src 'self' blob:",
         "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'", "report-uri /csp-report"])
 
