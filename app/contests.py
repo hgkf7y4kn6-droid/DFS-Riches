@@ -345,15 +345,20 @@ def grade_contests(rows: list[dict]) -> list[dict]:
 
 
 GUARANTEED_CHOICES = ("any", "yes", "no")     # prize pool: any contest, only guaranteed ones, only the ones that are not
+MIN_GRADES = ("any", "A", "B", "C", "D")      # the lowest grade to list ("B" = A or B); any = no grade filter
+SORTS = ("score", "grade")                    # best overall score (the user's weights) or the A-F grade
+_GRADE_ORDER = {g: i for i, (g, _) in enumerate(GRADE_CUTS)}      # A = 0 ... D = 3; F and cash games (None) rank after
 
 
 def select(rows: list[dict], entries: frozenset[str], fees: frozenset[str], exclude: frozenset[str],
-           guaranteed: str = "any") -> list[dict]:
+           guaranteed: str = "any", min_grade: str = "any") -> list[dict]:
     """Contests in the chosen max-entries and fee groups (empty = all), minus excluded kinds, and (guaranteed = "yes" / "no")
-    only the contests whose prize pool is / is not guaranteed."""
+    only the contests whose prize pool is / is not guaranteed, and (min_grade) only those graded at least that well
+    (cash games are ungraded, so a grade filter leaves them out)."""
     return [r for r in rows
             if r["kind"] not in exclude
             and (guaranteed == "any" or bool(r["guaranteed"]) == (guaranteed == "yes"))
+            and (min_grade == "any" or _GRADE_ORDER.get(r.get("grade") or "", 99) <= _GRADE_ORDER[min_grade])
             and (eg := entry_group(r["max_entries"])) and (not entries or eg in entries)
             and (fg := fee_group(r["entry_fee"])) and (not fees or fg in fees)]
 
@@ -404,6 +409,11 @@ def upcoming(rows: list[dict]) -> list[dict]:
     return [r for r in rows if not r["start_utc"] or datetime.fromisoformat(r["start_utc"]) > now]
 
 
+def by_grade(scored: list[dict]) -> list[dict]:
+    """Best grade first (ties: the higher grade score, then the higher overall score); ungraded cash games and Fs last."""
+    return sorted(scored, key=lambda r: (_GRADE_ORDER.get(r.get("grade") or "", 99), -(r.get("grade_score") or 0), -(r.get("score") or 0)))
+
+
 def prioritize(scored: list[dict]) -> list[dict]:
     """The selected slate's contests first (best first), then the rest -- a stable sort keeps each part's order."""
     return sorted(scored, key=lambda r: not r.get("on_selected_slate"))
@@ -411,13 +421,14 @@ def prioritize(scored: list[dict]) -> list[dict]:
 
 async def best_contests(entries: frozenset[str] = frozenset(), fees: frozenset[str] = frozenset(),
                         exclude: frozenset[str] = frozenset(), weights: dict[str, float] | None = None,
-                        draft_group_id: int | None = None, guaranteed: str = "any") -> dict[str, Any]:
+                        draft_group_id: int | None = None, guaranteed: str = "any", min_grade: str = "any",
+                        sort: str = "score") -> dict[str, Any]:
     """The TOP_N best contests (score_contests, with the user's weights) across the chosen
     max-entries groups, fee groups and contest kinds, on slates that haven't started. With
     draft_group_id (the slate picked in the app), that slate's contests come first."""
     # Graded before the filters, so a contest's grade doesn't change with the fee / entry / kind boxes ticked.
     rows = select(grade_contests(collapse_copies(
-        await _with_payouts(upcoming((await _lobby())["contests"])), draft_group_id)), entries, fees, exclude, guaranteed)
+        await _with_payouts(upcoming((await _lobby())["contests"])), draft_group_id)), entries, fees, exclude, guaranteed, min_grade)
     on_slate = sum(1 for r in rows if r["on_selected_slate"])
     return {
         "entry_groups": [{"id": gid, "label": label, "min": lo, "max": hi} for gid, label, lo, hi in ENTRY_GROUPS],
@@ -426,9 +437,10 @@ async def best_contests(entries: frozenset[str] = frozenset(), fees: frozenset[s
         "default_weights": WEIGHTS,
         "max_weight": MAX_WEIGHT,
         "weights": normalize_weights(weights),
-        "selected": {"entries": sorted(entries), "fees": sorted(fees), "excluded": sorted(exclude), "guaranteed": guaranteed},
+        "selected": {"entries": sorted(entries), "fees": sorted(fees), "excluded": sorted(exclude), "guaranteed": guaranteed,
+                     "min_grade": min_grade, "sort": sort},
         "matching": len(rows),
         "selected_slate": {"draft_group_id": draft_group_id, "matching": on_slate} if draft_group_id is not None else None,
-        "contests": prioritize(score_contests(rows, weights))[:TOP_N],
+        "contests": prioritize((by_grade if sort == "grade" else list)(score_contests(rows, weights)))[:TOP_N],
         "updated_at": datetime.now(timezone.utc).isoformat(),
     }

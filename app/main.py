@@ -752,8 +752,9 @@ async def api_me_save(key: str, body: dict = Body(...), authorization: Annotated
 
 @memoize_async(ttl_seconds=60, max_entries=64)    # short: a slate that kicks off drops out within a minute
 async def _best_contests(entries: frozenset[str], fees: frozenset[str], exclude: frozenset[str],
-                         weights: tuple[tuple[str, int], ...], slate: int | None = None, guaranteed: str = "any") -> dict:
-    return await contests.best_contests(entries, fees, exclude, dict(weights), slate, guaranteed)
+                         weights: tuple[tuple[str, int], ...], slate: int | None = None, guaranteed: str = "any",
+                         min_grade: str = "any", sort: str = "score") -> dict:
+    return await contests.best_contests(entries, fees, exclude, dict(weights), slate, guaranteed, min_grade, sort)
 
 
 def _weights(value: str) -> tuple[tuple[str, int], ...]:
@@ -778,17 +779,21 @@ def _id_set(value: str, allowed: list[str], what: str) -> frozenset[str]:
 @app.get("/api/contests/best")
 async def api_best_contests(entries: str = "", fees: str = "", exclude: str = "", weights: str = "",
                             slate: Annotated[int | None, Query(ge=1)] = None,
-                            guaranteed: Annotated[str, Query(pattern="^(any|yes|no)$")] = "any"):
+                            guaranteed: Annotated[str, Query(pattern="^(any|yes|no)$")] = "any",
+                            min_grade: Annotated[str, Query(pattern="^(any|A|B|C|D)$")] = "any",
+                            sort: Annotated[str, Query(pattern="^(score|grade)$")] = "score"):
     """The 15 best NFL GPPs in DraftKings' lobby (app.contests): low rake, a big share of the field paid and
     a big first-place prize for the fee. entries / fees: comma-separated max-entries and fee group ids (empty =
     all); exclude: comma-separated contest kinds to leave out, e.g. "Qualifier,League"; weights: points (0-10)
     per factor, e.g. "rake:4,paid:3,payout:3,field:2" (factors left out count 0; none = the defaults); slate: the
     selected slate's DraftKings draft group id, whose contests are listed first; guaranteed: "yes" for only guaranteed
-    prize pools (GPPs), "no" for only the ones that are not, "any" (default) for both. Started slates are left out."""
+    prize pools (GPPs), "no" for only the ones that are not, "any" (default) for both; min_grade: A-D, only contests graded at
+    least that well (cash games are ungraded and drop out), any = no grade filter; sort: "score" (default, the weighted score)
+    or "grade" (best A-F grade first). Started slates are left out."""
     chosen = (_id_set(entries, [g[0] for g in contests.ENTRY_GROUPS], "entry groups"),
               _id_set(fees, [g[0] for g in contests.FEE_GROUPS], "fee groups"),
               _id_set(exclude, contests.CONTEST_KINDS, "contest kinds"),
-              _weights(weights), slate, guaranteed)
+              _weights(weights), slate, guaranteed, min_grade, sort)
     try:
         return await _best_contests(*chosen)
     except Exception as exc:

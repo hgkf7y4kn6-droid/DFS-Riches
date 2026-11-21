@@ -277,3 +277,31 @@ async def test_guaranteed_status_filter(lobby):
     assert ids(yes) == [1] and yes["selected"]["guaranteed"] == "yes" and yes["matching"] == 1
     no = await contests.best_contests(guaranteed="no")
     assert ids(no) == [2, 3] and all(not c["guaranteed"] for c in no["contests"])
+
+
+def _graded_rows():
+    """Four tournaments on one slate that grade A..F-ish by field size and entry limit, plus a cash game (ungraded)."""
+    def row(i, kind, field, mec, score):
+        return {"id": i, "kind": kind, "slate": "Main", "max_entries": mec, "field_size": field, "top_prize": 100.0,
+                "prize_pool": 1000.0, "guaranteed": True, "score": score, "entry_fee": 3.0}
+    rows = [row(1, "Tournament", 5000, 150, 90), row(2, "Tournament", 50, 1, 10), row(3, "Tournament", 500, 20, 50),
+            row(4, "Double Up", 100, 1, 99)]
+    return contests.grade_contests(rows)
+
+
+def test_min_grade_keeps_that_grade_or_better_and_drops_ungraded_cash():
+    rows = _graded_rows()
+    grade = {r["id"]: r["grade"] for r in rows}
+    assert grade[2] in ("A", "B") and grade[4] is None
+    ids = lambda g: [r["id"] for r in contests.select(rows, frozenset(), frozenset(), frozenset(), min_grade=g)]    # noqa: E731
+    assert sorted(ids("any")) == [1, 2, 3, 4]
+    assert 4 not in ids("D") and 2 in ids("D")
+    better = contests.select(rows, frozenset(), frozenset(), frozenset(), min_grade=grade[2])
+    assert all(contests._GRADE_ORDER[r["grade"]] <= contests._GRADE_ORDER[grade[2]] for r in better)
+
+
+def test_sort_by_grade_puts_the_best_grade_first_and_ungraded_last():
+    rows = _graded_rows()
+    order = [r["id"] for r in contests.by_grade(rows)]
+    assert order[0] == 2 and order[-1] == 4                  # smallest field, single entry = best grade; cash games last
+    assert [r["id"] for r in sorted(rows, key=lambda r: -r["score"])][0] == 4    # by score it would be the cash game

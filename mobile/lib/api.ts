@@ -188,6 +188,10 @@ export function getBestContests(sel: {
   slate?: number | null;
   /** Prize pool: only guaranteed contests ('yes'), only the ones that are not ('no'), or both (default). */
   guaranteed?: 'any' | 'yes' | 'no';
+  /** Only contests graded at least this well ('B' = A or B); cash games are ungraded and drop out. */
+  minGrade?: 'any' | 'A' | 'B' | 'C' | 'D';
+  /** 'score' (default): the weighted score; 'grade': best A-F grade first. */
+  sort?: 'score' | 'grade';
 }) {
   const lists = { ...sel, weights: sel.weights ? Object.entries(sel.weights).map(([k, v]) => `${k}:${v}`) : [] };
   const query = [
@@ -196,6 +200,8 @@ export function getBestContests(sel: {
       .map((k) => `${k}=${encodeURIComponent(lists[k].join(','))}`),
     ...(sel.slate ? [`slate=${sel.slate}`] : []),
     ...(sel.guaranteed && sel.guaranteed !== 'any' ? [`guaranteed=${sel.guaranteed}`] : []),
+    ...(sel.minGrade && sel.minGrade !== 'any' ? [`min_grade=${sel.minGrade}`] : []),
+    ...(sel.sort && sel.sort !== 'score' ? [`sort=${sel.sort}`] : []),
   ].join('&');
   return getJson<BestContestsResponse>(`/api/contests/best${query ? `?${query}` : ''}`);
 }
