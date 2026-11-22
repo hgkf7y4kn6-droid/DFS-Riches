@@ -68,13 +68,27 @@ MAX_WEIGHT = 10
 # The user's "small field" points apply to tournaments only.
 CASH_BIG_FIELD_POINTS = 8
 
-# Letter grade for GPPs (grade_contests), fitted to DraftKings' own Thursday-night grade sheet (28 Showdown
-# contests, 27 graded the same): each GPP is ranked as a percentile against the other GPPs on its slate on
-# a small field, few max entries and a flat (not top-heavy) payout, then cut at these scores. Rake and share
-# paid carry no weight of their own in the fit (they track the other three), so they aren't in the score.
-# Nothing on that sheet reached an A; its cut is a guess above the best B.
-GRADE_WEIGHTS = {"field": 2.0, "top": 1.0, "entries": 1.0}
-GRADE_CUTS = [("A", 85.0), ("B", 65.5), ("C", 50.0), ("D", 38.5)]  # lowest score for each grade; below is F
+# Letter grade for GPPs (grade_contests): each GPP is ranked as a percentile against the other GPPs on its slate, scored on
+# these factors and cut at these scores (lowest score for each grade; below is F).
+#  Classic: fitted to DraftKings' Week 10 Main Slate grade sheet (56 contests, 53 graded the same; the old three-factor fit
+#   got 37): a small field, few max entries, a flat (not top-heavy) payout and low rake. Share paid adds nothing once rake is in.
+#  Showdown: fitted to DraftKings' Thursday-night sheet (28 contests, 27 the same) on field, entries and payout shape only;
+#   rake carries no weight there.
+# Nothing on either sheet reached an A; its cut is a guess above the best B.
+GRADE_WEIGHTS = {"field": 2.0, "top": 1.0, "entries": 2.0, "rake": 2.0}
+GRADE_CUTS = [("A", 85.0), ("B", 65.8), ("C", 43.6), ("D", 26.4)]
+SHOWDOWN_GRADE_WEIGHTS = {"field": 2.0, "top": 1.0, "entries": 1.0}
+SHOWDOWN_GRADE_CUTS = [("A", 85.0), ("B", 65.5), ("C", 50.0), ("D", 38.5)]
+
+# Double Ups are graded on their own, not against each other, so a grade means the same on every slate: a bigger Double Up
+# grades higher (more room for error: a few sharp players can't take most of the paying spots), and so does a higher payout
+# ratio (prize pool / total entry fees = 1 - rake). The ratio is worked out per contest from its fee and field, so it doesn't
+# move with contest size. Each factor runs 0-1 between these anchors (the fields and ratios DraftKings lists); the score is
+# their weighted mean, so only a big Double Up at a high ratio reaches the top grade, a B. Smaller or lower-ratio ones grade lower.
+DOUBLE_UP_FIELD = (11, 5000)            # entries: this small scores 0, this big 1 (on a log scale)
+DOUBLE_UP_RATIO = (0.870, 0.912)        # payout ratio: the lowest and the highest DraftKings lists
+DOUBLE_UP_WEIGHTS = {"field": 0.6, "ratio": 0.4}
+DOUBLE_UP_CUTS = [("B", 62.0), ("C", 45.0), ("D", 25.0)]      # a Double Up never grades above B
 
 # (id, label, lowest, highest max entries per user)
 ENTRY_GROUPS = [
@@ -322,24 +336,41 @@ def _score_family(rows: list[dict], weights: dict[str, float] | None, cash: bool
     return [{**r, "score": round(100 * sum(shares[k] * ranks[k][i] for k in ranks), 1)} for i, r in enumerate(rows)]
 
 
+def _unit(value: float, lo: float, hi: float) -> float:
+    return min(1.0, max(0.0, (value - lo) / (hi - lo)))
+
+
+def double_up_grade(r: dict) -> tuple[str, float]:
+    """(grade, score 0-100) for a Double Up from its field size and payout ratio (see DOUBLE_UP_*)."""
+    field = _unit(math.log10(max(r["field_size"], 1)), math.log10(DOUBLE_UP_FIELD[0]), math.log10(DOUBLE_UP_FIELD[1]))
+    ratio = _unit(r["prize_pool"] / (r["entry_fee"] * r["field_size"]), *DOUBLE_UP_RATIO)
+    score = 100 * (DOUBLE_UP_WEIGHTS["field"] * field + DOUBLE_UP_WEIGHTS["ratio"] * ratio) / sum(DOUBLE_UP_WEIGHTS.values())
+    return next((g for g, cut in DOUBLE_UP_CUTS if score >= cut), "F"), round(score, 1)
+
+
 def grade_contests(rows: list[dict]) -> list[dict]:
-    """Adds "grade" (A-F; None for cash games) and "grade_score" (0-100) to each row, ranking GPPs only against
-    GPPs on the same slate (the grade sheet compares one game's contests)."""
-    by_slate: dict[str, list[dict]] = {}
-    for r in rows:
-        if r.get("kind") not in CASH_KINDS:
-            by_slate.setdefault(r.get("slate") or "", []).append(r)
+    """Adds "grade" (A-F) and "grade_score" (0-100) to each row; None for 50/50s and Triple Ups. GPPs are ranked only against
+    GPPs of the same type on the same slate (the grade sheet compares one game's contests); Double Ups get an absolute grade."""
+    groups: dict[tuple[str, bool], list[dict]] = {}
     graded: dict[int, tuple[str, float]] = {}
-    total = sum(GRADE_WEIGHTS.values())
-    for group in by_slate.values():
+    for r in rows:
+        if r.get("kind") == "Double Up":
+            graded[id(r)] = double_up_grade(r)
+        elif r.get("kind") not in CASH_KINDS:
+            groups.setdefault((r.get("slate") or "", r.get("game_type") == "Showdown Captain Mode"), []).append(r)
+    for (_slate_name, showdown), group in groups.items():
+        weights, cuts = (SHOWDOWN_GRADE_WEIGHTS, SHOWDOWN_GRADE_CUTS) if showdown else (GRADE_WEIGHTS, GRADE_CUTS)
+        total = sum(weights.values())
         ranks = {
             "field": _pct_ranks([-math.log(max(r["field_size"], 1)) for r in group]),
             "top": _pct_ranks([-(r["top_prize"] or 0.0) / r["prize_pool"] for r in group]),
             "entries": _pct_ranks([-r["max_entries"] for r in group]),
         }
+        if weights.get("rake"):
+            ranks["rake"] = _pct_ranks([r["prize_pool"] / (r["entry_fee"] * r["field_size"]) for r in group])   # a higher ratio = lower rake
         for i, r in enumerate(group):
-            score = 100 * sum(w * ranks[k][i] for k, w in GRADE_WEIGHTS.items()) / total
-            graded[id(r)] = (next((g for g, cut in GRADE_CUTS if score >= cut), "F"), round(score, 1))
+            score = 100 * sum(w * ranks[k][i] for k, w in weights.items()) / total
+            graded[id(r)] = (next((g for g, cut in cuts if score >= cut), "F"), round(score, 1))
     return [{**r, "grade": graded[id(r)][0] if id(r) in graded else None,
              "grade_score": graded[id(r)][1] if id(r) in graded else None} for r in rows]
 
@@ -354,7 +385,7 @@ def select(rows: list[dict], entries: frozenset[str], fees: frozenset[str], excl
            guaranteed: str = "any", min_grade: str = "any") -> list[dict]:
     """Contests in the chosen max-entries and fee groups (empty = all), minus excluded kinds, and (guaranteed = "yes" / "no")
     only the contests whose prize pool is / is not guaranteed, and (min_grade) only those graded at least that well
-    (cash games are ungraded, so a grade filter leaves them out)."""
+    (50/50s and Triple Ups are ungraded, so a grade filter leaves them out)."""
     return [r for r in rows
             if r["kind"] not in exclude
             and (guaranteed == "any" or bool(r["guaranteed"]) == (guaranteed == "yes"))
@@ -410,7 +441,7 @@ def upcoming(rows: list[dict]) -> list[dict]:
 
 
 def by_grade(scored: list[dict]) -> list[dict]:
-    """Best grade first (ties: the higher grade score, then the higher overall score); ungraded cash games and Fs last."""
+    """Best grade first (ties: the higher grade score, then the higher overall score); Fs and ungraded 50/50s and Triple Ups last."""
     return sorted(scored, key=lambda r: (_GRADE_ORDER.get(r.get("grade") or "", 99), -(r.get("grade_score") or 0), -(r.get("score") or 0)))
 
 

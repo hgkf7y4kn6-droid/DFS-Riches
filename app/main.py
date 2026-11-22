@@ -788,7 +788,7 @@ async def api_best_contests(entries: str = "", fees: str = "", exclude: str = ""
     per factor, e.g. "rake:4,paid:3,payout:3,field:2" (factors left out count 0; none = the defaults); slate: the
     selected slate's DraftKings draft group id, whose contests are listed first; guaranteed: "yes" for only guaranteed
     prize pools (GPPs), "no" for only the ones that are not, "any" (default) for both; min_grade: A-D, only contests graded at
-    least that well (cash games are ungraded and drop out), any = no grade filter; sort: "score" (default, the weighted score)
+    least that well (50/50s and Triple Ups are ungraded and drop out), any = no grade filter; sort: "score" (default, the weighted score)
     or "grade" (best A-F grade first). Started slates are left out."""
     chosen = (_id_set(entries, [g[0] for g in contests.ENTRY_GROUPS], "entry groups"),
               _id_set(fees, [g[0] for g in contests.FEE_GROUPS], "fee groups"),

@@ -206,7 +206,7 @@ function RefineMenu({
       {open ? (
         <View className="matchup-menu p-2">
           {section('Sort by', SORTS, sort, (v) => onChange({ sort: v }))}
-          {section('Contest grade (A–F against the same slate’s tournaments; cash games are ungraded)', MIN_GRADES, minGrade, (v) =>
+          {section('Contest grade (tournaments: A–F against the same slate’s; Double Ups: bigger and higher payout grades higher, B at best; 50/50s and Triple Ups are ungraded)', MIN_GRADES, minGrade, (v) =>
             onChange({ minGrade: v }),
           )}
           {section('Prize pool', GUARANTEED, guaranteed, (v) => onChange({ guaranteed: v }))}

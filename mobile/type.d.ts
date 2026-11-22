@@ -351,7 +351,7 @@ interface BestContest {
   top_prize: number | null;
   top_multiple: number | null;
   score: number;
-  /** A-F grade against the other GPPs on its slate (small field, few entries, flat payout); null for cash games. */
+  /** A-F grade: a tournament against the other GPPs on its slate (small field, few entries, flat payout, low rake); a Double Up by its size and payout ratio (B at best); null for 50/50s and Triple Ups. */
   grade: 'A' | 'B' | 'C' | 'D' | 'F' | null;
   grade_score: number | null;
   /** The name without its slate when the contest runs on several slates, else the name. */
