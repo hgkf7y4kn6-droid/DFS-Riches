@@ -333,3 +333,16 @@ def test_saved_classic_lineups_are_served_under_their_current_names():
     saved = [{"metric": "proj_points", "label": "Optimal - Proj"}, {"metric": "ceiling", "label": "Optimal - Ceiling"}]
     assert [lu["label"] for lu in optimal._relabel(saved)] == ["Safe lineup (high floor)", "Ceiling lineup (retired)"]
     assert optimal._relabel(saved, "showdown") == saved
+
+
+def test_tournament_lineup_leans_off_the_chalk_when_ownership_is_projected():
+    pool = [Player(**{**p, "value_per_1k": 0.0}) for p in _stack_pool()]
+    plain = optimal._tournament(pool, set())
+    chalk = {p.dk_draftable_id for p in plain if p.position in ("QB", "RB")}
+    own = {p.dk_draftable_id: (70.0 if p.dk_draftable_id in chalk else 3.0) for p in pool}
+    lean = optimal._tournament(pool, set(), own)
+    assert lean and len(lean) == 9 and {p.dk_draftable_id for p in lean} != {p.dk_draftable_id for p in plain}
+    assert sum(own[p.dk_draftable_id] for p in lean) < sum(own[p.dk_draftable_id] for p in plain)
+    assert optimal._tournament_value(20.0, None) == 20.0 and optimal._tournament_value(20.0, 50.0) == 12.0 and optimal._tournament_value(20.0, 90.0) == 8.0
+    out = optimal.build_lineups(pool, "classic", own=own)
+    assert out[1]["metric"] == "tournament" and out[1]["note"].startswith("Leverage") and "note" not in out[0]
