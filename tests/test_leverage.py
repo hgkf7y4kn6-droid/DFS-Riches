@@ -41,3 +41,18 @@ def test_fair_ownership_redistributes_the_positions_ownership_by_true_odds():
     assert lv.verdict(lev[1], 0.03, 1.08, 0.22) == "Efficient secret"
     assert lv.verdict(lev[0], 0.38, 0.92, 0.10) == "Public trap"
     assert lv.verdict(lev[2], 0.01, 0.95, 0.01) == "Mirage"
+
+
+def test_fair_ownership_can_group_by_roster_slot_instead_of_position():
+    """Showdown: Captain and Flex are separate contests, each redistributing its own ownership."""
+    rows = [
+        {"slot": "CPT", "salary": 17000, "p_eff": 0.30, "own": 0.50},
+        {"slot": "CPT", "salary": 9000, "p_eff": 0.30, "own": 0.50},
+        {"slot": "FLEX", "salary": 11000, "p_eff": 0.40, "own": 2.5},
+        {"slot": "FLEX", "salary": 6000, "p_eff": 0.10, "own": 2.5},
+    ]
+    lv.fair_ownership(rows, "p_eff", "own", group_key="slot")
+    cpt = [r["fair_own"] for r in rows if r["slot"] == "CPT"]
+    flex = [r["fair_own"] for r in rows if r["slot"] == "FLEX"]
+    assert abs(sum(cpt) - 1.0) < 1e-9 and abs(sum(flex) - 5.0) < 1e-9        # each slot keeps its own pool
+    assert cpt[1] > cpt[0]                                                      # same odds: the cheaper Captain gets more

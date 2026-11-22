@@ -166,6 +166,11 @@ export function getPlays(season: number, week: number, contest: PlayContest, sla
   return getJson<PlaysResponse>(`/api/plays?${q(season, week)}&contest=${contest}${slate}`);
 }
 
+/** Leverage for one slate's players by DraftKings draftable id (Pro): Classic large-field GPP leverage, or a Showdown slate's Captain and Flex ids on their own. */
+export function getSlateLeverage(season: number, week: number, slateId: string) {
+  return getJson<SlateLeverage>(`/api/slates/${encodeURIComponent(slateId)}/leverage?${q(season, week)}`);
+}
+
 /** A player's last few games before this week: snap share, DK points and position-relevant stats. */
 export function getPlayerGames(season: number, week: number, player: { name: string; position: string; team: string }) {
   const params = `name=${encodeURIComponent(player.name)}&position=${player.position}&team=${player.team}`;

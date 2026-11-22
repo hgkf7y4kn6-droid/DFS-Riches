@@ -12,6 +12,7 @@ import { ProSheet } from '@/components/ProLock';
 import PropLadder from '@/components/dfs/PropLadder';
 import { useAccountSync } from '@/lib/account-sync';
 import { track } from '@/lib/analytics';
+import { useDfsModel } from '@/lib/dfs-model-context';
 
 export type DfsMetric = 'final' | 'value' | 'ceiling';
 
@@ -42,6 +43,7 @@ export default function DfsPlayerRow({
   const [propsOpen, setPropsOpen] = useState(false);
   const [proOpen, setProOpen] = useState(false);
   const propsLocked = useAccountSync().locked('props');
+  const { slateId } = useDfsModel();      // these rows are the DFS tabs' slate
   const stats: { key: DfsMetric | 'own'; value: string; label: string; term: string }[] = [
     { key: 'final', value: p.final.toFixed(1), label: 'proj', term: 'projection' },
     { key: 'ceiling', value: p.ceiling != null ? p.ceiling.toFixed(1) : '', label: 'ceiling', term: 'ceiling' },
@@ -67,7 +69,7 @@ export default function DfsPlayerRow({
               {p.name}
               {p.injury && p.injury !== 'Healthy' ? <Text className="injury-tag"> {p.injury}</Text> : null}
             </Text>
-            <LeverageBadge player={{ id: p.id, name: p.name, team: p.team }} />
+            <LeverageBadge player={{ id: p.id, name: p.name, team: p.team, slateId }} />
             <UsageTrendArrow trend={p.usage_trend} open={trendOpen} onToggle={() => setTrendOpen((o) => !o)} />
           </View>
           <Text className="dfs-meta">

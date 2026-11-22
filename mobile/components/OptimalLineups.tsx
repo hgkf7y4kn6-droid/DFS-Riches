@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 
 import { LineupRow, Totals } from "@/components/LineupRows";
@@ -7,6 +7,7 @@ import { OPTIMAL_STATUS_TEXT } from "@/constants/data";
 import icons from "@/constants/icons";
 import { useThemeColors } from "@/constants/theme";
 import { fromOptimal } from "@/lib/lineups";
+import { useLeverage } from "@/lib/leverage-context";
 import { formatCurrency, formatEt, formatPoints, salariesPendingText } from "@/lib/utils";
 import { useAccountSync } from "@/lib/account-sync";
 import ProLock from "@/components/ProLock";
@@ -46,6 +47,11 @@ function summary(lineup: OptimalLineup): string {
   return parts.join(" · ");
 }
 
+/** The row with its slate's leverage attached (nothing until the slate's leverage loads). */
+function withLeverage<T extends object>(p: T, info: { value: number; detail: LeverageDetail | null } | null): T {
+  return info ? { ...p, leverage: info.value, leverage_detail: info.detail } : p;
+}
+
 function OptimalCard({
   lineup,
   onEdit,
@@ -57,6 +63,11 @@ function OptimalCard({
 }) {
   const hindsight = lineup.metric === "actual";
   const colors = useThemeColors();
+  // Each row carries the leverage of the slate this lineup belongs to (Classic: large-field GPP; Showdown: its Captain / Flex id's own).
+  const { selectedSlate } = useWeek();
+  const { lookup, request } = useLeverage();
+  const slateId = selectedSlate?.slate_id ?? null;
+  useEffect(() => request(slateId), [request, slateId]);
   // Collapsible (Home): starts minimized to its totals; tap the header to show the players.
   const [open, setOpen] = useState(!collapsible);
   const title = (
@@ -116,7 +127,7 @@ function OptimalCard({
             <LineupRow
               key={`${p.slot}-${i}`}
               slot={p.slot}
-              player={p}
+              player={withLeverage(p, lookup({ id: p.dk_draftable_id, name: p.name, team: p.team, slateId }))}
               note={
                 p.locked && lineup.metric !== "actual" && p.actual == null
                   ? "Locked: game underway (pre-kickoff numbers)"

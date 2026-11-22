@@ -5,6 +5,7 @@ import TrenchSection from '@/components/breakdown/TrenchSection';
 import UnitMatchups from '@/components/breakdown/UnitMatchups';
 import StatusView from '@/components/StatusView';
 import TrendChips from '@/components/TrendChips';
+import { useDfsModel } from '@/lib/dfs-model-context';
 import { useGameDetail } from '@/lib/game-detail';
 import { formatCurrency, formatPercent, formatSigned, ordinal } from '@/lib/utils';
 import LeverageBadge from '@/components/LeverageBadge';
@@ -64,6 +65,7 @@ function Bullets({ items }: { items: string[] }) {
 }
 
 function Targets({ team, players }: { team: string; players: TopPlayer[] }) {
+  const { slateId } = useDfsModel();      // a game isn't on one slate: the DFS tabs' Classic slate
   if (!players.length) return null;
   return (
     <View className="mt-2">
@@ -73,7 +75,7 @@ function Targets({ team, players }: { team: string; players: TopPlayer[] }) {
           <View className="flex-row items-center justify-between">
             <Text className="detail-target-name" numberOfLines={1}>
               {p.name}
-              <LeverageBadge inline player={{ name: p.name, team }} /> <Text className="detail-target-meta">{p.position} · {p.role}</Text>
+              <LeverageBadge inline player={{ name: p.name, team, slateId }} /> <Text className="detail-target-meta">{p.position} · {p.role}</Text>
             </Text>
             <Text className="detail-target-meta">{formatCurrency(p.salary)}</Text>
           </View>
@@ -101,6 +103,7 @@ function Targets({ team, players }: { team: string; players: TopPlayer[] }) {
  */
 export default function GameDetailPanel({ gameId }: { gameId: string }) {
   const { detail, error } = useGameDetail(gameId);
+  const { slateId: dfsSlateId } = useDfsModel();      // a game isn't on one slate: the DFS tabs' Classic slate
 
   if (!detail) return <StatusView loading={!error} error={error} />;
 
@@ -255,7 +258,7 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
                 <View className="flex-row items-center">
                   <Text className="detail-row-label" numberOfLines={1}>
                     {u.name}
-                    <LeverageBadge inline player={{ name: u.name, team: team as string }} /> <Text className="detail-target-meta">{u.position}</Text>
+                    <LeverageBadge inline player={{ name: u.name, team: team as string, slateId: dfsSlateId }} /> <Text className="detail-target-meta">{u.position}</Text>
                   </Text>
                   <Text className="detail-row-value">{formatPercent(u.share_season, 0)} season</Text>
                 </View>

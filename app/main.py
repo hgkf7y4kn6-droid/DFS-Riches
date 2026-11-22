@@ -35,6 +35,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Resp
 
 from app import breakdown as breakdown_module
 from app import leverage as leverage_module
+from app import slate_leverage
 from app import metrics, ownership_persist, ownership_slate, ownership_video
 from app import trenches as trenches_module
 from app import dfs_model
@@ -545,16 +546,21 @@ async def _dfs_model_without_props(season: int, week: int, slate_id: str | None,
     return json.dumps(model, separators=(",", ":"), default=_json_default).encode()
 
 
+async def _efficiency(season: int, week: int) -> tuple[dict | None, dict | None]:
+    """(trench profiles, leverage efficiency context); (None, None) when they can't be built -- leverage then rests on plain odds."""
+    try:
+        profiles = await trenches_module.week_profiles(season, week)
+        return profiles, leverage_module.efficiency_context(profiles, await matchups.defense_vs_position(season, week))
+    except Exception:
+        return None, None
+
+
 @memoize_async(ttl_seconds=120, stale_seconds=86400)
 async def _plays(season: int, week: int, slate_id: str | None, contest: str, version: tuple) -> bytes:
     model = json.loads(await _dfs_model(season, week, slate_id, "gpp", None, version))
     if not model.get("available"):
         return json.dumps({"available": False, "reason": model.get("reason") or "The DFS model isn't available for this slate."}).encode()
-    try:
-        profiles = await trenches_module.week_profiles(season, week)
-        efficiency = leverage_module.efficiency_context(profiles, await matchups.defense_vs_position(season, week))
-    except Exception:
-        profiles, efficiency = None, None        # leverage falls back to the plain odds
+    profiles, efficiency = await _efficiency(season, week)
     # What a DST faces: each offense's sack rate and giveaways per game (the DST game environment).
     offense: dict[str, dict] = {}
     try:
@@ -860,6 +866,53 @@ async def _slate_ownership(season: int, week: int, slate_id: str, version: tuple
         players = {i: v for i, v in (state.get("showdown_ids") or {}).items()}
         note = "Showdown posterior: Captain and Flex ownership are separate contests"
     return {"available": True, "players": {str(k): v for k, v in players.items()}, "note": note}
+
+
+@memoize_async(ttl_seconds=120)
+async def _slate_leverage(season: int, week: int, slate_id: str, version: tuple) -> dict:
+    """Leverage for one slate's players by DraftKings id: Classic slates the large-field GPP leverage, Showdown slates
+    Captain and Flex leverage on their own ids (app.slate_leverage)."""
+    _schedule, slate_list = await slates.list_slates(season, week)
+    slate = next((s for s in slate_list if s.slate_id == slate_id), None)
+    if slate is None:
+        raise HTTPException(status_code=404, detail=f"Unknown slate_id: {slate_id}")
+    classic = [s for s in slate_list if s.slate_type == "classic" and s.available]
+    if not slate.available:
+        return {"available": False, "slate_id": slate_id, "players": {}, "reason": "This slate has no DraftKings salaries yet."}
+    if slate.slate_type == "classic":
+        plays = json.loads(await _plays(season, week, slate_id, "gpp", version))
+        if not plays.get("available"):
+            return {"available": False, "slate_id": slate_id, "players": {}, "reason": plays.get("reason") or "No leverage for this slate."}
+        found = slate_leverage.classic(plays)
+        note = "Large-field GPP leverage: fair minus projected ownership, by position"
+    else:
+        if not classic:
+            return {"available": False, "slate_id": slate_id, "players": {},
+                    "reason": "Showdown leverage needs a DraftKings Classic slate with salaries."}
+        model_slate = classic[0]
+        await _dfs_model(season, week, model_slate.slate_id, "gpp", None, version)
+        state = dfs_model._STATE.get((season, week, model_slate.slate_id, "gpp"))
+        if state is None:
+            return {"available": False, "slate_id": slate_id, "players": {}, "reason": "The ownership model isn't available for this slate."}
+        _profiles, efficiency = await _efficiency(season, week)
+        sp = await slates.get_slate_players(season, week, slate_id)
+        found = slate_leverage.showdown(slate_leverage.showdown_rows(sp.players, state.get("showdown_ids") or {}), efficiency)
+        note = "Showdown leverage: fair minus projected ownership, within Captain and within Flex (each its own ids and scoring)"
+    return {"available": True, "slate_id": slate_id, "slate_type": slate.slate_type, "players": {str(k): v for k, v in found.items()},
+            "note": note}
+
+
+@app.get("/api/slates/{slate_id}/leverage")
+async def api_slate_leverage(request: Request, slate_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
+    """Leverage (fair minus projected ownership, percentage points) for a slate's players, keyed by DraftKings draftable id
+    -- Captain and Flex ids separately on a Showdown slate (Pro)."""
+    await _require_feature(request, "leverage")
+    try:
+        return await _slate_leverage(season, week, slate_id, _model_version())
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise _upstream_failure("Could not build leverage", exc) from exc
 
 
 @app.get("/api/slates/{slate_id}/ownership")

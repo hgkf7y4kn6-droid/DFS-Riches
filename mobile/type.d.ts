@@ -948,7 +948,7 @@ interface ActualOwnershipSummary {
 
 /** How a player's leverage was built (app/leverage.py). */
 interface LeverageDetail {
-  /** Fair ownership: the position's ownership redistributed by efficiency-adjusted odds (percent). */
+  /** Fair ownership: the position's (Showdown: the slot's) ownership redistributed by efficiency-adjusted odds (percent). */
   fair_own: number | null;
   own: number | null;
   /** True when `own` is uploaded actual ownership rather than the projection. */
@@ -963,6 +963,18 @@ interface LeverageDetail {
   def_z: number;
   pos_z: number;
   verdict: 'Efficient secret' | 'Public trap' | 'Mirage' | null;
+  /** Showdown only: the roster slot this number is for (Captain and Flex ids are separate contests). */
+  slot?: 'CPT' | 'FLEX';
+}
+
+/** Leverage for every player on one slate, by DraftKings draftable id (GET /api/slates/{id}/leverage). */
+interface SlateLeverage {
+  available: boolean;
+  slate_id: string;
+  slate_type?: 'classic' | 'showdown';
+  reason?: string;
+  note?: string;
+  players: Record<string, { name: string; team: string; leverage: number; leverage_detail: LeverageDetail | null; slot: 'CPT' | 'FLEX' | null }>;
 }
 
 interface PlayPlayer {

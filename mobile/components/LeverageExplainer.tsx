@@ -52,6 +52,12 @@ export default function LeverageExplainer({ shown, onClose }: { shown: LeverageE
                     Matchup efficiency ×{d.mem.toFixed(2)}: his offense {sigma(d.off_z)}, the opposing defense {sigma(d.def_z)}, that defense vs his
                     position {sigma(d.pos_z)} (league standard deviations; above ×1.00 helps him)
                   </Text>
+                  {d.slot ? (
+                    <Text className="lev-explain-text">
+                      Showdown {d.slot === 'CPT' ? 'Captain' : 'Flex'}: compared with the other {d.slot === 'CPT' ? 'Captains' : 'Flex players'} only. Captain and Flex are
+                      separate contests with their own ownership and scoring.
+                    </Text>
+                  ) : null}
                   {d.teap != null ? <Text className="lev-explain-text">Efficiency-adjusted projection {d.teap.toFixed(1)} pts</Text> : null}
                   {d.p != null ? <Text className="lev-explain-text">Odds of a big game {(d.p * 100).toFixed(0)}%</Text> : null}
                   {d.verdict ? (

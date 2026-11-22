@@ -29,8 +29,8 @@ export function leverageText(value: number, d: LeverageDetail | null | undefined
 }
 
 interface Props {
-  /** Look the player up in the shared (large-field GPP) leverage... */
-  player?: { id?: number | null; name?: string | null; team?: string | null };
+  /** Look the player up in his slate's leverage (Classic: large-field GPP; Showdown: Captain / Flex by id)... */
+  player?: { id?: number | null; name?: string | null; team?: string | null; slateId?: string | null };
   /** ...or show this contest's own value (Cash / GPP rows). */
   value?: number | null;
   detail?: LeverageDetail | null;
@@ -52,8 +52,8 @@ export default function LeverageBadge({ player, value, detail, inline, name }: P
   const { locked } = useAccountSync();
   const explicit = value !== undefined;
   useEffect(() => {
-    if (!explicit) request();
-  }, [explicit, request]);
+    if (!explicit) request(player?.slateId);
+  }, [explicit, request, player?.slateId]);
   const info = explicit ? (value != null ? { value, detail: detail ?? null } : null) : player ? lookup(player) : null;
   if (!info || locked('leverage')) return null;            // a Pro feature once billing is on
   const level = trendLevel(info.value, 0, 'high', { steps: STEPS, absolute: true });
