@@ -84,10 +84,10 @@ SHOWDOWN_GRADE_CUTS = [("A", 85.0), ("B", 65.5), ("C", 50.0), ("D", 38.5)]
 # grades higher (more room for error: a few sharp players can't take most of the paying spots), and so does a higher payout
 # ratio (prize pool / total entry fees = 1 - rake). The ratio is worked out per contest from its fee and field, so it doesn't
 # move with contest size. Each factor runs 0-1 between these anchors (the fields and ratios DraftKings lists); the score is
-# their weighted mean, so only a big Double Up at a high ratio reaches the top grade, a B. Smaller or lower-ratio ones grade lower.
+# their weighted mean, dominated by size, so the biggest Double Ups grade B whatever their ratio and smaller or lower-ratio ones grade lower.
 DOUBLE_UP_FIELD = (11, 5000)            # entries: this small scores 0, this big 1 (on a log scale)
 DOUBLE_UP_RATIO = (0.870, 0.912)        # payout ratio: the lowest and the highest DraftKings lists
-DOUBLE_UP_WEIGHTS = {"field": 0.6, "ratio": 0.4}
+DOUBLE_UP_WEIGHTS = {"field": 0.85, "ratio": 0.15}     # size matters far more: it is the room for error
 DOUBLE_UP_CUTS = [("B", 62.0), ("C", 45.0), ("D", 25.0)]      # a Double Up never grades above B
 
 # (id, label, lowest, highest max entries per user)

@@ -298,6 +298,9 @@ def test_bigger_double_ups_grade_higher_and_a_big_high_payout_one_is_a_b():
     assert [order.index(g) for g in grades] == sorted((order.index(g) for g in grades), reverse=True)    # never better as it shrinks
     assert grades[0] != grades[-1] and grades[-1] == "B"
     assert contests.grade_contests([_double_up(100000, 0.912)])[0]["grade"] == "B"                       # the top grade a Double Up gets
+    # size outweighs the payout ratio: a big Double Up at the lowest ratio beats a small one at the highest
+    score = lambda f, r: contests.grade_contests([_double_up(f, r)])[0]["grade_score"]                    # noqa: E731
+    assert score(2000, 0.870) > score(100, 0.912)
 
 
 def test_lower_double_up_payout_ratio_grades_lower_at_any_size_and_size_does_not_move_it():
@@ -351,8 +354,9 @@ def test_sort_by_grade_puts_the_best_grade_first_and_ungraded_last():
     assert [r["id"] for r in sorted(rows, key=lambda r: -r["score"])][0] == 4    # by score it would be the cash game
 
 
-def test_the_biggest_double_ups_at_a_high_payout_ratio_grade_b_but_the_lowest_ratio_one_does_not():
+def test_the_biggest_double_ups_grade_b_even_at_the_lowest_payout_ratio():
     grade = lambda f, r: contests.grade_contests([_double_up(f, r)])[0]["grade"]      # noqa: E731
-    assert grade(444, 0.901) == "B" and grade(333, 0.901) == "B"        # as listed on DraftKings: big, high ratio
-    assert grade(6896, 0.870) == "C"                                    # the biggest, but at the lowest ratio listed
-    assert grade(23, 0.870) == "F"
+    assert grade(6896, 0.870) == "B" and grade(6896, 0.901) == "B"      # as listed on DraftKings: the biggest, at any ratio
+    assert grade(3448, 0.870) == "B"
+    assert grade(444, 0.901) == "B" and grade(333, 0.901) == "C"        # mid-size needs a high ratio to reach B
+    assert grade(23, 0.912) == "D" and grade(23, 0.870) == "F"          # a small field is not rescued by a high ratio
