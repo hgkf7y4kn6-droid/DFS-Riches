@@ -38,7 +38,7 @@ from app import leverage as leverage_module
 from app import metrics, ownership_persist, ownership_slate, ownership_video
 from app import trenches as trenches_module
 from app import dfs_model
-from app import accounts, beat_news, contests, guard, matchups, news_overrides, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
+from app import accounts, beat_news, contests, guard, matchups, news_overrides, outside_sources, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
@@ -592,7 +592,7 @@ async def api_plays(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, 
 
 def _model_version() -> tuple:
     """The DFS model's cache key: changes with new ownership information or breaking news (app.news_overrides)."""
-    return ownership_store.data_version() + news_overrides.data_version()
+    return ownership_store.data_version() + news_overrides.data_version() + outside_sources.data_version()
 
 
 async def _user(authorization: str | None) -> str:

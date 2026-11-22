@@ -54,7 +54,7 @@ import time
 from datetime import datetime, timezone
 
 from app import advanced_env, breakdown as breakdown_module, game_model, injury_news
-from app import consensus, dfs_strategy, ownership_report, projections, prop_pricer, sources, usage, weather
+from app import consensus, dfs_strategy, outside_sources, ownership_report, projections, prop_pricer, sources, usage, weather
 from app import slates as slates_module
 from app.cache import _cache_path
 from app.sleeper_client import get_nfl_state
@@ -167,6 +167,13 @@ def _player_rows(players, indexes, accuracy, weights, vs_expectation, game_of=No
                 final *= chance * factor
             elif p.injury == "Q":
                 adjustments.append({"kind": "sourced", "text": "Questionable (DraftKings): kept, uncertainty raised -- sources may assume he plays"})
+            final, outside_delta = outside_sources.blend_final(final, getattr(p, "outside_proj", None), getattr(p, "outside_weight", 0.0))
+            if abs(outside_delta) >= 0.05:
+                adjustments.append({"kind": "sourced", "source": "Outside sources", "delta": round(outside_delta, 2),
+                                    "text": f"The Fantasy Footballers project {p.outside_proj:.1f}; {p.outside_weight:.0%} of the way there "
+                                            f"(their Week 9 record beat the model at {pos}): {outside_delta:+.1f}"})
+            for note in getattr(p, "outside_notes", []) or []:
+                adjustments.append({"kind": "sourced", "source": "Outside sources", "text": note})
             final = round(final, 2)
 
         cal = calibration(accuracy, pos, final or 0.0)
@@ -417,6 +424,11 @@ async def build(season: int, week: int, slate_id: str | None = None, contest: st
     for r in rows:
         r["implied"] = (ctx.get(r["team"]) or {}).get("implied")
     showdowns = await _showdown_players(season, week, slate_list, ctx)
+    if slate.slate_type == "classic":
+        try:
+            await outside_sources.ensure_ownership(season, week, slate.slate_id)
+        except Exception:                 # outside ownership is an extra input: never take the model down
+            pass
     own_state = ownership_report.compute(season, week, slate, rows, contest=contest, showdowns=showdowns)
     gpp_own = ownership_report.own_pct_by_id(own_state, "gpp")
     pool = [r for r in rows if _eligible(r)]

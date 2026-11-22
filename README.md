@@ -1217,6 +1217,29 @@ season at a time the gain is tiny (-0.09% RMSE WR/TE, -0.23% RB), the WR/TE sign
 The app's own role/script correction does not hurt rows with a vacancy (Sleeper MAE 5.292 -> 5.264 on 2023-2025, 5.193 -> 5.143 in
 2026), so nothing downstream needs undoing.
 
+## Outside sources and two usage signals that did not pay
+
+**Outside sources (`app/outside_sources.py`, files in `data/outside/`).** The Fantasy Footballers' Week 11 tables (projections, ceilings,
+projected ownership) and Sharp Football's calls are transcribed by `scripts/import_outside_w11.py`. What they change:
+
+- *Projections.* The Footballers' projection is blended into `proj_points` (the saved optimal lineups) and into the DFS model's `final`
+  with a weight by position from `scripts/outside_blend_weights.py`: the weight that minimised squared error on Week 9 (69 players),
+  scaled `0.3 * clip(w_opt, 0, 1)` because one week cannot carry a bigger one. Week 9 gave QB 0.30, RB 0.30, DST 0.30, TE 0.11 and WR 0
+  (the model beat them at WR: RMSE 9.8 vs 10.5). A Questionable player's outside projection gets the same chance-to-play discount as ours.
+  Re-run the script as more weeks are graded; the cap should come off only when the intervals narrow (pooled: 0.65, 80% interval 0.07 to 1.26).
+- *Ownership.* Their projected ownership enters the Bayesian ownership model as a `source` observation (once per slate, replayed at build
+  time because `data/ownership/` is not committed), so the posterior and the chalk / leverage / fade lists use it. Before: Emmett Johnson 25%,
+  Coleman 13%, Tate 5%; after: 69%, 35%, 24% (theirs: 64-74%, 36%, 26%). Not graded yet: no actual ownership for Week 9.
+- *Sharp.* Informational notes on the player; no number moves, because it publishes no projections to grade.
+
+**Red-zone usage and role breaks (`scripts/test_usage_signals.py`, `data/usage_signal_tests.json`; not adopted).** 2023-2026, 9,270 RB/WR/TE
+games with a Sleeper projection of 3+, actual minus Sleeper's final projection:
+
+- Red-zone share (carries + targets inside the 20 and the 5 over his team's last four games): WR slope t = 1.8, same sign in all four seasons,
+  but leave-one-season-out RMSE got slightly worse (+0.1%); RB and TE nothing (t 0.4 and 0.1). Red-zone TD rate: nothing.
+- Role breaks (offensive snap share last week vs the two before): a rise of 25+ points (588 games) beat Sleeper's projection by +0.28 +/- 0.28
+  points; a fall (306 games) by -0.04 +/- 0.37; the linear slope has t 0.8 and flips sign by season. Sleeper's last projection already absorbs both.
+
 ## Tests
 
 ```bash

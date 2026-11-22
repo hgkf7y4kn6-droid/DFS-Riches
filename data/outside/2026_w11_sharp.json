@@ -1,0 +1,282 @@
+{
+ "_readme": "Writes data/outside/2026_w11_footballers.json and 2026_w11_sharp.json: the Week 11 outside-source tables, transcribed from\nthe pasted articles (The Fantasy Footballers' tournament-takes ownership notes and DraftKings optimizer view; Sharp Football's\nWorksheet and core / tournament plays). Run `python -m scripts.import_outside_w11` to regenerate.\n\nFootballers records: set \"a\" = the ownership-notes tables (pOwn and projection, top players per position) and set \"b\" = the\noptimizer view (salary, projection, ceiling, projected ownership, players over $4,000 with a projection). Sharp has no\nprojection numbers or ownership, only calls: core and tournament plays and role notes, kept as text.\n",
+ "source": "Sharp Football",
+ "season": 2026,
+ "week": 11,
+ "slate": "classic_sunday",
+ "notes": [
+  {
+   "name": "Dak Prescott",
+   "team": "DAL",
+   "pos": "QB",
+   "view": "core",
+   "note": "Trust. Four straight top-10 weeks; Titans allow QB1 weeks in 5 of 6 and are last in pressure rate."
+  },
+  {
+   "name": "Patrick Mahomes",
+   "team": "KC",
+   "pos": "QB",
+   "view": "core",
+   "note": "Trust. Under center at a career-high rate; Arizona is crushed by play action."
+  },
+  {
+   "name": "Cam Ward",
+   "team": "TEN",
+   "pos": "QB",
+   "view": "tournament",
+   "note": "Trust. QB4 and QB12 the last two weeks on league-high no-huddle and neutral pace; Dallas is last in passing points allowed."
+  },
+  {
+   "name": "Bo Nix",
+   "team": "DEN",
+   "pos": "QB",
+   "view": "tournament",
+   "note": "Three straight QB1 weeks; Raiders allow the most passing points over eight weeks."
+  },
+  {
+   "name": "Caleb Williams",
+   "team": "CHI",
+   "pos": "QB",
+   "view": "note",
+   "note": "QB1 with upside: Bears' highest implied total of his career (30.25)."
+  },
+  {
+   "name": "Josh Allen",
+   "team": "BUF",
+   "pos": "QB",
+   "view": "note",
+   "note": "Surefire QB1, but his spike weeks come when pushed; a 16.5-point favorite may not push. Pricey to pay for."
+  },
+  {
+   "name": "Jared Goff",
+   "team": "DET",
+   "pos": "QB",
+   "view": "note",
+   "note": "Fringe QB1 against a Bucs defense that is third in passing points allowed."
+  },
+  {
+   "name": "Emmett Johnson",
+   "team": "KC",
+   "pos": "RB",
+   "view": "core",
+   "note": "Trust. 87% of snaps, 28 touches, 171 yards last week; Walker held out again."
+  },
+  {
+   "name": "Jonah Coleman",
+   "team": "DEN",
+   "pos": "RB",
+   "view": "core",
+   "note": "Controls the backfield, ahead of Dobbins on routes (24 to 4); Raiders allow the most yards per touch to backs."
+  },
+  {
+   "name": "Tony Pollard",
+   "team": "TEN",
+   "pos": "RB",
+   "view": "core",
+   "note": "Trust. Three straight top-10 weeks; 77% of backfield touches with Spears back; Dallas allows the most RB touchdowns (16)."
+  },
+  {
+   "name": "James Cook III",
+   "team": "BUF",
+   "pos": "RB",
+   "view": "tournament",
+   "note": "Eight straight games with a rushing TD; Miami lost its interior linemen."
+  },
+  {
+   "name": "Bucky Irving",
+   "team": "TB",
+   "pos": "RB",
+   "view": "tournament",
+   "note": "100 yards and a TD in four of five; run-heavy Bucs, but a road underdog."
+  },
+  {
+   "name": "Javonte Williams",
+   "team": "DAL",
+   "pos": "RB",
+   "view": "tournament",
+   "note": "League-high 22 opportunities inside the 5; pivot off the Dallas passing game."
+  },
+  {
+   "name": "Omarion Hampton",
+   "team": "LAC",
+   "pos": "RB",
+   "view": "tournament",
+   "note": "Career-high 22 carries last week; Jets allow 115.8 rushing yards per game to backs (31st)."
+  },
+  {
+   "name": "D'Andre Swift",
+   "team": "CHI",
+   "pos": "RB",
+   "view": "note",
+   "note": "RB2 if Monangai returns: 72.5% of backfield touches over five games without him, 53% with him."
+  },
+  {
+   "name": "Kyle Monangai",
+   "team": "CHI",
+   "pos": "RB",
+   "view": "note",
+   "note": "Expected back from the bye; RB2/RB3 line. Both Bears backs depend on touchdowns."
+  },
+  {
+   "name": "Jahmyr Gibbs",
+   "team": "DET",
+   "pos": "RB",
+   "view": "note",
+   "note": "RB1 with a high ceiling at home, but Tampa is a tough run matchup (third-fewest yards per touch)."
+  },
+  {
+   "name": "Chuba Hubbard",
+   "team": "CAR",
+   "pos": "RB",
+   "view": "note",
+   "note": "Fringe RB1; Brooks is expected back, which trims his 84% of backfield touches."
+  },
+  {
+   "name": "CeeDee Lamb",
+   "team": "DAL",
+   "pos": "WR",
+   "view": "core",
+   "note": "Trust. Double-digit targets in five straight; second in the NFL in points against Cover 4."
+  },
+  {
+   "name": "Amon-Ra St. Brown",
+   "team": "DET",
+   "pos": "WR",
+   "view": "core",
+   "note": "Trust. 20+ PPR points in all four career games against the Bucs; 3.05 yards per route against the blitz."
+  },
+  {
+   "name": "Luther Burden III",
+   "team": "CHI",
+   "pos": "WR",
+   "view": "core",
+   "note": "WR6-WR8 in four straight; leads the team against Cover 3, which New Orleans plays 42.7% of the time."
+  },
+  {
+   "name": "Carnell Tate",
+   "team": "TEN",
+   "pos": "WR",
+   "view": "core",
+   "note": "Hopeful he returns; high-end WR2 if he does. Joey Porter Jr. may follow him but teams avoid Porter."
+  },
+  {
+   "name": "George Pickens",
+   "team": "DAL",
+   "pos": "WR",
+   "view": "tournament",
+   "note": "Trust. 11-145-3 last week; Titans are flooded by outside receivers."
+  },
+  {
+   "name": "Malik Nabers",
+   "team": "NYG",
+   "pos": "WR",
+   "view": "tournament",
+   "note": "28.9% target share and 2.58 yards per route with McCarthy; fringe WR1."
+  },
+  {
+   "name": "Garrett Wilson",
+   "team": "NYJ",
+   "pos": "WR",
+   "view": "tournament",
+   "note": "35-39% target shares the last two games; Cooper out; Chargers 28th in points per target allowed."
+  },
+  {
+   "name": "Elic Ayomanor",
+   "team": "TEN",
+   "pos": "WR",
+   "view": "tournament",
+   "note": "90.7% route rate, 27% of targets; WR3/FLEX with end-zone targets."
+  },
+  {
+   "name": "Ja'Kobi Lane",
+   "team": "BAL",
+   "pos": "WR",
+   "view": "tournament",
+   "note": "11 targets last week; 42.9% of his red-zone routes targeted."
+  },
+  {
+   "name": "Jordyn Tyson",
+   "team": "NO",
+   "pos": "WR",
+   "view": "note",
+   "note": "WR3: route rate jumped from 35% to 72%, 41.9% targeted per route, but air yards per target only 5.3."
+  },
+  {
+   "name": "Chris Olave",
+   "team": "NO",
+   "pos": "WR",
+   "view": "note",
+   "note": "WR2 rather than a locked WR1: target share fell to 12% last week with Tyson soaking up short targets."
+  },
+  {
+   "name": "Rome Odunze",
+   "team": "CHI",
+   "pos": "WR",
+   "view": "note",
+   "note": "Upside WR2/WR3 as the Bears' third target; 35.7% air-yard share."
+  },
+  {
+   "name": "Colston Loveland",
+   "team": "CHI",
+   "pos": "TE",
+   "view": "core",
+   "note": "TE5 in expected points since Williams returned; 25.8% of the targets over four games."
+  },
+  {
+   "name": "Mark Andrews",
+   "team": "BAL",
+   "pos": "TE",
+   "view": "core",
+   "note": "8-8-82 with Brissett; fringe TE1, but the target jump needs to stick."
+  },
+  {
+   "name": "Mason Taylor",
+   "team": "NYJ",
+   "pos": "TE",
+   "view": "tournament",
+   "note": "Chargers allow a league-high 9.3 yards per target to tight ends; Cooper and Williams out."
+  },
+  {
+   "name": "Kenyon Sadiq",
+   "team": "NYJ",
+   "pos": "TE",
+   "view": "tournament",
+   "note": "Preferred over Taylor: more slot work and a 20.6% target rate per route."
+  },
+  {
+   "name": "Dawson Knox",
+   "team": "BUF",
+   "pos": "TE",
+   "view": "tournament",
+   "note": "Kincaid doubtful; Miami allows an 83.3% catch rate to tight ends."
+  },
+  {
+   "name": "Gunnar Helm",
+   "team": "TEN",
+   "pos": "TE",
+   "view": "tournament",
+   "note": "Cheap attachment to the most popular game; only 51% of dropbacks, so a matchup TE2."
+  },
+  {
+   "name": "Isaiah Likely",
+   "team": "NYG",
+   "pos": "TE",
+   "view": "note",
+   "note": "TE1, but a tougher ceiling spot: the Jaguars allow the fewest yards per target to tight ends."
+  },
+  {
+   "name": "Trey McBride",
+   "team": "ARI",
+   "pos": "TE",
+   "view": "note",
+   "note": "Floor-based TE1: route count fell to 20; the ceiling is lowered by the quarterback change."
+  },
+  {
+   "name": "Brock Bowers",
+   "team": "LV",
+   "pos": "TE",
+   "view": "note",
+   "note": "Left last week's game after 11 snaps and is expected to miss time."
+  }
+ ]
+}

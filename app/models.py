@@ -113,6 +113,9 @@ class Player(BaseModel):
     opp_cb_out: int | None = None     # RB/WR/TE: the opponent's starting corners out (app.game_model), when any
     play_chance: float | None = None  # Questionable: chance he plays (app.injury_news), already in proj_points
     vacated_adj: float | None = None  # DK points from out teammates' volume Sleeper hasn't moved yet (app.vacated), in proj_points
+    outside_proj: float | None = None  # The Fantasy Footballers' projection (app.outside_sources), scaled like ours if Questionable
+    outside_weight: float = 0.0       # the share of it already blended into proj_points (0 where the model has been the more accurate)
+    outside_notes: list[str] = []     # outside sources' calls on him (Sharp Football), informational
     practice: str | None = None       # Questionable: this week's practice log from the team's report, e.g. "Wed DNP · Thu LP · Fri FP"
 
 
