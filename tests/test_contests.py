@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from pathlib import Path
 
 import pytest
 
@@ -249,16 +250,113 @@ def test_grades_match_the_draftkings_sheet():
     rows, want = [], []
     for i, line in enumerate(_SHEET.splitlines()):
         grade, fee, mec, field, first, pct = line.split()
-        rows.append({"id": i, "kind": "Tournament", "slate": "JAX @ BAL", "max_entries": int(mec),
+        rows.append({"id": i, "kind": "Tournament", "slate": "JAX @ BAL", "game_type": "Showdown Captain Mode", "max_entries": int(mec),
                      "field_size": int(field), "top_prize": float(first), "prize_pool": float(first) / (float(pct) / 100)})
         want.append(grade)
     got = [r["grade"] for r in contests.grade_contests(rows)]
     assert sum(g == w for g, w in zip(got, want)) >= 27  # fitted to this sheet: one contest (a D) grades as a C
 
 
-def test_cash_games_are_ungraded_and_slates_graded_apart():
-    base = {"max_entries": 1, "field_size": 100, "top_prize": 100.0, "prize_pool": 1000.0}
-    rows = [{**base, "kind": "Double Up", "slate": "Main"}, {**base, "kind": "Tournament", "slate": "Main"},
-            {**base, "kind": "Tournament", "slate": "Early"}]
+def test_fifty_fifties_and_triple_ups_are_ungraded_and_slates_graded_apart():
+    base = {"max_entries": 1, "field_size": 100, "top_prize": 100.0, "prize_pool": 1000.0, "entry_fee": 12.0, "game_type": "Classic"}
+    rows = [{**base, "kind": "50/50", "slate": "Main"}, {**base, "kind": "Triple Up", "slate": "Main"},
+            {**base, "kind": "Tournament", "slate": "Main"}, {**base, "kind": "Tournament", "slate": "Early"}]
     got = contests.grade_contests(rows)
-    assert got[0]["grade"] is None and got[1]["grade"] == got[2]["grade"] is not None
+    assert got[0]["grade"] is None and got[1]["grade"] is None and got[2]["grade"] == got[3]["grade"] is not None
+
+
+def _week10_main_sheet():
+    rows, want = [], []
+    for line in open(Path(__file__).parent / "fixtures" / "dk_gpp_grades_w10_main.txt"):
+        grade, _name, fee, mec, field, first, rake, _cash, pct = line.strip().split("|")
+        fee, field, first, pct = float(fee), int(field), float(first), float(pct)
+        pool = fee * field * (1 - float(rake) / 100)                              # DraftKings' pool, from the sheet's own rake
+        assert abs(first / pool * 100 - pct) < 1.0                                # which agrees with its % to 1st
+        rows.append({"kind": "Tournament", "slate": "Main", "game_type": "Classic", "max_entries": int(mec), "field_size": field,
+                     "top_prize": pct / 100 * pool, "prize_pool": pool, "entry_fee": fee})   # % to 1st as listed (rounded)
+        want.append(grade)
+    return rows, want
+
+
+def test_grades_match_the_week_10_main_slate_sheet():
+    rows, want = _week10_main_sheet()
+    got = [r["grade"] for r in contests.grade_contests(rows)]
+    order = "ABCDF"
+    assert len(rows) == 56
+    assert sum(g == w for g, w in zip(got, want)) >= 51                    # 53 of 56 (the old three-factor grade matched 37)
+    assert all(abs(order.index(g) - order.index(w)) <= 1 for g, w in zip(got, want))     # and none is off by more than one grade
+
+
+def _double_up(field, ratio, fee=5.0):
+    return {"kind": "Double Up", "slate": "Main", "game_type": "Classic", "max_entries": 1, "field_size": field, "entry_fee": fee,
+            "prize_pool": ratio * fee * field, "top_prize": 2 * fee}
+
+
+def test_bigger_double_ups_grade_higher_and_a_big_high_payout_one_is_a_b():
+    order = "ABCDF"
+    grades = [contests.grade_contests([_double_up(f, 0.905)])[0]["grade"] for f in (11, 50, 300, 1500, 6000)]
+    assert [order.index(g) for g in grades] == sorted((order.index(g) for g in grades), reverse=True)    # never better as it shrinks
+    assert grades[0] != grades[-1] and grades[-1] == "B"
+    assert contests.grade_contests([_double_up(100000, 0.912)])[0]["grade"] == "B"                       # the top grade a Double Up gets
+    # size outweighs the payout ratio: a big Double Up at the lowest ratio beats a small one at the highest
+    score = lambda f, r: contests.grade_contests([_double_up(f, r)])[0]["grade_score"]                    # noqa: E731
+    assert score(2000, 0.870) > score(100, 0.912)
+
+
+def test_lower_double_up_payout_ratio_grades_lower_at_any_size_and_size_does_not_move_it():
+    score = lambda f, r: contests.grade_contests([_double_up(f, r)])[0]["grade_score"]     # noqa: E731
+    for field in (23, 500, 5000):
+        assert score(field, 0.912) > score(field, 0.89) > score(field, 0.870)
+    # the same ratio at a different fee or field is the same payout ratio: only the size factor moves the score
+    assert contests.grade_contests([_double_up(500, 0.89, fee=1.0)])[0]["grade_score"] == score(500, 0.89)
+
+
+async def test_guaranteed_status_filter(lobby):
+    lobby["lobby"] = {"Contests": [
+        _contest(1, 3, 100, 270, attr={"IsGuaranteed": "true"}),
+        _contest(2, 3, 100, 255, attr={"IsGuaranteed": "false"}),
+        _contest(3, 3, 100, 240, attr={"IsFeatured": "true"}),
+    ], "DraftGroups": []}
+    lobby["payouts"] = {1: (20, 100.0), 2: (20, 100.0), 3: (20, 100.0)}
+    ids = lambda r: sorted(c["id"] for c in r["contests"])          # noqa: E731
+    assert ids(await contests.best_contests()) == [1, 2, 3]
+    yes = await contests.best_contests(guaranteed="yes")
+    assert ids(yes) == [1] and yes["selected"]["guaranteed"] == "yes" and yes["matching"] == 1
+    no = await contests.best_contests(guaranteed="no")
+    assert ids(no) == [2, 3] and all(not c["guaranteed"] for c in no["contests"])
+
+
+def _graded_rows():
+    """Four tournaments on one slate that grade A..F-ish by field size and entry limit, plus a cash game (ungraded)."""
+    def row(i, kind, field, mec, score):
+        return {"id": i, "kind": kind, "slate": "Main", "max_entries": mec, "field_size": field, "top_prize": 100.0,
+                "prize_pool": 1000.0, "guaranteed": True, "score": score, "entry_fee": 3.0}
+    rows = [row(1, "Tournament", 5000, 150, 90), row(2, "Tournament", 50, 1, 10), row(3, "Tournament", 500, 20, 50),
+            row(4, "50/50", 100, 1, 99)]
+    return contests.grade_contests(rows)
+
+
+def test_min_grade_keeps_that_grade_or_better_and_drops_ungraded_cash():
+    rows = _graded_rows()
+    grade = {r["id"]: r["grade"] for r in rows}
+    assert grade[2] in ("A", "B") and grade[4] is None
+    ids = lambda g: [r["id"] for r in contests.select(rows, frozenset(), frozenset(), frozenset(), min_grade=g)]    # noqa: E731
+    assert sorted(ids("any")) == [1, 2, 3, 4]
+    assert 4 not in ids("D") and 2 in ids("D")
+    better = contests.select(rows, frozenset(), frozenset(), frozenset(), min_grade=grade[2])
+    assert all(contests._GRADE_ORDER[r["grade"]] <= contests._GRADE_ORDER[grade[2]] for r in better)
+
+
+def test_sort_by_grade_puts_the_best_grade_first_and_ungraded_last():
+    rows = _graded_rows()
+    order = [r["id"] for r in contests.by_grade(rows)]
+    assert order[0] == 2 and order[-1] == 4                  # smallest field, single entry = best grade; cash games last
+    assert [r["id"] for r in sorted(rows, key=lambda r: -r["score"])][0] == 4    # by score it would be the cash game
+
+
+def test_the_biggest_double_ups_grade_b_even_at_the_lowest_payout_ratio():
+    grade = lambda f, r: contests.grade_contests([_double_up(f, r)])[0]["grade"]      # noqa: E731
+    assert grade(6896, 0.870) == "B" and grade(6896, 0.901) == "B"      # as listed on DraftKings: the biggest, at any ratio
+    assert grade(3448, 0.870) == "B"
+    assert grade(444, 0.901) == "B" and grade(333, 0.901) == "C"        # mid-size needs a high ratio to reach B
+    assert grade(23, 0.912) == "D" and grade(23, 0.870) == "F"          # a small field is not rescued by a high ratio

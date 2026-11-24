@@ -142,6 +142,26 @@ def test_snapshot_also_stores_next_weeks_lookahead_lines(local_store, monkeypatc
     assert out["stored"] == 0 and len(store.odds_history(2026, 7)) == 1
 
 
+def test_lookahead_rows_show_next_weeks_early_lines(local_store):
+    from app.big_picture import writer
+
+    def q(market, side, line, price, at):
+        return {"captured_at": at, "season": 2026, "week": 7, "game": "BUF@MIA", "market": market, "side": side,
+                "line": line, "price": price, "source": odds.SOURCE}
+    store.add_odds([q("spread", "home", 2.5, -110, "2026-10-12T01:00:00+00:00"),
+                    q("total", "over", 47.5, -110, "2026-10-12T01:00:00+00:00"),
+                    q("moneyline", "home", None, 120, "2026-10-12T01:00:00+00:00"),
+                    q("moneyline", "away", None, -142, "2026-10-12T01:00:00+00:00")])
+    store.add_odds([q("spread", "home", 3.0, -105, "2026-10-13T01:00:00+00:00")])
+    [row] = writer.lookahead(odds.summarize(store.odds_history(2026, 7)))
+    assert row["game"] == "BUF@MIA"
+    assert row["spread"] == "MIA +3 (−105)" and row["spread_open"] == "MIA +2.5"
+    assert row["total"] == "47.5" and row["total_open"] is None          # unmoved: no opener shown
+    assert row["moneyline"] == "BUF −142 / MIA +120"
+    assert row["captured_at"].startswith("2026-10-13")
+    assert writer.lookahead({}) == []
+
+
 def test_reports_are_append_only(local_store):
     a = store.add_report(2026, 6, "agents", {"title": "one"}, {"meta": {"generated_at": "a"}, "games": []}, {"sections": []})
     b = store.add_report(2026, 6, "agents", {"title": "two"}, {"meta": {"generated_at": "b"}, "games": []}, {"sections": []})

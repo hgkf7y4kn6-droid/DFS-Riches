@@ -295,6 +295,78 @@
         "first_kickoff": "2026-11-15T21:05:00+00:00",
         "last_kickoff": "2026-11-15T21:25:00+00:00"
       }
+    },
+    "11": {
+      "classic_sunday": {
+        "draft_group_id": 156561,
+        "label": "Classic - Sunday Main (10 games)",
+        "first_kickoff": "2026-11-22T18:00:00+00:00",
+        "last_kickoff": "2026-11-22T21:25:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 156774,
+        "label": "Full Week 11 Slate (13 games)"
+      },
+      "showdown": {
+        "THU_NIGHT": {
+          "draft_group_id": 156781,
+          "label": "Showdown - Thu Night (IND @ HOU)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 156793,
+          "label": "Showdown - Mon Night (CIN @ WAS)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 156792,
+          "label": "Showdown - Sun Night (MIN @ SF)"
+        }
+      },
+      "classic_afternoon": {
+        "draft_group_id": 156777,
+        "label": "Classic - Sunday Afternoon Only (3 games)",
+        "first_kickoff": "2026-11-22T21:05:00+00:00",
+        "last_kickoff": "2026-11-22T21:25:00+00:00"
+      }
+    },
+    "12": {
+      "classic_sunday": {
+        "draft_group_id": 157066,
+        "label": "Classic - Sunday Main (9 games)",
+        "first_kickoff": "2026-11-29T18:00:00+00:00",
+        "last_kickoff": "2026-11-29T21:25:00+00:00"
+      },
+      "classic_thursday": {
+        "draft_group_id": 156932,
+        "label": "Classic - Thanksgiving (3 games)",
+        "first_kickoff": "2026-11-26T18:00:00+00:00",
+        "last_kickoff": "2026-11-27T01:20:00+00:00"
+      },
+      "classic": {
+        "draft_group_id": 157063,
+        "label": "Full Week 12 Slate (16 games)"
+      },
+      "showdown": {
+        "FRI_LATE": {
+          "draft_group_id": 157076,
+          "label": "Showdown - Fri Late (DEN @ PIT)"
+        },
+        "THU_EARLY": {
+          "draft_group_id": 157073,
+          "label": "Showdown - Thu Early (CHI @ DET)"
+        },
+        "THU_LATE": {
+          "draft_group_id": 157074,
+          "label": "Showdown - Thu Late (PHI @ DAL)"
+        },
+        "THU_NIGHT": {
+          "draft_group_id": 157075,
+          "label": "Showdown - Thu Night (KC @ BUF)"
+        },
+        "WED_NIGHT": {
+          "draft_group_id": 157072,
+          "label": "Showdown - Wed Night (GB @ LAR)"
+        }
+      }
     }
   }
 }

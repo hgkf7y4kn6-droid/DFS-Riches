@@ -112,12 +112,14 @@ def verdict(lev_pts: float, own: float, m: float, p: float) -> str | None:
     return None
 
 
-def fair_ownership(rows: list[dict], p_key: str, own_key: str) -> None:
-    """Adds r["fair_own"] (fraction) per position: the position's total
-    ownership redistributed by efficiency-adjusted odds, salary-tilted."""
+def fair_ownership(rows: list[dict], p_key: str, own_key: str, group_key: str = "position") -> None:
+    """Adds r["fair_own"] (fraction) per group: the group's total ownership
+    redistributed by efficiency-adjusted odds, salary-tilted. Classic groups by
+    position; Showdown groups by roster slot (Captain and Flex are separate contests,
+    each with its own ids, ownership and scoring -- app.slate_leverage)."""
     by_pos: dict[str, list[dict]] = {}
     for r in rows:
-        by_pos.setdefault(r["position"], []).append(r)
+        by_pos.setdefault(r[group_key], []).append(r)
     for grp in by_pos.values():
         mean_sal = statistics.fmean(r["salary"] for r in grp)
         weights = [max(r[p_key], 0.0) * (mean_sal / max(r["salary"], 1)) ** SALARY_ELASTICITY for r in grp]

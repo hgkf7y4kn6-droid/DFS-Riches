@@ -59,6 +59,11 @@ def _reasons(d: ceiling.CeilingDetail, alignment_reason: str | None) -> list[str
     return reasons or ["Top ceiling on the team; no standout edge either way"]
 
 
+def _cpt_salaries(players: list) -> dict[tuple[str, str], int]:
+    """Showdown pools list each player at CPT and FLEX: {(name, team): Captain salary}. Empty for Classic pools."""
+    return {(p.name, p.team): p.salary for p in players if p.roster_slot == "CPT"}
+
+
 def pick_targets(players: list, team: str, opponent: str, ctx: ceiling.CeilingContext,
                  pass_rank: int | None, pass_rate: float | None) -> list[TopPlayer]:
     scored = []
@@ -97,11 +102,12 @@ def pick_targets(players: list, team: str, opponent: str, ctx: ceiling.CeilingCo
                 take(entry, "Core")
                 break
 
+    cpt = _cpt_salaries(players)
     return [
         TopPlayer(
             name=p.name, position=p.position, salary=p.salary, trend_l3=p.trend_l3,
             ceiling=d.value, proj_points=p.proj_points, role=role,
-            usage_l3=d.usage_l3, reasons=_reasons(d, align_reason),
+            usage_l3=d.usage_l3, cpt_salary=cpt.get((p.name, p.team)), reasons=_reasons(d, align_reason),
         )
         for role, (_score, p, d, align_reason) in picks
     ]
@@ -160,7 +166,8 @@ def pick_dst(players: list, team: str, opponent: str, ctx: ceiling.CeilingContex
     reasons += good[:2] + bad[:1]
     return TopPlayer(
         name=p.name, position="DST", salary=p.salary, trend_l3=p.trend_l3,
-        ceiling=d.value, proj_points=p.proj_points, role="DST", reasons=reasons,
+        ceiling=d.value, proj_points=p.proj_points, role="DST", cpt_salary=_cpt_salaries(players).get((p.name, p.team)),
+        reasons=reasons,
     )
 
 

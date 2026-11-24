@@ -51,6 +51,26 @@ const FACTORS: { id: ContestFactor; label: string; hint: string }[] = [
 const DEFAULT_WEIGHTS: Record<ContestFactor, number> = { rake: 4, paid: 3, payout: 3, field: 0 };
 const MAX_WEIGHT = 10;
 
+type Guaranteed = 'any' | 'yes' | 'no';
+const GUARANTEED: Option<Guaranteed>[] = [
+  { id: 'any', label: 'Any prize pool' },
+  { id: 'yes', label: 'Guaranteed' },
+  { id: 'no', label: 'Not guaranteed' },
+];
+type MinGrade = 'any' | 'A' | 'B' | 'C' | 'D';
+const MIN_GRADES: Option<MinGrade>[] = [
+  { id: 'any', label: 'Any grade' },
+  { id: 'A', label: 'A only' },
+  { id: 'B', label: 'B or better' },
+  { id: 'C', label: 'C or better' },
+  { id: 'D', label: 'D or better' },
+];
+type SortBy = 'score' | 'grade';
+const SORTS: Option<SortBy>[] = [
+  { id: 'score', label: 'Best score' },
+  { id: 'grade', label: 'Best grade' },
+];
+
 const STORAGE_KEY = 'dfsriches:best-contests-filters';
 const OLD_HIDDEN_KEY = 'dfsriches:best-contests-hidden';
 
@@ -60,6 +80,11 @@ interface Filters {
   entries: string[];
   fees: string[];
   hidden: ContestKind[];
+  /** Guaranteed prize pools only, the ones that are not, or both. */
+  guaranteed: Guaranteed;
+  /** The lowest contest grade listed (cash games are ungraded, so a grade filter drops them). */
+  minGrade: MinGrade;
+  sort: SortBy;
   /** Points (0-MAX_WEIGHT) per score factor. */
   weights: Record<ContestFactor, number>;
 }
@@ -80,7 +105,7 @@ const only = <T extends string>(ids: unknown, options: Option<T>[]): T[] =>
 /** The card's filters, remembered on this device; until they're set, the fees fit the user's weekly budget and the kinds
  *  what they play: tournament players start without cash games, cash players with only them. */
 function useFilters() {
-  const [filters, setFilters] = useState<Filters>({ kindsVersion: KINDS_VERSION, entries: [], fees: [], hidden: [], weights: DEFAULT_WEIGHTS });
+  const [filters, setFilters] = useState<Filters>({ kindsVersion: KINDS_VERSION, entries: [], fees: [], hidden: [], guaranteed: 'any', minGrade: 'any', sort: 'score', weights: DEFAULT_WEIGHTS });
   const [loaded, setLoaded] = useState(false);
   const { prefs, loaded: prefsLoaded } = usePrefs();
   const budgetFees = prefs.spend ? FEES_FOR_SPEND[prefs.spend] : [];
@@ -99,6 +124,9 @@ function useFilters() {
           entries: only(saved.entries, ENTRY_GROUPS),
           fees: only(saved.fees, FEE_GROUPS),
           hidden,
+          guaranteed: GUARANTEED.some((g) => g.id === saved.guaranteed) ? saved.guaranteed : 'any',
+          minGrade: MIN_GRADES.some((g) => g.id === saved.minGrade) ? saved.minGrade : 'any',
+          sort: SORTS.some((g) => g.id === saved.sort) ? saved.sort : 'score',
           weights: savedWeights(saved.weights),
         });
       })
@@ -124,6 +152,73 @@ function useSettled<T>(value: T, ms: number): T {
     return () => clearTimeout(t);
   }, [value, ms]);
   return settled;
+}
+
+/** One menu for how the list is ordered and trimmed: sort (best score / best grade), the lowest contest grade, and the prize
+ *  pool (any / guaranteed / not). The chip shows what is set, e.g. "Best grade · B or better · Guaranteed". */
+function RefineMenu({
+  sort,
+  minGrade,
+  guaranteed,
+  onChange,
+}: {
+  sort: SortBy;
+  minGrade: MinGrade;
+  guaranteed: Guaranteed;
+  onChange: (patch: Partial<Pick<Filters, 'sort' | 'minGrade' | 'guaranteed'>>) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const label = <T extends string>(options: Option<T>[], id: T) => options.find((o) => o.id === id)?.label ?? '';
+  const changed = [sort !== 'score' ? label(SORTS, sort) : '', minGrade !== 'any' ? label(MIN_GRADES, minGrade) : '', guaranteed !== 'any' ? label(GUARANTEED, guaranteed) : ''].filter(Boolean);
+  const summary = changed.length ? changed.join(' · ') : 'Best score · any grade · any prize pool';
+  const section = <T extends string>(title: string, options: Option<T>[], value: T, set: (v: T) => void) => (
+    <View className="mb-2">
+      <Text className="matchup-toggle-label mb-1">{title}</Text>
+      <View className="flex-row flex-wrap gap-2">
+        {options.map((o) => (
+          <Pressable
+            key={o.id}
+            className={`filter-chip ${value === o.id ? 'filter-chip-active' : ''}`}
+            onPress={() => set(o.id)}
+            accessibilityRole="radio"
+            aria-checked={value === o.id}>
+            <Text className={`filter-chip-text ${value === o.id ? 'filter-chip-text-active' : ''}`}>{o.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+  return (
+    <View className="mb-2">
+      <View className="flex-row items-center gap-2">
+        <Text className="matchup-toggle-label w-14">Refine</Text>
+        <Pressable
+          className="filter-chip flex-row items-center"
+          onPress={() => setOpen((o) => !o)}
+          accessibilityRole="button"
+          aria-expanded={open}
+          accessibilityLabel={`Sort and filter: ${summary}. Change`}>
+          <Text className="filter-chip-text">
+            {summary} {open ? '▴' : '▾'}
+          </Text>
+        </Pressable>
+      </View>
+      {open ? (
+        <View className="matchup-menu p-2">
+          {section('Sort by', SORTS, sort, (v) => onChange({ sort: v }))}
+          {section('Contest grade (tournaments: A–F against the same slate’s; Double Ups: bigger and higher payout grades higher, B at best; 50/50s and Triple Ups are ungraded)', MIN_GRADES, minGrade, (v) =>
+            onChange({ minGrade: v }),
+          )}
+          {section('Prize pool', GUARANTEED, guaranteed, (v) => onChange({ guaranteed: v }))}
+          {changed.length ? (
+            <Pressable onPress={() => onChange({ sort: 'score', minGrade: 'any', guaranteed: 'any' })} accessibilityRole="button">
+              <Text className="filter-chip-text">Reset</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
+    </View>
+  );
 }
 
 /** A collapsible panel of 0-10 steppers, one per score factor, with each one's share of the score. */
@@ -387,11 +482,11 @@ export default function BestContests({ slate }: { slate?: Slate | null }) {
   const { filters, loaded, update } = useFilters();
   // Nothing until the saved filters load; then the filters once they stop changing.
   const settled = useSettled(loaded ? filters : null, 400);
-  const { entries, fees, hidden, weights } = settled ?? filters;
+  const { entries, fees, hidden, weights, guaranteed, minGrade, sort } = settled ?? filters;
   const exclude = [...hidden].sort();
   const dg = slate?.draft_group_id ?? null;
-  const key = settled ? JSON.stringify([entries, fees, exclude, weights, dg]) : '';
-  const { data, error, loading } = useCachedFetch(cache, key, () => getBestContests({ entries, fees, exclude, weights, slate: dg }));
+  const key = settled ? JSON.stringify([entries, fees, exclude, weights, dg, guaranteed, minGrade, sort]) : '';
+  const { data, error, loading } = useCachedFetch(cache, key, () => getBestContests({ entries, fees, exclude, weights, slate: dg, guaranteed, minGrade, sort }));
   const onSlate = data?.selected_slate?.matching ?? 0;
   const slateNote =
     data?.selected_slate && slate
@@ -409,6 +504,12 @@ export default function BestContests({ slate }: { slate?: Slate | null }) {
     <View>
       <MultiSelect label="Entries" allLabel="All entry limits" options={ENTRY_GROUPS} value={filters.entries} onChange={(v) => update({ entries: v })} />
       <MultiSelect label="Fee" allLabel="All entry fees" options={FEE_GROUPS} value={filters.fees} onChange={(v) => update({ fees: v })} />
+      <RefineMenu
+        sort={filters.sort}
+        minGrade={filters.minGrade}
+        guaranteed={filters.guaranteed}
+        onChange={(patch) => update(patch)}
+      />
       <WeightsPanel weights={filters.weights} onChange={(v) => update({ weights: v })} />
       <KindChips hidden={filters.hidden} onChange={(v) => update({ hidden: v })} />
       {!data ? (

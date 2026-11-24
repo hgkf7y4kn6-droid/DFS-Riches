@@ -35,10 +35,11 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Resp
 
 from app import breakdown as breakdown_module
 from app import leverage as leverage_module
+from app import slate_leverage
 from app import metrics, ownership_persist, ownership_slate, ownership_video
 from app import trenches as trenches_module
 from app import dfs_model
-from app import accounts, beat_news, contests, guard, matchups, news_overrides, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
+from app import accounts, beat_news, contests, guard, matchups, news_overrides, outside_sources, ownership_learning, ownership_report, ownership_store, play_rankings, player_games
 from app import game_detail as game_detail_module
 from app import optimal as optimal_module
 from app import slates
@@ -226,12 +227,15 @@ async def _require_sign_in(request: Request, call_next):
 
 # Report-only for now: the Expo web build bootstraps with an inline script, so enforcing needs a pass over the
 # violation reports first. Clerk's host is added from the publishable key.
+POSTHOG_HOSTS = "https://us.i.posthog.com https://us-assets.i.posthog.com"      # analytics (mobile/lib/analytics.tsx) must not be blocked
+
+
 def _csp() -> str:
     clerk = f"https://{accounts.frontend_api()}"
     return "; ".join([
         "default-src 'self'", f"script-src 'self' 'unsafe-inline' {clerk} https://challenges.cloudflare.com",
         "style-src 'self' 'unsafe-inline'", "img-src 'self' data: blob: https:", "font-src 'self' data:",
-        f"connect-src 'self' {clerk} https://*.clerk.accounts.dev https://clerk-telemetry.com",
+        f"connect-src 'self' {clerk} https://*.clerk.accounts.dev https://clerk-telemetry.com {POSTHOG_HOSTS}",
         f"frame-src {clerk} https://challenges.cloudflare.com", "worker-src 'self' blob:",
         "object-src 'none'", "base-uri 'self'", "form-action 'self'", "frame-ancestors 'none'", "report-uri /csp-report"])
 
@@ -497,9 +501,9 @@ async def api_recap(season: Annotated[int | None, Query(ge=2000, le=2100)] = Non
 
 
 @app.get("/api/breakdown/game/{game_id}", response_model=GameDetail)
-async def api_game_detail(game_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
+async def api_game_detail(game_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, slate_id: str | None = None):
     try:
-        return await game_detail_module.build_game_detail(season, week, game_id)
+        return await game_detail_module.build_game_detail(season, week, game_id, slate_id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
@@ -542,16 +546,21 @@ async def _dfs_model_without_props(season: int, week: int, slate_id: str | None,
     return json.dumps(model, separators=(",", ":"), default=_json_default).encode()
 
 
+async def _efficiency(season: int, week: int) -> tuple[dict | None, dict | None]:
+    """(trench profiles, leverage efficiency context); (None, None) when they can't be built -- leverage then rests on plain odds."""
+    try:
+        profiles = await trenches_module.week_profiles(season, week)
+        return profiles, leverage_module.efficiency_context(profiles, await matchups.defense_vs_position(season, week))
+    except Exception:
+        return None, None
+
+
 @memoize_async(ttl_seconds=120, stale_seconds=86400)
 async def _plays(season: int, week: int, slate_id: str | None, contest: str, version: tuple) -> bytes:
     model = json.loads(await _dfs_model(season, week, slate_id, "gpp", None, version))
     if not model.get("available"):
         return json.dumps({"available": False, "reason": model.get("reason") or "The DFS model isn't available for this slate."}).encode()
-    try:
-        profiles = await trenches_module.week_profiles(season, week)
-        efficiency = leverage_module.efficiency_context(profiles, await matchups.defense_vs_position(season, week))
-    except Exception:
-        profiles, efficiency = None, None        # leverage falls back to the plain odds
+    profiles, efficiency = await _efficiency(season, week)
     # What a DST faces: each offense's sack rate and giveaways per game (the DST game environment).
     offense: dict[str, dict] = {}
     try:
@@ -589,7 +598,7 @@ async def api_plays(season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, 
 
 def _model_version() -> tuple:
     """The DFS model's cache key: changes with new ownership information or breaking news (app.news_overrides)."""
-    return ownership_store.data_version() + news_overrides.data_version()
+    return ownership_store.data_version() + news_overrides.data_version() + outside_sources.data_version()
 
 
 async def _user(authorization: str | None) -> str:
@@ -749,8 +758,9 @@ async def api_me_save(key: str, body: dict = Body(...), authorization: Annotated
 
 @memoize_async(ttl_seconds=60, max_entries=64)    # short: a slate that kicks off drops out within a minute
 async def _best_contests(entries: frozenset[str], fees: frozenset[str], exclude: frozenset[str],
-                         weights: tuple[tuple[str, int], ...], slate: int | None = None) -> dict:
-    return await contests.best_contests(entries, fees, exclude, dict(weights), slate)
+                         weights: tuple[tuple[str, int], ...], slate: int | None = None, guaranteed: str = "any",
+                         min_grade: str = "any", sort: str = "score") -> dict:
+    return await contests.best_contests(entries, fees, exclude, dict(weights), slate, guaranteed, min_grade, sort)
 
 
 def _weights(value: str) -> tuple[tuple[str, int], ...]:
@@ -774,16 +784,22 @@ def _id_set(value: str, allowed: list[str], what: str) -> frozenset[str]:
 
 @app.get("/api/contests/best")
 async def api_best_contests(entries: str = "", fees: str = "", exclude: str = "", weights: str = "",
-                            slate: Annotated[int | None, Query(ge=1)] = None):
+                            slate: Annotated[int | None, Query(ge=1)] = None,
+                            guaranteed: Annotated[str, Query(pattern="^(any|yes|no)$")] = "any",
+                            min_grade: Annotated[str, Query(pattern="^(any|A|B|C|D)$")] = "any",
+                            sort: Annotated[str, Query(pattern="^(score|grade)$")] = "score"):
     """The 15 best NFL GPPs in DraftKings' lobby (app.contests): low rake, a big share of the field paid and
     a big first-place prize for the fee. entries / fees: comma-separated max-entries and fee group ids (empty =
     all); exclude: comma-separated contest kinds to leave out, e.g. "Qualifier,League"; weights: points (0-10)
     per factor, e.g. "rake:4,paid:3,payout:3,field:2" (factors left out count 0; none = the defaults); slate: the
-    selected slate's DraftKings draft group id, whose contests are listed first. Started slates are left out."""
+    selected slate's DraftKings draft group id, whose contests are listed first; guaranteed: "yes" for only guaranteed
+    prize pools (GPPs), "no" for only the ones that are not, "any" (default) for both; min_grade: A-D, only contests graded at
+    least that well (50/50s and Triple Ups are ungraded and drop out), any = no grade filter; sort: "score" (default, the weighted score)
+    or "grade" (best A-F grade first). Started slates are left out."""
     chosen = (_id_set(entries, [g[0] for g in contests.ENTRY_GROUPS], "entry groups"),
               _id_set(fees, [g[0] for g in contests.FEE_GROUPS], "fee groups"),
               _id_set(exclude, contests.CONTEST_KINDS, "contest kinds"),
-              _weights(weights), slate)
+              _weights(weights), slate, guaranteed, min_grade, sort)
     try:
         return await _best_contests(*chosen)
     except Exception as exc:
@@ -850,6 +866,53 @@ async def _slate_ownership(season: int, week: int, slate_id: str, version: tuple
         players = {i: v for i, v in (state.get("showdown_ids") or {}).items()}
         note = "Showdown posterior: Captain and Flex ownership are separate contests"
     return {"available": True, "players": {str(k): v for k, v in players.items()}, "note": note}
+
+
+@memoize_async(ttl_seconds=120)
+async def _slate_leverage(season: int, week: int, slate_id: str, version: tuple) -> dict:
+    """Leverage for one slate's players by DraftKings id: Classic slates the large-field GPP leverage, Showdown slates
+    Captain and Flex leverage on their own ids (app.slate_leverage)."""
+    _schedule, slate_list = await slates.list_slates(season, week)
+    slate = next((s for s in slate_list if s.slate_id == slate_id), None)
+    if slate is None:
+        raise HTTPException(status_code=404, detail=f"Unknown slate_id: {slate_id}")
+    classic = [s for s in slate_list if s.slate_type == "classic" and s.available]
+    if not slate.available:
+        return {"available": False, "slate_id": slate_id, "players": {}, "reason": "This slate has no DraftKings salaries yet."}
+    if slate.slate_type == "classic":
+        plays = json.loads(await _plays(season, week, slate_id, "gpp", version))
+        if not plays.get("available"):
+            return {"available": False, "slate_id": slate_id, "players": {}, "reason": plays.get("reason") or "No leverage for this slate."}
+        found = slate_leverage.classic(plays)
+        note = "Large-field GPP leverage: fair minus projected ownership, by position"
+    else:
+        if not classic:
+            return {"available": False, "slate_id": slate_id, "players": {},
+                    "reason": "Showdown leverage needs a DraftKings Classic slate with salaries."}
+        model_slate = classic[0]
+        await _dfs_model(season, week, model_slate.slate_id, "gpp", None, version)
+        state = dfs_model._STATE.get((season, week, model_slate.slate_id, "gpp"))
+        if state is None:
+            return {"available": False, "slate_id": slate_id, "players": {}, "reason": "The ownership model isn't available for this slate."}
+        _profiles, efficiency = await _efficiency(season, week)
+        sp = await slates.get_slate_players(season, week, slate_id)
+        found = slate_leverage.showdown(slate_leverage.showdown_rows(sp.players, state.get("showdown_ids") or {}), efficiency)
+        note = "Showdown leverage: fair minus projected ownership, within Captain and within Flex (each its own ids and scoring)"
+    return {"available": True, "slate_id": slate_id, "slate_type": slate.slate_type, "players": {str(k): v for k, v in found.items()},
+            "note": note}
+
+
+@app.get("/api/slates/{slate_id}/leverage")
+async def api_slate_leverage(request: Request, slate_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
+    """Leverage (fair minus projected ownership, percentage points) for a slate's players, keyed by DraftKings draftable id
+    -- Captain and Flex ids separately on a Showdown slate (Pro)."""
+    await _require_feature(request, "leverage")
+    try:
+        return await _slate_leverage(season, week, slate_id, _model_version())
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise _upstream_failure("Could not build leverage", exc) from exc
 
 
 @app.get("/api/slates/{slate_id}/ownership")
@@ -1158,7 +1221,24 @@ async def api_big_picture(id: int | None = None, authorization: Annotated[str | 
     except Exception as exc:
         raise _upstream_failure("Could not load the Big Picture", exc) from exc
     return {"report": report, "versions": versions, "can_run": bool(os.environ.get("GITHUB_DISPATCH_TOKEN")),
-            "run": await _workflow_status()}
+            "run": await _workflow_status(), "lookahead": await _big_picture_lookahead(report)}
+
+
+async def _big_picture_lookahead(report: dict | None) -> dict | None:
+    """The following week's early DraftKings lines (the odds snapshots store them as soon as DraftKings posts
+    them), read live from the stored quotes so they're current whichever report version is shown."""
+    if not report or not report.get("season") or not report.get("week") or report["week"] >= 18:
+        return None
+    from app.big_picture import odds as odds_module
+    from app.big_picture import store as bp_store
+    from app.big_picture import writer as bp_writer
+    season, week = report["season"], report["week"] + 1
+    try:
+        history = await asyncio.to_thread(bp_store.odds_history, season, week)
+    except Exception as exc:
+        log.warning("look-ahead lines unavailable (%s)", type(exc).__name__)
+        return None
+    return {"season": season, "week": week, "games": bp_writer.lookahead(odds_module.summarize(history))}
 
 
 @app.get("/api/news-overrides")

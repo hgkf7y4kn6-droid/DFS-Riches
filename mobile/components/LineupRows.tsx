@@ -31,7 +31,7 @@ export interface RowPlayer {
   /** Builder "Recent form" sort: DK points per game over the last 3 / 6 / 9 games vs the season average. */
   form?: { l3: number | null; l6: number | null; l9: number | null; season: number | null } | null;
   dk_draftable_id?: number | null;
-  /** This contest's leverage (Cash / GPP builder); otherwise the badge looks up large-field GPP leverage. */
+  /** This contest's leverage (Cash / GPP builder, or the slate's own for an optimal lineup); otherwise the badge looks it up in the selected slate's leverage. */
   leverage?: number | null;
   leverage_detail?: LeverageDetail | null;
   /** Builder Game environment sort: the model's score, or the team's implied total (a DST: its opponent's). */

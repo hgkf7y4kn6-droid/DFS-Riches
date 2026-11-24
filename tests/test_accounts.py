@@ -224,3 +224,17 @@ def test_production_config_warnings(monkeypatch):
     monkeypatch.setenv("CLERK_PUBLISHABLE_KEY", "pk_live_abc")
     monkeypatch.setenv("CLERK_AUTHORIZED_PARTIES", "https://x.example")
     assert accounts.config_warnings() == []
+
+
+def test_founding_grant_reads_every_page_of_accounts(monkeypatch):
+    monkeypatch.setenv("CLERK_SECRET_KEY", "sk_test")
+    monkeypatch.setattr(accounts, "FOUNDING_PRO_BEFORE", "2026-10-21T21:00:00+00:00")
+    users = [{"id": f"u{i}", "created_at": 1761000000000, "public_metadata": {}} for i in range(130)]
+
+    async def clerk(method, path, body=None):
+        if method == "GET":
+            offset = int(path.split("offset=")[1].split("&")[0])
+            return users[offset:offset + 100]
+        return {}
+    monkeypatch.setattr(accounts, "_clerk", clerk)
+    assert asyncio.run(accounts.grant_founding_pro()) == {"granted": 130, "already_had_a_plan": 0, "accounts_checked": 130}

@@ -1,0 +1,1487 @@
+{
+ "_readme": "Writes data/outside/2026_w11_footballers.json and 2026_w11_sharp.json: the Week 11 outside-source tables, transcribed from\nthe pasted articles (The Fantasy Footballers' tournament-takes ownership notes and DraftKings optimizer view; Sharp Football's\nWorksheet and core / tournament plays). Run `python -m scripts.import_outside_w11` to regenerate.\n\nFootballers records: set \"a\" = the ownership-notes tables (pOwn and projection, top players per position) and set \"b\" = the\noptimizer view (salary, projection, ceiling, projected ownership, players over $4,000 with a projection). Sharp has no\nprojection numbers or ownership, only calls: core and tournament plays and role notes, kept as text.\n",
+ "source": "The Fantasy Footballers",
+ "season": 2026,
+ "week": 11,
+ "slate": "classic_sunday",
+ "records": [
+  {
+   "set": "a",
+   "name": "Dak Prescott",
+   "team": "DAL",
+   "pos": "QB",
+   "own": 23.43,
+   "proj": 23.76
+  },
+  {
+   "set": "a",
+   "name": "Caleb Williams",
+   "team": "CHI",
+   "pos": "QB",
+   "own": 13.97,
+   "proj": 21.39
+  },
+  {
+   "set": "a",
+   "name": "Cam Ward",
+   "team": "TEN",
+   "pos": "QB",
+   "own": 9.2,
+   "proj": 18.17
+  },
+  {
+   "set": "a",
+   "name": "Josh Allen",
+   "team": "BUF",
+   "pos": "QB",
+   "own": 8.09,
+   "proj": 23.86
+  },
+  {
+   "set": "a",
+   "name": "Patrick Mahomes",
+   "team": "KC",
+   "pos": "QB",
+   "own": 6.41,
+   "proj": 20.6
+  },
+  {
+   "set": "a",
+   "name": "Jared Goff",
+   "team": "DET",
+   "pos": "QB",
+   "own": 5.43,
+   "proj": 18.82
+  },
+  {
+   "set": "a",
+   "name": "Justin Herbert",
+   "team": "LAC",
+   "pos": "QB",
+   "own": 5.01,
+   "proj": 17.07
+  },
+  {
+   "set": "a",
+   "name": "J.J. McCarthy",
+   "team": "NYG",
+   "pos": "QB",
+   "own": 3.99,
+   "proj": 16.39
+  },
+  {
+   "set": "a",
+   "name": "Trevor Lawrence",
+   "team": "JAX",
+   "pos": "QB",
+   "own": 3.78,
+   "proj": 19.28
+  },
+  {
+   "set": "a",
+   "name": "Bryce Young",
+   "team": "CAR",
+   "pos": "QB",
+   "own": 3.69,
+   "proj": 17.62
+  },
+  {
+   "set": "a",
+   "name": "Jacoby Brissett",
+   "team": "BAL",
+   "pos": "QB",
+   "own": 3.57,
+   "proj": 15.83
+  },
+  {
+   "set": "a",
+   "name": "Bo Nix",
+   "team": "DEN",
+   "pos": "QB",
+   "own": 3.19,
+   "proj": 17.96
+  },
+  {
+   "set": "a",
+   "name": "Geno Smith",
+   "team": "NYJ",
+   "pos": "QB",
+   "own": 1.94,
+   "proj": 15.08
+  },
+  {
+   "set": "a",
+   "name": "Emmett Johnson",
+   "team": "KC",
+   "pos": "RB",
+   "own": 73.84,
+   "proj": 23.95
+  },
+  {
+   "set": "a",
+   "name": "Jonah Coleman",
+   "team": "DEN",
+   "pos": "RB",
+   "own": 36.44,
+   "proj": 18.9
+  },
+  {
+   "set": "a",
+   "name": "Javonte Williams",
+   "team": "DAL",
+   "pos": "RB",
+   "own": 18.9,
+   "proj": 18.88
+  },
+  {
+   "set": "a",
+   "name": "Jahmyr Gibbs",
+   "team": "DET",
+   "pos": "RB",
+   "own": 14.36,
+   "proj": 23.96
+  },
+  {
+   "set": "a",
+   "name": "Chuba Hubbard",
+   "team": "CAR",
+   "pos": "RB",
+   "own": 13.19,
+   "proj": 18.33
+  },
+  {
+   "set": "a",
+   "name": "Tony Pollard",
+   "team": "TEN",
+   "pos": "RB",
+   "own": 11.39,
+   "proj": 16.39
+  },
+  {
+   "set": "a",
+   "name": "James Cook III",
+   "team": "BUF",
+   "pos": "RB",
+   "own": 10.41,
+   "proj": 18.31
+  },
+  {
+   "set": "a",
+   "name": "Bhayshul Tuten",
+   "team": "JAX",
+   "pos": "RB",
+   "own": 10.08,
+   "proj": 16.15
+  },
+  {
+   "set": "a",
+   "name": "Cam Skattebo",
+   "team": "NYG",
+   "pos": "RB",
+   "own": 9.24,
+   "proj": 14.24
+  },
+  {
+   "set": "a",
+   "name": "Omarion Hampton",
+   "team": "LAC",
+   "pos": "RB",
+   "own": 8.72,
+   "proj": 12.67
+  },
+  {
+   "set": "a",
+   "name": "Jaylen Warren",
+   "team": "PIT",
+   "pos": "RB",
+   "own": 6.73,
+   "proj": 15.48
+  },
+  {
+   "set": "a",
+   "name": "D'Andre Swift",
+   "team": "CHI",
+   "pos": "RB",
+   "own": 6.63,
+   "proj": 15.58
+  },
+  {
+   "set": "a",
+   "name": "Bucky Irving",
+   "team": "TB",
+   "pos": "RB",
+   "own": 5.1,
+   "proj": 15.67
+  },
+  {
+   "set": "a",
+   "name": "CeeDee Lamb",
+   "team": "DAL",
+   "pos": "WR",
+   "own": 28.4,
+   "proj": 23.01
+  },
+  {
+   "set": "a",
+   "name": "Carnell Tate",
+   "team": "TEN",
+   "pos": "WR",
+   "own": 26.32,
+   "proj": 15.26
+  },
+  {
+   "set": "a",
+   "name": "George Pickens",
+   "team": "DAL",
+   "pos": "WR",
+   "own": 22.86,
+   "proj": 16.99
+  },
+  {
+   "set": "a",
+   "name": "Elic Ayomanor",
+   "team": "TEN",
+   "pos": "WR",
+   "own": 19.63,
+   "proj": 10.3
+  },
+  {
+   "set": "a",
+   "name": "Amon-Ra St. Brown",
+   "team": "DET",
+   "pos": "WR",
+   "own": 17.46,
+   "proj": 20.46
+  },
+  {
+   "set": "a",
+   "name": "Jordyn Tyson",
+   "team": "NO",
+   "pos": "WR",
+   "own": 14.54,
+   "proj": 13.63
+  },
+  {
+   "set": "a",
+   "name": "Rome Odunze",
+   "team": "CHI",
+   "pos": "WR",
+   "own": 12.77,
+   "proj": 11.17
+  },
+  {
+   "set": "a",
+   "name": "Luther Burden III",
+   "team": "CHI",
+   "pos": "WR",
+   "own": 12.67,
+   "proj": 14.64
+  },
+  {
+   "set": "a",
+   "name": "Garrett Wilson",
+   "team": "NYJ",
+   "pos": "WR",
+   "own": 12.64,
+   "proj": 15.6
+  },
+  {
+   "set": "a",
+   "name": "Tre' Harris",
+   "team": "LAC",
+   "pos": "WR",
+   "own": 11.69,
+   "proj": 11.33
+  },
+  {
+   "set": "a",
+   "name": "Parker Washington",
+   "team": "JAX",
+   "pos": "WR",
+   "own": 8.99,
+   "proj": 14.91
+  },
+  {
+   "set": "a",
+   "name": "Malik Nabers",
+   "team": "NYG",
+   "pos": "WR",
+   "own": 8.96,
+   "proj": 16.34
+  },
+  {
+   "set": "a",
+   "name": "DJ Moore",
+   "team": "BUF",
+   "pos": "WR",
+   "own": 8.26,
+   "proj": 13.69
+  },
+  {
+   "set": "a",
+   "name": "Rashee Rice",
+   "team": "KC",
+   "pos": "WR",
+   "own": 6.86,
+   "proj": 13.39
+  },
+  {
+   "set": "a",
+   "name": "Courtland Sutton",
+   "team": "DEN",
+   "pos": "WR",
+   "own": 2.98,
+   "proj": 9.88
+  },
+  {
+   "set": "a",
+   "name": "Colston Loveland",
+   "team": "CHI",
+   "pos": "TE",
+   "own": 20.36,
+   "proj": 13.28
+  },
+  {
+   "set": "a",
+   "name": "Mark Andrews",
+   "team": "BAL",
+   "pos": "TE",
+   "own": 12.19,
+   "proj": 9.38
+  },
+  {
+   "set": "a",
+   "name": "Isaiah Likely",
+   "team": "NYG",
+   "pos": "TE",
+   "own": 8.39,
+   "proj": 13.37
+  },
+  {
+   "set": "a",
+   "name": "Cade Otton",
+   "team": "TB",
+   "pos": "TE",
+   "own": 8.29,
+   "proj": 8.34
+  },
+  {
+   "set": "a",
+   "name": "Dawson Knox",
+   "team": "BUF",
+   "pos": "TE",
+   "own": 7.67,
+   "proj": 7.3
+  },
+  {
+   "set": "a",
+   "name": "Travis Kelce",
+   "team": "KC",
+   "pos": "TE",
+   "own": 7.62,
+   "proj": 10.91
+  },
+  {
+   "set": "a",
+   "name": "Sam LaPorta",
+   "team": "DET",
+   "pos": "TE",
+   "own": 5.87,
+   "proj": 9.99
+  },
+  {
+   "set": "a",
+   "name": "Brevyn Spann-Ford",
+   "team": "DAL",
+   "pos": "TE",
+   "own": 5.49,
+   "proj": 6.91
+  },
+  {
+   "set": "a",
+   "name": "Gunnar Helm",
+   "team": "TEN",
+   "pos": "TE",
+   "own": 5.13,
+   "proj": 7.55
+  },
+  {
+   "set": "a",
+   "name": "Darren Waller",
+   "team": "CAR",
+   "pos": "TE",
+   "own": 4.93,
+   "proj": 7.93
+  },
+  {
+   "set": "a",
+   "name": "Brenton Strange",
+   "team": "JAX",
+   "pos": "TE",
+   "own": 3.94,
+   "proj": 8.92
+  },
+  {
+   "set": "a",
+   "name": "Trey McBride",
+   "team": "ARI",
+   "pos": "TE",
+   "own": 3.88,
+   "proj": 14.0
+  },
+  {
+   "set": "a",
+   "name": "Evan Engram",
+   "team": "DEN",
+   "pos": "TE",
+   "own": 2.09,
+   "proj": 6.65
+  },
+  {
+   "set": "a",
+   "name": "Steelers",
+   "team": "PIT",
+   "pos": "DST",
+   "own": 14.03,
+   "proj": 8.85
+  },
+  {
+   "set": "a",
+   "name": "Chiefs",
+   "team": "KC",
+   "pos": "DST",
+   "own": 13.54,
+   "proj": 10.34
+  },
+  {
+   "set": "a",
+   "name": "Broncos",
+   "team": "DEN",
+   "pos": "DST",
+   "own": 9.96,
+   "proj": 9.06
+  },
+  {
+   "set": "a",
+   "name": "Chargers",
+   "team": "LAC",
+   "pos": "DST",
+   "own": 8.69,
+   "proj": 7.5
+  },
+  {
+   "set": "a",
+   "name": "Jets",
+   "team": "NYJ",
+   "pos": "DST",
+   "own": 7.21,
+   "proj": 6.56
+  },
+  {
+   "set": "a",
+   "name": "Bills",
+   "team": "BUF",
+   "pos": "DST",
+   "own": 6.84,
+   "proj": 9.22
+  },
+  {
+   "set": "a",
+   "name": "Jaguars",
+   "team": "JAX",
+   "pos": "DST",
+   "own": 6.3,
+   "proj": 7.87
+  },
+  {
+   "set": "a",
+   "name": "Ravens",
+   "team": "BAL",
+   "pos": "DST",
+   "own": 4.62,
+   "proj": 6.25
+  },
+  {
+   "set": "a",
+   "name": "Bears",
+   "team": "CHI",
+   "pos": "DST",
+   "own": 4.21,
+   "proj": 7.94
+  },
+  {
+   "set": "a",
+   "name": "Panthers",
+   "team": "CAR",
+   "pos": "DST",
+   "own": 3.88,
+   "proj": 6.55
+  },
+  {
+   "set": "a",
+   "name": "Giants",
+   "team": "NYG",
+   "pos": "DST",
+   "own": 3.47,
+   "proj": 4.75
+  },
+  {
+   "set": "a",
+   "name": "Lions",
+   "team": "DET",
+   "pos": "DST",
+   "own": 2.87,
+   "proj": 7.1
+  },
+  {
+   "set": "b",
+   "name": "J. Gibbs",
+   "team": "DET",
+   "pos": "RB",
+   "salary": 10000,
+   "proj": 19.3,
+   "ceil": 28.09,
+   "own": 13.24
+  },
+  {
+   "set": "b",
+   "name": "K. Walker III",
+   "team": "KC",
+   "pos": "RB",
+   "salary": 9000,
+   "proj": 0.0,
+   "ceil": 0.0,
+   "own": 14.23
+  },
+  {
+   "set": "b",
+   "name": "C. Lamb",
+   "team": "DAL",
+   "pos": "WR",
+   "salary": 8800,
+   "proj": 24.5,
+   "ceil": 34.85,
+   "own": 28.1
+  },
+  {
+   "set": "b",
+   "name": "A. St. Brown",
+   "team": "DET",
+   "pos": "WR",
+   "salary": 8200,
+   "proj": 17.5,
+   "ceil": 25.75,
+   "own": 15.07
+  },
+  {
+   "set": "b",
+   "name": "J. Cook III",
+   "team": "BUF",
+   "pos": "RB",
+   "salary": 7900,
+   "proj": 25.1,
+   "ceil": 35.63,
+   "own": 11.61
+  },
+  {
+   "set": "b",
+   "name": "J. Allen",
+   "team": "BUF",
+   "pos": "QB",
+   "salary": 7700,
+   "proj": 22.7,
+   "ceil": 32.51,
+   "own": 7.95
+  },
+  {
+   "set": "b",
+   "name": "C. Hubbard",
+   "team": "CAR",
+   "pos": "RB",
+   "salary": 7500,
+   "proj": 17.6,
+   "ceil": 25.88,
+   "own": 12.47
+  },
+  {
+   "set": "b",
+   "name": "Z. Flowers",
+   "team": "BAL",
+   "pos": "WR",
+   "salary": 7400,
+   "proj": 16.6,
+   "ceil": 24.58,
+   "own": 8.32
+  },
+  {
+   "set": "b",
+   "name": "J. Williams",
+   "team": "DAL",
+   "pos": "RB",
+   "salary": 7300,
+   "proj": 17.5,
+   "ceil": 25.75,
+   "own": 18.63
+  },
+  {
+   "set": "b",
+   "name": "B. Bowers",
+   "team": "LV",
+   "pos": "TE",
+   "salary": 7300,
+   "proj": 3.1,
+   "ceil": 7.03,
+   "own": 0.67
+  },
+  {
+   "set": "b",
+   "name": "C. Olave",
+   "team": "NO",
+   "pos": "WR",
+   "salary": 7200,
+   "proj": 16.1,
+   "ceil": 23.93,
+   "own": 5.15
+  },
+  {
+   "set": "b",
+   "name": "M. Nabers",
+   "team": "NYG",
+   "pos": "WR",
+   "salary": 7100,
+   "proj": 17.2,
+   "ceil": 25.36,
+   "own": 9.62
+  },
+  {
+   "set": "b",
+   "name": "B. Irving",
+   "team": "TB",
+   "pos": "RB",
+   "salary": 7000,
+   "proj": 14.8,
+   "ceil": 22.24,
+   "own": 3.98
+  },
+  {
+   "set": "b",
+   "name": "D. Swift",
+   "team": "CHI",
+   "pos": "RB",
+   "salary": 6900,
+   "proj": 16.9,
+   "ceil": 24.97,
+   "own": 6.94
+  },
+  {
+   "set": "b",
+   "name": "T. McMillan",
+   "team": "CAR",
+   "pos": "WR",
+   "salary": 6900,
+   "proj": 15.4,
+   "ceil": 23.02,
+   "own": 5.33
+  },
+  {
+   "set": "b",
+   "name": "G. Pickens",
+   "team": "DAL",
+   "pos": "WR",
+   "salary": 6800,
+   "proj": 18.5,
+   "ceil": 27.05,
+   "own": 24.2
+  },
+  {
+   "set": "b",
+   "name": "B. Tuten",
+   "team": "JAX",
+   "pos": "RB",
+   "salary": 6800,
+   "proj": 15.5,
+   "ceil": 23.15,
+   "own": 10.35
+  },
+  {
+   "set": "b",
+   "name": "D. Henry",
+   "team": "BAL",
+   "pos": "RB",
+   "salary": 6700,
+   "proj": 13.8,
+   "ceil": 20.94,
+   "own": 6.04
+  },
+  {
+   "set": "b",
+   "name": "D. Prescott",
+   "team": "DAL",
+   "pos": "QB",
+   "salary": 6700,
+   "proj": 26.1,
+   "ceil": 36.93,
+   "own": 23.88
+  },
+  {
+   "set": "b",
+   "name": "P. Washington",
+   "team": "JAX",
+   "pos": "WR",
+   "salary": 6700,
+   "proj": 16.2,
+   "ceil": 24.06,
+   "own": 9.72
+  },
+  {
+   "set": "b",
+   "name": "T. Lawrence",
+   "team": "JAX",
+   "pos": "QB",
+   "salary": 6600,
+   "proj": 20.4,
+   "ceil": 29.52,
+   "own": 4.23
+  },
+  {
+   "set": "b",
+   "name": "J. Warren",
+   "team": "PIT",
+   "pos": "RB",
+   "salary": 6600,
+   "proj": 15.1,
+   "ceil": 22.63,
+   "own": 7.07
+  },
+  {
+   "set": "b",
+   "name": "T. McBride",
+   "team": "ARI",
+   "pos": "TE",
+   "salary": 6600,
+   "proj": 13.5,
+   "ceil": 20.55,
+   "own": 6.03
+  },
+  {
+   "set": "b",
+   "name": "P. Mahomes",
+   "team": "KC",
+   "pos": "QB",
+   "salary": 6500,
+   "proj": 21.9,
+   "ceil": 31.47,
+   "own": 4.87
+  },
+  {
+   "set": "b",
+   "name": "T. Pollard",
+   "team": "TEN",
+   "pos": "RB",
+   "salary": 6500,
+   "proj": 16.8,
+   "ceil": 24.84,
+   "own": 12.05
+  },
+  {
+   "set": "b",
+   "name": "D. Smith",
+   "team": "PHI",
+   "pos": "WR",
+   "salary": 6500,
+   "proj": 14.8,
+   "ceil": 22.24,
+   "own": 2.93
+  },
+  {
+   "set": "b",
+   "name": "G. Wilson",
+   "team": "NYJ",
+   "pos": "WR",
+   "salary": 6400,
+   "proj": 16.1,
+   "ceil": 23.93,
+   "own": 12.26
+  },
+  {
+   "set": "b",
+   "name": "C. Williams",
+   "team": "CHI",
+   "pos": "QB",
+   "salary": 6300,
+   "proj": 22.2,
+   "ceil": 31.86,
+   "own": 13.33
+  },
+  {
+   "set": "b",
+   "name": "L. Burden III",
+   "team": "CHI",
+   "pos": "WR",
+   "salary": 6300,
+   "proj": 16.7,
+   "ceil": 24.71,
+   "own": 13.1
+  },
+  {
+   "set": "b",
+   "name": "J. Coleman",
+   "team": "DEN",
+   "pos": "RB",
+   "salary": 6300,
+   "proj": 18.6,
+   "ceil": 27.18,
+   "own": 36.27
+  },
+  {
+   "set": "b",
+   "name": "S. Barkley",
+   "team": "PHI",
+   "pos": "RB",
+   "salary": 6100,
+   "proj": 11.8,
+   "ceil": 18.34,
+   "own": 2.39
+  },
+  {
+   "set": "b",
+   "name": "J. Goff",
+   "team": "DET",
+   "pos": "QB",
+   "salary": 6100,
+   "proj": 18.3,
+   "ceil": 26.79,
+   "own": 5.19
+  },
+  {
+   "set": "b",
+   "name": "R. Rice",
+   "team": "KC",
+   "pos": "WR",
+   "salary": 6100,
+   "proj": 15.5,
+   "ceil": 23.15,
+   "own": 5.85
+  },
+  {
+   "set": "b",
+   "name": "D. Moore",
+   "team": "BUF",
+   "pos": "WR",
+   "salary": 6000,
+   "proj": 15.1,
+   "ceil": 22.63,
+   "own": 8.08
+  },
+  {
+   "set": "b",
+   "name": "E. Johnson",
+   "team": "KC",
+   "pos": "RB",
+   "salary": 6000,
+   "proj": 22.1,
+   "ceil": 31.73,
+   "own": 64.15
+  },
+  {
+   "set": "b",
+   "name": "B. Hall",
+   "team": "NYJ",
+   "pos": "RB",
+   "salary": 5900,
+   "proj": 13.6,
+   "ceil": 20.68,
+   "own": 2.91
+  },
+  {
+   "set": "b",
+   "name": "J. Williams",
+   "team": "DET",
+   "pos": "WR",
+   "salary": 5900,
+   "proj": 14.2,
+   "ceil": 21.46,
+   "own": 4.95
+  },
+  {
+   "set": "b",
+   "name": "J. Coker",
+   "team": "CAR",
+   "pos": "WR",
+   "salary": 5800,
+   "proj": 10.4,
+   "ceil": 16.52,
+   "own": 2.4
+  },
+  {
+   "set": "b",
+   "name": "T. Shough",
+   "team": "NO",
+   "pos": "QB",
+   "salary": 5800,
+   "proj": 17.9,
+   "ceil": 26.27,
+   "own": 3.16
+  },
+  {
+   "set": "b",
+   "name": "C. Skattebo",
+   "team": "NYG",
+   "pos": "RB",
+   "salary": 5800,
+   "proj": 12.6,
+   "ceil": 19.38,
+   "own": 9.62
+  },
+  {
+   "set": "b",
+   "name": "J. Waddle",
+   "team": "DEN",
+   "pos": "WR",
+   "salary": 5700,
+   "proj": 13.9,
+   "ceil": 21.07,
+   "own": 6.31
+  },
+  {
+   "set": "b",
+   "name": "B. Young",
+   "team": "CAR",
+   "pos": "QB",
+   "salary": 5700,
+   "proj": 17.1,
+   "ceil": 25.23,
+   "own": 3.16
+  },
+  {
+   "set": "b",
+   "name": "I. Likely",
+   "team": "NYG",
+   "pos": "TE",
+   "salary": 5600,
+   "proj": 13.6,
+   "ceil": 20.68,
+   "own": 10.87
+  },
+  {
+   "set": "b",
+   "name": "B. Nix",
+   "team": "DEN",
+   "pos": "QB",
+   "salary": 5600,
+   "proj": 19.2,
+   "ceil": 27.96,
+   "own": 4.0
+  },
+  {
+   "set": "b",
+   "name": "O. Gordon II",
+   "team": "MIA",
+   "pos": "RB",
+   "salary": 5600,
+   "proj": 11.9,
+   "ceil": 18.47,
+   "own": 8.43
+  },
+  {
+   "set": "b",
+   "name": "A. Jeanty",
+   "team": "LV",
+   "pos": "RB",
+   "salary": 5500,
+   "proj": 11.8,
+   "ceil": 18.34,
+   "own": 6.73
+  },
+  {
+   "set": "b",
+   "name": "C. Ward",
+   "team": "TEN",
+   "pos": "QB",
+   "salary": 5500,
+   "proj": 23.3,
+   "ceil": 33.29,
+   "own": 10.12
+  },
+  {
+   "set": "b",
+   "name": "C. Tate",
+   "team": "TEN",
+   "pos": "WR",
+   "salary": 5500,
+   "proj": 16.4,
+   "ceil": 24.32,
+   "own": 27.29
+  },
+  {
+   "set": "b",
+   "name": "A. Rodgers",
+   "team": "PIT",
+   "pos": "QB",
+   "salary": 5400,
+   "proj": 13.2,
+   "ceil": 20.16,
+   "own": 0.63
+  },
+  {
+   "set": "b",
+   "name": "K. Monangai",
+   "team": "CHI",
+   "pos": "RB",
+   "salary": 5400,
+   "proj": 12.7,
+   "ceil": 19.51,
+   "own": 1.11
+  },
+  {
+   "set": "b",
+   "name": "T. Etienne Jr.",
+   "team": "NO",
+   "pos": "RB",
+   "salary": 5300,
+   "proj": 9.5,
+   "ceil": 15.35,
+   "own": 0.52
+  },
+  {
+   "set": "b",
+   "name": "B. Mayfield",
+   "team": "TB",
+   "pos": "QB",
+   "salary": 5300,
+   "proj": 10.7,
+   "ceil": 16.91,
+   "own": 0.64
+  },
+  {
+   "set": "b",
+   "name": "D. Metcalf",
+   "team": "PIT",
+   "pos": "WR",
+   "salary": 5300,
+   "proj": 12.3,
+   "ceil": 18.99,
+   "own": 5.73
+  },
+  {
+   "set": "b",
+   "name": "R. Flournoy",
+   "team": "DAL",
+   "pos": "WR",
+   "salary": 5300,
+   "proj": 14.0,
+   "ceil": 21.2,
+   "own": 3.95
+  },
+  {
+   "set": "b",
+   "name": "J. Brissett",
+   "team": "BAL",
+   "pos": "QB",
+   "salary": 5200,
+   "proj": 14.2,
+   "ceil": 21.46,
+   "own": 3.84
+  },
+  {
+   "set": "b",
+   "name": "O. Hampton",
+   "team": "LAC",
+   "pos": "RB",
+   "salary": 5200,
+   "proj": 14.4,
+   "ceil": 21.72,
+   "own": 9.15
+  },
+  {
+   "set": "b",
+   "name": "E. Egbuka",
+   "team": "TB",
+   "pos": "WR",
+   "salary": 5200,
+   "proj": 14.1,
+   "ceil": 21.33,
+   "own": 11.31
+  },
+  {
+   "set": "b",
+   "name": "J. Tyson",
+   "team": "NO",
+   "pos": "WR",
+   "salary": 5200,
+   "proj": 15.2,
+   "ceil": 22.76,
+   "own": 17.07
+  },
+  {
+   "set": "b",
+   "name": "J. Herbert",
+   "team": "LAC",
+   "pos": "QB",
+   "salary": 5100,
+   "proj": 15.9,
+   "ceil": 23.67,
+   "own": 4.93
+  },
+  {
+   "set": "b",
+   "name": "K. Shakir",
+   "team": "BUF",
+   "pos": "WR",
+   "salary": 5100,
+   "proj": 10.3,
+   "ceil": 16.39,
+   "own": 2.29
+  },
+  {
+   "set": "b",
+   "name": "A. Kamara",
+   "team": "NO",
+   "pos": "RB",
+   "salary": 5100,
+   "proj": 8.3,
+   "ceil": 13.79,
+   "own": 0.15
+  },
+  {
+   "set": "b",
+   "name": "R. Dowdle",
+   "team": "PIT",
+   "pos": "RB",
+   "salary": 5100,
+   "proj": 10.5,
+   "ceil": 16.65,
+   "own": 0.88
+  },
+  {
+   "set": "b",
+   "name": "J. Downs",
+   "team": "KC",
+   "pos": "WR",
+   "salary": 5100,
+   "proj": 12.8,
+   "ceil": 19.64,
+   "own": 1.31
+  },
+  {
+   "set": "b",
+   "name": "C. Loveland",
+   "team": "CHI",
+   "pos": "TE",
+   "salary": 5100,
+   "proj": 15.3,
+   "ceil": 22.89,
+   "own": 20.29
+  },
+  {
+   "set": "b",
+   "name": "K. Gainwell",
+   "team": "TB",
+   "pos": "RB",
+   "salary": 5000,
+   "proj": 8.7,
+   "ceil": 14.31,
+   "own": 0.27
+  },
+  {
+   "set": "b",
+   "name": "L. McConkey",
+   "team": "LAC",
+   "pos": "WR",
+   "salary": 5000,
+   "proj": 6.8,
+   "ceil": 11.84,
+   "own": 1.33
+  },
+  {
+   "set": "b",
+   "name": "F. Mendoza",
+   "team": "LV",
+   "pos": "QB",
+   "salary": 5000,
+   "proj": 10.1,
+   "ceil": 16.13,
+   "own": 0.39
+  },
+  {
+   "set": "b",
+   "name": "M. Washington Jr.",
+   "team": "LV",
+   "pos": "RB",
+   "salary": 5000,
+   "proj": 6.6,
+   "ceil": 11.58,
+   "own": 0.11
+  },
+  {
+   "set": "b",
+   "name": "T. Johnson",
+   "team": "BUF",
+   "pos": "RB",
+   "salary": 4900,
+   "proj": 7.1,
+   "ceil": 12.23,
+   "own": 0.11
+  },
+  {
+   "set": "b",
+   "name": "T. Allgeier",
+   "team": "ARI",
+   "pos": "RB",
+   "salary": 4900,
+   "proj": 7.9,
+   "ceil": 13.27,
+   "own": 0.32
+  },
+  {
+   "set": "b",
+   "name": "G. Smith",
+   "team": "NYJ",
+   "pos": "QB",
+   "salary": 4900,
+   "proj": 12.7,
+   "ceil": 19.51,
+   "own": 1.83
+  },
+  {
+   "set": "b",
+   "name": "B. Allen",
+   "team": "NYJ",
+   "pos": "RB",
+   "salary": 4900,
+   "proj": 9.8,
+   "ceil": 15.74,
+   "own": 0.37
+  },
+  {
+   "set": "b",
+   "name": "M. Washington",
+   "team": "MIA",
+   "pos": "WR",
+   "salary": 4900,
+   "proj": 9.6,
+   "ceil": 15.48,
+   "own": 1.43
+  },
+  {
+   "set": "b",
+   "name": "A. Mitchell",
+   "team": "NYJ",
+   "pos": "WR",
+   "salary": 4900,
+   "proj": 11.8,
+   "ceil": 18.34,
+   "own": 5.45
+  },
+  {
+   "set": "b",
+   "name": "T. Tucker",
+   "team": "LV",
+   "pos": "WR",
+   "salary": 4800,
+   "proj": 8.9,
+   "ceil": 14.57,
+   "own": 0.89
+  },
+  {
+   "set": "b",
+   "name": "D. Kincaid",
+   "team": "BUF",
+   "pos": "TE",
+   "salary": 4800,
+   "proj": 3.1,
+   "ceil": 7.03,
+   "own": 0.04
+  },
+  {
+   "set": "b",
+   "name": "J. McCarthy",
+   "team": "NYG",
+   "pos": "QB",
+   "salary": 4800,
+   "proj": 15.3,
+   "ceil": 22.89,
+   "own": 5.06
+  },
+  {
+   "set": "b",
+   "name": "G. Bernard",
+   "team": "PIT",
+   "pos": "WR",
+   "salary": 4800,
+   "proj": 10.2,
+   "ceil": 16.26,
+   "own": 1.68
+  },
+  {
+   "set": "b",
+   "name": "C. Sutton",
+   "team": "DEN",
+   "pos": "WR",
+   "salary": 4700,
+   "proj": 9.7,
+   "ceil": 15.61,
+   "own": 3.79
+  },
+  {
+   "set": "b",
+   "name": "T. Kelce",
+   "team": "KC",
+   "pos": "TE",
+   "salary": 4700,
+   "proj": 12.1,
+   "ceil": 18.73,
+   "own": 7.53
+  },
+  {
+   "set": "b",
+   "name": "J. Hill",
+   "team": "BAL",
+   "pos": "RB",
+   "salary": 4700,
+   "proj": 9.0,
+   "ceil": 14.7,
+   "own": 0.39
+  },
+  {
+   "set": "b",
+   "name": "J. Milton",
+   "team": "PHI",
+   "pos": "QB",
+   "salary": 4700,
+   "proj": 11.7,
+   "ceil": 18.21,
+   "own": 2.03
+  },
+  {
+   "set": "b",
+   "name": "D. Goedert",
+   "team": "PHI",
+   "pos": "TE",
+   "salary": 4600,
+   "proj": 10.0,
+   "ceil": 16.0,
+   "own": 1.56
+  },
+  {
+   "set": "b",
+   "name": "R. Odunze",
+   "team": "CHI",
+   "pos": "WR",
+   "salary": 4600,
+   "proj": 14.5,
+   "ceil": 21.85,
+   "own": 15.96
+  },
+  {
+   "set": "b",
+   "name": "M. Lemon",
+   "team": "PHI",
+   "pos": "WR",
+   "salary": 4600,
+   "proj": 9.6,
+   "ceil": 15.48,
+   "own": 0.6
+  },
+  {
+   "set": "b",
+   "name": "J. Meyers",
+   "team": "JAX",
+   "pos": "WR",
+   "salary": 4500,
+   "proj": 11.9,
+   "ceil": 18.47,
+   "own": 7.76
+  },
+  {
+   "set": "b",
+   "name": "K. McCord",
+   "team": "MIA",
+   "pos": "QB",
+   "salary": 4500,
+   "proj": 8.1,
+   "ceil": 13.53,
+   "own": 0.68
+  },
+  {
+   "set": "b",
+   "name": "S. LaPorta",
+   "team": "DET",
+   "pos": "TE",
+   "salary": 4400,
+   "proj": 11.1,
+   "ceil": 17.43,
+   "own": 6.97
+  },
+  {
+   "set": "b",
+   "name": "C. Douglas",
+   "team": "MIA",
+   "pos": "WR",
+   "salary": 4400,
+   "proj": 11.7,
+   "ceil": 18.21,
+   "own": 10.59
+  },
+  {
+   "set": "b",
+   "name": "M. Mayer",
+   "team": "LV",
+   "pos": "TE",
+   "salary": 4300,
+   "proj": 10.3,
+   "ceil": 16.39,
+   "own": 4.41
+  },
+  {
+   "set": "b",
+   "name": "C. Godwin Jr.",
+   "team": "TB",
+   "pos": "WR",
+   "salary": 4200,
+   "proj": 8.8,
+   "ceil": 14.44,
+   "own": 6.57
+  },
+  {
+   "set": "b",
+   "name": "P. Bryant",
+   "team": "DEN",
+   "pos": "WR",
+   "salary": 4200,
+   "proj": 9.4,
+   "ceil": 15.22,
+   "own": 1.48
+  },
+  {
+   "set": "b",
+   "name": "B. Strange",
+   "team": "JAX",
+   "pos": "TE",
+   "salary": 4100,
+   "proj": 10.9,
+   "ceil": 17.17,
+   "own": 4.32
+  },
+  {
+   "set": "b",
+   "name": "X. Worthy",
+   "team": "KC",
+   "pos": "WR",
+   "salary": 4100,
+   "proj": 8.6,
+   "ceil": 14.18,
+   "own": 1.27
+  },
+  {
+   "set": "b",
+   "name": "Chiefs",
+   "team": "KC",
+   "pos": "DST",
+   "salary": 4000,
+   "proj": 10.7,
+   "ceil": 16.91,
+   "own": 12.85
+  }
+ ]
+}

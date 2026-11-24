@@ -89,6 +89,40 @@ def dashboard(d: dict) -> list[dict]:
     return rows
 
 
+def lookahead(games: dict) -> list[dict]:
+    """Next week's early DraftKings lines, one row per game, from odds.summarize() of that week's stored quotes:
+    the current spread (home side), total and moneylines, and where each opened when it has moved since."""
+    def q(g: dict, market: str, side: str) -> tuple[dict, dict]:
+        s = (g.get(market) or {}).get(side) or {}
+        return s.get("opening") or {}, s.get("current") or {}
+
+    rows = []
+    for game in sorted(games):
+        g = games[game]
+        away, _, home = game.partition("@")
+        row: dict = {"game": game, "spread": None, "spread_open": None, "total": None, "total_open": None,
+                     "moneyline": None, "captured_at": None}
+        latest = [s["current"]["at"] for m in g.values() for s in m.values() if (s.get("current") or {}).get("at")]
+        row["captured_at"] = max(latest) if latest else None
+        op, cur = q(g, "spread", "home")
+        if cur.get("line") is not None:
+            row["spread"] = f"{home} {num(cur['line'], True)} ({price(cur.get('price'))})"
+            if op.get("line") is not None and op["line"] != cur["line"]:
+                row["spread_open"] = f"{home} {num(op['line'], True)}"
+        op, cur = q(g, "total", "over")
+        if cur.get("line") is not None:
+            row["total"] = num(cur["line"])
+            if op.get("line") is not None and op["line"] != cur["line"]:
+                row["total_open"] = num(op["line"])
+        _, ml_home = q(g, "moneyline", "home")
+        _, ml_away = q(g, "moneyline", "away")
+        if ml_home.get("price") is not None and ml_away.get("price") is not None:
+            row["moneyline"] = f"{away} {price(ml_away['price'])} / {home} {price(ml_home['price'])}"
+        if row["spread"] or row["total"] or row["moneyline"]:
+            rows.append(row)
+    return rows
+
+
 def build_tables(d: dict) -> dict:
     return {"dashboard": dashboard(d), "changelog": (d.get("changes") or {}).get("rows") or []}
 

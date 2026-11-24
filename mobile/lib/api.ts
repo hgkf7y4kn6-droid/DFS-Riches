@@ -144,9 +144,10 @@ export function getOptimal(season: number, week: number, slateId: string) {
   return getJson<OptimalResponse>(`/api/slates/${encodeURIComponent(slateId)}/optimal?${q(season, week)}`);
 }
 
-/** One game's Weekly Breakdown: lines, team profiles, matchups, usage, DFS targets, postgame. */
-export function getGameDetail(season: number, week: number, gameId: string) {
-  return getJson<GameDetail>(`/api/breakdown/game/${encodeURIComponent(gameId)}?${q(season, week)}`);
+/** One game's Weekly Breakdown: lines, team profiles, matchups, usage, DFS targets, postgame. `slateId`: a Showdown slate prices the targets at its own Flex / Captain salaries. */
+export function getGameDetail(season: number, week: number, gameId: string, slateId?: string | null) {
+  const slate = slateId ? `&slate_id=${encodeURIComponent(slateId)}` : '';
+  return getJson<GameDetail>(`/api/breakdown/game/${encodeURIComponent(gameId)}?${q(season, week)}${slate}`);
 }
 
 /** The recap of one finished week: each game's signal vs noise audit and the teams it flags. */
@@ -164,6 +165,11 @@ export function getDfsModel(season: number, week: number, slateId?: string | nul
 export function getPlays(season: number, week: number, contest: PlayContest, slateId?: string | null) {
   const slate = slateId ? `&slate_id=${encodeURIComponent(slateId)}` : '';
   return getJson<PlaysResponse>(`/api/plays?${q(season, week)}&contest=${contest}${slate}`);
+}
+
+/** Leverage for one slate's players by DraftKings draftable id (Pro): Classic large-field GPP leverage, or a Showdown slate's Captain and Flex ids on their own. */
+export function getSlateLeverage(season: number, week: number, slateId: string) {
+  return getJson<SlateLeverage>(`/api/slates/${encodeURIComponent(slateId)}/leverage?${q(season, week)}`);
 }
 
 /** A player's last few games before this week: snap share, DK points and position-relevant stats. */
@@ -186,6 +192,12 @@ export function getBestContests(sel: {
   weights: Record<ContestFactor, number> | null;
   /** The selected slate's DraftKings draft group id: its contests are listed first. */
   slate?: number | null;
+  /** Prize pool: only guaranteed contests ('yes'), only the ones that are not ('no'), or both (default). */
+  guaranteed?: 'any' | 'yes' | 'no';
+  /** Only contests graded at least this well ('B' = A or B); cash games are ungraded and drop out. */
+  minGrade?: 'any' | 'A' | 'B' | 'C' | 'D';
+  /** 'score' (default): the weighted score; 'grade': best A-F grade first. */
+  sort?: 'score' | 'grade';
 }) {
   const lists = { ...sel, weights: sel.weights ? Object.entries(sel.weights).map(([k, v]) => `${k}:${v}`) : [] };
   const query = [
@@ -193,6 +205,9 @@ export function getBestContests(sel: {
       .filter((k) => lists[k].length)
       .map((k) => `${k}=${encodeURIComponent(lists[k].join(','))}`),
     ...(sel.slate ? [`slate=${sel.slate}`] : []),
+    ...(sel.guaranteed && sel.guaranteed !== 'any' ? [`guaranteed=${sel.guaranteed}`] : []),
+    ...(sel.minGrade && sel.minGrade !== 'any' ? [`min_grade=${sel.minGrade}`] : []),
+    ...(sel.sort && sel.sort !== 'score' ? [`sort=${sel.sort}`] : []),
   ].join('&');
   return getJson<BestContestsResponse>(`/api/contests/best${query ? `?${query}` : ''}`);
 }

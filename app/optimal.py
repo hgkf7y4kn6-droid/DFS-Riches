@@ -67,9 +67,20 @@ def slate_complete(slate, actuals: dict) -> bool:
     )
 
 
-def _tournament(players: list, locked: set) -> list | None:
+def _tournament_value(proj: float, own_pct: float | None) -> float:
+    """What the Tournament lineup maximises per player: projection x (1 - 0.8 x projected ownership), the discount app.dfs_strategy
+    back-tested on 56 DraftKings Sunday main slates (it beat plain projection 6.0% / 6.0% vs 3.8% / 1.0% of lineups at the field's top 1%),
+    capped at a 60% discount. Without a projection of ownership the player is valued on projection alone."""
+    from app import dfs_strategy
+    if own_pct is None:
+        return proj
+    return proj * (1 - min(0.6, dfs_strategy.GPP_OWN_DISCOUNT * own_pct / 100))
+
+
+def _tournament(players: list, locked: set, own: dict | None = None) -> list | None:
     """The stacked tournament lineup (app.lineup_builder with the tournament construction rules), loosening the stack
-    when the locks or the pool can't support it."""
+    when the locks or the pool can't support it. own: DraftKings id -> projected large-field ownership %; with it the lineup
+    leans off the chalk (_tournament_value)."""
     from app import dfs_strategy, lineup_builder
     from app.optimizer import ELIGIBLE_STATUSES, MIN_ROLE_PROJ, ROLE_POSITIONS
 
@@ -83,7 +94,8 @@ def _tournament(players: list, locked: set) -> list | None:
         pool.append({**d, "id": d["dk_draftable_id"], "game": d["game_info"], "_src": p})
     if not pool:
         return None
-    values = [(r["proj_points"] or 0) + (dfs_strategy.WR_FLEX_BONUS if r["position"] == "WR" else 0) for r in pool]
+    values = [_tournament_value(r["proj_points"] or 0, (own or {}).get(r["id"])) + (dfs_strategy.WR_FLEX_BONUS if r["position"] == "WR" else 0)
+              for r in pool]
     for min_salary in (dfs_strategy.GPP_MIN_SALARY, 0):
         base = dict(min_salary=min_salary, one_rb_per_team=True, force=locked or None)
         for kw in (dict(stack=(2, 1), bring_back_pos=("WR",)), dict(stack=(2, 1)), dict(stack=(1, 1)), dict(stack=(1, 0)), {}):
@@ -106,13 +118,14 @@ def _cash_pool(players: list, cash: dict) -> list[dict]:
 
 
 def build_lineups(players: list, slate_type: str, *, saved: list[dict] | None = None,
-                  started: set[str] | None = None, cash: dict | None = None) -> list[dict]:
+                  started: set[str] | None = None, cash: dict | None = None, own: dict | None = None) -> list[dict]:
     """The optimal lineup per metric. With games underway (`started` teams),
     each lineup keeps its saved players from those games (locked, with their
     saved pre-kickoff rows) and fills the rest from games not yet started.
 
     `cash` (app.cash_model.projections, only with CASH_MODEL=v2) builds the Classic Safe lineup on the cash model's points
-    instead of the app's projection; Showdown and the Tournament lineup are unchanged."""
+    instead of the app's projection; Showdown is unchanged. `own` (DraftKings id -> projected ownership %, Classic only) makes the
+    Tournament lineup lean off the chalk; without it the Tournament lineup is built on projection alone."""
     started = started or set()
     cash_players = _cash_pool([p for p in players if _get(p, "team") not in started], cash) if cash and slate_type != "showdown" else None
     prev = {lu.get("metric"): lu for lu in (saved or [])}
@@ -122,7 +135,7 @@ def build_lineups(players: list, slate_type: str, *, saved: list[dict] | None = 
         locked_rows = [r for r in prev[metric]["players"] if r["team"] in started] if metric in prev and started else []
         locks = {r["dk_draftable_id"] for r in locked_rows}
         if metric == "tournament":
-            lineup = _tournament(open_players + locked_rows, locks)
+            lineup = _tournament(open_players + locked_rows, locks, own)
         elif metric == "proj_points" and cash_players is not None:
             lineup = optimize(cash_players + locked_rows, slate_type, "cash_proj", locked=locks)
         else:
@@ -146,8 +159,26 @@ def build_lineups(players: list, slate_type: str, *, saved: list[dict] | None = 
             "ceiling": round(sum(r["ceiling"] or 0 for r in rows), 2),
             **({"cash_proj": round(sum(r.get("cash_proj", r["proj_points"]) or 0 for r in rows), 2),
                 "note": "Cash model v2 (experimental)"} if cash_built else {}),
+            **({"note": "Leverage: built on projection x (1 - 0.8 x projected ownership)",
+                "ownership": round(sum((own.get(r["dk_draftable_id"]) or 0) for r in rows), 1)} if metric == "tournament" and own else {}),
         })
     return out
+
+
+async def _ownership(season: int, week: int, slate) -> dict | None:
+    """Projected large-field ownership % by DraftKings id for a Classic slate (the DFS model's Bayesian posterior), or None if it can't
+    be built: the lineups fall back to projection alone rather than fail."""
+    if slate.slate_type != "classic":
+        return None
+    try:
+        from app import dfs_model, ownership_report
+        key = (season, week, slate.slate_id, "gpp")
+        if dfs_model._STATE.get(key) is None:
+            await dfs_model.build(season, week, slate.slate_id, "gpp")
+        state = dfs_model._STATE.get(key)
+        return ownership_report.own_pct_by_id(state, "gpp") if state else None
+    except Exception:
+        return None
 
 
 def _get(p, name: str):
@@ -249,7 +280,8 @@ async def get_optimal(season: int, week: int, slate_id: str, now: datetime | Non
                 cash = await cash_model.projections(season, week, players, slate)
             except Exception:       # the experimental model must never take the lineups down: fall back to the app's projection
                 cash = None
-        lineups = build_lineups(players, slate.slate_type, saved=(saved or {}).get("lineups"), started=started, cash=cash or None)
+        lineups = build_lineups(players, slate.slate_type, saved=(saved or {}).get("lineups"), started=started, cash=cash or None,
+                                own=await _ownership(season, week, slate))
         if lineups and (saved is None or saved.get("lineups") != lineups):
             saved = {"saved_at": now.isoformat(timespec="seconds"), "draft_group_id": slate.draft_group_id, "lineups": lineups}
             save(season, week, slate_id, saved)
@@ -299,4 +331,4 @@ def track_record() -> list[dict]:
                                 for lu in _relabel(scored, "showdown" if slate_id.startswith("showdown") else "classic")],
                     "best_possible": (entry.get("hindsight") or {}).get("actual"),
                 })
-    return sorted(out, key=lambda r: (-r["season"], -r["week"], ("classic_sunday", "classic_afternoon", "classic").index(r["slate_id"]) if r["slate_id"] in ("classic_sunday", "classic_afternoon", "classic") else 3, r["slate_id"]))
+    return sorted(out, key=lambda r: (-r["season"], -r["week"], ("classic_thursday", "classic_sunday", "classic_afternoon", "classic").index(r["slate_id"]) if r["slate_id"] in ("classic_thursday", "classic_sunday", "classic_afternoon", "classic") else 4, r["slate_id"]))

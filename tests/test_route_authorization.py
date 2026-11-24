@@ -79,3 +79,13 @@ def test_csp_report_endpoint_logs_only_and_is_capped(anon):
     assert len(main._csp_window) == 30                          # 5 reports beyond the cap were dropped
     assert "report-uri /csp-report" in main._csp()
     main._csp_window.clear()
+
+
+def test_csp_allows_posthog_analytics():
+    connect = [d for d in main._csp().split("; ") if d.startswith("connect-src")][0]
+    assert "https://us.i.posthog.com" in connect.split()
+
+
+def test_best_contests_rejects_an_unknown_guaranteed_value(anon, monkeypatch):
+    # validation runs before sign-in is consulted only for /api paths that are open; here it must still never be a 500
+    assert anon.get("/api/contests/best?guaranteed=maybe").status_code in (401, 403, 422)

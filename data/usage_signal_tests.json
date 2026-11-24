@@ -1,0 +1,500 @@
+{
+ "seasons": [
+  2023,
+  2024,
+  2025,
+  2026
+ ],
+ "rows": 9270,
+ "min_projection": 3.0,
+ "tests": {
+  "red zone | RB/WR/TE": {
+   "n": 9270,
+   "terms": {
+    "proj": {
+     "slope": -0.003,
+     "t": -0.1,
+     "slope_by_season": {
+      "2023": 0.044,
+      "2024": 0.05,
+      "2025": -0.043,
+      "2026": -0.078
+     }
+    },
+    "rz": {
+     "slope": 1.181,
+     "t": 1.0,
+     "slope_by_season": {
+      "2023": 2.021,
+      "2024": -0.375,
+      "2025": 2.082,
+      "2026": -0.19
+     }
+    },
+    "rz5": {
+     "slope": 0.204,
+     "t": 0.3,
+     "slope_by_season": {
+      "2023": -0.354,
+      "2024": 1.078,
+      "2025": -0.051,
+      "2026": 0.382
+     }
+    }
+   },
+   "loso_rmse_sleeper": 7.004,
+   "loso_rmse_corrected": 7.002,
+   "loso_change_pct": -0.02
+  },
+  "red zone TD rate | RB/WR/TE": {
+   "n": 9270,
+   "terms": {
+    "proj": {
+     "slope": 0.017,
+     "t": 0.8,
+     "slope_by_season": {
+      "2023": 0.067,
+      "2024": 0.051,
+      "2025": -0.021,
+      "2026": -0.031
+     }
+    },
+    "rz_tds": {
+     "slope": 0.047,
+     "t": 0.2,
+     "slope_by_season": {
+      "2023": 0.072,
+      "2024": 0.4,
+      "2025": 0.301,
+      "2026": -1.21
+     }
+    }
+   },
+   "loso_rmse_sleeper": 7.004,
+   "loso_rmse_corrected": 7.004,
+   "loso_change_pct": 0.0
+  },
+  "role break (snap change) | RB/WR/TE": {
+   "n": 8417,
+   "terms": {
+    "proj": {
+     "slope": 0.019,
+     "t": 0.9,
+     "slope_by_season": {
+      "2023": 0.071,
+      "2024": 0.065,
+      "2025": -0.01,
+      "2026": -0.078
+     }
+    },
+    "brk": {
+     "slope": 0.004,
+     "t": 0.8,
+     "slope_by_season": {
+      "2023": 0.016,
+      "2024": 0.003,
+      "2025": -0.003,
+      "2026": -0.004
+     }
+    }
+   },
+   "loso_rmse_sleeper": 7.052,
+   "loso_rmse_corrected": 7.051,
+   "loso_change_pct": -0.02
+  },
+  "riser (snap change 25+ pts) | RB/WR/TE": {
+   "n": 588,
+   "mean_actual_minus_proj": 0.28,
+   "share_beating_projection": 0.379,
+   "se": 0.28,
+   "mean_projection": 8.3
+  },
+  "faller (snap change 25+ pts) | RB/WR/TE": {
+   "n": 306,
+   "mean_actual_minus_proj": -0.04,
+   "share_beating_projection": 0.366,
+   "se": 0.37,
+   "mean_projection": 8.54
+  },
+  "mild riser (snap change 15+ pts) | RB/WR/TE": {
+   "n": 839,
+   "mean_actual_minus_proj": 0.64,
+   "share_beating_projection": 0.452,
+   "se": 0.25,
+   "mean_projection": 9.02
+  },
+  "mild faller (snap change 15+ pts) | RB/WR/TE": {
+   "n": 623,
+   "mean_actual_minus_proj": 0.07,
+   "share_beating_projection": 0.401,
+   "se": 0.27,
+   "mean_projection": 9.02
+  },
+  "red zone | RB": {
+   "n": 2885,
+   "terms": {
+    "proj": {
+     "slope": 0.015,
+     "t": 0.3,
+     "slope_by_season": {
+      "2023": -0.021,
+      "2024": 0.149,
+      "2025": -0.012,
+      "2026": -0.011
+     }
+    },
+    "rz": {
+     "slope": 0.726,
+     "t": 0.4,
+     "slope_by_season": {
+      "2023": 2.916,
+      "2024": -2.853,
+      "2025": 1.88,
+      "2026": 0.016
+     }
+    },
+    "rz5": {
+     "slope": -0.107,
+     "t": -0.1,
+     "slope_by_season": {
+      "2023": -0.284,
+      "2024": 0.299,
+      "2025": 0.013,
+      "2026": -1.616
+     }
+    }
+   },
+   "loso_rmse_sleeper": 7.109,
+   "loso_rmse_corrected": 7.107,
+   "loso_change_pct": -0.02
+  },
+  "red zone TD rate | RB": {
+   "n": 2885,
+   "terms": {
+    "proj": {
+     "slope": 0.039,
+     "t": 1.1,
+     "slope_by_season": {
+      "2023": 0.033,
+      "2024": 0.07,
+      "2025": 0.065,
+      "2026": 0.023
+     }
+    },
+    "rz_tds": {
+     "slope": -0.258,
+     "t": -0.6,
+     "slope_by_season": {
+      "2023": 0.199,
+      "2024": 0.49,
+      "2025": -0.999,
+      "2026": -1.609
+     }
+    }
+   },
+   "loso_rmse_sleeper": 7.109,
+   "loso_rmse_corrected": 7.106,
+   "loso_change_pct": -0.05
+  },
+  "role break (snap change) | RB": {
+   "n": 2586,
+   "terms": {
+    "proj": {
+     "slope": 0.021,
+     "t": 0.7,
+     "slope_by_season": {
+      "2023": 0.029,
+      "2024": 0.092,
+      "2025": 0.018,
+      "2026": -0.064
+     }
+    },
+    "brk": {
+     "slope": 0.008,
+     "t": 1.0,
+     "slope_by_season": {
+      "2023": 0.013,
+      "2024": 0.016,
+      "2025": -0.006,
+      "2026": 0.009
+     }
+    }
+   },
+   "loso_rmse_sleeper": 7.219,
+   "loso_rmse_corrected": 7.216,
+   "loso_change_pct": -0.04
+  },
+  "riser (snap change 25+ pts) | RB": {
+   "n": 169,
+   "mean_actual_minus_proj": 0.79,
+   "share_beating_projection": 0.42,
+   "se": 0.56,
+   "mean_projection": 10.55
+  },
+  "faller (snap change 25+ pts) | RB": {
+   "n": 94,
+   "mean_actual_minus_proj": 1.1,
+   "share_beating_projection": 0.436,
+   "se": 0.86,
+   "mean_projection": 10.49
+  },
+  "mild riser (snap change 15+ pts) | RB": {
+   "n": 283,
+   "mean_actual_minus_proj": 0.82,
+   "share_beating_projection": 0.459,
+   "se": 0.44,
+   "mean_projection": 10.56
+  },
+  "mild faller (snap change 15+ pts) | RB": {
+   "n": 196,
+   "mean_actual_minus_proj": 0.29,
+   "share_beating_projection": 0.444,
+   "se": 0.48,
+   "mean_projection": 10.28
+  },
+  "red zone | WR": {
+   "n": 4535,
+   "terms": {
+    "proj": {
+     "slope": -0.011,
+     "t": -0.3,
+     "slope_by_season": {
+      "2023": 0.102,
+      "2024": 0.011,
+      "2025": -0.085,
+      "2026": -0.098
+     }
+    },
+    "rz": {
+     "slope": 4.207,
+     "t": 1.8,
+     "slope_by_season": {
+      "2023": 3.428,
+      "2024": 3.098,
+      "2025": 4.602,
+      "2026": 1.615
+     }
+    },
+    "rz5": {
+     "slope": 1.101,
+     "t": 0.7,
+     "slope_by_season": {
+      "2023": -1.182,
+      "2024": 3.667,
+      "2025": 0.446,
+      "2026": 1.962
+     }
+    }
+   },
+   "loso_rmse_sleeper": 7.224,
+   "loso_rmse_corrected": 7.231,
+   "loso_change_pct": 0.1
+  },
+  "red zone TD rate | WR": {
+   "n": 4535,
+   "terms": {
+    "proj": {
+     "slope": 0.018,
+     "t": 0.5,
+     "slope_by_season": {
+      "2023": 0.118,
+      "2024": 0.07,
+      "2025": -0.091,
+      "2026": -0.06
+     }
+    },
+    "rz_tds": {
+     "slope": 0.651,
+     "t": 1.2,
+     "slope_by_season": {
+      "2023": 0.3,
+      "2024": -0.208,
+      "2025": 2.197,
+      "2026": -0.671
+     }
+    }
+   },
+   "loso_rmse_sleeper": 7.224,
+   "loso_rmse_corrected": 7.236,
+   "loso_change_pct": 0.17
+  },
+  "role break (snap change) | WR": {
+   "n": 4138,
+   "terms": {
+    "proj": {
+     "slope": 0.039,
+     "t": 1.2,
+     "slope_by_season": {
+      "2023": 0.133,
+      "2024": 0.073,
+      "2025": -0.039,
+      "2026": -0.069
+     }
+    },
+    "brk": {
+     "slope": -0.0,
+     "t": -0.0,
+     "slope_by_season": {
+      "2023": 0.018,
+      "2024": -0.014,
+      "2025": -0.0,
+      "2026": -0.011
+     }
+    }
+   },
+   "loso_rmse_sleeper": 7.236,
+   "loso_rmse_corrected": 7.247,
+   "loso_change_pct": 0.15
+  },
+  "riser (snap change 25+ pts) | WR": {
+   "n": 321,
+   "mean_actual_minus_proj": -0.12,
+   "share_beating_projection": 0.343,
+   "se": 0.37,
+   "mean_projection": 7.64
+  },
+  "faller (snap change 25+ pts) | WR": {
+   "n": 166,
+   "mean_actual_minus_proj": -0.37,
+   "share_beating_projection": 0.355,
+   "se": 0.43,
+   "mean_projection": 7.85
+  },
+  "mild riser (snap change 15+ pts) | WR": {
+   "n": 384,
+   "mean_actual_minus_proj": 0.15,
+   "share_beating_projection": 0.419,
+   "se": 0.37,
+   "mean_projection": 8.61
+  },
+  "mild faller (snap change 15+ pts) | WR": {
+   "n": 302,
+   "mean_actual_minus_proj": -0.3,
+   "share_beating_projection": 0.358,
+   "se": 0.42,
+   "mean_projection": 8.88
+  },
+  "red zone | TE": {
+   "n": 1850,
+   "terms": {
+    "proj": {
+     "slope": -0.029,
+     "t": -0.6,
+     "slope_by_season": {
+      "2023": 0.019,
+      "2024": -0.075,
+      "2025": 0.051,
+      "2026": -0.189
+     }
+    },
+    "rz": {
+     "slope": 0.255,
+     "t": 0.1,
+     "slope_by_season": {
+      "2023": -5.753,
+      "2024": 11.077,
+      "2025": -4.075,
+      "2026": 6.324
+     }
+    },
+    "rz5": {
+     "slope": 0.121,
+     "t": 0.1,
+     "slope_by_season": {
+      "2023": 1.64,
+      "2024": -1.224,
+      "2025": -1.215,
+      "2026": 1.699
+     }
+    }
+   },
+   "loso_rmse_sleeper": 6.25,
+   "loso_rmse_corrected": 6.232,
+   "loso_change_pct": -0.28
+  },
+  "red zone TD rate | TE": {
+   "n": 1850,
+   "terms": {
+    "proj": {
+     "slope": 0.005,
+     "t": 0.1,
+     "slope_by_season": {
+      "2023": 0.039,
+      "2024": -0.003,
+      "2025": 0.07,
+      "2026": -0.051
+     }
+    },
+    "rz_tds": {
+     "slope": -0.989,
+     "t": -1.5,
+     "slope_by_season": {
+      "2023": -1.801,
+      "2024": 1.324,
+      "2025": -1.709,
+      "2026": -1.933
+     }
+    }
+   },
+   "loso_rmse_sleeper": 6.25,
+   "loso_rmse_corrected": 6.222,
+   "loso_change_pct": -0.44
+  },
+  "role break (snap change) | TE": {
+   "n": 1693,
+   "terms": {
+    "proj": {
+     "slope": -0.027,
+     "t": -0.6,
+     "slope_by_season": {
+      "2023": 0.001,
+      "2024": 0.0,
+      "2025": 0.013,
+      "2026": -0.147
+     }
+    },
+    "brk": {
+     "slope": 0.01,
+     "t": 1.0,
+     "slope_by_season": {
+      "2023": 0.016,
+      "2024": 0.034,
+      "2025": -0.007,
+      "2026": -0.001
+     }
+    }
+   },
+   "loso_rmse_sleeper": 6.301,
+   "loso_rmse_corrected": 6.271,
+   "loso_change_pct": -0.47
+  },
+  "riser (snap change 25+ pts) | TE": {
+   "n": 98,
+   "mean_actual_minus_proj": 0.7,
+   "share_beating_projection": 0.429,
+   "se": 0.58,
+   "mean_projection": 6.56
+  },
+  "faller (snap change 25+ pts) | TE": {
+   "n": 46,
+   "mean_actual_minus_proj": -1.23,
+   "share_beating_projection": 0.261,
+   "se": 0.73,
+   "mean_projection": 7.06
+  },
+  "mild riser (snap change 15+ pts) | TE": {
+   "n": 172,
+   "mean_actual_minus_proj": 1.45,
+   "share_beating_projection": 0.512,
+   "se": 0.51,
+   "mean_projection": 7.38
+  },
+  "mild faller (snap change 15+ pts) | TE": {
+   "n": 125,
+   "mean_actual_minus_proj": 0.63,
+   "share_beating_projection": 0.44,
+   "se": 0.5,
+   "mean_projection": 7.42
+  }
+ }
+}

@@ -248,6 +248,8 @@ def test_pro_features_need_pro_once_gating_is_on(client, monkeypatch):
                        headers={"authorization": "Bearer free"}).status_code == 402      # "Build for me" makes them
     monkeypatch.setenv("PRO_GATING", "1")
     assert client.get(url, headers={"authorization": "Bearer free"}).status_code == 402
+    assert client.get("/api/slates/nope/leverage?season=2026&week=3", headers={"authorization": "Bearer free"}).status_code == 402
+    assert client.get("/api/slates/nope/leverage?season=2026&week=3", headers={"authorization": "Bearer pro"}).status_code == 404
     assert client.get(url, headers={"authorization": "Bearer pro"}).status_code == 404
     build = client.post("/api/slates/classic/build", json={"season": 2026, "week": 3, "locked": [101]},
                         headers={"authorization": "Bearer pro"})
@@ -356,3 +358,46 @@ def test_video_upload_rejects_non_media(client, monkeypatch):
     assert main.ownership_video.looks_like_media(b"\x00\x00\x00\x18ftypmp42")
     assert main.ownership_video.looks_like_media(b"\x89PNG\r\n\x1a\n....")
     assert not main.ownership_video.looks_like_media(b"MZ\x90\x00")
+
+
+def test_slate_leverage_rejects_unknown_slates(client, monkeypatch):
+    async def fake_list(season, week):
+        return None, []
+    monkeypatch.setattr(main.slates, "list_slates", fake_list)
+    assert client.get("/api/slates/nope/leverage?season=2026&week=3").status_code == 404
+
+
+def test_showdown_slate_leverage_is_keyed_by_the_slates_own_captain_and_flex_ids(client, monkeypatch):
+    from types import SimpleNamespace
+    sd = SimpleNamespace(slate_id="showdown_sun_night", slate_type="showdown", available=True)
+    main_slate = SimpleNamespace(slate_id="classic_sunday", slate_type="classic", available=True)
+
+    async def fake_list(season, week):
+        return None, [main_slate, sd]
+
+    async def fake_model(*a, **k):
+        return b"{}"
+
+    async def fake_efficiency(season, week):
+        return None, None
+
+    def player(pid, slot, salary, proj, ceil):
+        return SimpleNamespace(dk_draftable_id=pid, name="Star", team="SF", opponent="MIN", position="WR", salary=salary,
+                               roster_slot=slot, proj_points=proj, ceiling=ceil)
+
+    async def fake_players(season, week, slate_id):
+        assert slate_id == "showdown_sun_night"
+        return SimpleNamespace(players=[player(1, "CPT", 15000, 30.0, 48.0), player(2, "FLEX", 10000, 20.0, 32.0)])
+    monkeypatch.setattr(main.slates, "list_slates", fake_list)
+    monkeypatch.setattr(main.slates, "get_slate_players", fake_players)
+    monkeypatch.setattr(main, "_dfs_model", fake_model)
+    monkeypatch.setattr(main, "_efficiency", fake_efficiency)
+    monkeypatch.setitem(main.dfs_model._STATE, (2026, 3, "classic_sunday", "gpp"),
+                        {"showdown_ids": {1: {"own": 40.0, "actual": None}, 2: {"own": 80.0, "actual": None}}})
+    r = client.get("/api/slates/showdown_sun_night/leverage?season=2026&week=3")
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["available"] and body["slate_id"] == "showdown_sun_night" and body["slate_type"] == "showdown"
+    assert set(body["players"]) == {"1", "2"}                      # Captain id and Flex id, each its own entry
+    assert body["players"]["1"]["slot"] == "CPT" and body["players"]["2"]["slot"] == "FLEX"
+    assert body["players"]["1"]["leverage_detail"]["own"] == 40.0 and body["players"]["2"]["leverage_detail"]["own"] == 80.0

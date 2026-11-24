@@ -351,7 +351,7 @@ interface BestContest {
   top_prize: number | null;
   top_multiple: number | null;
   score: number;
-  /** A-F grade against the other GPPs on its slate (small field, few entries, flat payout); null for cash games. */
+  /** A-F grade: a tournament against the other GPPs on its slate (small field, few entries, flat payout, low rake); a Double Up by its size and payout ratio (B at best); null for 50/50s and Triple Ups. */
   grade: 'A' | 'B' | 'C' | 'D' | 'F' | null;
   grade_score: number | null;
   /** The name without its slate when the contest runs on several slates, else the name. */
@@ -393,7 +393,7 @@ interface BestContestsResponse {
   /** Points per factor when the user sets none, and the most a factor can have. */
   default_weights: Record<ContestFactor, number>;
   max_weight: number;
-  selected: { entries: string[]; fees: string[]; excluded: ContestKind[] };
+  selected: { entries: string[]; fees: string[]; excluded: ContestKind[]; guaranteed: 'any' | 'yes' | 'no'; min_grade: 'any' | 'A' | 'B' | 'C' | 'D'; sort: 'score' | 'grade' };
   /** Contests matching the selection (copies collapsed), of which up to 15 are listed. */
   matching: number;
   /** The slate selected in the app and how many matching contests run on it (listed first); null when none is. */
@@ -475,6 +475,8 @@ interface TopPlayer {
   proj_points: number | null;
   role: 'Core' | 'Value' | string;
   usage_l3: number | null;
+  /** Showdown slates: his Captain price (`salary` is his Flex price). */
+  cpt_salary?: number | null;
   reasons: string[];
 }
 
@@ -948,7 +950,7 @@ interface ActualOwnershipSummary {
 
 /** How a player's leverage was built (app/leverage.py). */
 interface LeverageDetail {
-  /** Fair ownership: the position's ownership redistributed by efficiency-adjusted odds (percent). */
+  /** Fair ownership: the position's (Showdown: the slot's) ownership redistributed by efficiency-adjusted odds (percent). */
   fair_own: number | null;
   own: number | null;
   /** True when `own` is uploaded actual ownership rather than the projection. */
@@ -963,6 +965,18 @@ interface LeverageDetail {
   def_z: number;
   pos_z: number;
   verdict: 'Efficient secret' | 'Public trap' | 'Mirage' | null;
+  /** Showdown only: the roster slot this number is for (Captain and Flex ids are separate contests). */
+  slot?: 'CPT' | 'FLEX';
+}
+
+/** Leverage for every player on one slate, by DraftKings draftable id (GET /api/slates/{id}/leverage). */
+interface SlateLeverage {
+  available: boolean;
+  slate_id: string;
+  slate_type?: 'classic' | 'showdown';
+  reason?: string;
+  note?: string;
+  players: Record<string, { name: string; team: string; leverage: number; leverage_detail: LeverageDetail | null; slot: 'CPT' | 'FLEX' | null }>;
 }
 
 interface PlayPlayer {
@@ -1378,6 +1392,19 @@ interface BigPictureResponse {
   versions: BigPictureVersion[];
   can_run: boolean;
   run: { status: string | null; conclusion?: string | null; started_at?: string | null } | null;
+  /** The following week's early DraftKings lines (read live from the stored odds snapshots). */
+  lookahead?: { season: number; week: number; games: BigPictureLookahead[] } | null;
+}
+
+/** One game's early look-ahead lines for the week after the report's (app.big_picture.writer.lookahead). */
+interface BigPictureLookahead {
+  game: string;
+  spread: string | null;
+  spread_open: string | null;
+  total: string | null;
+  total_open: string | null;
+  moneyline: string | null;
+  captured_at: string | null;
 }
 
 /** One team's side of a recap game (app.recap): its tag, the repeatable play (signal) and the situational swings (noise). */

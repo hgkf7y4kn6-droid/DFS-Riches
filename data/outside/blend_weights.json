@@ -1,0 +1,79 @@
+{
+ "basis": "Fantasy Footballers Week 9 projections vs the model's pre-lock projections, scored on Week 9 actuals",
+ "cap": 0.3,
+ "positions": {
+  "ALL": {
+   "n": 69,
+   "w_opt": 0.65,
+   "w_80_interval": [
+    0.07,
+    1.26
+   ],
+   "rmse_model": 8.41,
+   "rmse_source": 8.32,
+   "rmse_half": 8.28
+  },
+  "QB": {
+   "n": 13,
+   "w_opt": 1.75,
+   "w_80_interval": [
+    0.11,
+    3.38
+   ],
+   "rmse_model": 9.79,
+   "rmse_source": 9.04,
+   "rmse_half": 9.35
+  },
+  "RB": {
+   "n": 12,
+   "w_opt": 1.44,
+   "w_80_interval": [
+    0.51,
+    2.18
+   ],
+   "rmse_model": 9.13,
+   "rmse_source": 8.02,
+   "rmse_half": 8.44
+  },
+  "WR": {
+   "n": 22,
+   "w_opt": -0.95,
+   "w_80_interval": [
+    -2.11,
+    0.33
+   ],
+   "rmse_model": 9.77,
+   "rmse_source": 10.48,
+   "rmse_half": 10.07
+  },
+  "TE": {
+   "n": 12,
+   "w_opt": 0.36,
+   "w_80_interval": [
+    -0.87,
+    2.12
+   ],
+   "rmse_model": 5.87,
+   "rmse_source": 5.97,
+   "rmse_half": 5.83
+  },
+  "DST": {
+   "n": 10,
+   "w_opt": 1.96,
+   "w_80_interval": [
+    0.92,
+    4.22
+   ],
+   "rmse_model": 3.48,
+   "rmse_source": 3.07,
+   "rmse_half": 3.25
+  }
+ },
+ "weights": {
+  "QB": 0.3,
+  "RB": 0.3,
+  "WR": 0.0,
+  "TE": 0.11,
+  "DST": 0.3
+ }
+}

@@ -135,3 +135,55 @@ def test_team_units_rank_and_hide_short_windows():
     assert bal["defense"]["yards"]["value"] == 160 + 80 and bal["defense"]["yards"]["rank"] == 1     # allows fewer than CLE
     assert t["league"]["offense"]["giveaways"]["better"] == "low"
     assert team_units.game_units(t, "BAL", "CLE")["away"] is bal and team_units.game_units(t, "BAL", "NYJ") is None
+
+
+def _slot_player(name, pos, salary, slot, proj=15.0):
+    return Player(name=name, team="TM", opponent="OPP", position=pos, roster_slot=slot, salary=salary,
+                  proj_points=proj, dk_fppg=proj, value_per_1k=0.0, game_info="OPP@TM", injury="Healthy")
+
+
+def test_a_showdown_pool_prices_targets_at_flex_with_the_captain_price_beside_it():
+    players = [_slot_player("Star WR", "WR", 11600, "FLEX", 20.0), _slot_player("Star WR", "WR", 17400, "CPT", 30.0),
+               _slot_player("Cheap TE", "TE", 4600, "FLEX", 10.0), _slot_player("Cheap TE", "TE", 6900, "CPT", 15.0)]
+    log = {player_key("Star WR", "WR"): _history(20.0, 0.25), player_key("Cheap TE", "TE"): _history(10.0, 0.1)}
+    picks = {p.name: p for p in targets.pick_targets(players, "TM", "OPP", _ctx(log), pass_rank=None, pass_rate=None)}
+    assert (picks["Star WR"].salary, picks["Star WR"].cpt_salary) == (11600, 17400)          # not the CPT row, not Classic's price
+    assert (picks["Cheap TE"].salary, picks["Cheap TE"].cpt_salary) == (4600, 6900)
+
+
+def test_a_classic_pool_has_no_captain_price():
+    players = [_player("Star WR", "WR", 8500, 20.0)]
+    log = {player_key("Star WR", "WR"): _history(20.0, 0.25)}
+    assert targets.pick_targets(players, "TM", "OPP", _ctx(log), pass_rank=None, pass_rate=None)[0].cpt_salary is None
+
+
+def test_game_detail_swaps_in_a_showdown_slates_pool_and_keeps_classic_otherwise(monkeypatch):
+    import asyncio
+    from types import SimpleNamespace
+
+    from app import game_detail
+    classic_pool, showdown_pool = [_player("A", "WR", 8000)], [_slot_player("A", "WR", 11000, "FLEX")]
+    wd = game_detail.WeekData(season=2026, week=11, schedule=None, index={}, ranks={}, pass_rate_rank={}, implied_rank={}, total_rank={},
+                              ceiling_ctx=_ctx({}), players=classic_pool, dst_rank={}, league_sacks=None, league_giveaways=None)
+    slate_list = [SimpleNamespace(slate_id="classic", slate_type="classic", available=True),
+                  SimpleNamespace(slate_id="showdown_mon_night", slate_type="showdown", available=True),
+                  SimpleNamespace(slate_id="showdown_empty", slate_type="showdown", available=False)]
+
+    async def list_slates(season, week):
+        return None, slate_list
+
+    async def get_slate_players(season, week, slate_id):
+        return SimpleNamespace(players=showdown_pool)
+    monkeypatch.setattr(game_detail.slates_module, "list_slates", list_slates)
+    monkeypatch.setattr(game_detail.slates_module, "get_slate_players", get_slate_players)
+
+    def pool(slate_id):
+        return asyncio.run(game_detail._for_slate(wd, 2026, 11, slate_id)).players
+    assert pool("showdown_mon_night") is showdown_pool
+    assert pool(None) is classic_pool and pool("classic") is classic_pool and pool("classic_sunday") is classic_pool
+    assert pool("showdown_empty") is classic_pool and pool("nope") is classic_pool
+
+    async def boom(season, week, slate_id):
+        raise RuntimeError("DraftKings is down")
+    monkeypatch.setattr(game_detail.slates_module, "get_slate_players", boom)
+    assert pool("showdown_mon_night") is classic_pool                      # a failure falls back to the Classic pool
