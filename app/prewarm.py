@@ -20,7 +20,7 @@ import logging
 import time
 
 log = logging.getLogger("dfsriches.prewarm")
-SLATES = ("classic_sunday", "classic_afternoon", "classic")
+SLATES = ("classic_sunday", "classic_afternoon", "classic_thursday", "classic")
 
 
 async def warm(dfs: bool = False) -> dict:

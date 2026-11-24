@@ -106,6 +106,28 @@ async def list_slates(season: int, week: int) -> tuple[WeekSchedule, list[Slate]
             )
         )
 
+    thursday = discovery.get("classic_thursday")
+    if thursday:
+        t_first, t_last = thursday.get("first_kickoff"), thursday.get("last_kickoff")
+        thursday_games = [
+            g for g in schedule.games
+            if g.day_part in dk_client.THURSDAY_DAY_PARTS
+            and (t_first is None or g.kickoff_utc >= datetime.fromisoformat(t_first))
+            and (t_last is None or g.kickoff_utc <= datetime.fromisoformat(t_last))
+        ]
+        slates.append(
+            Slate(
+                slate_id="classic_thursday",
+                label=thursday["label"],
+                slate_type="classic",
+                day_part=None,
+                draft_group_id=thursday["draft_group_id"],
+                games=thursday_games,
+                available=thursday["draft_group_id"] is not None,
+                source=thursday["source"],
+            )
+        )
+
     classic = discovery["classic"]
     slates.append(
         Slate(

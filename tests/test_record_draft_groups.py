@@ -61,3 +61,13 @@ def test_records_the_sunday_main_slate_with_its_kickoff_window():
     report = merge_discovery(overrides, 2026, 3, {"classic_sunday": sunday, "classic": None, "showdown": {}}, lambda g, t: True)
     assert overrides["2026"]["3"]["classic_sunday"] == {k: v for k, v in sunday.items() if k != "source"}
     assert report[0] == "classic_sunday: recorded 153769"
+
+
+def test_records_the_thanksgiving_slate_and_skips_it_on_weeks_without_one():
+    thu = {**_live(156932, "Classic - Thanksgiving (3 games)"), "first_kickoff": "2026-11-26T18:00:00+00:00", "last_kickoff": "2026-11-27T01:20:00+00:00"}
+    overrides = {}
+    report = merge_discovery(overrides, 2026, 12, {"classic": _live(157063, "C"), "classic_thursday": thu, "showdown": {}}, lambda g, t: True)
+    assert overrides["2026"]["12"]["classic_thursday"]["draft_group_id"] == 156932
+    assert "classic_thursday: recorded 156932" in report
+    quiet = merge_discovery({}, 2026, 5, {"classic": _live(1, "C"), "showdown": {}}, lambda g, t: True)
+    assert not any(line.startswith("classic_thursday") for line in quiet)
