@@ -16,7 +16,7 @@ from datetime import datetime
 from app import outside_sources, team_changes, ceiling, ceiling_model, dk_client, dst_model, game_model, injury_news, kicker_model, matching, news_overrides, player_model, nflverse_client, player_games, projections, roles, sleeper_client, vacated, weather
 from app import cache
 from app.cache import memoize_async
-from app.config import TTL_PLAYERS
+from app.config import STALE_SLATE_SECONDS, STALE_WEEK_SECONDS, TTL_PLAYERS
 from app.models import Player, Slate, SlatePlayers, WeekSchedule
 from app.schedule import get_week_schedule
 
@@ -56,7 +56,7 @@ async def _assign_roles(players: list[Player], season: int, week: int) -> None:
         p.team_share = shares.get((nflverse_client.player_key(p.name, p.position), p.team)) if p.position in roles.SKILL else None
 
 
-@memoize_async(30)  # just long enough to cover one page load's schedule+slates+players calls
+@memoize_async(30, stale_seconds=STALE_WEEK_SECONDS)  # just long enough to cover one page load's schedule+slates+players calls
 async def list_slates(season: int, week: int) -> tuple[WeekSchedule, list[Slate]]:
     schedule = await get_week_schedule(season, week)
     discovery = await dk_client.discover_draft_groups(schedule)
@@ -184,7 +184,7 @@ def _recent_points(ctx, name: str, position: str, season: int, week: int) -> lis
     return [e[2] for e in sorted(entries) if (e[0], e[1]) < (season, week) and e[1] <= 18][-ceiling_model.HISTORY_GAMES:]
 
 
-@memoize_async(60)
+@memoize_async(60, stale_seconds=STALE_SLATE_SECONDS)
 async def get_slate_players(season: int, week: int, slate_id: str) -> SlatePlayers:
     _schedule, slates = await list_slates(season, week)
     slate = next((s for s in slates if s.slate_id == slate_id), None)

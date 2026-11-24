@@ -43,7 +43,7 @@ jobs:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}      # backup: used only when the site's own pull failed
-      ODDS_TRIGGER_SECRET: ${{ secrets.ODDS_TRIGGER_SECRET }}   # matches the server's; unset = open trigger
+      ODDS_TRIGGER_SECRET: ${{ secrets.ODDS_TRIGGER_SECRET }}   # must match the server's; required on Render (unset there = trigger closed)
       OPENROUTER_MODELS: ${{ vars.OPENROUTER_MODELS }}
       BIG_PICTURE_USE_HF: ${{ vars.BIG_PICTURE_USE_HF }}
       BIG_PICTURE_MODEL: ${{ vars.BIG_PICTURE_MODEL }}

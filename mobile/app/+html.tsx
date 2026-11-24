@@ -1,4 +1,4 @@
-import { ScrollViewStyleReset } from 'expo-router/html';
+import { ScrollViewStyleReset, useServerDocumentContext } from 'expo-router/html';
 import { Asset } from 'expo-asset';
 import type { PropsWithChildren } from 'react';
 
@@ -38,10 +38,13 @@ const CLERK_ORIGIN = (() => {
   }
 })();
 
-/** The web build's HTML shell (static rendering): title, description and theme color. */
+/** The web build's HTML shell (static rendering): title, description and theme color.
+ * Since SDK 58 the app's scripts and styles reach the page only through useServerDocumentContext's
+ * headNodes/bodyNodes: leaving them out exports pages that never load the app. */
 export default function Root({ children }: PropsWithChildren) {
+  const { htmlAttributes, bodyAttributes, headNodes, bodyNodes } = useServerDocumentContext();
   return (
-    <html lang="en">
+    <html lang="en" {...htmlAttributes}>
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -53,8 +56,12 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="theme-color" content="#0C0C0D" media="(prefers-color-scheme: dark)" />
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: CSS + FONT_FACES }} />
+        {headNodes}
       </head>
-      <body>{children}</body>
+      <body {...bodyAttributes}>
+        {children}
+        {bodyNodes}
+      </body>
     </html>
   );
 }

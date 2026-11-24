@@ -135,6 +135,25 @@ async def test_memoize_async_serves_stale_results_while_refreshing(monkeypatch):
 
 
 @pytest.mark.anyio
+async def test_memoize_async_refresh_waits_for_a_fresh_build(monkeypatch):
+    now = [1000.0]
+    monkeypatch.setattr(cache.time, "time", lambda: now[0])
+    calls = []
+
+    @cache.memoize_async(10, stale_seconds=100)
+    async def compute(x):
+        calls.append(x)
+        await asyncio.sleep(0.01)
+        return len(calls)
+
+    assert await compute.refresh(1) == 1           # nothing cached: builds
+    assert await compute.refresh(1) == 1           # within the TTL: the cached value, no rebuild
+    now[0] += 50                                   # stale: refresh waits for the rebuild instead of the old copy
+    assert await compute.refresh(1) == 2
+    assert await compute(1) == 2 and calls == [1, 1]
+
+
+@pytest.mark.anyio
 async def test_a_failed_refresh_serving_old_data_is_reported(tmp_path, monkeypatch):
     monkeypatch.setattr(cache, "CACHE_DIR", tmp_path)
     cache._memory.clear()

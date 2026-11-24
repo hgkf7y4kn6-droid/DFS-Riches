@@ -48,6 +48,12 @@ DEFAULT_SEASON = 2026
 DEFAULT_WEEK = 1
 
 # Cache time-to-live, in seconds.
+# Stale while revalidate (app.cache.memoize_async stale_seconds): how long past its TTL a built result may still be
+# served at once while a fresh one builds in the background. Without it, a visit more than a minute after the last
+# one waited 10-40 s for the whole slate to rebuild on Render's 0.5 CPU instance. The server's warmer (app.main)
+# rebuilds the current week's slates every WARM_EVERY_SECONDS, so what's served is rarely older than that.
+STALE_WEEK_SECONDS = 60 * 10        # schedule and slate list: carry kickoff status and live scores, so kept short
+STALE_SLATE_SECONDS = 60 * 60       # player tables, optimal lineups, ownership and leverage
 TTL_PLAYERS = 60 * 60 * 12       # Sleeper's full player dict rarely changes intra-day
 TTL_PROJECTIONS = 60 * 15        # weekly projections can move
 TTL_SCHEDULE = 60 * 30           # kickoff times/broadcasters

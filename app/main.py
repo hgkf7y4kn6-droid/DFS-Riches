@@ -45,7 +45,7 @@ from app import optimal as optimal_module
 from app import slates
 from app import team_units
 from app.cache import memoize_async
-from app.config import BASE_DIR, DEFAULT_SEASON, DEFAULT_WEEK
+from app.config import BASE_DIR, DEFAULT_SEASON, DEFAULT_WEEK, STALE_SLATE_SECONDS
 from app.models import GameDetail, SlatePlayers, WeekBreakdown, WeekData, WeekSchedule
 from app import sleeper_client
 from app.sleeper_client import get_nfl_state
@@ -131,6 +131,27 @@ async def _warm_current_slates() -> None:
         log.info("model warm-up done for %s week %s", season, week)
     except Exception as exc:
         log.warning("model warm-up failed: %s", exc)
+    await _keep_warm()
+
+
+async def _keep_warm() -> None:
+    """Rebuild the current week's slates and default DFS model every WARM_EVERY_SECONDS (default 15 min; 0 turns
+    it off), one at a time, so the stale-while-revalidate copies visitors are served (config.STALE_*) stay recent
+    and nobody waits on a cold build after a quiet spell."""
+    from app import prewarm
+
+    try:
+        every = float(os.environ.get("WARM_EVERY_SECONDS", "900"))
+    except ValueError:
+        every = 900.0
+    while every > 0:
+        await asyncio.sleep(every)
+        try:
+            await prewarm.warm(refresh=True)
+            season, week = await current_season_week()
+            await _dfs_model.refresh(season, week, None, "gpp", None, _model_version())
+        except Exception as exc:       # best effort: try again next round
+            log.warning("keep-warm failed: %s", exc)
 
 
 # Sign-in (Clerk production) only works on the site's own domain, so pages opened on
@@ -200,7 +221,11 @@ def _open_api(request: Request) -> bool:
     if not (request.url.path in OPEN_API_PATHS and request.query_params.get("summary", "").lower() in ("1", "true")):
         return False
     secret = os.environ.get("ODDS_TRIGGER_SECRET")
-    return not secret or hmac.compare_digest(request.headers.get("x-odds-secret", ""), secret)
+    if not secret:
+        # Open only on a developer's machine. On Render (which sets RENDER) a missing secret
+        # closes the trigger instead of leaving it open to anyone.
+        return not os.environ.get("RENDER")
+    return hmac.compare_digest(request.headers.get("x-odds-secret", ""), secret)
 
 
 def sign_in_required() -> bool:
@@ -273,12 +298,15 @@ async def _security_headers(request: Request, call_next):
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 # The mobile app (mobile/) reads the JSON API with the user's session token (Bearer, no cookies). Native apps
-# send no Origin, so CORS only matters for browsers: the site's own hosts, Render's, local development, and
+# send no Origin, so CORS only matters for browsers: the site's own hosts, this service's Render address
+# (RENDER_EXTERNAL_URL, which Render sets; dfs-riches.onrender.com otherwise), local development, and
 # anything listed in CORS_ORIGINS (comma-separated).
-CORS_ORIGINS = [f"https://{CANONICAL_HOST}", *(f"https://{h}" for h in sorted(ALIAS_HOSTS)),
+# Only this service's own Render address is allowed, never any *.onrender.com site: anyone can host one.
+RENDER_ORIGIN = (os.environ.get("RENDER_EXTERNAL_URL") or "https://dfs-riches.onrender.com").rstrip("/")
+CORS_ORIGINS = [f"https://{CANONICAL_HOST}", *(f"https://{h}" for h in sorted(ALIAS_HOSTS)), RENDER_ORIGIN,
                 *(o.strip().rstrip("/") for o in os.environ.get("CORS_ORIGINS", "").split(",") if o.strip())]
 app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS,
-                   allow_origin_regex=r"https://[a-z0-9-]+\.onrender\.com|http://(localhost|127\.0\.0\.1)(:\d+)?",
+                   allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
                    allow_methods=["GET", "PUT", "POST", "DELETE"], allow_headers=["Authorization", "Content-Type"])
 # Outermost: per-client rate limits and body-size caps on /api/ (app.guard).
 app.add_middleware(guard.GuardMiddleware)
@@ -466,7 +494,7 @@ async def api_track_record():
     return {"slates": optimal_module.track_record()}
 
 
-@memoize_async(ttl_seconds=60)
+@memoize_async(ttl_seconds=60, stale_seconds=STALE_SLATE_SECONDS)
 async def _optimal(season: int, week: int, slate_id: str) -> dict:
     return await optimal_module.get_optimal(season, week, slate_id)
 
@@ -842,7 +870,7 @@ def _check_contest(contest: str) -> str:
     return contest
 
 
-@memoize_async(ttl_seconds=120)
+@memoize_async(ttl_seconds=120, stale_seconds=STALE_SLATE_SECONDS)
 async def _slate_ownership(season: int, week: int, slate_id: str, version: tuple) -> dict:
     """Posterior ownership for one slate's players, by DraftKings id. Runs the
     DFS Model (memoized) so both pages show the same numbers: Classic slates
@@ -868,7 +896,7 @@ async def _slate_ownership(season: int, week: int, slate_id: str, version: tuple
     return {"available": True, "players": {str(k): v for k, v in players.items()}, "note": note}
 
 
-@memoize_async(ttl_seconds=120)
+@memoize_async(ttl_seconds=120, stale_seconds=STALE_SLATE_SECONDS)
 async def _slate_leverage(season: int, week: int, slate_id: str, version: tuple) -> dict:
     """Leverage for one slate's players by DraftKings id: Classic slates the large-field GPP leverage, Showdown slates
     Captain and Flex leverage on their own ids (app.slate_leverage)."""

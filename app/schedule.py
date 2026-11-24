@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 
 from app import nflverse_client, sleeper_client, weather
 from app.cache import memoize_async
-from app.config import ET, MAIN_SLATE_DAY_PARTS
+from app.config import ET, MAIN_SLATE_DAY_PARTS, STALE_WEEK_SECONDS
 from app.game_context import attach_game_context
 from app.models import Game, WeekSchedule
 
@@ -64,7 +64,7 @@ def mark_isolated_games(games: list[Game]) -> list[Game]:
     return games
 
 
-@memoize_async(60)
+@memoize_async(60, stale_seconds=STALE_WEEK_SECONDS)
 async def get_week_schedule(season: int, week: int, season_type: str = "regular") -> WeekSchedule:
     raw_games = await sleeper_client.get_week_games(season, week, season_type)
 
