@@ -7,6 +7,8 @@ import { formatGameDetails, formatStatusLabel } from '@/lib/utils';
 interface Props extends UpcomingGame {
   /** Stretch to the screen width (vertical lists) instead of a fixed-width card (horizontal lists). */
   fullWidth?: boolean;
+  /** The slate these games are listed on (Lineups): a Showdown slate prices the breakdown's DFS targets at its own salaries. */
+  slateId?: string | null;
 }
 
 /**
@@ -31,6 +33,7 @@ export default function UpcomingGamesCard({
   opponentIcon,
   islandLabel,
   fullWidth = false,
+  slateId,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const { width } = useWindowDimensions();
@@ -74,7 +77,7 @@ export default function UpcomingGamesCard({
         <Text className="upcoming-game-lines">{status === 'upcoming' || !score ? lines : score}</Text>
         <Text className="upcoming-expand-hint">{expanded ? 'Hide breakdown ▲' : 'Tap for game breakdown ▼'}</Text>
       </View>
-      {expanded ? <GameDetailPanel gameId={id} /> : null}
+      {expanded ? <GameDetailPanel gameId={id} slateId={slateId} /> : null}
     </Pressable>
   );
 }

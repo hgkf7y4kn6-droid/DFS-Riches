@@ -5,10 +5,11 @@ note is generated here from the real numbers, like the card takeaways.
 """
 from __future__ import annotations
 
+import dataclasses
 import statistics
 
 from app import nflverse_client as nc
-from app import advanced_env, team_units, trenches
+from app import advanced_env, slates as slates_module, targets, team_units, trenches
 from app.breakdown import WeekData, game_breakdown, load_week
 from app.models import Game, GameDetail, LeagueContext, PositionMatchup, TeamStatLine, UsageShare
 
@@ -239,8 +240,26 @@ def trench_section(tw: dict | None, game: Game) -> dict | None:
     }
 
 
-async def build_game_detail(season: int, week: int, game_id: str) -> GameDetail:
-    wd = await load_week(season, week)
+async def _for_slate(wd: WeekData, season: int, week: int, slate_id: str | None) -> WeekData:
+    """The week's data with the player pool of a Showdown slate (its Flex and Captain salaries and projections) in place of
+    the Classic pool the breakdown is built on; Classic slates and anything that can't be loaded keep the Classic pool."""
+    if not slate_id or slate_id.startswith("classic"):
+        return wd
+    try:
+        _schedule, slate_list = await slates_module.list_slates(season, week)
+        slate = next((s for s in slate_list if s.slate_id == slate_id), None)
+        if slate is None or slate.slate_type != "showdown" or not slate.available:
+            return wd
+        players = (await slates_module.get_slate_players(season, week, slate_id)).players
+    except Exception:
+        return wd
+    return dataclasses.replace(wd, players=players, dst_rank=targets.dst_ceiling_ranks(players, wd.ceiling_ctx))
+
+
+async def build_game_detail(season: int, week: int, game_id: str, slate_id: str | None = None) -> GameDetail:
+    """slate_id: the slate the game is shown on; a Showdown slate's own salaries (Flex, with the Captain price) and projections
+    replace the Classic ones in the DFS targets."""
+    wd = await _for_slate(await load_week(season, week), season, week, slate_id)
     game = next((g for g in wd.schedule.games if g.game_id == game_id), None)
     if game is None:
         raise ValueError(f"Unknown game_id: {game_id}")

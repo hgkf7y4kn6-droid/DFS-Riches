@@ -64,8 +64,7 @@ function Bullets({ items }: { items: string[] }) {
   );
 }
 
-function Targets({ team, players }: { team: string; players: TopPlayer[] }) {
-  const { slateId } = useDfsModel();      // a game isn't on one slate: the DFS tabs' Classic slate
+function Targets({ team, players, slateId }: { team: string; players: TopPlayer[]; slateId?: string | null }) {
   if (!players.length) return null;
   return (
     <View className="mt-2">
@@ -77,7 +76,10 @@ function Targets({ team, players }: { team: string; players: TopPlayer[] }) {
               {p.name}
               <LeverageBadge inline player={{ name: p.name, team, slateId }} /> <Text className="detail-target-meta">{p.position} · {p.role}</Text>
             </Text>
-            <Text className="detail-target-meta">{formatCurrency(p.salary)}</Text>
+            <Text className="detail-target-meta">
+              {formatCurrency(p.salary)}
+              {p.cpt_salary ? ` · ${formatCurrency(p.cpt_salary)} CPT` : ''}
+            </Text>
           </View>
           <Text className="detail-target-meta">
             {p.proj_points != null ? `${p.proj_points.toFixed(1)} proj` : ''}
@@ -101,9 +103,11 @@ function Targets({ team, players }: { team: string; players: TopPlayer[] }) {
  * pass/run tendencies, where to attack by position, who gets the ball, and
  * DFS targets.
  */
-export default function GameDetailPanel({ gameId }: { gameId: string }) {
-  const { detail, error } = useGameDetail(gameId);
-  const { slateId: dfsSlateId } = useDfsModel();      // a game isn't on one slate: the DFS tabs' Classic slate
+export default function GameDetailPanel({ gameId, slateId }: { gameId: string; slateId?: string | null }) {
+  const { detail, error } = useGameDetail(gameId, slateId);
+  // On a Showdown slate its own prices, projections and leverage; otherwise (a game isn't on one slate) the DFS tabs' Classic slate.
+  const { slateId: dfsSlate } = useDfsModel();
+  const dfsSlateId = slateId ?? dfsSlate;
 
   if (!detail) return <StatusView loading={!error} error={error} />;
 
@@ -274,8 +278,8 @@ export default function GameDetailPanel({ gameId }: { gameId: string }) {
       </Section>
 
       <Section title="DFS targets">
-        <Targets team={g.away} players={gb.away_top_players} />
-        <Targets team={g.home} players={gb.home_top_players} />
+        <Targets team={g.away} players={gb.away_top_players} slateId={dfsSlateId} />
+        <Targets team={g.home} players={gb.home_top_players} slateId={dfsSlateId} />
       </Section>
 
       {gb.takeaways.length ? (

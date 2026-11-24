@@ -144,9 +144,10 @@ export function getOptimal(season: number, week: number, slateId: string) {
   return getJson<OptimalResponse>(`/api/slates/${encodeURIComponent(slateId)}/optimal?${q(season, week)}`);
 }
 
-/** One game's Weekly Breakdown: lines, team profiles, matchups, usage, DFS targets, postgame. */
-export function getGameDetail(season: number, week: number, gameId: string) {
-  return getJson<GameDetail>(`/api/breakdown/game/${encodeURIComponent(gameId)}?${q(season, week)}`);
+/** One game's Weekly Breakdown: lines, team profiles, matchups, usage, DFS targets, postgame. `slateId`: a Showdown slate prices the targets at its own Flex / Captain salaries. */
+export function getGameDetail(season: number, week: number, gameId: string, slateId?: string | null) {
+  const slate = slateId ? `&slate_id=${encodeURIComponent(slateId)}` : '';
+  return getJson<GameDetail>(`/api/breakdown/game/${encodeURIComponent(gameId)}?${q(season, week)}${slate}`);
 }
 
 /** The recap of one finished week: each game's signal vs noise audit and the teams it flags. */

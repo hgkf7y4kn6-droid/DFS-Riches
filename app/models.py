@@ -188,6 +188,7 @@ class TopPlayer(BaseModel):
     proj_points: float | None = None
     role: str = "Core"                 # "Core" or "Value"
     usage_l3: float | None = None      # share of team targets + carries, last 3 games
+    cpt_salary: int | None = None      # Showdown slates: his Captain price (salary is his Flex price)
     reasons: list[str] = []
 
 

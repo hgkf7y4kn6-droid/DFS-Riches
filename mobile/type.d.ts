@@ -475,6 +475,8 @@ interface TopPlayer {
   proj_points: number | null;
   role: 'Core' | 'Value' | string;
   usage_l3: number | null;
+  /** Showdown slates: his Captain price (`salary` is his Flex price). */
+  cpt_salary?: number | null;
   reasons: string[];
 }
 

@@ -501,9 +501,9 @@ async def api_recap(season: Annotated[int | None, Query(ge=2000, le=2100)] = Non
 
 
 @app.get("/api/breakdown/game/{game_id}", response_model=GameDetail)
-async def api_game_detail(game_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK):
+async def api_game_detail(game_id: str, season: Season = DEFAULT_SEASON, week: Week = DEFAULT_WEEK, slate_id: str | None = None):
     try:
-        return await game_detail_module.build_game_detail(season, week, game_id)
+        return await game_detail_module.build_game_detail(season, week, game_id, slate_id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
