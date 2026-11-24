@@ -27,6 +27,7 @@ Writes are last-write-wins per key by the client's `updated_at`.
 """
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
 import os
@@ -425,6 +426,23 @@ async def delete_account(user_id: str) -> dict:
     return out
 
 
+_PROFILE_TASKS: set[asyncio.Task] = set()     # strong references, so a running update isn't garbage collected
+
+
+def _background(coro) -> None:
+    task = asyncio.ensure_future(coro)
+    _PROFILE_TASKS.add(task)
+    task.add_done_callback(_PROFILE_TASKS.discard)
+
+
+async def _update_profile(user_id: str, master: bool) -> None:
+    try:
+        docs = await _db_load(user_id)
+        await _meta_write(user_id, None, _profile(docs, master))
+    except Exception:
+        pass
+
+
 async def save(user_id: str, key: str, value: Any, updated_at: str | None) -> dict:
     master = await is_master(user_id)
     validate(key, value, master)
@@ -433,11 +451,9 @@ async def save(user_id: str, key: str, value: Any, updated_at: str | None) -> di
     mode = storage_mode()
     if mode == "neon":
         stored = await _db_save(user_id, key, value, ts)
-        try:   # compact profile on the Clerk account (best effort)
-            docs = await _db_load(user_id)
-            await _meta_write(user_id, None, _profile(docs, master))
-        except Exception:
-            pass
+        # The compact profile on the Clerk account is best effort and nothing in the response depends on it, so it
+        # updates after the reply instead of adding a second database round trip and a Clerk call to every save.
+        _background(_update_profile(user_id, master))
         return stored
     if mode == "clerk":
         docs = await _meta_load(user_id)

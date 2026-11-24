@@ -1,5 +1,5 @@
 # Publishes the phone app's JavaScript as an over-the-air update (EAS Update)
-# on every push that changes mobile/: pushes to the main branch go to the
+# on every push that changes mobile/: pushes to main (or the old deploy branch) go to the
 # "production" channel that installed builds (eas.json's preview and
 # production profiles) listen on; pushes to the "staging" branch go to the
 # "staging" channel, which only test builds (eas.json's staging profile)
@@ -13,7 +13,7 @@ name: EAS Update
 on:
   workflow_dispatch:
   push:
-    branches: [claude/dfsriches-explorer-t1pdh5, staging]
+    branches: [main, claude/dfsriches-explorer-t1pdh5, staging]   # main once Render deploys from it; the old branch until then
     paths: ["mobile/**", ".github/workflows/eas-update.yml"]
 
 permissions:

@@ -150,17 +150,8 @@ def memoize_async(ttl_seconds: float, max_entries: int = 32, stale_seconds: floa
         in_flight: dict[tuple, asyncio.Task] = {}
         name = f"{fn.__module__.removeprefix('app.')}.{fn.__qualname__}"
 
-        @functools.wraps(fn)
-        async def wrapper(*args, **kwargs):
-            key = (args, tuple(sorted(kwargs.items())))
-            now = time.time()
-
-            hit = store.get(key)
-            if hit is not None and now - hit[0] < ttl_seconds:
-                metrics.memo_event(name, True)
-                return hit[1]
-            stale = hit is not None and now - hit[0] < ttl_seconds + stale_seconds
-
+        def compute(key: tuple, args: tuple, kwargs: dict) -> asyncio.Task:
+            """The in-flight computation for this key, started if there isn't one."""
             task = in_flight.get(key)
             if task is None:
 
@@ -183,12 +174,36 @@ def memoize_async(ttl_seconds: float, max_entries: int = 32, stale_seconds: floa
                     if not t.cancelled():
                         t.exception()      # a failed background refresh is retried on the next call
                 task.add_done_callback(done)
+            return task
+
+        @functools.wraps(fn)
+        async def wrapper(*args, **kwargs):
+            key = (args, tuple(sorted(kwargs.items())))
+            now = time.time()
+
+            hit = store.get(key)
+            if hit is not None and now - hit[0] < ttl_seconds:
+                metrics.memo_event(name, True)
+                return hit[1]
+            stale = hit is not None and now - hit[0] < ttl_seconds + stale_seconds
+
+            task = compute(key, args, kwargs)
             if stale:
                 metrics.memo_event(name, True)
                 return hit[1]
             return await task
 
+        async def refresh(*args, **kwargs):
+            """Wait for an up-to-date result (rebuilding it if it's past its TTL, even when a stale copy could
+            be served), so a background warmer can rebuild one thing at a time instead of firing them all at once."""
+            key = (args, tuple(sorted(kwargs.items())))
+            hit = store.get(key)
+            if hit is not None and time.time() - hit[0] < ttl_seconds:
+                return hit[1]
+            return await compute(key, args, kwargs)
+
         wrapper.cache_clear = store.clear     # type: ignore[attr-defined]
+        wrapper.refresh = refresh             # type: ignore[attr-defined]
         return wrapper
 
     return decorator

@@ -319,6 +319,7 @@ def test_cors_is_an_allowlist(client):
     assert preflight(f"https://{main.CANONICAL_HOST}").headers["access-control-allow-origin"] == f"https://{main.CANONICAL_HOST}"
     assert preflight("https://dfs-riches.onrender.com").headers["access-control-allow-origin"] == "https://dfs-riches.onrender.com"
     assert "access-control-allow-origin" not in preflight("https://evil.example").headers
+    assert "access-control-allow-origin" not in preflight("https://someone-else.onrender.com").headers
 
 
 def test_sign_in_failures_do_not_leak_the_reason(client, monkeypatch, caplog):
@@ -344,7 +345,10 @@ def test_odds_trigger_needs_the_secret_when_one_is_set(client, monkeypatch):
     assert client.get("/api/odds?summary=1").status_code == 401
     assert client.get("/api/odds?summary=1", headers={"x-odds-secret": "nope"}).status_code == 401
     monkeypatch.delenv("ODDS_TRIGGER_SECRET")
-    assert client.get("/api/odds?summary=1").status_code != 401                  # unset: open, as before
+    monkeypatch.delenv("RENDER", raising=False)
+    assert client.get("/api/odds?summary=1").status_code != 401                  # unset, local machine: open
+    monkeypatch.setenv("RENDER", "true")
+    assert client.get("/api/odds?summary=1").status_code == 401                  # unset on Render: closed
 
 
 def test_video_upload_rejects_non_media(client, monkeypatch):

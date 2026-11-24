@@ -23,7 +23,9 @@ log = logging.getLogger("dfsriches.prewarm")
 SLATES = ("classic_sunday", "classic_afternoon", "classic_thursday", "classic")
 
 
-async def warm(dfs: bool = False) -> dict:
+async def warm(dfs: bool = False, refresh: bool = False) -> dict:
+    """refresh=True (the server's periodic warmer) waits for an up-to-date build of each slate even where a stale
+    copy could be served, so the rebuilds run one after another."""
     from app import dfs_model, slates
     from app.main import current_season_week
 
@@ -33,10 +35,10 @@ async def warm(dfs: bool = False) -> dict:
     for slate_id in SLATES:
         t = time.perf_counter()
         try:
-            _sched, listed = await slates.list_slates(season, week)
+            _sched, listed = await (slates.list_slates.refresh if refresh else slates.list_slates)(season, week)
             if not any(x.slate_id == slate_id and x.available for x in listed):
                 continue                         # e.g. a week with no separate afternoon slate
-            await slates.get_slate_players(season, week, slate_id)
+            await (slates.get_slate_players.refresh if refresh else slates.get_slate_players)(season, week, slate_id)
             done[slate_id] = round(time.perf_counter() - t, 1)
         except Exception as exc:
             log.warning("prewarm %s failed: %s", slate_id, exc)
