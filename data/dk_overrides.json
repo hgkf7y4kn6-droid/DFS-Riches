@@ -365,7 +365,21 @@
         "WED_NIGHT": {
           "draft_group_id": 157072,
           "label": "Showdown - Wed Night (GB @ LAR)"
+        },
+        "MON_NIGHT": {
+          "draft_group_id": 157087,
+          "label": "Showdown - Mon Night (CAR @ TB)"
+        },
+        "SUN_NIGHT": {
+          "draft_group_id": 157086,
+          "label": "Showdown - Sun Night (LV @ CLE)"
         }
+      },
+      "classic_afternoon": {
+        "draft_group_id": 157535,
+        "label": "Classic - Sunday Afternoon Only (3 games)",
+        "first_kickoff": "2026-11-29T21:05:00+00:00",
+        "last_kickoff": "2026-11-29T21:25:00+00:00"
       }
     }
   }
