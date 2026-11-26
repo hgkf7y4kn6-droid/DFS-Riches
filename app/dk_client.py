@@ -306,11 +306,16 @@ async def discover_draft_groups(schedule: WeekSchedule) -> dict[str, Any]:
         if live is None or (ov_first and live_first and live_first > ov_first):
             result["classic_sunday"] = {**ov, "source": "override"}
 
-    if result["classic_afternoon"] is None and "classic_afternoon" in season_overrides and len(late_games) > 1:
-        result["classic_afternoon"] = {**season_overrides["classic_afternoon"], "source": "override"}
-
-    if result["classic_thursday"] is None and "classic_thursday" in season_overrides and len(thursday_games) > 1:
-        result["classic_thursday"] = {**season_overrides["classic_thursday"], "source": "override"}
+    # The same goes for the Afternoon and Thursday (Thanksgiving) slates: once their first game kicks off, DraftKings drops the
+    # group from the lobby and a later, smaller subset (e.g. Thanksgiving's 2-game afternoon group) becomes the "largest live" one,
+    # so the recorded group wins when nothing is live or when the live pick starts after the recorded one's first kickoff.
+    for key, games_in_window in (("classic_afternoon", late_games), ("classic_thursday", thursday_games)):
+        if key in season_overrides and len(games_in_window) > 1:
+            ov, live = season_overrides[key], result[key]
+            ov_first = _iso(ov.get("first_kickoff"))
+            live_first = _iso(live.get("first_kickoff")) if live else None
+            if live is None or (ov_first and live_first and live_first > ov_first):
+                result[key] = {**ov, "source": "override"}
 
     for game in schedule.isolated_games:
         if game.day_part in result["showdown"]:

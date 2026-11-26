@@ -77,3 +77,40 @@ async def test_the_thanksgiving_slate_is_listed_with_only_its_games_and_the_reco
     assert thu.slate_type == "classic" and thu.available and thu.draft_group_id == 1
     assert [g.game_id for g in thu.games] == ["g0", "g1", "g2"]                   # not the Sunday games
     assert len(next(s for s in listed if s.slate_id == "classic_sunday").games) == 2
+
+
+async def test_the_recorded_thanksgiving_group_wins_once_its_first_game_kicks_off(monkeypatch):
+    """After CHI@DET kicks off DraftKings drops the 3-game group and the 2-game afternoon group is the largest live one; the
+    recorded 3-game group (and its kickoff window) must keep the slate."""
+    sched = _schedule()
+    afternoon = _group(2, LATE, NIGHT, 2)
+    recorded = {"draft_group_id": 1, "label": "Classic - Thanksgiving (3 games)", "first_kickoff": EARLY.isoformat(), "last_kickoff": NIGHT.isoformat()}
+
+    async def fetch():
+        return [afternoon]
+    monkeypatch.setattr(dk_client, "_fetch_all_nfl_draft_groups", fetch)
+    monkeypatch.setattr(dk_client, "_load_overrides", lambda: {"2026": {"12": {"classic_thursday": recorded}}})
+    found = (await dk_client.discover_draft_groups(sched))["classic_thursday"]
+    assert found["draft_group_id"] == 1 and found["source"] == "override"
+    assert found["first_kickoff"] == EARLY.isoformat()          # all three games stay in the slate
+
+    # a live group that starts no later than the recorded one still wins (a re-posted or wider group)
+    wider = _group(3, EARLY, NIGHT, 3)
+
+    async def fetch_wider():
+        return [wider, afternoon]
+    monkeypatch.setattr(dk_client, "_fetch_all_nfl_draft_groups", fetch_wider)
+    live = (await dk_client.discover_draft_groups(sched))["classic_thursday"]
+    assert live["draft_group_id"] == 3 and live["source"] == "live"
+
+
+async def test_the_recorder_does_not_overwrite_a_recorded_slate_with_a_later_subset():
+    from scripts.record_draft_groups import merge_discovery
+    existing = {"draft_group_id": 156932, "label": "Classic - Thanksgiving (3 games)", "first_kickoff": "2026-11-26T18:00:00+00:00"}
+    overrides = {"2026": {"12": {"classic_thursday": existing}}}
+    # discovery marks the recorded group as an override once it falls out of the lobby, so nothing is re-recorded
+    discovery = {"classic": {"draft_group_id": 1, "label": "C", "source": "live"},
+                 "classic_thursday": {**existing, "source": "override"}, "showdown": {}}
+    report = merge_discovery(overrides, 2026, 12, discovery, lambda g, t: True)
+    assert overrides["2026"]["12"]["classic_thursday"]["draft_group_id"] == 156932
+    assert any(line.startswith("classic_thursday: not in DraftKings' live listing (kept 156932)") for line in report)
